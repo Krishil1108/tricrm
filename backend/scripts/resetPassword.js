@@ -19,7 +19,7 @@ const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 // Connect to MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mern-app';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tricrm';
 
 async function resetPassword(username, newPassword) {
   try {

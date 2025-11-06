@@ -83,7 +83,7 @@ app.use((req, res, next) => {
 });
 
 // MongoDB connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mern-app';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tricrm';
 
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,

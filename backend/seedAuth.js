@@ -3,7 +3,7 @@ const User = require('./models/User');
 const Role = require('./models/Role');
 require('dotenv').config();
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mern-app';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tricrm';
 
 // Seed admin role and admin user
 async function seedAdminData() {
