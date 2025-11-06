@@ -1,0 +1,68 @@
+.hamburger {
+  position: absolute;
+  top: 25px;
+  left: 15px; /* Position at sparkle icon location */
+  z-index: 1001;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  border-radius: 6px;
+}
+
+.hamburger:hover {
+  background: #e8ebf0;
+}
+
+.hamburger-line {
+  width: 18px;
+  height: 2px;
+  background-color: #4a5568;
+  margin: 2px 0;
+  transition: 0.3s ease;
+  transform-origin: center;
+  border-radius: 1px;
+}
+
+/* Animation when sidebar is expanded */
+.hamburger.open .hamburger-line:nth-child(1) {
+  transform: rotate(45deg) translate(4px, 4px);
+}
+
+.hamburger.open .hamburger-line:nth-child(2) {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.hamburger.open .hamburger-line:nth-child(3) {
+  transform: rotate(-45deg) translate(4px, -4px);
+}
+
+/* Remove dynamic positioning - now stays at sparkle location */
+.hamburger.collapsed-position,
+.hamburger.expanded-position {
+  left: 15px; /* Always at sparkle icon location */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .hamburger {
+    left: 12px;
+  }
+}
+
+/* Dark Mode Support for Hamburger Menu */
+[data-theme="dark"] .hamburger:hover {
+  background: var(--hover-bg);
+}
+
+[data-theme="dark"] .hamburger-line {
+  background-color: var(--text-primary);
+}

@@ -1,0 +1,587 @@
+.role-management-page {
+  padding: 30px 40px;
+  width: 100%;
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+
+.role-management-page .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.role-management-page .page-header h1 {
+  color: #2c3e50;
+  font-size: 32px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.roles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  max-width: 1600px;
+}
+
+.role-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
+  position: relative;
+  overflow: hidden;
+}
+
+.role-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #667eea;
+}
+
+.role-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.role-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.role-card-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.system-badge {
+  background: #ffc107;
+  color: #000;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.role-description {
+  color: #6c757d;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  min-height: 45px;
+}
+
+.role-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* Button Styles */
+.role-management-page .btn-primary,
+.role-management-page .btn-secondary,
+.role-management-page .btn-edit,
+.role-management-page .btn-danger {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.role-management-page .btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.role-management-page .btn-primary:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #653a8a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.5);
+}
+
+.role-management-page .btn-secondary {
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+  color: white;
+}
+
+.role-management-page .btn-secondary:hover {
+  background: linear-gradient(135deg, #5a6268 0%, #4e555b 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(108, 117, 125, 0.5);
+}
+
+.role-management-page .btn-edit {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+}
+
+.role-management-page .btn-edit:hover {
+  background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(23, 162, 184, 0.5);
+}
+
+.role-management-page .btn-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+}
+
+.role-management-page .btn-danger:hover {
+  background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(220, 53, 69, 0.5);
+}
+
+/* Button active state */
+.role-management-page .btn-primary:active,
+.role-management-page .btn-secondary:active,
+.role-management-page .btn-edit:active,
+.role-management-page .btn-danger:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Shimmer effect on hover */
+.role-management-page .btn-primary::before,
+.role-management-page .btn-secondary::before,
+.role-management-page .btn-edit::before,
+.role-management-page .btn-danger::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.role-management-page .btn-primary:hover::before,
+.role-management-page .btn-secondary:hover::before,
+.role-management-page .btn-edit:hover::before,
+.role-management-page .btn-danger:hover::before {
+  left: 100%;
+}
+
+.role-management-page .modal-large {
+  max-width: 900px;
+}
+
+.permissions-section {
+  margin-top: 20px;
+}
+
+.permissions-section > h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #333;
+  border-bottom: 2px solid #dee2e6;
+  padding-bottom: 10px;
+}
+
+.permissions-help-text {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+  background-color: #e8f4f8;
+  padding: 12px;
+  border-radius: 6px;
+  border-left: 4px solid #667eea;
+}
+
+.permission-group {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 18px;
+  margin-bottom: 18px;
+  border: 1px solid #e0e0e0;
+}
+
+.permission-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.group-title-section {
+  flex: 1;
+}
+
+.permission-group-header h4 {
+  margin: 0 0 5px 0;
+  font-size: 16px;
+  color: #333;
+  font-weight: 600;
+}
+
+.group-description {
+  margin: 0;
+  font-size: 13px;
+  color: #777;
+  font-style: italic;
+}
+
+.role-management-page .btn-select-all {
+  background-color: #e0e0e0;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.role-management-page .btn-select-all:hover {
+  background-color: #d0d0d0;
+}
+
+/* Scope all permission checkbox styles to role-management-page only */
+.role-management-page .permission-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.role-management-page .checkbox-label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #555;
+  padding: 12px 14px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  position: relative;
+}
+
+.role-management-page .checkbox-label:hover {
+  background-color: #f0f7ff;
+  border-color: #667eea;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Highlight label when checkbox is checked */
+.role-management-page .checkbox-label:has(input[type="checkbox"]:checked) {
+  background-color: #e8f4f8;
+  border-color: #667eea;
+  border-width: 2px;
+  padding: 11px 13px; /* Compensate for thicker border */
+}
+
+.role-management-page .checkbox-label input[type="checkbox"] {
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  margin: 0;
+  accent-color: #667eea;
+  flex-shrink: 0;
+}
+
+/* Make checked checkbox text bold and colored */
+.role-management-page .checkbox-label:has(input[type="checkbox"]:checked) .permission-label-text {
+  font-weight: 600;
+  color: #667eea;
+}
+
+/* Disabled checkbox styles */
+.role-management-page .checkbox-label.disabled {
+  background-color: #f5f5f5;
+  border-color: #d0d0d0;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.role-management-page .checkbox-label.disabled:hover {
+  background-color: #f5f5f5;
+  border-color: #d0d0d0;
+  transform: none;
+  box-shadow: none;
+}
+
+.role-management-page .checkbox-label.disabled input[type="checkbox"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.role-management-page .checkbox-label.disabled .permission-label-text {
+  color: #999;
+  cursor: not-allowed;
+}
+
+.role-management-page .disabled-indicator {
+  font-size: 14px;
+  margin-left: auto;
+  opacity: 0.7;
+}
+
+.role-management-page .permission-label-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  color: #333;
+  flex: 1;
+}
+
+.role-management-page .permission-icon {
+  font-size: 16px;
+}
+
+.role-management-page .permission-hint {
+  font-size: 11px;
+  color: #888;
+  line-height: 1.3;
+  margin-left: 26px;
+}
+
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Modal Styles */
+.role-management-page .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.role-management-page .modal-content {
+  background: white;
+  border-radius: 12px;
+  min-width: 500px;
+  max-width: 900px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+  position: relative;
+}
+
+.role-management-page .modal-large {
+  max-width: 900px;
+  width: 90vw;
+}
+
+@keyframes slideIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.role-management-page .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 2px solid #e5e7eb;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.role-management-page .modal-header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: white;
+}
+
+.role-management-page .close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  line-height: 1;
+}
+
+.role-management-page .close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.role-management-page .modal-content form {
+  padding: 24px;
+}
+
+.role-management-page .modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 0 0 12px 12px;
+  margin-top: 20px;
+}
+
+/* Message/Alert Styles */
+.message {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 16px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10001;
+  max-width: 400px;
+  animation: slideInRight 0.3s ease-out;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.message-success {
+  background-color: #d1fae5;
+  border-left: 4px solid #10b981;
+  color: #065f46;
+}
+
+.message-error {
+  background-color: #fee2e2;
+  border-left: 4px solid #ef4444;
+  color: #991b1b;
+}
+
+.message-warning {
+  background-color: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  color: #92400e;
+}
+
+@media (max-width: 768px) {
+  .role-management-page {
+    padding: 20px;
+  }
+
+  .role-management-page .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .role-management-page .page-header h1 {
+    font-size: 24px;
+  }
+
+  .roles-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .permission-checkboxes {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-content {
+    min-width: 95vw;
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+  
+  .message {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    max-width: none;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1920px) {
+  .roles-grid {
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    max-width: 1800px;
+  }
+}

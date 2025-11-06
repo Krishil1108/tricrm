@@ -1,0 +1,310 @@
+/* Mode Selector - Page Integrated */
+.mode-selector-fixed {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 50px;
+  padding: 8px 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+/* Theme-based borders */
+.mode-selector-fixed.mode-test {
+  border-color: #4CAF50;
+  background: rgba(232, 245, 232, 0.95);
+}
+
+.mode-selector-fixed.mode-quotation {
+  border-color: #2196F3;
+  background: rgba(227, 242, 253, 0.95);
+}
+
+.mode-selector-fixed.mode-manufacturer {
+  border-color: #8D6E63;
+  background: rgba(245, 240, 235, 0.95);
+}
+
+/* Current mode display */
+.current-mode-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.current-mode-display .mode-icon {
+  font-size: 18px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.current-mode-display .mode-name {
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* Mode toggle button */
+.mode-toggle-btn {
+  background: none;
+  border: none;
+  padding: 6px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+}
+
+.mode-toggle-btn:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.1);
+  transform: rotate(90deg);
+}
+
+.mode-toggle-btn svg {
+  width: 16px;
+  height: 16px;
+  color: #666;
+}
+
+/* Dropdown menu */
+.mode-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  min-width: 280px;
+  border: 1px solid #e0e0e0;
+}
+
+.mode-option {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+  gap: 12px;
+}
+
+.mode-option:hover {
+  background: #f8f9fa;
+}
+
+.mode-option.active {
+  background: rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+}
+
+/* Theme-specific mode option colors */
+.mode-option.mode-test {
+  border-left-color: #4CAF50;
+}
+
+.mode-option.mode-test.active {
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.mode-option.mode-quotation {
+  border-left-color: #2196F3;
+}
+
+.mode-option.mode-quotation.active {
+  background: rgba(33, 150, 243, 0.1);
+}
+
+.mode-option.mode-manufacturer {
+  border-left-color: #8D6E63;
+}
+
+.mode-option.mode-manufacturer.active {
+  background: rgba(141, 110, 99, 0.1);
+}
+
+.mode-option .mode-icon {
+  font-size: 20px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mode-option .mode-info {
+  flex: 1;
+}
+
+.mode-option .mode-name {
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.mode-option .mode-description {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.3;
+}
+
+.active-indicator {
+  color: #4CAF50;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* Overlay */
+.mode-dropdown-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  background: transparent;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .mode-selector-fixed {
+    top: 15px;
+    right: 15px;
+    padding: 6px 12px;
+  }
+  
+  .current-mode-display .mode-name {
+    display: none;
+  }
+  
+  .mode-dropdown-menu {
+    min-width: 250px;
+  }
+}
+
+/* Animation for mode changes */
+.mode-selector-fixed {
+  animation: modeChange 0.4s ease-in-out;
+}
+
+@keyframes modeChange {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+/* Dark Mode Support for Mode Selector */
+[data-theme="dark"] .mode-selector-fixed {
+  background: rgba(30, 32, 37, 0.95);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .mode-selector-fixed.mode-test {
+  background: rgba(25, 40, 25, 0.95);
+  border-color: #4CAF50;
+}
+
+[data-theme="dark"] .mode-selector-fixed.mode-quotation {
+  background: rgba(25, 35, 45, 0.95);
+  border-color: #2196F3;
+}
+
+[data-theme="dark"] .mode-selector-fixed.mode-training {
+  background: rgba(45, 25, 35, 0.95);
+  border-color: #E91E63;
+}
+
+[data-theme="dark"] .mode-selector-fixed.mode-live {
+  background: rgba(45, 35, 25, 0.95);
+  border-color: #FF9800;
+}
+
+[data-theme="dark"] .mode-label {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .mode-selector {
+  background: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .mode-option {
+  background: var(--surface-color);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .mode-option:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .mode-option.active {
+  background: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}
+
+[data-theme="dark"] .mode-option.active.mode-test {
+  background: #4CAF50;
+  border-color: #4CAF50;
+}
+
+[data-theme="dark"] .mode-option.active.mode-quotation {
+  background: #2196F3;
+  border-color: #2196F3;
+}
+
+[data-theme="dark"] .mode-option.active.mode-training {
+  background: #E91E63;
+  border-color: #E91E63;
+}
+
+[data-theme="dark"] .mode-option.active.mode-live {
+  background: #FF9800;
+  border-color: #FF9800;
+}
+
+[data-theme="dark"] .mode-description {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .mode-status-indicator {
+  background: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .status-dot.active {
+  background: #4CAF50;
+}
+
+[data-theme="dark"] .status-dot.inactive {
+  background: var(--text-muted);
+}
+
+[data-theme="dark"] .status-text {
+  color: var(--text-secondary);
+}

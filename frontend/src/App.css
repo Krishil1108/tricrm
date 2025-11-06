@@ -1,0 +1,83 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.App {
+  min-height: 100vh;
+  background-color: #fefefe;
+  position: relative;
+}
+
+.main-content {
+  min-height: 100vh;
+  background: linear-gradient(to bottom left, #fefefe 60%, #f0f9ff 100%);
+  margin-left: 70px; /* Default collapsed sidebar width */
+  transition: margin-left 0.3s ease;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-content.sidebar-expanded {
+  margin-left: 280px; /* Expanded sidebar width */
+}
+
+/* Welcome message for the blank page */
+.welcome-message {
+  text-align: center;
+  color: #666;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.welcome-message h1 {
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+  color: #4a5568;
+  font-weight: 400;
+}
+
+.welcome-message p {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #6b7280;
+}
+
+/* Dark Mode Styles for Main App */
+[data-theme="dark"] .App {
+  background-color: #1a1b23;
+}
+
+[data-theme="dark"] .main-content {
+  background: linear-gradient(to bottom left, #1a1b23 60%, #252730 100%);
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .welcome-message h1 {
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .welcome-message p {
+  color: #a2a8b2;
+}
+
+/* Global dark mode form elements */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea,
+[data-theme="dark"] button {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Responsive design for main content */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 60px;
+  }
+  
+  .main-content.sidebar-expanded {
+    margin-left: 250px;
+  }
+}

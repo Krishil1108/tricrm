@@ -1,0 +1,966 @@
+/* QuotationPage.css - ADS Systems Style */
+.quotation-container {
+  padding: 20px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.quotation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px 0;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.quotation-header h1 {
+  color: #2c3e50;
+  font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.quotation-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-print-quote, .btn-save, .btn-print, .btn-back {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-print-quote {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-print-quote:hover {
+  background-color: #c0392b;
+}
+
+.btn-save {
+  background-color: #27ae60;
+  color: white;
+}
+
+.btn-save:hover {
+  background-color: #229954;
+}
+
+.btn-print {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-print:hover {
+  background-color: #2980b9;
+}
+
+.btn-back {
+  background-color: #95a5a6;
+  color: white;
+}
+
+.btn-back:hover {
+  background-color: #7f8c8d;
+}
+
+/* Form Styles */
+.quotation-form {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.basic-info-section {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.client-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.client-section h3 {
+  margin: 0 0 15px 0;
+  color: #2c3e50;
+  font-size: 1.2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.form-input, .form-select, .form-textarea {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Window Specifications */
+.window-specs-section {
+  margin-bottom: 30px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.3rem;
+}
+
+.btn-add-window {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btn-add-window:hover {
+  background-color: #229954;
+}
+
+.window-spec-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.window-spec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #ecf0f1;
+  border-bottom: 1px solid #ddd;
+  border-radius: 8px 8px 0 0;
+}
+
+.window-spec-header h4 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.btn-remove-window {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-remove-window:hover {
+  background-color: #c0392b;
+}
+
+.window-spec-content {
+  display: flex;
+  padding: 20px;
+  gap: 30px;
+}
+
+.window-diagram-section {
+  flex: 0 0 250px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.window-diagram {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+
+.diagram-title {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.window-svg {
+  border: 1px solid #ccc;
+  background: white;
+  border-radius: 4px;
+}
+
+.diagram-dimensions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: 12px;
+  color: #666;
+}
+
+.diagram-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.diagram-controls .form-group {
+  flex: 1;
+}
+
+.window-spec-table {
+  flex: 1;
+}
+
+.spec-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.spec-table td {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  vertical-align: middle;
+}
+
+.spec-label {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  width: 150px;
+  color: #2c3e50;
+}
+
+.spec-input, .spec-select {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 4px;
+  font-size: 14px;
+}
+
+.spec-input:focus, .spec-select:focus {
+  outline: 1px solid #3498db;
+  background: white;
+}
+
+.spec-value {
+  font-weight: 500;
+  color: #34495e;
+}
+
+/* Computed Values */
+.computed-values {
+  margin-top: 20px;
+}
+
+.computed-values h5 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+  font-size: 1rem;
+  background-color: #3498db;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+
+.computed-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.computed-table td {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  font-size: 13px;
+}
+
+.computed-table td:first-child {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  width: 140px;
+}
+
+.computed-table td:last-child {
+  text-align: right;
+  font-weight: 500;
+}
+
+.qty-input {
+  width: 60px;
+  text-align: center;
+  border: 1px solid #ddd;
+  padding: 4px;
+  border-radius: 3px;
+}
+
+/* Quote Summary */
+.quote-summary {
+  margin-top: 30px;
+  padding: 20px;
+  border: 2px solid #3498db;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+}
+
+.summary-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.summary-table td {
+  padding: 8px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.summary-table td:first-child {
+  font-weight: 600;
+  color: #2c3e50;
+  width: 200px;
+}
+
+.summary-table td:last-child {
+  text-align: right;
+  font-weight: 500;
+}
+
+.grand-total-row td {
+  background-color: #2c3e50;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* PDF Preview Styles */
+.pdf-preview-container {
+  padding: 20px;
+  background-color: #f0f0f0;
+  min-height: 100vh;
+}
+
+.pdf-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pdf-preview-header h2 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.preview-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.pdf-preview-document {
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  max-width: 210mm;
+  margin: 0 auto;
+}
+
+/* ADS Systems PDF Styles */
+.ads-quotation-pdf {
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #333;
+  padding: 20mm;
+  background: white;
+}
+
+.ads-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #000;
+}
+
+.ads-logo {
+  flex: 0 0 100px;
+}
+
+.logo-text {
+  border: 2px solid #000;
+  padding: 10px;
+  text-align: center;
+}
+
+.logo-main {
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.logo-sub {
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.company-contact {
+  text-align: right;
+  flex: 1;
+}
+
+.contact-line {
+  margin: 2px 0;
+  font-size: 10px;
+}
+
+.quote-info-line {
+  text-align: right;
+  margin: 10px 0;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.client-section-pdf {
+  margin: 20px 0;
+}
+
+.client-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.client-details-pdf {
+  margin-left: 0;
+  line-height: 1.3;
+}
+
+.introduction {
+  margin: 20px 0;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.introduction p {
+  margin: 8px 0;
+}
+
+.window-spec-pdf {
+  margin: 20px 0;
+  page-break-inside: avoid;
+}
+
+.window-spec-row {
+  display: flex;
+  gap: 20px;
+  margin: 15px 0;
+}
+
+.spec-left {
+  flex: 0 0 300px;
+}
+
+.spec-right {
+  flex: 1;
+}
+
+.spec-basic-info {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+  font-size: 10px;
+}
+
+.spec-basic-info td {
+  border: 1px solid #000;
+  padding: 4px 6px;
+  vertical-align: top;
+}
+
+.window-diagram-pdf {
+  border: 1px solid #000;
+  padding: 10px;
+  text-align: center;
+  background: #f9f9f9;
+  margin-top: 10px;
+}
+
+.computed-values-pdf h4 {
+  background: #d0d0d0;
+  margin: 0 0 10px 0;
+  padding: 5px;
+  font-size: 11px;
+  text-align: center;
+}
+
+.computed-table-pdf {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+  margin-bottom: 15px;
+}
+
+.computed-table-pdf td {
+  border: 1px solid #000;
+  padding: 4px 6px;
+  text-align: right;
+}
+
+.computed-table-pdf td:first-child {
+  text-align: left;
+}
+
+.profile-accessories {
+  margin-top: 15px;
+}
+
+.profile-section h4 {
+  background: #d0d0d0;
+  margin: 0 0 10px 0;
+  padding: 5px;
+  font-size: 11px;
+  text-align: center;
+}
+
+.profile-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9px;
+}
+
+.profile-table td {
+  border: 1px solid #000;
+  padding: 3px 5px;
+  vertical-align: top;
+}
+
+.quote-total-pdf {
+  margin: 30px 0;
+  page-break-inside: avoid;
+}
+
+.quote-total-pdf h3 {
+  background: #d0d0d0;
+  padding: 8px;
+  margin: 0 0 10px 0;
+  text-align: center;
+}
+
+.total-table-pdf {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.total-table-pdf td {
+  border: 1px solid #000;
+  padding: 6px 10px;
+  text-align: right;
+}
+
+.total-table-pdf td:first-child {
+  text-align: left;
+  font-weight: 600;
+}
+
+.total-table-pdf .grand-total td {
+  background: #e0e0e0;
+  font-weight: bold;
+}
+
+/* Print Styles */
+@media print {
+  .pdf-preview-container {
+    padding: 0;
+    background: white;
+  }
+  
+  .pdf-preview-header {
+    display: none;
+  }
+  
+  .pdf-preview-document {
+    box-shadow: none;
+    max-width: none;
+    margin: 0;
+  }
+  
+  .ads-quotation-pdf {
+    padding: 0;
+    font-size: 10px;
+  }
+  
+  .window-spec-pdf {
+    page-break-before: always;
+  }
+  
+  .window-spec-pdf:first-child {
+    page-break-before: auto;
+  }
+  
+  .quote-total-pdf {
+    page-break-before: always;
+  }
+  
+  @page {
+    margin: 15mm;
+    size: A4;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .quotation-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .basic-info-section {
+    flex-direction: column;
+  }
+  
+  .window-spec-content {
+    flex-direction: column;
+  }
+  
+  .window-diagram-section {
+    flex: none;
+  }
+  
+  .quotation-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .btn-print-quote, .btn-save {
+    width: 100%;
+  }
+}
+
+/* Additional Utility Classes */
+.no-print {
+  display: block;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Dark Mode Support for Quotation Page */
+[data-theme="dark"] .quotation-container {
+  background-color: var(--background-color);
+}
+
+[data-theme="dark"] .loading-spinner {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .quotation-header {
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .quotation-header h1 {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .btn-print-quote {
+  background-color: #e74c3c;
+  color: white;
+}
+
+[data-theme="dark"] .btn-print-quote:hover {
+  background-color: #c0392b;
+}
+
+[data-theme="dark"] .btn-save {
+  background-color: #27ae60;
+  color: white;
+}
+
+[data-theme="dark"] .btn-save:hover {
+  background-color: #2ecc71;
+}
+
+[data-theme="dark"] .btn-print {
+  background-color: #3498db;
+  color: white;
+}
+
+[data-theme="dark"] .btn-print:hover {
+  background-color: #2980b9;
+}
+
+[data-theme="dark"] .btn-back {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .btn-back:hover {
+  background: var(--hover-bg);
+}
+
+[data-theme="dark"] .quotation-form {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .form-row {
+  background: var(--card-bg);
+}
+
+[data-theme="dark"] .form-group label {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group select,
+[data-theme="dark"] .form-group textarea {
+  background: var(--input-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-group input:focus,
+[data-theme="dark"] .form-group select:focus,
+[data-theme="dark"] .form-group textarea:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+[data-theme="dark"] .form-group input::placeholder,
+[data-theme="dark"] .form-group textarea::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="dark"] .customer-section h2,
+[data-theme="dark"] .windows-section h2 {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .windows-container {
+  background: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .add-window-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+[data-theme="dark"] .add-window-btn:hover {
+  background: linear-gradient(135deg, #5a6fd8, #6a4190);
+}
+
+[data-theme="dark"] .window-item {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .window-header {
+  background: var(--surface-color);
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .window-header h3 {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .remove-window {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .remove-window:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+[data-theme="dark"] .window-details {
+  background: var(--card-bg);
+}
+
+[data-theme="dark"] .specifications-section {
+  background: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .specifications-section h3 {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .spec-grid {
+  background: var(--card-bg);
+}
+
+[data-theme="dark"] .spec-item {
+  background: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .spec-item label {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .spec-item select,
+[data-theme="dark"] .spec-item input {
+  background: var(--input-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .pricing-section {
+  background: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .pricing-section h3 {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .pricing-table {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .pricing-table th {
+  background: var(--surface-color);
+  color: var(--text-primary);
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .pricing-table td {
+  border-bottom-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .total-section {
+  background: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .total-row {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .total-row.grand-total {
+  background: rgba(102, 126, 234, 0.15);
+  color: var(--accent-color);
+}
+
+[data-theme="dark"] .terms-section {
+  background: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .terms-section h3 {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .terms-list li {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .quote-summary {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .summary-header h3 {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .summary-content {
+  background: var(--surface-color);
+}
+
+[data-theme="dark"] .summary-item {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .summary-value {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .validation-errors {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+  color: #ff6b6b;
+}
+
+[data-theme="dark"] .validation-warnings {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: #f59e0b;
+  color: #fbbf24;
+}
