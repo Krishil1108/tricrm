@@ -18,6 +18,7 @@ function RoleManagementPage() {
       meetings: {},
       notes: {},
       dashboard: {},
+      finance: {},
       settings: {}
     }
   });
@@ -32,6 +33,7 @@ function RoleManagementPage() {
         { key: 'home', label: 'Home', description: 'Access to home page', icon: '🏠', implemented: true },
         { key: 'clients', label: 'Clients', description: 'Access to clients module', icon: '👥', implemented: true },
         { key: 'dashboard', label: 'Dashboard', description: 'Access to dashboard and analytics', icon: '📊', implemented: true },
+        { key: 'finance', label: 'Finance', description: 'Access to finance management', icon: '💰', implemented: true },
         { key: 'settings', label: 'Settings', description: 'Access to settings page', icon: '⚙️', implemented: true }
       ]
     },
@@ -56,6 +58,20 @@ function RoleManagementPage() {
         { key: 'view', label: 'View Dashboard', description: 'Access dashboard page', icon: '👁️', implemented: true },
         { key: 'viewAnalytics', label: 'View Analytics', description: 'View analytics data', icon: '📊', implemented: true },
         { key: 'viewReports', label: 'View Reports', description: 'View reports', icon: '📈', implemented: true }
+      ]
+    },
+    {
+      title: 'Finance Module Actions',
+      key: 'finance',
+      description: 'Actions available in the Finance module',
+      permissions: [
+        { key: 'view', label: 'View', description: 'View finance data', icon: '👁️', implemented: true },
+        { key: 'create', label: 'Add', description: 'Create new finance entries', icon: '➕', implemented: true },
+        { key: 'edit', label: 'Edit', description: 'Edit finance entries', icon: '✏️', implemented: true },
+        { key: 'delete', label: 'Delete', description: 'Delete finance entries', icon: '🗑️', implemented: true },
+        { key: 'import', label: 'Import', description: 'Import data from Excel', icon: '📥', implemented: true },
+        { key: 'export', label: 'Export', description: 'Export to Excel', icon: '📤', implemented: true },
+        { key: 'viewStats', label: 'View Statistics', description: 'View financial statistics', icon: '📊', implemented: true }
       ]
     },
     {
@@ -113,6 +129,7 @@ function RoleManagementPage() {
         meetings: role.permissions?.meetings || {},
         notes: role.permissions?.notes || {},
         dashboard: role.permissions?.dashboard || {},
+        finance: role.permissions?.finance || {},
         settings: role.permissions?.settings || {}
       };
       setFormData({
@@ -131,6 +148,7 @@ function RoleManagementPage() {
           meetings: {},
           notes: {},
           dashboard: {},
+          finance: {},
           settings: {}
         }
       });

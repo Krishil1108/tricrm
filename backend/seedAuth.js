@@ -30,6 +30,7 @@ async function seedAdminData() {
             home: true,
             clients: true,
             dashboard: true,
+            finance: true,
             settings: true
           },
           clients: {
@@ -65,6 +66,15 @@ async function seedAdminData() {
             editCompanySettings: true,
             manageUsers: true,
             manageRoles: true
+          },
+          finance: {
+            view: true,
+            create: true,
+            edit: true,
+            delete: true,
+            import: true,
+            export: true,
+            viewStats: true
           }
         },
         isSystemRole: true
@@ -118,6 +128,7 @@ async function seedAdminData() {
             home: true,
             clients: true,
             dashboard: false,
+            finance: false,
             settings: false
           },
           clients: {
@@ -153,6 +164,15 @@ async function seedAdminData() {
             editCompanySettings: false,
             manageUsers: false,
             manageRoles: false
+          },
+          finance: {
+            view: false,
+            create: false,
+            edit: false,
+            delete: false,
+            import: false,
+            export: false,
+            viewStats: false
           }
         },
         isSystemRole: false

@@ -17,6 +17,7 @@ const roleSchema = new mongoose.Schema({
       home: { type: Boolean, default: true },
       clients: { type: Boolean, default: false },
       dashboard: { type: Boolean, default: false },
+      finance: { type: Boolean, default: false },
       settings: { type: Boolean, default: false }
     },
     
@@ -62,6 +63,17 @@ const roleSchema = new mongoose.Schema({
       editCompanySettings: { type: Boolean, default: false },
       manageUsers: { type: Boolean, default: false },
       manageRoles: { type: Boolean, default: false }
+    },
+    
+    // Finance permissions
+    finance: {
+      view: { type: Boolean, default: false },
+      create: { type: Boolean, default: false },
+      edit: { type: Boolean, default: false },
+      delete: { type: Boolean, default: false },
+      import: { type: Boolean, default: false },
+      export: { type: Boolean, default: false },
+      viewStats: { type: Boolean, default: false }
     }
   },
   

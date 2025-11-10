@@ -1,0 +1,414 @@
+const express = require('express');
+const router = express.Router();
+const FinanceProject = require('../models/FinanceProject');
+const BankExpense = require('../models/BankExpense');
+const { authenticate } = require('../middleware/auth');
+const multer = require('multer');
+const XLSX = require('xlsx');
+
+// Configure multer for file uploads
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
+        file.mimetype === 'application/vnd.ms-excel') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only Excel files are allowed'));
+    }
+  }
+});
+
+// ==================== PROJECT ROUTES ====================
+
+// Get all finance projects
+router.get('/projects', authenticate, async (req, res) => {
+  try {
+    const { status, search, sortBy = 'srNo', order = 'asc' } = req.query;
+    
+    let query = {};
+    
+    if (status && status !== 'all') {
+      query.status = status;
+    }
+    
+    if (search) {
+      query.$or = [
+        { projectName: { $regex: search, $options: 'i' } },
+        { projectNumber: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    const sortOrder = order === 'desc' ? -1 : 1;
+    
+    const projects = await FinanceProject.find(query)
+      .sort({ [sortBy]: sortOrder })
+      .populate('createdBy', 'username email');
+    
+    res.sendSuccess(projects, 'Projects fetched successfully');
+  } catch (error) {
+    console.error('Error fetching finance projects:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get single project
+router.get('/projects/:id', authenticate, async (req, res) => {
+  try {
+    const project = await FinanceProject.findById(req.params.id)
+      .populate('createdBy', 'username email');
+    
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+    
+    res.sendSuccess(project, 'Project fetched successfully');
+  } catch (error) {
+    console.error('Error fetching project:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Create new project
+router.post('/projects', authenticate, async (req, res) => {
+  try {
+    const projectData = {
+      ...req.body,
+      createdBy: req.user._id
+    };
+    
+    const project = new FinanceProject(projectData);
+    await project.save();
+    
+    res.sendSuccess(project, 'Project created successfully');
+  } catch (error) {
+    console.error('Error creating project:', error);
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'Project number already exists' });
+    }
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Update project
+router.put('/projects/:id', authenticate, async (req, res) => {
+  try {
+    const project = await FinanceProject.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+    
+    res.sendSuccess(project, 'Project updated successfully');
+  } catch (error) {
+    console.error('Error updating project:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Delete project
+router.delete('/projects/:id', authenticate, async (req, res) => {
+  try {
+    const project = await FinanceProject.findByIdAndDelete(req.params.id);
+    
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+    
+    res.sendSuccess(null, 'Project deleted successfully');
+  } catch (error) {
+    console.error('Error deleting project:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// ==================== BANK EXPENSE ROUTES ====================
+
+// Get all bank expenses
+router.get('/expenses', authenticate, async (req, res) => {
+  try {
+    const { bankName, year, month } = req.query;
+    
+    let query = {};
+    
+    if (bankName && bankName !== 'all') query.bankName = bankName;
+    if (year && year !== 'all') query.year = year;
+    if (month && month !== 'all') query.month = month;
+    
+    const expenses = await BankExpense.find(query)
+      .sort({ year: -1, month: 1 })
+      .populate('createdBy', 'username email');
+    
+    res.sendSuccess(expenses, 'Expenses fetched successfully');
+  } catch (error) {
+    console.error('Error fetching expenses:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Create/Update bank expense
+router.post('/expenses', authenticate, async (req, res) => {
+  try {
+    const { bankName, month, year } = req.body;
+    
+    const expense = await BankExpense.findOneAndUpdate(
+      { bankName, month, year },
+      { ...req.body, createdBy: req.user._id },
+      { new: true, upsert: true, runValidators: true }
+    );
+    
+    res.sendSuccess(expense, 'Expense saved successfully');
+  } catch (error) {
+    console.error('Error creating expense:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Delete expense
+router.delete('/expenses/:id', authenticate, async (req, res) => {
+  try {
+    const expense = await BankExpense.findByIdAndDelete(req.params.id);
+    
+    if (!expense) {
+      return res.status(404).json({ message: 'Expense not found' });
+    }
+    
+    res.sendSuccess(null, 'Expense deleted successfully');
+  } catch (error) {
+    console.error('Error deleting expense:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// ==================== ANALYTICS ROUTES ====================
+
+// Get finance dashboard stats
+router.get('/stats', authenticate, async (req, res) => {
+  try {
+    const { year } = req.query;
+    
+    // Project stats
+    const totalProjects = await FinanceProject.countDocuments();
+    const activeProjects = await FinanceProject.countDocuments({ status: 'Active' });
+    const completedProjects = await FinanceProject.countDocuments({ status: 'Completed' });
+    
+    // Revenue stats
+    const projectStats = await FinanceProject.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalRealizedFees: { $sum: '$realizedFees' },
+          totalReceivedFees: { $sum: '$totalReceivedFees' },
+          totalDrawing: { $sum: '$drawing' },
+          totalDocuments: { $sum: '$documents' },
+          totalSiteVisit: { $sum: '$siteVisit' },
+          totalMarketingMisc: { $sum: '$marketingAndMisc' },
+          totalOfficeManagement: { $sum: '$officeManagement' }
+        }
+      }
+    ]);
+    
+    // Bank expense stats
+    let expenseQuery = {};
+    if (year && year !== 'all') expenseQuery.year = year;
+    
+    const expenseStats = await BankExpense.aggregate([
+      { $match: expenseQuery },
+      {
+        $group: {
+          _id: '$bankName',
+          totalAmount: { $sum: '$amount' },
+          totalDrawing: { $sum: '$drawing' },
+          totalSiteVisit: { $sum: '$siteVisit' },
+          totalOfficeManagement: { $sum: '$officeManagement' }
+        }
+      }
+    ]);
+    
+    const stats = projectStats[0] || {};
+    const totalExpenses = (stats.totalDrawing || 0) + 
+                          (stats.totalDocuments || 0) + 
+                          (stats.totalSiteVisit || 0) + 
+                          (stats.totalMarketingMisc || 0) + 
+                          (stats.totalOfficeManagement || 0);
+    
+    const result = {
+      projects: {
+        total: totalProjects,
+        active: activeProjects,
+        completed: completedProjects,
+        onHold: await FinanceProject.countDocuments({ status: 'On Hold' })
+      },
+      revenue: {
+        totalRealizedFees: stats.totalRealizedFees || 0,
+        totalReceivedFees: stats.totalReceivedFees || 0,
+        totalExpenses: totalExpenses,
+        netProfit: (stats.totalReceivedFees || 0) - totalExpenses
+      },
+      expenses: {
+        byCategory: {
+          drawing: stats.totalDrawing || 0,
+          documents: stats.totalDocuments || 0,
+          siteVisit: stats.totalSiteVisit || 0,
+          marketingMisc: stats.totalMarketingMisc || 0,
+          officeManagement: stats.totalOfficeManagement || 0
+        },
+        byBank: expenseStats
+      }
+    };
+    
+    res.sendSuccess(result, 'Statistics fetched successfully');
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// ==================== IMPORT/EXPORT ROUTES ====================
+
+// Import projects from Excel
+router.post('/import/projects', authenticate, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+    
+    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const data = XLSX.utils.sheet_to_json(worksheet);
+    
+    const projects = [];
+    const errors = [];
+    
+    for (let i = 0; i < data.length; i++) {
+      try {
+        const row = data[i];
+        
+        // Skip header rows or empty rows
+        if (!row['Project number'] || row['Project number'] === '#NAME?' || row['Project number'] === '#VALUE!') continue;
+        
+        const projectData = {
+          srNo: parseInt(row['Sr. No.']) || i + 1,
+          projectNumber: String(row['Project number']).trim(),
+          projectName: String(row['Project name'] || '').trim(),
+          link: String(row['Link'] || '').trim(),
+          realizedFees: parseFloat(row['Realized Fees']) || 0,
+          totalReceivedFees: parseFloat(row['Total received fees']) || 0,
+          year2024_25: parseFloat(row['2024-25']) || 0,
+          profitMargin: parseFloat(row['Profit margin']) || 0,
+          drawing: parseFloat(row['Drawing']) || 0,
+          documents: parseFloat(row['Documents']) || 0,
+          siteVisit: parseFloat(row['Site visit']) || 0,
+          marketingAndMisc: parseFloat(row['Marketing and Misc']) || 0,
+          officeManagement: parseFloat(row['Office management']) || 0,
+          status: row['Status'] || 'Active',
+          createdBy: req.user._id
+        };
+        
+        // Update if exists, create if new
+        const project = await FinanceProject.findOneAndUpdate(
+          { projectNumber: projectData.projectNumber },
+          projectData,
+          { new: true, upsert: true, runValidators: true }
+        );
+        
+        projects.push(project);
+      } catch (error) {
+        errors.push({ row: i + 1, error: error.message });
+      }
+    }
+    
+    res.sendSuccess({
+      imported: projects.length,
+      errors: errors.length,
+      errorDetails: errors
+    }, `Successfully imported ${projects.length} projects`);
+  } catch (error) {
+    console.error('Error importing projects:', error);
+    res.status(500).json({ message: 'Import failed', error: error.message });
+  }
+});
+
+// Export projects to Excel
+router.get('/export/projects', authenticate, async (req, res) => {
+  try {
+    const projects = await FinanceProject.find().sort({ srNo: 1 });
+    
+    const data = projects.map(p => ({
+      'Sr. No.': p.srNo,
+      'Project number': p.projectNumber,
+      'Project name': p.projectName,
+      'Link': p.link,
+      'Realized Fees': p.realizedFees,
+      'Total received fees': p.totalReceivedFees,
+      '2024-25': p.year2024_25,
+      'Profit margin': p.profitMargin,
+      'Drawing': p.drawing,
+      'Documents': p.documents,
+      'Site visit': p.siteVisit,
+      'Marketing and Misc': p.marketingAndMisc,
+      'Office management': p.officeManagement,
+      'Total Expenses': p.totalExpenses,
+      'Net Profit': p.netProfit,
+      'Status': p.status
+    }));
+    
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Finance Projects');
+    
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    
+    res.setHeader('Content-Disposition', 'attachment; filename=finance_projects.xlsx');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(buffer);
+  } catch (error) {
+    console.error('Error exporting projects:', error);
+    res.status(500).json({ message: 'Export failed', error: error.message });
+  }
+});
+
+// Export expenses to Excel
+router.get('/export/expenses', authenticate, async (req, res) => {
+  try {
+    const { year } = req.query;
+    let query = {};
+    if (year && year !== 'all') query.year = year;
+    
+    const expenses = await BankExpense.find(query).sort({ bankName: 1, month: 1 });
+    
+    const data = expenses.map(e => ({
+      'Bank Name': e.bankName,
+      'Month': e.month,
+      'Year': e.year,
+      'Amount': e.amount,
+      'Drawing': e.drawing,
+      'Site Visit': e.siteVisit,
+      'Office Management': e.officeManagement,
+      'Total': e.total,
+      'Description': e.description
+    }));
+    
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Bank Expenses');
+    
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    
+    res.setHeader('Content-Disposition', `attachment; filename=bank_expenses_${year || 'all'}.xlsx`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(buffer);
+  } catch (error) {
+    console.error('Error exporting expenses:', error);
+    res.status(500).json({ message: 'Export failed', error: error.message });
+  }
+});
+
+module.exports = router;

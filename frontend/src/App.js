@@ -18,6 +18,7 @@ import HomePage from './HomePage';
 import ClientsPage from './ClientsPage';
 import DashboardPage from './DashboardPage';
 import SettingsPage from './SettingsPage';
+import FinancePage from './FinancePage';
 import UserManagementPage from './UserManagementPage';
 import RoleManagementPage from './RoleManagementPage';
 
@@ -93,6 +94,15 @@ function App() {
                               element={
                                 <ProtectedRoute requireModule="dashboard">
                                   <DashboardPage />
+                                </ProtectedRoute>
+                              } 
+                            />
+                            
+                            <Route 
+                              path="/finance" 
+                              element={
+                                <ProtectedRoute requireModule="finance">
+                                  <FinancePage />
                                 </ProtectedRoute>
                               } 
                             />
