@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import './FinancePage.css';
+import './ProjectPage.css';
 import FinanceService from './services/FinanceService';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
+import YearlyDistributionTable from './components/YearlyDistributionTable';
 
-const FinancePage = () => {
+const ProjectPage = () => {
   const [activeTab, setActiveTab] = useState('projects');
   const [projects, setProjects] = useState([]);
   const [expenses, setExpenses] = useState([]);
@@ -26,6 +27,8 @@ const FinancePage = () => {
     officeManagementPercent: 0
   });
   const [showPercentageConfig, setShowPercentageConfig] = useState(false);
+  const [selectedProjectForDistribution, setSelectedProjectForDistribution] = useState(null);
+  const [showDistributionModal, setShowDistributionModal] = useState(false);
   
   const { showLoading, hideLoading } = useLoading();
   const { showSuccess, showError } = useToast();
@@ -127,7 +130,9 @@ const FinancePage = () => {
         projectNumber: '',
         projectName: '',
         finalizedFees: '',
-        totalReceivedFees: '',
+        totalReceivedFees: 0,
+        payments: [],
+        yearlyDistribution: {},
         year2024_25: '',
         profitMarginPercent: percentageConfig.profitMarginPercent,
         drawingPercent: percentageConfig.drawingPercent,
@@ -159,7 +164,20 @@ const FinancePage = () => {
 
   const handleEdit = (item) => {
     setEditingItem(item);
-    setFormData(item);
+    
+    // Ensure payments array exists and add frontend IDs for existing payments
+    const paymentsWithIds = (item.payments || []).map((payment, index) => ({
+      ...payment,
+      id: payment._id || `existing_payment_${index}_${Date.now()}`
+    }));
+    
+    const itemWithPayments = {
+      ...item,
+      payments: paymentsWithIds,
+      yearlyDistribution: paymentsWithIds.length > 0 ? calculateYearlyDistribution(paymentsWithIds) : {}
+    };
+    
+    setFormData(itemWithPayments);
     setShowModal(true);
   };
 
@@ -181,6 +199,23 @@ const FinancePage = () => {
     } finally {
       hideLoading();
     }
+  };
+
+  const handleViewDistribution = (project) => {
+    // Ensure payments array exists and add frontend IDs for existing payments
+    const paymentsWithIds = (project.payments || []).map((payment, index) => ({
+      ...payment,
+      id: payment._id || `existing_payment_${index}_${Date.now()}`
+    }));
+    
+    const projectWithPayments = {
+      ...project,
+      payments: paymentsWithIds,
+      yearlyDistribution: paymentsWithIds.length > 0 ? calculateYearlyDistribution(paymentsWithIds) : {}
+    };
+    
+    setSelectedProjectForDistribution(projectWithPayments);
+    setShowDistributionModal(true);
   };
 
   const handleSave = async () => {
@@ -212,6 +247,21 @@ const FinancePage = () => {
           cleanFormData[field] = 0;
         }
       });
+      
+      // Clean payments data - remove frontend-only id field and ensure proper types
+      if (cleanFormData.payments) {
+        cleanFormData.payments = cleanFormData.payments
+          .filter(payment => payment.date && payment.amount) // Only include valid payments
+          .map(payment => ({
+            date: payment.date,
+            chequeNeftNumber: payment.chequeNeftNumber || '',
+            mode: payment.mode || 'Cheque',
+            amount: parseFloat(payment.amount) || 0
+          }));
+      }
+      
+      // Remove frontend-only fields
+      delete cleanFormData.yearlyDistribution;
       
       console.log('Sending project data:', cleanFormData);
       
@@ -257,15 +307,15 @@ const FinancePage = () => {
   };
 
   return (
-    <div className="finance-page">
+    <div className="project-page">
       <div className="page-header">
-        <h1>💰 Finance Management</h1>
-        <div className="finance-actions">
-          <button className="finance-btn finance-btn-primary" onClick={handleAdd}>
+        <h1>� Project Management</h1>
+        <div className="project-actions">
+          <button className="project-btn project-btn-primary" onClick={handleAdd}>
             ➕ Add New
           </button>
           {activeTab === 'projects' && (
-            <button className="finance-btn finance-btn-info" onClick={() => setShowPercentageConfig(true)}>
+            <button className="project-btn project-btn-info" onClick={() => setShowPercentageConfig(true)}>
               ⚙️ Configure Percentages
             </button>
           )}
@@ -280,7 +330,7 @@ const FinancePage = () => {
               />
               <label 
                 htmlFor="excel-upload" 
-                className="finance-btn finance-btn-success"
+                className="project-btn project-btn-success"
                 tabIndex="0"
                 role="button"
                 aria-label="Import Excel file"
@@ -290,7 +340,7 @@ const FinancePage = () => {
               </label>
             </>
           )}
-          <button className="finance-btn finance-btn-secondary" onClick={handleExport}>
+          <button className="project-btn project-btn-secondary" onClick={handleExport}>
             📤 Export Excel
           </button>
         </div>
@@ -421,6 +471,7 @@ const FinancePage = () => {
         <ProjectsTable
           projects={projects}
           onEdit={handleEdit}
+          onViewDistribution={handleViewDistribution}
           onDelete={handleDelete}
           formatCurrency={formatCurrency}
         />
@@ -453,12 +504,36 @@ const FinancePage = () => {
           onClose={() => setShowPercentageConfig(false)}
         />
       )}
+
+      {/* Distribution View Modal */}
+      {showDistributionModal && selectedProjectForDistribution && (
+        <div className="modal-overlay" onClick={() => setShowDistributionModal(false)}>
+          <div className="modal-content distribution-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>📊 Payment Distribution - {selectedProjectForDistribution.projectName}</h3>
+              <button className="modal-close" onClick={() => setShowDistributionModal(false)}>×</button>
+            </div>
+            <div className="modal-body distribution-modal-body">
+              <YearlyDistributionTable 
+                projectData={selectedProjectForDistribution}
+                showTitle={false}
+                compact={false}
+              />
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setShowDistributionModal(false)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 // Projects Table Component
-const ProjectsTable = ({ projects, onEdit, onDelete, formatCurrency }) => {
+const ProjectsTable = ({ projects, onEdit, onViewDistribution, onDelete, formatCurrency }) => {
   if (projects.length === 0) {
     return (
       <div className="empty-state">
@@ -470,8 +545,8 @@ const ProjectsTable = ({ projects, onEdit, onDelete, formatCurrency }) => {
   }
 
   return (
-    <div className="finance-table-container">
-      <table className="finance-table">
+    <div className="project-table-container">
+      <table className="project-table">
         <thead>
           <tr>
             <th>Sr. No.</th>
@@ -507,6 +582,9 @@ const ProjectsTable = ({ projects, onEdit, onDelete, formatCurrency }) => {
                   <button className="action-btn action-btn-edit" onClick={() => onEdit(project)}>
                     ✏️ Edit
                   </button>
+                  <button className="action-btn action-btn-view" onClick={() => onViewDistribution(project)}>
+                    📊 Distribution
+                  </button>
                   <button className="action-btn action-btn-delete" onClick={() => onDelete(project._id)}>
                     🗑️ Delete
                   </button>
@@ -533,8 +611,8 @@ const ExpensesTable = ({ expenses, onEdit, onDelete, formatCurrency }) => {
   }
 
   return (
-    <div className="finance-table-container">
-      <table className="finance-table">
+    <div className="project-table-container">
+      <table className="project-table">
         <thead>
           <tr>
             <th>Bank Name</th>
@@ -577,8 +655,89 @@ const ExpensesTable = ({ expenses, onEdit, onDelete, formatCurrency }) => {
   );
 };
 
+// Payment Management Functions
+const calculateTotalReceivedFees = (payments) => {
+  return payments.reduce((total, payment) => total + (parseFloat(payment.amount) || 0), 0);
+};
+
+const calculateYearlyDistribution = (payments) => {
+  const distribution = {};
+  
+  payments.forEach(payment => {
+    if (payment.date && payment.amount) {
+      const paymentDate = new Date(payment.date);
+      const year = paymentDate.getFullYear();
+      
+      // Create financial year (April to March)
+      let financialYear;
+      if (paymentDate.getMonth() >= 3) { // April = month 3 (0-indexed)
+        financialYear = `${year}-${(year + 1).toString().slice(-2)}`;
+      } else {
+        financialYear = `${year - 1}-${year.toString().slice(-2)}`;
+      }
+      
+      if (!distribution[financialYear]) {
+        distribution[financialYear] = 0;
+      }
+      distribution[financialYear] += parseFloat(payment.amount) || 0;
+    }
+  });
+  
+  return distribution;
+};
+
 // Modal Component
 const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing }) => {
+  
+  // Payment management functions
+  const addPayment = () => {
+    const newPayment = {
+      id: `payment_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
+      date: '',
+      chequeNeftNumber: '',
+      mode: 'Cheque',
+      amount: ''
+    };
+    
+    const updatedPayments = [...(formData.payments || []), newPayment];
+    updateFormDataWithPayments(updatedPayments);
+  };
+  
+  const removePayment = (paymentId) => {
+    const updatedPayments = (formData.payments || []).filter(payment => payment.id !== paymentId);
+    updateFormDataWithPayments(updatedPayments);
+  };
+  
+  const updatePayment = (paymentId, field, value) => {
+    const updatedPayments = (formData.payments || []).map(payment => 
+      payment.id === paymentId ? { ...payment, [field]: value } : payment
+    );
+    updateFormDataWithPayments(updatedPayments);
+  };
+  
+  const updateFormDataWithPayments = (payments) => {
+    const totalReceived = calculateTotalReceivedFees(payments);
+    const yearlyDistribution = calculateYearlyDistribution(payments);
+    
+    const updatedFormData = {
+      ...formData,
+      payments,
+      totalReceivedFees: totalReceived,
+      yearlyDistribution
+    };
+    
+    // Auto-calculate expense allocations
+    const receivedFees = totalReceived;
+    updatedFormData.profitMargin = Math.round((receivedFees * (updatedFormData.profitMarginPercent || 0)) / 100);
+    updatedFormData.drawing = Math.round((receivedFees * (updatedFormData.drawingPercent || 0)) / 100);
+    updatedFormData.documents = Math.round((receivedFees * (updatedFormData.documentsPercent || 0)) / 100);
+    updatedFormData.siteVisit = Math.round((receivedFees * (updatedFormData.siteVisitPercent || 0)) / 100);
+    updatedFormData.marketingAndMisc = Math.round((receivedFees * (updatedFormData.marketingAndMiscPercent || 0)) / 100);
+    updatedFormData.officeManagement = Math.round((receivedFees * (updatedFormData.officeManagementPercent || 0)) / 100);
+    
+    setFormData(updatedFormData);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     const numericFields = ['srNo', 'finalizedFees', 'totalReceivedFees', 'year2024_25', 
@@ -634,7 +793,14 @@ const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing })
 
         <div className="modal-body">
           {activeTab === 'projects' ? (
-            <ProjectForm formData={formData} handleChange={handleChange} handleAmountChange={handleAmountChange} />
+            <ProjectForm 
+              formData={formData} 
+              handleChange={handleChange} 
+              handleAmountChange={handleAmountChange}
+              addPayment={addPayment}
+              removePayment={removePayment}
+              updatePayment={updatePayment}
+            />
           ) : (
             <ExpenseForm formData={formData} handleChange={handleChange} />
           )}
@@ -654,7 +820,7 @@ const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing })
 };
 
 // Project Form
-const ProjectForm = ({ formData, handleChange, handleAmountChange }) => {
+const ProjectForm = ({ formData, handleChange, handleAmountChange, addPayment, removePayment, updatePayment }) => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -687,10 +853,120 @@ const ProjectForm = ({ formData, handleChange, handleAmountChange }) => {
           <input type="number" name="finalizedFees" className="form-input" value={formData.finalizedFees || ''} onChange={handleChange} />
         </div>
         <div className="form-group">
-          <label>Total Received Fees *</label>
-          <input type="number" name="totalReceivedFees" className="form-input" value={formData.totalReceivedFees || ''} onChange={handleChange} />
+          <label>Total Received Fees (Auto-calculated from payments)</label>
+          <input 
+            type="number" 
+            name="totalReceivedFees" 
+            className="form-input readonly" 
+            value={formData.totalReceivedFees || 0} 
+            readOnly 
+            style={{backgroundColor: '#f8f9fa', cursor: 'not-allowed'}}
+          />
+          <small className="form-helper-text">This field is automatically calculated from the payments below.</small>
         </div>
       </div>
+
+      {/* Payment Management Section */}
+      <div className="form-section-header">
+        <h3>💳 Payment Details</h3>
+        <button 
+          type="button" 
+          className="project-btn project-btn-success"
+          onClick={addPayment}
+          style={{marginLeft: 'auto'}}
+        >
+          + Add Payment
+        </button>
+      </div>
+
+      {formData.payments && formData.payments.length > 0 && (
+        <div className="payments-section">
+          {formData.payments.map((payment, index) => (
+            <div key={payment.id} className="payment-row">
+              <div className="payment-header">
+                <span className="payment-number">Payment #{index + 1}</span>
+                <button 
+                  type="button" 
+                  className="remove-payment-btn"
+                  onClick={() => removePayment(payment.id)}
+                  title="Remove Payment"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Payment Date *</label>
+                  <input 
+                    type="date" 
+                    className="form-input" 
+                    value={payment.date || ''} 
+                    onChange={(e) => updatePayment(payment.id, 'date', e.target.value)}
+                    required 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Cheque/NEFT Number</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    value={payment.chequeNeftNumber || ''} 
+                    onChange={(e) => updatePayment(payment.id, 'chequeNeftNumber', e.target.value)}
+                    placeholder="Enter reference number"
+                  />
+                </div>
+              </div>
+              
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Payment Mode</label>
+                  <select 
+                    className="form-input" 
+                    value={payment.mode || 'Cheque'} 
+                    onChange={(e) => updatePayment(payment.id, 'mode', e.target.value)}
+                  >
+                    <option value="Cheque">Cheque</option>
+                    <option value="NEFT">NEFT</option>
+                    <option value="RTGS">RTGS</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Cash">Cash</option>
+                    <option value="DD">DD (Demand Draft)</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Payment Amount *</label>
+                  <input 
+                    type="number" 
+                    className="form-input" 
+                    value={payment.amount || ''} 
+                    onChange={(e) => updatePayment(payment.id, 'amount', e.target.value)}
+                    placeholder="Enter amount"
+                    min="0"
+                    step="0.01"
+                    required 
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {formData.payments && formData.payments.length === 0 && (
+        <div className="empty-payments">
+          <p>No payments added yet. Click "Add Payment" to start adding payment details.</p>
+        </div>
+      )}
+
+      {/* Yearly Distribution Section */}
+      {formData.yearlyDistribution && Object.keys(formData.yearlyDistribution).length > 0 && (
+        <YearlyDistributionTable 
+          projectData={formData}
+          showTitle={false}
+          compact={false}
+        />
+      )}
 
       <div className="form-section-header">
         <h3>💡 Expense Allocation (Auto-calculated from saved percentages)</h3>
@@ -1100,4 +1376,4 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
   );
 };
 
-export default FinancePage;
+export default ProjectPage;

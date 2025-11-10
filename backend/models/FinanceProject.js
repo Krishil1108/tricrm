@@ -91,6 +91,27 @@ const financeProjectSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  // Payment details
+  payments: [{
+    date: {
+      type: Date,
+      required: true
+    },
+    chequeNeftNumber: {
+      type: String,
+      default: ''
+    },
+    mode: {
+      type: String,
+      enum: ['Cheque', 'NEFT', 'RTGS', 'UPI', 'Cash', 'DD'],
+      default: 'Cheque'
+    },
+    amount: {
+      type: Number,
+      required: true,
+      min: 0
+    }
+  }],
   status: {
     type: String,
     enum: ['Active', 'Completed', 'On Hold', 'Cancelled'],
@@ -120,6 +141,13 @@ financeProjectSchema.virtual('netProfit').get(function() {
 
 // Pre-save hook to auto-calculate amounts from percentages
 financeProjectSchema.pre('save', function(next) {
+  // Calculate totalReceivedFees from payments if payments exist
+  if (this.payments && this.payments.length > 0) {
+    this.totalReceivedFees = this.payments.reduce((total, payment) => {
+      return total + (payment.amount || 0);
+    }, 0);
+  }
+  
   const receivedFees = this.totalReceivedFees || 0;
   
   // Calculate amounts from percentages
@@ -136,6 +164,14 @@ financeProjectSchema.pre('save', function(next) {
 // Pre-update hook to auto-calculate amounts from percentages
 financeProjectSchema.pre('findOneAndUpdate', function(next) {
   const update = this.getUpdate();
+  
+  // Calculate totalReceivedFees from payments if payments are being updated
+  if (update.$set?.payments) {
+    const totalFromPayments = update.$set.payments.reduce((total, payment) => {
+      return total + (payment.amount || 0);
+    }, 0);
+    update.$set.totalReceivedFees = totalFromPayments;
+  }
   
   // Check if we have the data needed for calculation
   if (update.$set || update.totalReceivedFees !== undefined) {

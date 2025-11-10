@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import './styles/theme.css';
 import { CompanyProvider } from './CompanyContext';
@@ -18,7 +18,7 @@ import HomePage from './HomePage';
 import ClientsPage from './ClientsPage';
 import DashboardPage from './DashboardPage';
 import SettingsPage from './SettingsPage';
-import FinancePage from './FinancePage';
+import ProjectPage from './ProjectPage';
 import UserManagementPage from './UserManagementPage';
 import RoleManagementPage from './RoleManagementPage';
 
@@ -99,10 +99,10 @@ function App() {
                             />
                             
                             <Route 
-                              path="/finance" 
+                              path="/projects" 
                               element={
                                 <ProtectedRoute requireModule="finance">
-                                  <FinancePage />
+                                  <ProjectPage />
                                 </ProtectedRoute>
                               } 
                             />

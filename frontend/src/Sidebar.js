@@ -44,9 +44,9 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
       )
     },
     { 
-      id: 'finance', 
-      path: '/finance',
-      name: 'Finance',
+      id: 'projects', 
+      path: '/projects',
+      name: 'Projects',
       module: 'finance',
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
