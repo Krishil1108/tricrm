@@ -203,7 +203,7 @@ router.get('/stats', authenticate, async (req, res) => {
       {
         $group: {
           _id: null,
-          totalRealizedFees: { $sum: '$realizedFees' },
+          totalFinalizedFees: { $sum: '$finalizedFees' },
           totalReceivedFees: { $sum: '$totalReceivedFees' },
           totalDrawing: { $sum: '$drawing' },
           totalDocuments: { $sum: '$documents' },
@@ -246,7 +246,7 @@ router.get('/stats', authenticate, async (req, res) => {
         onHold: await FinanceProject.countDocuments({ status: 'On Hold' })
       },
       revenue: {
-        totalRealizedFees: stats.totalRealizedFees || 0,
+        totalFinalizedFees: stats.totalFinalizedFees || 0,
         totalReceivedFees: stats.totalReceivedFees || 0,
         totalExpenses: totalExpenses,
         netProfit: (stats.totalReceivedFees || 0) - totalExpenses
@@ -299,7 +299,7 @@ router.post('/import/projects', authenticate, upload.single('file'), async (req,
           projectNumber: String(row['Project number']).trim(),
           projectName: String(row['Project name'] || '').trim(),
           link: String(row['Link'] || '').trim(),
-          realizedFees: parseFloat(row['Realized Fees']) || 0,
+          finalizedFees: parseFloat(row['Finalized Fees']) || 0,
           totalReceivedFees: parseFloat(row['Total received fees']) || 0,
           year2024_25: parseFloat(row['2024-25']) || 0,
           profitMargin: parseFloat(row['Profit margin']) || 0,
@@ -346,7 +346,7 @@ router.get('/export/projects', authenticate, async (req, res) => {
       'Project number': p.projectNumber,
       'Project name': p.projectName,
       'Link': p.link,
-      'Realized Fees': p.realizedFees,
+      'Finalized Fees': p.finalizedFees,
       'Total received fees': p.totalReceivedFees,
       '2024-25': p.year2024_25,
       'Profit margin': p.profitMargin,

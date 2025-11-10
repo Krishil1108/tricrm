@@ -126,7 +126,7 @@ const FinancePage = () => {
         srNo: projects.length + 1,
         projectNumber: '',
         projectName: '',
-        realizedFees: '',
+        finalizedFees: '',
         totalReceivedFees: '',
         year2024_25: '',
         profitMarginPercent: percentageConfig.profitMarginPercent,
@@ -199,7 +199,7 @@ const FinancePage = () => {
       // Clean the form data - convert empty strings to 0 for numeric fields
       const cleanFormData = { ...formData };
       const numericFields = [
-        'srNo', 'realizedFees', 'totalReceivedFees', 'year2024_25',
+        'srNo', 'finalizedFees', 'totalReceivedFees', 'year2024_25',
         'profitMarginPercent', 'drawingPercent', 'documentsPercent', 
         'siteVisitPercent', 'marketingAndMiscPercent', 'officeManagementPercent',
         'profitMargin', 'drawing', 'documents', 'siteVisit', 
@@ -477,7 +477,7 @@ const ProjectsTable = ({ projects, onEdit, onDelete, formatCurrency }) => {
             <th>Sr. No.</th>
             <th>Project Number</th>
             <th>Project Name</th>
-            <th>Realized Fees</th>
+            <th>Finalized Fees</th>
             <th>Received Fees</th>
             <th>Expenses</th>
             <th>Net Profit</th>
@@ -491,7 +491,7 @@ const ProjectsTable = ({ projects, onEdit, onDelete, formatCurrency }) => {
               <td>{project.srNo}</td>
               <td>{project.projectNumber}</td>
               <td>{project.projectName}</td>
-              <td>{formatCurrency(project.realizedFees)}</td>
+              <td>{formatCurrency(project.finalizedFees)}</td>
               <td>{formatCurrency(project.totalReceivedFees)}</td>
               <td>{formatCurrency(project.totalExpenses)}</td>
               <td className={project.netProfit >= 0 ? 'amount-positive' : 'amount-negative'}>
@@ -581,7 +581,7 @@ const ExpensesTable = ({ expenses, onEdit, onDelete, formatCurrency }) => {
 const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const numericFields = ['srNo', 'realizedFees', 'totalReceivedFees', 'year2024_25', 
+    const numericFields = ['srNo', 'finalizedFees', 'totalReceivedFees', 'year2024_25', 
                           'profitMarginPercent', 'drawingPercent', 'documentsPercent', 
                           'siteVisitPercent', 'marketingAndMiscPercent', 'officeManagementPercent',
                           'profitMargin', 'drawing', 'documents', 'siteVisit', 
@@ -683,8 +683,8 @@ const ProjectForm = ({ formData, handleChange, handleAmountChange }) => {
 
       <div className="form-row">
         <div className="form-group">
-          <label>Realized Fees</label>
-          <input type="number" name="realizedFees" className="form-input" value={formData.realizedFees || ''} onChange={handleChange} />
+          <label>Finalized Fees</label>
+          <input type="number" name="finalizedFees" className="form-input" value={formData.finalizedFees || ''} onChange={handleChange} />
         </div>
         <div className="form-group">
           <label>Total Received Fees *</label>

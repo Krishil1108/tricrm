@@ -17,7 +17,7 @@ const financeProjectSchema = new mongoose.Schema({
   link: {
     type: String
   },
-  realizedFees: {
+  finalizedFees: {
     type: Number,
     default: 0
   },
