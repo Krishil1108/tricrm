@@ -81,15 +81,45 @@ const ClientsPage = () => {
 
   const handleEdit = (client) => {
     setEditingClient(client);
+    
+    // Check if address fields are empty but full address exists (legacy data)
+    let addressData = {
+      address: client.address || '',
+      city: client.city || '',
+      state: client.state || '',
+      zipCode: client.zipCode || ''
+    };
+
+    // If individual address fields are empty but the main address field has data,
+    // try to parse it (for backward compatibility)
+    if (client.address && !client.city && !client.state && !client.zipCode) {
+      const addressParts = client.address.split(',').map(part => part.trim());
+      if (addressParts.length >= 3) {
+        addressData.address = addressParts[0] || '';
+        addressData.city = addressParts[1] || '';
+        
+        // Handle "State ZipCode" format in the last part
+        const stateZipPart = addressParts[addressParts.length - 1] || '';
+        const stateZipMatch = stateZipPart.match(/^(.+?)\s+(\d{5}(?:-\d{4})?)$/);
+        if (stateZipMatch) {
+          addressData.state = stateZipMatch[1].trim();
+          addressData.zipCode = stateZipMatch[2].trim();
+        } else {
+          addressData.state = stateZipPart;
+          addressData.zipCode = '';
+        }
+      }
+    }
+
     setClientData({
       name: client.name || '',
       email: client.email || '',
       phone: client.phone || '',
       company: client.company || '',
-      address: client.address || '',
-      city: client.city || '',
-      state: client.state || '',
-      zipCode: client.zipCode || '',
+      address: addressData.address,
+      city: addressData.city,
+      state: addressData.state,
+      zipCode: addressData.zipCode,
       notes: client.notes || ''
     });
     setShowEditPopup(true);
@@ -176,15 +206,15 @@ const ClientsPage = () => {
       setLoading(true);
       setError('');
       
-      // Create full address from components
-      const fullAddress = `${clientData.address}, ${clientData.city}, ${clientData.state} ${clientData.zipCode}`.replace(/^,\s*|,\s*$/g, '');
-      
       const updatedClientData = {
         name: clientData.name,
         email: clientData.email,
         phone: clientData.phone,
         company: clientData.company,
-        address: fullAddress,
+        address: clientData.address,
+        city: clientData.city,
+        state: clientData.state,
+        zipCode: clientData.zipCode,
         notes: clientData.notes
       };
       
@@ -371,10 +401,7 @@ const ClientsPage = () => {
               title="Export client data to Excel spreadsheet"
             >
               <div className="btn-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                  <path d="M9,14H7V16H9V14M11,14H13V16H11V14M15,14H17V16H15V14M9,10H7V12H9V10M11,10H13V12H11V10M15,10H17V12H15V10" opacity="0.7"/>
-                </svg>
+                <i className="bi bi-download"></i>
               </div>
               <div className="btn-content">
                 <span className="btn-text">Export to Excel</span>
@@ -389,10 +416,7 @@ const ClientsPage = () => {
               title="Import clients from Excel file"
             >
               <div className="btn-icon">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                  <path d="M12,11L8,15H10.5V19H13.5V15H16L12,11Z" opacity="0.7"/>
-                </svg>
+                <i className="bi bi-upload"></i>
               </div>
               <span className="btn-text">Import from Excel</span>
             </button>

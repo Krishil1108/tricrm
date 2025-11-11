@@ -142,7 +142,7 @@
   font-size: 13px;
   font-weight: 500;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  color: white;
+  color: white !important;
   text-decoration: none;
   min-height: 44px;
   box-sizing: border-box;
@@ -199,12 +199,14 @@
 /* Import Excel Button - Green Gradient */
 .project-btn-success {
   background: linear-gradient(135deg, #006D5B 0%, #08979C 100%);
+  color: white !important;
 }
 
 .project-btn-success:hover:not(:disabled) {
   background: linear-gradient(135deg, #005D4B 0%, #07878C 100%);
   transform: translateY(-1px);
   box-shadow: 0 5px 12px rgba(0, 109, 91, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: white !important;
 }
 
 /* Export Excel Button - Gray Gradient */

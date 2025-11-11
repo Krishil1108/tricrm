@@ -100,6 +100,36 @@ textarea:focus {
   color: #2d3748 !important;
 }
 
+/* Button text visibility fixes */
+.btn-success,
+.import-btn,
+.import-excel-btn,
+.project-btn-success,
+button[style*="background: linear-gradient"][style*="#10b981"],
+button[style*="background-color: #10b981"] {
+  color: white !important;
+}
+
+.btn-success *,
+.import-btn *,
+.import-excel-btn *,
+.project-btn-success *,
+button[style*="background: linear-gradient"][style*="#10b981"] *,
+button[style*="background-color: #10b981"] * {
+  color: white !important;
+}
+
+/* Specific fix for project success button label */
+label.project-btn-success,
+label.project-btn.project-btn-success {
+  color: white !important;
+}
+
+label.project-btn-success i,
+label.project-btn.project-btn-success i {
+  color: white !important;
+}
+
 /* Dark theme specific label styling */
 [data-theme="dark"] .form-group label,
 [data-theme="dark"] .form-label,
