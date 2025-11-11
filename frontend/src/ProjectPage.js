@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './ProjectPage.css';
 import FinanceService from './services/FinanceService';
+import ClientService from './services/ClientService';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
 import YearlyDistributionTable from './components/YearlyDistributionTable';
@@ -30,6 +31,21 @@ const ProjectPage = () => {
   const [selectedProjectForDistribution, setSelectedProjectForDistribution] = useState(null);
   const [showDistributionModal, setShowDistributionModal] = useState(false);
   
+  // Client-related state
+  const [clients, setClients] = useState([]);
+  const [showClientModal, setShowClientModal] = useState(false);
+  const [clientFormData, setClientFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    notes: ''
+  });
+  
   const { showLoading, hideLoading } = useLoading();
   const { showSuccess, showError } = useToast();
 
@@ -37,7 +53,19 @@ const ProjectPage = () => {
     fetchData();
     fetchStats();
     loadPercentageConfig();
+    loadClients();
   }, [activeTab, filters]);
+
+  const loadClients = async () => {
+    try {
+      const clientsData = await ClientService.getAllClients();
+      setClients(Array.isArray(clientsData) ? clientsData : []);
+    } catch (error) {
+      console.error('Error loading clients:', error);
+      showError('Failed to load clients');
+      setClients([]);
+    }
+  };
 
   const loadPercentageConfig = () => {
     try {
@@ -129,6 +157,7 @@ const ProjectPage = () => {
         srNo: projects.length + 1,
         projectNumber: '',
         projectName: '',
+        clientId: '',
         finalizedFees: '',
         totalReceivedFees: 0,
         payments: [],
@@ -304,6 +333,88 @@ const ProjectPage = () => {
       currency: 'INR',
       minimumFractionDigits: 0
     }).format(amount || 0);
+  };
+
+  // Client management functions
+  const handleOpenClientModal = () => {
+    setClientFormData({
+      name: '',
+      email: '',
+      phone: '',
+      company: '',
+      address: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      notes: ''
+    });
+    setShowClientModal(true);
+  };
+
+  const handleCloseClientModal = () => {
+    setShowClientModal(false);
+    setClientFormData({
+      name: '',
+      email: '',
+      phone: '',
+      company: '',
+      address: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      notes: ''
+    });
+  };
+
+  const handleClientInputChange = (e) => {
+    const { name, value } = e.target;
+    setClientFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleClientSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      showLoading();
+      
+      // Create the full address string
+      const fullAddress = [
+        clientFormData.address,
+        clientFormData.city,
+        clientFormData.state,
+        clientFormData.zipCode
+      ].filter(part => part.trim()).join(', ');
+
+      const clientDataToSend = {
+        name: clientFormData.name,
+        email: clientFormData.email,
+        phone: clientFormData.phone,
+        company: clientFormData.company,
+        address: fullAddress,
+        notes: clientFormData.notes
+      };
+
+      const newClient = await ClientService.createClient(clientDataToSend);
+      
+      // Update the clients list
+      setClients(prev => [...prev, newClient]);
+      
+      // Auto-select the newly created client in the project form
+      setFormData(prev => ({
+        ...prev,
+        clientId: newClient._id
+      }));
+      
+      showSuccess('Client added successfully');
+      handleCloseClientModal();
+    } catch (error) {
+      console.error('Error creating client:', error);
+      showError('Failed to create client: ' + (error.response?.data?.message || error.message));
+    } finally {
+      hideLoading();
+    }
   };
 
   return (
@@ -493,6 +604,8 @@ const ProjectPage = () => {
           onSave={handleSave}
           onClose={() => setShowModal(false)}
           isEditing={!!editingItem}
+          clients={clients}
+          onAddClient={handleOpenClientModal}
         />
       )}
 
@@ -539,6 +652,159 @@ const ProjectPage = () => {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Client Modal */}
+      {showClientModal && (
+        <div className="modal-overlay" onClick={handleCloseClientModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Add New Client</h2>
+              <button className="modal-close" onClick={handleCloseClientModal}>×</button>
+            </div>
+
+            <form onSubmit={handleClientSubmit} className="modal-body">
+              <div className="form-section">
+                <h3>Personal Information</h3>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="name">Full Name *</label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      className="form-input"
+                      value={clientFormData.name}
+                      onChange={handleClientInputChange}
+                      placeholder="Enter client's full name"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="email">Email Address *</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      className="form-input"
+                      value={clientFormData.email}
+                      onChange={handleClientInputChange}
+                      placeholder="client@example.com"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="phone">Phone Number</label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      className="form-input"
+                      value={clientFormData.phone}
+                      onChange={handleClientInputChange}
+                      placeholder="+1 (555) 123-4567"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="company">Company</label>
+                    <input
+                      type="text"
+                      id="company"
+                      name="company"
+                      className="form-input"
+                      value={clientFormData.company}
+                      onChange={handleClientInputChange}
+                      placeholder="Company name"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h3>Address Information</h3>
+                <div className="form-group">
+                  <label htmlFor="address">Street Address</label>
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    className="form-input"
+                    value={clientFormData.address}
+                    onChange={handleClientInputChange}
+                    placeholder="123 Main Street"
+                  />
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="city">City</label>
+                    <input
+                      type="text"
+                      id="city"
+                      name="city"
+                      className="form-input"
+                      value={clientFormData.city}
+                      onChange={handleClientInputChange}
+                      placeholder="City"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="state">State/Province</label>
+                    <input
+                      type="text"
+                      id="state"
+                      name="state"
+                      className="form-input"
+                      value={clientFormData.state}
+                      onChange={handleClientInputChange}
+                      placeholder="State"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="zipCode">ZIP/Postal Code</label>
+                    <input
+                      type="text"
+                      id="zipCode"
+                      name="zipCode"
+                      className="form-input"
+                      value={clientFormData.zipCode}
+                      onChange={handleClientInputChange}
+                      placeholder="12345"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h3>Additional Information</h3>
+                <div className="form-group">
+                  <label htmlFor="notes">Notes</label>
+                  <textarea
+                    id="notes"
+                    name="notes"
+                    className="form-input"
+                    rows="3"
+                    value={clientFormData.notes}
+                    onChange={handleClientInputChange}
+                    placeholder="Any additional notes about the client..."
+                  />
+                </div>
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="finance-btn finance-btn-secondary" onClick={handleCloseClientModal}>
+                  Cancel
+                </button>
+                <button type="submit" className="finance-btn finance-btn-primary">
+                  Add Client
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -701,7 +967,7 @@ const calculateYearlyDistribution = (payments) => {
 };
 
 // Modal Component
-const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing }) => {
+const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing, clients, onAddClient }) => {
   
   // Payment management functions
   const addPayment = () => {
@@ -814,6 +1080,8 @@ const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing })
               addPayment={addPayment}
               removePayment={removePayment}
               updatePayment={updatePayment}
+              clients={clients}
+              onAddClient={onAddClient}
             />
           ) : (
             <ExpenseForm formData={formData} handleChange={handleChange} />
@@ -834,7 +1102,7 @@ const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing })
 };
 
 // Project Form
-const ProjectForm = ({ formData, handleChange, handleAmountChange, addPayment, removePayment, updatePayment }) => {
+const ProjectForm = ({ formData, handleChange, handleAmountChange, addPayment, removePayment, updatePayment, clients, onAddClient }) => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -859,6 +1127,44 @@ const ProjectForm = ({ formData, handleChange, handleAmountChange, addPayment, r
       <div className="form-group">
         <label>Project Name *</label>
         <input type="text" name="projectName" className="form-input" value={formData.projectName || ''} onChange={handleChange} required />
+      </div>
+
+      {/* Client Selection Field */}
+      <div className="form-row">
+        <div className="form-group">
+          <label>Choose Client</label>
+          <select 
+            name="clientId" 
+            className="form-input" 
+            value={formData.clientId || ''} 
+            onChange={handleChange}
+          >
+            <option value="">Select a client...</option>
+            {clients.map(client => (
+              <option key={client._id} value={client._id}>
+                {client.name} {client.company ? `(${client.company})` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-group">
+          <button 
+            type="button" 
+            className="project-btn project-btn-success add-client-btn"
+            onClick={onAddClient}
+            style={{
+              marginTop: '24px',
+              padding: '8px 16px',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            <span style={{ fontSize: '18px', fontWeight: 'bold' }}>+</span>
+            Add New Client
+          </button>
+        </div>
       </div>
 
       <div className="form-row">
