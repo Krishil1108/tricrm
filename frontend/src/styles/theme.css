@@ -72,8 +72,39 @@ textarea:focus {
 /* Theme-based form labels */
 .form-group label,
 .form-label {
-  color: var(--theme-dark) !important;
+  color: #2d3748 !important;
   font-weight: 600;
+}
+
+/* Dark theme form labels */
+[data-theme="dark"] .form-group label,
+[data-theme="dark"] .form-label,
+[data-theme="dark"] label {
+  color: #e2e8f0 !important;
+}
+
+/* Input field text color fixes */
+input,
+select,
+textarea,
+.form-group input,
+.form-group select,
+.form-group textarea {
+  color: #2d3748 !important;
+  background-color: #ffffff !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  color: #2d3748 !important;
+}
+
+/* Dark theme specific label styling */
+[data-theme="dark"] .form-group label,
+[data-theme="dark"] .form-label,
+[data-theme="dark"] label {
+  color: var(--text-primary) !important;
 }
 
 /* Theme-based cards and containers */

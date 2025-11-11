@@ -129,7 +129,7 @@
 .form-group label {
   display: block;
   margin-bottom: 6px;
-  color: #333;
+  color: #2d3748 !important;
   font-weight: 500;
   font-size: 0.9rem;
 }
@@ -144,6 +144,8 @@
   font-size: 0.9rem;
   transition: border-color 0.2s ease;
   box-sizing: border-box;
+  color: #2d3748 !important;
+  background-color: #ffffff !important;
 }
 
 .form-group input:focus,
@@ -372,4 +374,18 @@
 [data-theme="dark"] .loading-spinner {
   border-color: var(--border-color);
   border-top-color: var(--accent-color);
+}
+
+/* Dark theme form label fix */
+[data-theme="dark"] .form-group label {
+  color: #e2e8f0 !important;
+}
+
+/* Dark theme input text fix */
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group textarea,
+[data-theme="dark"] .form-group select {
+  color: #e2e8f0 !important;
+  background-color: var(--input-bg, #374151) !important;
+  border-color: var(--border-color, #6b7280) !important;
 }

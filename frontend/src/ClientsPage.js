@@ -346,13 +346,24 @@ const ClientsPage = () => {
   };
 
   return (
-    <div className="page-container">
+    <div className="page-container project-page">
       <div className="page-header">
         <div className="header-content">
           <h1>Clients</h1>
           <p>Manage and view all your clients</p>
         </div>
         <div className="header-actions">
+          {canCreate('clients') && (
+            <button 
+              className="add-client-btn"
+              onClick={() => setShowAddPopup(true)}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+              </svg>
+              Add New Client
+            </button>
+          )}
           {canExport('clients') && (
             <button 
               className="export-btn enhanced-export-btn"
@@ -384,17 +395,6 @@ const ClientsPage = () => {
                 </svg>
               </div>
               <span className="btn-text">Import from Excel</span>
-            </button>
-          )}
-          {canCreate('clients') && (
-            <button 
-              className="add-client-btn"
-              onClick={() => setShowAddPopup(true)}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-              </svg>
-              Add New Client
             </button>
           )}
         </div>
@@ -429,75 +429,103 @@ const ClientsPage = () => {
           </div>
         )}
 
-        {/* Controls */}
-        <div className="client-controls">
-          <div className="search-section">
-            <div className="search-box">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-              </svg>
-              <input
-                type="text"
-                placeholder="Search clients by name, email, or company..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+        {/* Client Statistics */}
+<div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-label">Total Clients</div>
+            <div className="stat-value">{Array.isArray(clients) ? clients.length : 0}</div>
           </div>
+          <div className="stat-card success">
+            <div className="stat-label">Active Clients</div>
+            <div className="stat-value">{Array.isArray(clients) ? clients.filter(c => c.status === 'Active').length : 0}</div>
+          </div>
+          <div className="stat-card warning">
+            <div className="stat-label">Pending</div>
+            <div className="stat-value">{Array.isArray(clients) ? clients.filter(c => c.status === 'Pending').length : 0}</div>
+          </div>
+          <div className="stat-card danger">
+            <div className="stat-label">Inactive Clients</div>
+            <div className="stat-value">{Array.isArray(clients) ? clients.filter(c => c.status === 'Inactive').length : 0}</div>
+          </div>
+        </div>
 
-          <div className="filter-section">
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+        {/* Controls */}
+        <div className="finance-filters" style={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '15px',
+          flexWrap: 'nowrap',
+          alignItems: 'flex-start',
+          padding: '20px',
+          background: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)',
+          marginBottom: '20px',
+          width: '100%',
+          boxSizing: 'border-box'
+        }}>
+          <div style={{
+            flex: '1',
+            maxWidth: '400px'
+          }}>
+            <input
+              type="text"
+              className="filter-input"
+              placeholder="Search clients by name, email, or company..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ 
+                width: '100%', 
+                padding: '12px 16px', 
+                border: '2px solid #e5e7eb', 
+                borderRadius: '8px',
+                fontSize: '14px',
+                boxSizing: 'border-box',
+                outline: 'none'
+              }}
+            />
+          </div>
+          
+          <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+            <select
+              className="filter-select"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              style={{ 
+                padding: '12px 16px', 
+                border: '2px solid #e5e7eb', 
+                borderRadius: '8px',
+                fontSize: '14px',
+                background: 'white',
+                minWidth: '140px',
+                outline: 'none'
+              }}
+            >
               <option value="name">Sort by Name</option>
               <option value="email">Sort by Email</option>
               <option value="company">Sort by Company</option>
               <option value="date">Sort by Date Added</option>
             </select>
 
-            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+            <select
+              className="filter-select"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              style={{ 
+                padding: '12px 16px', 
+                border: '2px solid #e5e7eb', 
+                borderRadius: '8px',
+                fontSize: '14px',
+                background: 'white',
+                minWidth: '140px',
+                outline: 'none'
+              }}
+            >
               <option value="all">All Status</option>
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
               <option value="Pending">Pending</option>
             </select>
-          </div>
-        </div>
-
-        {/* Client Statistics */}
-        <div className="client-stats">
-          <div className="stat-card">
-            <div className="stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A3.002 3.002 0 0 0 17.06 7H16.94c-.4 0-.82.08-1.19.22L13.9 8.5A2.001 2.001 0 0 0 15.69 11L17 10.35V22h3z"/>
-              </svg>
-            </div>
-            <div className="stat-info">
-              <div className="stat-number">{Array.isArray(clients) ? clients.length : 0}</div>
-              <div className="stat-label">Total Clients</div>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon active">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-              </svg>
-            </div>
-            <div className="stat-info">
-              <div className="stat-number">{Array.isArray(clients) ? clients.filter(c => c.status === 'Active').length : 0}</div>
-              <div className="stat-label">Active Clients</div>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon pending">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-              </svg>
-            </div>
-            <div className="stat-info">
-              <div className="stat-number">{Array.isArray(clients) ? clients.filter(c => c.status === 'Pending').length : 0}</div>
-              <div className="stat-label">Pending</div>
-            </div>
           </div>
         </div>
 
@@ -521,7 +549,7 @@ const ClientsPage = () => {
                   <th>Phone</th>
                   <th>Status</th>
                   <th>Added Date</th>
-                  <th>Actions</th>
+                  <th style={{ textAlign: 'center' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -550,25 +578,12 @@ const ClientsPage = () => {
                       </select>
                     </td>
                     <td>{formatDate(client.createdAt)}</td>
-                    <td>
+                    <td style={{ textAlign: 'center' }}>
                       <div className="action-buttons">
                         <button
-                          className="view-projects-btn"
+                          className="view-projects-btn action-btn"
                           onClick={() => handleViewProjects(client)}
                           title="View Projects"
-                          style={{
-                            backgroundColor: '#007bff',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            padding: '6px 8px',
-                            cursor: 'pointer',
-                            marginRight: '4px',
-                            fontSize: '12px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
                         >
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
@@ -577,7 +592,7 @@ const ClientsPage = () => {
                         </button>
                         {canEdit('clients') && (
                           <button
-                            className="edit-btn"
+                            className="edit-btn action-btn"
                             onClick={() => handleEdit(client)}
                             title="Edit Client"
                           >
@@ -588,7 +603,7 @@ const ClientsPage = () => {
                         )}
                         {canDelete('clients') && (
                           <button
-                            className="delete-btn"
+                            className="delete-btn action-btn"
                             onClick={() => handleDelete(client._id)}
                             title="Delete Client"
                           >
