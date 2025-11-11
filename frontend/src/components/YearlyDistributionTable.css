@@ -12,6 +12,24 @@
   color: white;
 }
 
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.header-right {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .distribution-header h3 {
   margin: 0 0 10px 0;
   font-size: 1.4rem;
@@ -29,6 +47,44 @@
   background: rgba(255,255,255,0.2);
   padding: 5px 10px;
   border-radius: 4px;
+}
+
+/* Export Buttons */
+.export-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.excel-btn {
+  background: #28a745;
+  color: white;
+}
+
+.excel-btn:hover {
+  background: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.pdf-btn {
+  background: #dc3545;
+  color: white;
+}
+
+.pdf-btn:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
 }
 
 .yearly-distribution {
@@ -194,5 +250,66 @@
   .remaining-row td {
     background: #f5f5f5 !important;
     color: #000 !important;
+  }
+}
+
+/* Export buttons */
+.export-buttons {
+  display: flex;
+  gap: 15px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  justify-content: center;
+}
+
+.export-excel-btn,
+.export-pdf-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.export-excel-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+}
+
+.export-excel-btn:hover {
+  background: linear-gradient(135deg, #218838 0%, #1ca085 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.export-pdf-btn {
+  background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+  color: white;
+}
+
+.export-pdf-btn:hover {
+  background: linear-gradient(135deg, #c82333 0%, #dc2f2f 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+@media (max-width: 768px) {
+  .export-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .export-excel-btn,
+  .export-pdf-btn {
+    width: 100%;
+    justify-content: center;
   }
 }

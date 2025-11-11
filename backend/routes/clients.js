@@ -2,21 +2,26 @@ const express = require('express');
 const router = express.Router();
 const Client = require('../models/Client');
 const Activity = require('../models/Activity');
-const { checkPermission } = require('../middleware/auth');
 
 // GET /api/clients - Get all clients
-router.get('/', checkPermission('clients', 'view'), async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const clients = await Client.find({}).sort({ createdAt: -1 });
-    res.json(clients);
+    res.json({
+      success: true,
+      data: clients
+    });
   } catch (error) {
     console.error('Error fetching clients:', error);
-    res.status(500).json({ message: 'Server error while fetching clients' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error while fetching clients' 
+    });
   }
 });
 
 // POST /api/clients - Create a new client
-router.post('/', checkPermission('clients', 'create'), async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const {
       name,
@@ -35,7 +40,10 @@ router.post('/', checkPermission('clients', 'create'), async (req, res) => {
     // Check if client with email already exists
     const existingClient = await Client.findOne({ email });
     if (existingClient) {
-      return res.status(400).json({ message: 'Client with this email already exists' });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Client with this email already exists' 
+      });
     }
 
     const newClient = new Client({
@@ -71,25 +79,35 @@ router.post('/', checkPermission('clients', 'create'), async (req, res) => {
       // Don't fail the request if activity logging fails
     }
     
-    res.status(201).json(savedClient);
+    res.status(201).json({
+      success: true,
+      data: savedClient
+    });
   } catch (error) {
     console.error('Error creating client:', error);
     if (error.name === 'ValidationError') {
       console.error('Validation details:', error.errors);
       return res.status(400).json({ 
+        success: false,
         message: 'Validation error', 
         details: Object.values(error.errors).map(err => err.message)
       });
     }
     if (error.code === 11000) {
-      return res.status(400).json({ message: 'Client with this email already exists' });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Client with this email already exists' 
+      });
     }
-    res.status(500).json({ message: 'Server error while creating client' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error while creating client' 
+    });
   }
 });
 
 // PUT /api/clients/:id - Update a client
-router.put('/:id', checkPermission('clients', 'edit'), async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -115,7 +133,7 @@ router.put('/:id', checkPermission('clients', 'edit'), async (req, res) => {
 });
 
 // DELETE /api/clients/:id - Delete a client
-router.delete('/:id', checkPermission('clients', 'delete'), async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -133,7 +151,7 @@ router.delete('/:id', checkPermission('clients', 'delete'), async (req, res) => 
 });
 
 // GET /api/clients/:id - Get a single client
-router.get('/:id', checkPermission('clients', 'view'), async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const client = await Client.findById(id);

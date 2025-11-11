@@ -1,0 +1,4786 @@
+[2025-11-11T04:30:08.233Z] [INFO] Email service initialized successfully
+[2025-11-11T04:30:30.230Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:30.229Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:30:30.289Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:30.289Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:30:30.296Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:30.296Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "7ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:30:30.387Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:30.386Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "157ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:30:30.399Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:30.399Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:30:30.444Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:30.444Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "45ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:30:30.471Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:30.471Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:30:30.475Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:30.475Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "4ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:30:30.635Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:30.635Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:30:30.666Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:30.666Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "31ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:30:31.002Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:31.002Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:30:31.025Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:31.025Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "23ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:30:34.883Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:34.883Z",
+  "method": "POST",
+  "url": "/api/auth/logout",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:30:34.903Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:34.902Z",
+  "method": "POST",
+  "url": "/api/auth/logout",
+  "statusCode": 200,
+  "responseTime": "19ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:30:34.943Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:34.943Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:30:34.946Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:34.946Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "3ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:30:52.344Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:52.344Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:30:52.765Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:52.765Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "statusCode": 200,
+  "responseTime": "421ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:30:53.183Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:53.183Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:30:53.202Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:53.202Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:30:53.206Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:53.206Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "4ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:30:53.240Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:53.240Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "57ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:30:53.423Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:53.423Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:30:53.471Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:53.471Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "48ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:30:56.640Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:56.639Z",
+  "method": "POST",
+  "url": "/api/auth/logout",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:30:56.659Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:56.659Z",
+  "method": "POST",
+  "url": "/api/auth/logout",
+  "statusCode": 200,
+  "responseTime": "20ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:30:56.717Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:56.717Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:30:56.721Z] [INFO] {
+  "timestamp": "2025-11-11T04:30:56.721Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "4ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:31:03.388Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:03.388Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:03.401Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:03.400Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "statusCode": 401,
+  "responseTime": "12ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:31:11.692Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:11.692Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:11.703Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:11.702Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "statusCode": 401,
+  "responseTime": "10ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:31:18.367Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:18.367Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:18.725Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:18.725Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "statusCode": 200,
+  "responseTime": "358ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:31:19.104Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:19.104Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:19.118Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:19.118Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:19.121Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:19.121Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "3ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:31:19.148Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:19.148Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "44ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:31:19.345Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:19.345Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:19.362Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:19.362Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "17ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:31:20.914Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:20.914Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:20.917Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:20.917Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "3ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:31:20.923Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:20.923Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:20.968Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:20.968Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "statusCode": 200,
+  "responseTime": "45ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:31:20.983Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:20.983Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:21.023Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:21.023Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "statusCode": 200,
+  "responseTime": "40ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:31:22.116Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:22.115Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:22.132Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:22.132Z",
+  "method": "GET",
+  "url": "/api/users",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:22.249Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:22.249Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "statusCode": 200,
+  "responseTime": "134ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:31:22.267Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:22.266Z",
+  "method": "GET",
+  "url": "/api/users",
+  "statusCode": 200,
+  "responseTime": "134ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:31:22.272Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:22.272Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:22.303Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:22.303Z",
+  "method": "GET",
+  "url": "/api/users",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:22.340Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:22.340Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "statusCode": 200,
+  "responseTime": "68ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:31:22.385Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:22.385Z",
+  "method": "GET",
+  "url": "/api/users",
+  "statusCode": 200,
+  "responseTime": "82ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:31:22.420Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:22.420Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:22.424Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:22.424Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "4ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:31:55.195Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:55.195Z",
+  "method": "POST",
+  "url": "/api/users",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:55.552Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:55.552Z",
+  "method": "POST",
+  "url": "/api/users",
+  "statusCode": 201,
+  "responseTime": "357ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:31:55.566Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:55.566Z",
+  "method": "GET",
+  "url": "/api/users",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:55.610Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:55.610Z",
+  "method": "GET",
+  "url": "/api/users",
+  "statusCode": 200,
+  "responseTime": "44ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:31:59.455Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:59.455Z",
+  "method": "POST",
+  "url": "/api/auth/logout",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:59.470Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:59.469Z",
+  "method": "POST",
+  "url": "/api/auth/logout",
+  "statusCode": 200,
+  "responseTime": "14ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:31:59.516Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:59.516Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:31:59.518Z] [INFO] {
+  "timestamp": "2025-11-11T04:31:59.518Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:32:06.227Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:06.227Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:06.514Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:06.514Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "statusCode": 200,
+  "responseTime": "287ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:32:06.887Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:06.887Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:06.897Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:06.897Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:06.900Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:06.900Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "3ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:32:06.918Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:06.918Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "31ms",
+  "userId": "6912bc3b18e070671809dd78"
+}
+[2025-11-11T04:32:07.158Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:07.158Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:07.197Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:07.196Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "38ms",
+  "userId": "6912bc3b18e070671809dd78"
+}
+[2025-11-11T04:32:09.654Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:09.654Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:09.665Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:09.664Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:09.668Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:09.668Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "4ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:32:09.691Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:09.691Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "37ms",
+  "userId": "6912bc3b18e070671809dd78"
+}
+[2025-11-11T04:32:09.700Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:09.700Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:09.723Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:09.723Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "23ms",
+  "userId": "6912bc3b18e070671809dd78"
+}
+[2025-11-11T04:32:16.152Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:16.152Z",
+  "method": "POST",
+  "url": "/api/auth/logout",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:16.172Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:16.172Z",
+  "method": "POST",
+  "url": "/api/auth/logout",
+  "statusCode": 200,
+  "responseTime": "20ms",
+  "userId": "6912bc3b18e070671809dd78"
+}
+[2025-11-11T04:32:16.537Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:16.536Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:16.539Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:16.539Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "3ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:32:21.534Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:21.534Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:21.876Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:21.876Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "statusCode": 200,
+  "responseTime": "342ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:32:21.935Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:21.935Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:21.960Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:21.960Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "25ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:32:22.242Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:22.242Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:22.245Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:22.245Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "3ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:32:22.288Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:22.288Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:22.304Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:22.304Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "16ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:32:24.451Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:24.451Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:24.488Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:24.488Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "statusCode": 200,
+  "responseTime": "37ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:32:24.499Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:24.499Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:24.545Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:24.545Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "statusCode": 200,
+  "responseTime": "45ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:32:24.767Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:24.767Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:24.770Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:24.769Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:32:53.789Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:53.789Z",
+  "method": "PUT",
+  "url": "/api/roles/690c4c43be8f36eb0f3c17bd",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:53.889Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:53.888Z",
+  "method": "PUT",
+  "url": "/api/roles/690c4c43be8f36eb0f3c17bd",
+  "statusCode": 200,
+  "responseTime": "99ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:32:53.904Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:53.904Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:53.939Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:53.939Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "statusCode": 200,
+  "responseTime": "35ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:32:56.725Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:56.725Z",
+  "method": "POST",
+  "url": "/api/auth/logout",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:56.740Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:56.740Z",
+  "method": "POST",
+  "url": "/api/auth/logout",
+  "statusCode": 200,
+  "responseTime": "15ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:32:56.789Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:56.789Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:32:56.793Z] [INFO] {
+  "timestamp": "2025-11-11T04:32:56.793Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "4ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:33:02.650Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:02.650Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:02.969Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:02.969Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "statusCode": 200,
+  "responseTime": "319ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:33:03.336Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:03.336Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:03.346Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:03.346Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:03.349Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:03.349Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "3ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:33:03.364Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:03.364Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "28ms",
+  "userId": "6912bc3b18e070671809dd78"
+}
+[2025-11-11T04:33:03.582Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:03.581Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:03.602Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:03.602Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "21ms",
+  "userId": "6912bc3b18e070671809dd78"
+}
+[2025-11-11T04:33:06.993Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:06.993Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:07.016Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:07.016Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:07.018Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:07.018Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:33:07.037Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:07.037Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "44ms",
+  "userId": "6912bc3b18e070671809dd78"
+}
+[2025-11-11T04:33:07.052Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:07.052Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:07.079Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:07.079Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "27ms",
+  "userId": "6912bc3b18e070671809dd78"
+}
+[2025-11-11T04:33:24.756Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:24.756Z",
+  "method": "POST",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:24.861Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:24.861Z",
+  "method": "POST",
+  "url": "/api/clients",
+  "statusCode": 201,
+  "responseTime": "105ms",
+  "userId": "6912bc3b18e070671809dd78"
+}
+[2025-11-11T04:33:36.341Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:36.341Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:36.350Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:36.350Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:36.416Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:36.416Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "75ms",
+  "userId": "6912bc3b18e070671809dd78"
+}
+[2025-11-11T04:33:36.425Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:36.425Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:36.485Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:36.484Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "59ms",
+  "userId": "6912bc3b18e070671809dd78"
+}
+[2025-11-11T04:33:36.496Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:36.496Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "146ms",
+  "userId": "6912bc3b18e070671809dd78"
+}
+[2025-11-11T04:33:36.507Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:36.507Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:36.569Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:36.569Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:36.571Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:36.571Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:33:36.576Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:36.576Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "69ms",
+  "userId": "6912bc3b18e070671809dd78"
+}
+[2025-11-11T04:33:40.158Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:40.158Z",
+  "method": "POST",
+  "url": "/api/auth/logout",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:40.171Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:40.171Z",
+  "method": "POST",
+  "url": "/api/auth/logout",
+  "statusCode": 200,
+  "responseTime": "13ms",
+  "userId": "6912bc3b18e070671809dd78"
+}
+[2025-11-11T04:33:40.218Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:40.218Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:40.222Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:40.222Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "4ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:33:45.555Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:45.555Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:45.872Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:45.872Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "statusCode": 200,
+  "responseTime": "317ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:33:46.249Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:46.249Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:46.260Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:46.260Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:46.263Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:46.263Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "3ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:33:46.283Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:46.283Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "34ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:33:46.505Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:46.504Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:46.524Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:46.524Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "20ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:33:48.630Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:48.630Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:48.632Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:48.632Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:33:48.648Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:48.648Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:48.662Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:48.662Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:48.736Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:48.736Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "88ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:33:48.751Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:48.751Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:48.803Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:48.803Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "141ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:33:48.811Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:48.809Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "58ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:33:48.820Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:48.820Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:33:48.887Z] [INFO] {
+  "timestamp": "2025-11-11T04:33:48.887Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "67ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:34:47.391Z] [INFO] {
+  "timestamp": "2025-11-11T04:34:47.391Z",
+  "method": "POST",
+  "url": "/api/finance/projects",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:34:47.478Z] [INFO] {
+  "timestamp": "2025-11-11T04:34:47.478Z",
+  "method": "POST",
+  "url": "/api/finance/projects",
+  "statusCode": 200,
+  "responseTime": "87ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:34:47.509Z] [INFO] {
+  "timestamp": "2025-11-11T04:34:47.509Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:34:47.524Z] [INFO] {
+  "timestamp": "2025-11-11T04:34:47.524Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:34:47.580Z] [INFO] {
+  "timestamp": "2025-11-11T04:34:47.580Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "71ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:34:47.603Z] [INFO] {
+  "timestamp": "2025-11-11T04:34:47.603Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "79ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:35:51.561Z] [INFO] {
+  "timestamp": "2025-11-11T04:35:51.561Z",
+  "method": "GET",
+  "url": "/api/finance/export/projects",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:38:06.650Z] [INFO] {
+  "timestamp": "2025-11-11T04:38:06.650Z",
+  "method": "POST",
+  "url": "/api/finance/projects",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:38:06.706Z] [INFO] {
+  "timestamp": "2025-11-11T04:38:06.706Z",
+  "method": "POST",
+  "url": "/api/finance/projects",
+  "statusCode": 200,
+  "responseTime": "56ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:38:06.734Z] [INFO] {
+  "timestamp": "2025-11-11T04:38:06.734Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:38:06.746Z] [INFO] {
+  "timestamp": "2025-11-11T04:38:06.746Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:38:06.798Z] [INFO] {
+  "timestamp": "2025-11-11T04:38:06.798Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "64ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:38:06.825Z] [INFO] {
+  "timestamp": "2025-11-11T04:38:06.825Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "79ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:39:30.844Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:30.844Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=s&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:39:30.859Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:30.859Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:39:30.935Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:30.935Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=s&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "91ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:39:30.965Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:30.965Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "106ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:39:31.760Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:31.760Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:39:31.771Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:31.771Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=sh&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:39:31.832Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:31.832Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=sh&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "61ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:39:31.859Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:31.859Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "99ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:39:34.185Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:34.185Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=s&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:39:34.193Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:34.193Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:39:34.249Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:34.249Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=s&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "64ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:39:34.280Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:34.280Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "87ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:39:34.380Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:34.380Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:39:34.388Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:34.388Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:39:34.449Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:34.448Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "60ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:39:34.471Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:34.471Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "91ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:39:38.002Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:38.002Z",
+  "method": "GET",
+  "url": "/api/finance/expenses?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:39:38.014Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:38.014Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:39:38.068Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:38.067Z",
+  "method": "GET",
+  "url": "/api/finance/expenses?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "65ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:39:38.104Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:38.104Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "90ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:39:39.992Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:39.992Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:39:40.001Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:40.001Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:39:40.064Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:40.064Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "63ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:39:40.088Z] [INFO] {
+  "timestamp": "2025-11-11T04:39:40.088Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "96ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:40:09.155Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:09.155Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:40:09.189Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:09.189Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "statusCode": 200,
+  "responseTime": "34ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:40:09.200Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:09.200Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:40:09.241Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:09.241Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "statusCode": 200,
+  "responseTime": "41ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:40:09.470Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:09.470Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:40:09.473Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:09.472Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:40:11.094Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:11.094Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:40:11.104Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:11.104Z",
+  "method": "GET",
+  "url": "/api/users",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:40:11.117Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:11.117Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:40:11.119Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:11.119Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T04:40:11.163Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:11.163Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "statusCode": 200,
+  "responseTime": "69ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:40:11.176Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:11.176Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:40:11.190Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:11.190Z",
+  "method": "GET",
+  "url": "/api/users",
+  "statusCode": 200,
+  "responseTime": "86ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:40:11.218Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:11.218Z",
+  "method": "GET",
+  "url": "/api/users",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:40:11.230Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:11.230Z",
+  "method": "GET",
+  "url": "/api/roles",
+  "statusCode": 200,
+  "responseTime": "54ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:40:11.266Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:11.266Z",
+  "method": "GET",
+  "url": "/api/users",
+  "statusCode": 200,
+  "responseTime": "48ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:40:23.682Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:23.682Z",
+  "method": "POST",
+  "url": "/api/auth/logout",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:40:23.694Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:23.694Z",
+  "method": "POST",
+  "url": "/api/auth/logout",
+  "statusCode": 200,
+  "responseTime": "12ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T04:40:24.039Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:24.039Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T04:40:24.042Z] [INFO] {
+  "timestamp": "2025-11-11T04:40:24.041Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:00:31.687Z] [INFO] Email service initialized successfully
+[2025-11-11T06:00:35.996Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:35.995Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:00:35.997Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:35.997Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:00:36.013Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:36.013Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:00:36.014Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:36.014Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "1ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:00:40.440Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:40.439Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:00:40.638Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:40.638Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "statusCode": 200,
+  "responseTime": "199ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:00:40.672Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:40.672Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:00:40.694Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:40.693Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "21ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:00:40.984Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:40.983Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:00:40.993Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:40.993Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "10ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:00:41.019Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:41.019Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:00:41.033Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:41.032Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "13ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:00:43.918Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:43.918Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:00:43.924Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:43.924Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:00:43.973Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:43.973Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "55ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:00:43.992Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:43.992Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:00:44.013Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:44.013Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "89ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:00:44.024Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:44.024Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:00:44.040Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:44.040Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "48ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:00:44.066Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:44.065Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "41ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:00:44.113Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:44.113Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:00:44.116Z] [INFO] {
+  "timestamp": "2025-11-11T06:00:44.115Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:07:26.795Z] [INFO] Email service initialized successfully
+[2025-11-11T06:07:45.094Z] [INFO] {
+  "timestamp": "2025-11-11T06:07:45.093Z",
+  "method": "GET",
+  "url": "/main.fcf101c019c5eae41c43.hot-update.json",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:07:45.107Z] [INFO] {
+  "timestamp": "2025-11-11T06:07:45.107Z",
+  "method": "GET",
+  "url": "/main.fcf101c019c5eae41c43.hot-update.json",
+  "statusCode": 200,
+  "responseTime": "14ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:07:45.572Z] [INFO] {
+  "timestamp": "2025-11-11T06:07:45.572Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:07:45.591Z] [INFO] {
+  "timestamp": "2025-11-11T06:07:45.591Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:07:45.599Z] [INFO] {
+  "timestamp": "2025-11-11T06:07:45.599Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "8ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:07:45.629Z] [INFO] {
+  "timestamp": "2025-11-11T06:07:45.629Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "57ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:07:45.641Z] [INFO] {
+  "timestamp": "2025-11-11T06:07:45.641Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:07:45.657Z] [INFO] {
+  "timestamp": "2025-11-11T06:07:45.657Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "16ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:07:45.674Z] [INFO] {
+  "timestamp": "2025-11-11T06:07:45.674Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:07:45.675Z] [INFO] {
+  "timestamp": "2025-11-11T06:07:45.675Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "1ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:07:46.011Z] [INFO] {
+  "timestamp": "2025-11-11T06:07:46.011Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:07:46.029Z] [INFO] {
+  "timestamp": "2025-11-11T06:07:46.029Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "19ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:07:46.269Z] [INFO] {
+  "timestamp": "2025-11-11T06:07:46.269Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:07:46.289Z] [INFO] {
+  "timestamp": "2025-11-11T06:07:46.289Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "20ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:08:08.881Z] [INFO] {
+  "timestamp": "2025-11-11T06:08:08.881Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:08:08.886Z] [INFO] {
+  "timestamp": "2025-11-11T06:08:08.886Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "5ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:08:08.897Z] [INFO] {
+  "timestamp": "2025-11-11T06:08:08.897Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:08:08.906Z] [INFO] {
+  "timestamp": "2025-11-11T06:08:08.906Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:08:08.949Z] [INFO] {
+  "timestamp": "2025-11-11T06:08:08.949Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "52ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:08:08.966Z] [INFO] {
+  "timestamp": "2025-11-11T06:08:08.966Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:08:08.990Z] [INFO] {
+  "timestamp": "2025-11-11T06:08:08.990Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "84ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:08:09.002Z] [INFO] {
+  "timestamp": "2025-11-11T06:08:09.002Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:08:09.026Z] [INFO] {
+  "timestamp": "2025-11-11T06:08:09.026Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "60ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:08:09.050Z] [INFO] {
+  "timestamp": "2025-11-11T06:08:09.050Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "48ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:19:29.642Z] [INFO] Email service initialized successfully
+[2025-11-11T06:19:35.820Z] [INFO] {
+  "timestamp": "2025-11-11T06:19:35.820Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:19:35.835Z] [INFO] {
+  "timestamp": "2025-11-11T06:19:35.835Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:19:35.844Z] [INFO] {
+  "timestamp": "2025-11-11T06:19:35.844Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "9ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:19:35.872Z] [INFO] {
+  "timestamp": "2025-11-11T06:19:35.872Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "52ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:19:35.878Z] [INFO] {
+  "timestamp": "2025-11-11T06:19:35.878Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:19:35.890Z] [INFO] {
+  "timestamp": "2025-11-11T06:19:35.890Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "12ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:19:35.909Z] [INFO] {
+  "timestamp": "2025-11-11T06:19:35.909Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:19:35.910Z] [INFO] {
+  "timestamp": "2025-11-11T06:19:35.910Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "1ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:19:36.629Z] [INFO] {
+  "timestamp": "2025-11-11T06:19:36.629Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:19:36.649Z] [INFO] {
+  "timestamp": "2025-11-11T06:19:36.649Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "20ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:19:36.975Z] [INFO] {
+  "timestamp": "2025-11-11T06:19:36.975Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:19:36.997Z] [INFO] {
+  "timestamp": "2025-11-11T06:19:36.997Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "22ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:22:01.624Z] [INFO] {
+  "timestamp": "2025-11-11T06:22:01.624Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:22:01.632Z] [INFO] {
+  "timestamp": "2025-11-11T06:22:01.632Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:22:01.679Z] [INFO] {
+  "timestamp": "2025-11-11T06:22:01.679Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "55ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:22:01.717Z] [INFO] {
+  "timestamp": "2025-11-11T06:22:01.717Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:22:01.740Z] [INFO] {
+  "timestamp": "2025-11-11T06:22:01.740Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "108ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:22:01.753Z] [INFO] {
+  "timestamp": "2025-11-11T06:22:01.753Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:22:01.778Z] [INFO] {
+  "timestamp": "2025-11-11T06:22:01.778Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "61ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:22:01.801Z] [INFO] {
+  "timestamp": "2025-11-11T06:22:01.801Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "48ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:22:01.839Z] [INFO] {
+  "timestamp": "2025-11-11T06:22:01.839Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:22:01.840Z] [INFO] {
+  "timestamp": "2025-11-11T06:22:01.840Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:23:23.067Z] [INFO] {
+  "timestamp": "2025-11-11T06:23:23.067Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:23:23.071Z] [INFO] {
+  "timestamp": "2025-11-11T06:23:23.071Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:23:23.104Z] [INFO] {
+  "timestamp": "2025-11-11T06:23:23.104Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "37ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:23:23.121Z] [INFO] {
+  "timestamp": "2025-11-11T06:23:23.121Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "50ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:23:32.060Z] [INFO] {
+  "timestamp": "2025-11-11T06:23:32.060Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:23:32.070Z] [INFO] {
+  "timestamp": "2025-11-11T06:23:32.070Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:23:32.115Z] [INFO] {
+  "timestamp": "2025-11-11T06:23:32.115Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "55ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:23:32.136Z] [INFO] {
+  "timestamp": "2025-11-11T06:23:32.136Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "66ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:23:44.067Z] [INFO] {
+  "timestamp": "2025-11-11T06:23:44.067Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:23:44.073Z] [INFO] {
+  "timestamp": "2025-11-11T06:23:44.073Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:23:44.092Z] [INFO] {
+  "timestamp": "2025-11-11T06:23:44.092Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "25ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:23:44.110Z] [INFO] {
+  "timestamp": "2025-11-11T06:23:44.110Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "37ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:23:58.068Z] [INFO] {
+  "timestamp": "2025-11-11T06:23:58.068Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:23:58.075Z] [INFO] {
+  "timestamp": "2025-11-11T06:23:58.075Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:23:58.120Z] [INFO] {
+  "timestamp": "2025-11-11T06:23:58.120Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "52ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:23:58.143Z] [INFO] {
+  "timestamp": "2025-11-11T06:23:58.143Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "69ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:24:13.074Z] [INFO] {
+  "timestamp": "2025-11-11T06:24:13.074Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:24:13.083Z] [INFO] {
+  "timestamp": "2025-11-11T06:24:13.083Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:24:13.110Z] [INFO] {
+  "timestamp": "2025-11-11T06:24:13.110Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "36ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:24:13.125Z] [INFO] {
+  "timestamp": "2025-11-11T06:24:13.125Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "42ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:24:22.066Z] [INFO] {
+  "timestamp": "2025-11-11T06:24:22.066Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:24:22.071Z] [INFO] {
+  "timestamp": "2025-11-11T06:24:22.071Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:24:22.111Z] [INFO] {
+  "timestamp": "2025-11-11T06:24:22.111Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "45ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:24:22.127Z] [INFO] {
+  "timestamp": "2025-11-11T06:24:22.127Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "56ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:24:32.060Z] [INFO] {
+  "timestamp": "2025-11-11T06:24:32.060Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:24:32.064Z] [INFO] {
+  "timestamp": "2025-11-11T06:24:32.064Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:24:32.085Z] [INFO] {
+  "timestamp": "2025-11-11T06:24:32.085Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "25ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:24:32.098Z] [INFO] {
+  "timestamp": "2025-11-11T06:24:32.098Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "34ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:25:00.696Z] [INFO] Email service initialized successfully
+[2025-11-11T06:26:39.355Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:39.355Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:39.369Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:39.369Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:39.379Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:39.379Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:39.384Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:39.384Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "5ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:26:39.419Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:39.419Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "64ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:26:39.426Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:39.426Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "57ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:26:39.470Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:39.470Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:39.478Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:39.478Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:39.553Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:39.553Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "83ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:26:39.576Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:39.576Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:39.590Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:39.589Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "111ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:26:39.599Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:39.599Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:39.631Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:39.631Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "55ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:26:39.655Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:39.655Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "56ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:26:49.917Z] [INFO] Email service initialized successfully
+[2025-11-11T06:26:53.841Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:53.841Z",
+  "method": "GET",
+  "url": "/main.2b713aa7bdefd774d882.hot-update.json",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:53.843Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:53.843Z",
+  "method": "GET",
+  "url": "/main.2b713aa7bdefd774d882.hot-update.json",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:26:54.184Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:54.184Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:54.199Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:54.199Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:54.206Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:54.206Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "7ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:26:54.229Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:54.229Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "45ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:26:54.234Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:54.234Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:54.246Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:54.246Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "12ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:26:54.276Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:54.276Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:54.277Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:54.277Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "1ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:26:54.794Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:54.794Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:54.809Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:54.809Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "15ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:26:55.130Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:55.130Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:55.145Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:55.145Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "15ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:26:55.279Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:55.279Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:55.288Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:55.288Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:55.312Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:55.312Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "33ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:26:55.323Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:55.323Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:55.334Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:55.334Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "46ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:26:55.340Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:55.340Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:55.359Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:55.359Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "36ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:26:55.384Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:55.384Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:26:55.385Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:55.385Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "1ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:26:55.395Z] [INFO] {
+  "timestamp": "2025-11-11T06:26:55.395Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "55ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:29:10.738Z] [INFO] Email service initialized successfully
+[2025-11-11T06:30:43.534Z] [INFO] Email service initialized successfully
+[2025-11-11T06:30:47.398Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:47.398Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:30:47.409Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:47.409Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "10ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:30:54.698Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:54.698Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:30:54.712Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:54.712Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:30:54.717Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:54.717Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "5ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:30:54.745Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:54.745Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "47ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:30:54.755Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:54.755Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:30:54.770Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:54.770Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "15ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:30:54.777Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:54.777Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:30:54.779Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:54.779Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:30:54.792Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:54.792Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:30:54.810Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:54.810Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "18ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:30:55.132Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:55.132Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:30:55.143Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:55.143Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "11ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:30:59.964Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:59.964Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:30:59.978Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:59.978Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:30:59.993Z] [INFO] {
+  "timestamp": "2025-11-11T06:30:59.993Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:31:00.003Z] [INFO] {
+  "timestamp": "2025-11-11T06:31:00.003Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "10ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:31:00.079Z] [INFO] {
+  "timestamp": "2025-11-11T06:31:00.079Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "115ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:31:00.094Z] [INFO] {
+  "timestamp": "2025-11-11T06:31:00.094Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:31:00.114Z] [INFO] {
+  "timestamp": "2025-11-11T06:31:00.114Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "136ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:31:00.126Z] [INFO] {
+  "timestamp": "2025-11-11T06:31:00.126Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:31:00.142Z] [INFO] {
+  "timestamp": "2025-11-11T06:31:00.142Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "48ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:31:00.169Z] [INFO] {
+  "timestamp": "2025-11-11T06:31:00.169Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "43ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:33:38.046Z] [INFO] {
+  "timestamp": "2025-11-11T06:33:38.046Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:33:38.053Z] [INFO] {
+  "timestamp": "2025-11-11T06:33:38.053Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:33:38.092Z] [INFO] {
+  "timestamp": "2025-11-11T06:33:38.092Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "46ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:33:38.117Z] [INFO] {
+  "timestamp": "2025-11-11T06:33:38.117Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "64ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:37:23.054Z] [INFO] {
+  "timestamp": "2025-11-11T06:37:23.054Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:37:23.061Z] [INFO] {
+  "timestamp": "2025-11-11T06:37:23.061Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:37:23.091Z] [INFO] {
+  "timestamp": "2025-11-11T06:37:23.091Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "37ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:37:23.107Z] [INFO] {
+  "timestamp": "2025-11-11T06:37:23.107Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "46ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:37:37.058Z] [INFO] {
+  "timestamp": "2025-11-11T06:37:37.058Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:37:37.065Z] [INFO] {
+  "timestamp": "2025-11-11T06:37:37.065Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:37:37.094Z] [INFO] {
+  "timestamp": "2025-11-11T06:37:37.094Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "36ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:37:37.119Z] [INFO] {
+  "timestamp": "2025-11-11T06:37:37.119Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "54ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:42:04.057Z] [INFO] {
+  "timestamp": "2025-11-11T06:42:04.057Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:42:04.065Z] [INFO] {
+  "timestamp": "2025-11-11T06:42:04.065Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:42:04.110Z] [INFO] {
+  "timestamp": "2025-11-11T06:42:04.110Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "53ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:42:04.127Z] [INFO] {
+  "timestamp": "2025-11-11T06:42:04.127Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "62ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:42:11.045Z] [INFO] {
+  "timestamp": "2025-11-11T06:42:11.045Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:42:11.052Z] [INFO] {
+  "timestamp": "2025-11-11T06:42:11.052Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:42:11.077Z] [INFO] {
+  "timestamp": "2025-11-11T06:42:11.077Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "32ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:42:11.093Z] [INFO] {
+  "timestamp": "2025-11-11T06:42:11.093Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "41ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:50:26.725Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:26.725Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:50:26.730Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:26.730Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:50:26.765Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:26.765Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "40ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:50:26.788Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:26.788Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "58ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:50:35.045Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:35.045Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:50:35.051Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:35.051Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:50:35.087Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:35.087Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "42ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:50:35.107Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:35.107Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "56ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:50:48.974Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:48.974Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:50:48.979Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:48.979Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:50:48.981Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:48.981Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T06:50:48.991Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:48.991Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "17ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:50:48.996Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:48.996Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:50:49.018Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:49.018Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "22ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:50:49.044Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:49.044Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:50:49.049Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:49.049Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:50:49.067Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:49.067Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "23ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:50:49.079Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:49.079Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:50:49.095Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:49.095Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "46ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:50:49.115Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:49.115Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:50:49.131Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:49.131Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "52ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:50:49.172Z] [INFO] {
+  "timestamp": "2025-11-11T06:50:49.172Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "57ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:52:09.026Z] [INFO] {
+  "timestamp": "2025-11-11T06:52:09.026Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:52:09.031Z] [INFO] {
+  "timestamp": "2025-11-11T06:52:09.031Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:52:09.062Z] [INFO] {
+  "timestamp": "2025-11-11T06:52:09.062Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "36ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:52:09.075Z] [INFO] {
+  "timestamp": "2025-11-11T06:52:09.075Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "44ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:52:20.884Z] [INFO] {
+  "timestamp": "2025-11-11T06:52:20.884Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:52:20.890Z] [INFO] {
+  "timestamp": "2025-11-11T06:52:20.890Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T06:52:20.917Z] [INFO] {
+  "timestamp": "2025-11-11T06:52:20.917Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "33ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T06:52:20.933Z] [INFO] {
+  "timestamp": "2025-11-11T06:52:20.933Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "43ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T07:22:34.059Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:34.059Z",
+  "method": "GET",
+  "url": "/api/finance/expenses?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T07:22:34.064Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:34.064Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T07:22:34.084Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:34.084Z",
+  "method": "GET",
+  "url": "/api/finance/expenses?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "25ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T07:22:34.099Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:34.099Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "35ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T07:22:34.544Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:34.544Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T07:22:34.548Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:34.548Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T07:22:34.565Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:34.565Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "17ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T07:22:34.573Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:34.573Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "29ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T07:22:41.472Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:41.472Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T07:22:41.482Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:41.482Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "10ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T07:22:41.487Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:41.487Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T07:22:41.495Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:41.495Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "8ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T07:22:41.670Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:41.670Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T07:22:41.671Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:41.671Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "1ms",
+  "userId": "anonymous"
+}
+[2025-11-11T07:22:45.063Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:45.063Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T07:22:45.067Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:45.067Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T07:22:45.071Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:45.071Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T07:22:45.072Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:45.072Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "1ms",
+  "userId": "anonymous"
+}
+[2025-11-11T07:22:45.094Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:45.094Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "31ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T07:22:45.102Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:45.102Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T07:22:45.111Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:45.111Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "44ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T07:22:45.119Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:45.119Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T07:22:45.134Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:45.134Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "32ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T07:22:45.150Z] [INFO] {
+  "timestamp": "2025-11-11T07:22:45.150Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "31ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T07:30:35.860Z] [INFO] {
+  "timestamp": "2025-11-11T07:30:35.860Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T07:30:35.866Z] [INFO] {
+  "timestamp": "2025-11-11T07:30:35.866Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T07:30:35.903Z] [INFO] {
+  "timestamp": "2025-11-11T07:30:35.903Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "43ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T07:30:35.922Z] [INFO] {
+  "timestamp": "2025-11-11T07:30:35.922Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "56ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T08:42:41.469Z] [INFO] {
+  "timestamp": "2025-11-11T08:42:41.469Z",
+  "method": "GET",
+  "url": "/api/finance/expenses?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T08:42:41.472Z] [INFO] {
+  "timestamp": "2025-11-11T08:42:41.472Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T08:42:41.489Z] [INFO] {
+  "timestamp": "2025-11-11T08:42:41.489Z",
+  "method": "GET",
+  "url": "/api/finance/expenses?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "20ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T08:42:41.504Z] [INFO] {
+  "timestamp": "2025-11-11T08:42:41.504Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "32ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T08:42:42.120Z] [INFO] {
+  "timestamp": "2025-11-11T08:42:42.120Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T08:42:42.123Z] [INFO] {
+  "timestamp": "2025-11-11T08:42:42.123Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T08:42:42.142Z] [INFO] {
+  "timestamp": "2025-11-11T08:42:42.142Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "19ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T08:42:42.151Z] [INFO] {
+  "timestamp": "2025-11-11T08:42:42.151Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "31ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T08:42:48.044Z] [INFO] {
+  "timestamp": "2025-11-11T08:42:48.044Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T08:42:48.054Z] [INFO] {
+  "timestamp": "2025-11-11T08:42:48.054Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "10ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T08:42:48.059Z] [INFO] {
+  "timestamp": "2025-11-11T08:42:48.059Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T08:42:48.069Z] [INFO] {
+  "timestamp": "2025-11-11T08:42:48.069Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "10ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T08:42:48.352Z] [INFO] {
+  "timestamp": "2025-11-11T08:42:48.352Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T08:42:48.353Z] [INFO] {
+  "timestamp": "2025-11-11T08:42:48.353Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "1ms",
+  "userId": "anonymous"
+}
+[2025-11-11T08:44:42.924Z] [INFO] Email service initialized successfully
+[2025-11-11T08:45:06.711Z] [INFO] Email service initialized successfully
+[2025-11-11T08:45:14.004Z] [INFO] Email service initialized successfully
+[2025-11-11T08:46:30.124Z] [INFO] Email service initialized successfully
+[2025-11-11T08:47:01.104Z] [INFO] Email service initialized successfully
+[2025-11-11T08:47:22.520Z] [INFO] Email service initialized successfully
+[2025-11-11T08:47:55.471Z] [INFO] Email service initialized successfully
+[2025-11-11T08:48:09.192Z] [INFO] Email service initialized successfully
+[2025-11-11T08:48:21.927Z] [INFO] Email service initialized successfully
+[2025-11-11T08:48:44.706Z] [INFO] Email service initialized successfully
+[2025-11-11T08:48:51.899Z] [INFO] Email service initialized successfully
+[2025-11-11T08:49:00.226Z] [INFO] Email service initialized successfully
+[2025-11-11T08:57:34.185Z] [INFO] Email service initialized successfully
+[2025-11-11T08:57:39.786Z] [INFO] Email service initialized successfully
+[2025-11-11T08:57:50.436Z] [INFO] Email service initialized successfully
+[2025-11-11T08:57:55.951Z] [INFO] Email service initialized successfully
+[2025-11-11T08:58:01.800Z] [INFO] Email service initialized successfully
+[2025-11-11T08:58:08.166Z] [INFO] Email service initialized successfully
+[2025-11-11T08:58:13.534Z] [INFO] Email service initialized successfully
+[2025-11-11T08:58:19.703Z] [INFO] Email service initialized successfully
+[2025-11-11T08:59:24.952Z] [INFO] Email service initialized successfully
+[2025-11-11T08:59:34.200Z] [INFO] Email service initialized successfully
+[2025-11-11T08:59:43.031Z] [INFO] Email service initialized successfully
+[2025-11-11T08:59:48.057Z] [INFO] Email service initialized successfully
+[2025-11-11T08:59:53.202Z] [INFO] Email service initialized successfully
+[2025-11-11T09:00:09.427Z] [INFO] Email service initialized successfully
+[2025-11-11T09:00:19.005Z] [INFO] Email service initialized successfully
+[2025-11-11T09:00:44.488Z] [INFO] Email service initialized successfully
+[2025-11-11T09:02:48.548Z] [INFO] Email service initialized successfully
+[2025-11-11T09:03:13.509Z] [INFO] Email service initialized successfully
+[2025-11-11T09:03:34.358Z] [INFO] Email service initialized successfully
+[2025-11-11T09:03:35.286Z] [INFO] Email service initialized successfully
+[2025-11-11T09:17:03.746Z] [INFO] Email service initialized successfully
+[2025-11-11T09:17:13.109Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:13.109Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:17:13.117Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:13.117Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "8ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:17:13.155Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:13.155Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:17:13.165Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:13.165Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "10ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:17:16.575Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:16.575Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:17:16.775Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:16.775Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "statusCode": 200,
+  "responseTime": "200ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:17:16.809Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:16.809Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:17:16.810Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:16.810Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "1ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:17:17.122Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:17.122Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:17:17.140Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:17.140Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "18ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:17:17.464Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:17.464Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:17:17.490Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:17.490Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "26ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:17:19.154Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:19.154Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:17:19.159Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:19.159Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "5ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:17:19.197Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:19.197Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:17:19.207Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:19.207Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:17:19.256Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:19.256Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "59ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:17:19.270Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:19.269Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:17:19.291Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:19.290Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "83ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:17:19.300Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:19.300Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:17:19.323Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:19.323Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "54ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:17:19.353Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:19.353Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "53ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:17:26.689Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:26.689Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:17:26.702Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:26.702Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "13ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:17:26.708Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:26.708Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:17:26.726Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:26.726Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "18ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:17:26.992Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:26.992Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:17:26.994Z] [INFO] {
+  "timestamp": "2025-11-11T09:17:26.994Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:18:05.576Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:05.576Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:18:05.591Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:05.591Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "15ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:18:05.607Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:05.607Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:18:05.636Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:05.636Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:18:05.646Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:05.646Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "39ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:18:05.663Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:05.663Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "27ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:18:05.669Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:05.669Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:18:05.683Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:05.683Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "14ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:18:29.987Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:29.987Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:18:30.001Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:30.001Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "14ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:18:31.892Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:31.892Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:18:31.904Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:31.904Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:18:31.914Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:31.914Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:18:31.921Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:31.921Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "7ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:18:31.943Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:31.943Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "51ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:18:31.954Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:31.953Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:18:31.962Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:31.962Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "58ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:18:31.970Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:31.970Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:18:31.983Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:31.983Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "30ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:18:32.004Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:32.004Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "34ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:18:51.111Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:51.111Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:18:51.117Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:51.117Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:18:51.118Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:51.118Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "1ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:18:51.127Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:51.127Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "16ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:18:51.132Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:51.132Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:18:51.146Z] [INFO] {
+  "timestamp": "2025-11-11T09:18:51.146Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "14ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:20:03.548Z] [INFO] {
+  "timestamp": "2025-11-11T09:20:03.548Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:20:03.559Z] [INFO] {
+  "timestamp": "2025-11-11T09:20:03.559Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "11ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:20:08.425Z] [INFO] {
+  "timestamp": "2025-11-11T09:20:08.425Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:20:08.455Z] [INFO] {
+  "timestamp": "2025-11-11T09:20:08.455Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "30ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:20:14.426Z] [INFO] {
+  "timestamp": "2025-11-11T09:20:14.426Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:20:14.447Z] [INFO] {
+  "timestamp": "2025-11-11T09:20:14.447Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "21ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:20:20.958Z] [INFO] {
+  "timestamp": "2025-11-11T09:20:20.958Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:20:20.974Z] [INFO] {
+  "timestamp": "2025-11-11T09:20:20.974Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "16ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:22:10.465Z] [INFO] {
+  "timestamp": "2025-11-11T09:22:10.465Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:22:10.470Z] [INFO] {
+  "timestamp": "2025-11-11T09:22:10.470Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:22:10.477Z] [INFO] {
+  "timestamp": "2025-11-11T09:22:10.477Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "7ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:22:10.496Z] [INFO] {
+  "timestamp": "2025-11-11T09:22:10.496Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "31ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:22:10.506Z] [INFO] {
+  "timestamp": "2025-11-11T09:22:10.506Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:22:10.520Z] [INFO] {
+  "timestamp": "2025-11-11T09:22:10.520Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "14ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:22:10.539Z] [INFO] {
+  "timestamp": "2025-11-11T09:22:10.539Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:22:10.555Z] [INFO] {
+  "timestamp": "2025-11-11T09:22:10.555Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "16ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:22:10.561Z] [INFO] {
+  "timestamp": "2025-11-11T09:22:10.561Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:22:10.577Z] [INFO] {
+  "timestamp": "2025-11-11T09:22:10.577Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "16ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:24:47.156Z] [INFO] Email service initialized successfully
+[2025-11-11T09:24:53.002Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:53.002Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:53.013Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:53.013Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:53.019Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:53.019Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "6ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:24:53.045Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:53.045Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "43ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:24:53.055Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:53.055Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:53.068Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:53.068Z",
+  "method": "GET",
+  "url": "/api/auth/me",
+  "statusCode": 200,
+  "responseTime": "13ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:24:53.094Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:53.094Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:53.095Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:53.095Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "1ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:24:53.106Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:53.106Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:53.118Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:53.117Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "11ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:24:54.025Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:54.025Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:54.040Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:54.040Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "15ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:24:55.024Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:55.023Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:55.030Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:55.030Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "7ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:24:55.042Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:55.042Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:55.062Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:55.062Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "20ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:24:55.069Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:55.069Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:55.083Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:55.083Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "14ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:24:57.147Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:57.147Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:57.153Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:57.153Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:57.193Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:57.193Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "46ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:24:57.205Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:57.205Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:57.221Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:57.221Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "67ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:24:57.232Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:57.232Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:57.252Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:57.252Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "47ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:24:57.271Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:57.271Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "39ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:24:57.458Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:57.458Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:57.460Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:57.460Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:24:58.728Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:58.727Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:58.746Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:58.746Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:58.752Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:58.752Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "6ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:24:58.778Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:58.775Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "48ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:24:58.792Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:58.792Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:58.807Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:58.807Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "15ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:24:59.442Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:59.442Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:59.453Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:59.453Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "11ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:24:59.460Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:59.460Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:59.477Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:59.477Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "17ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:24:59.753Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:59.753Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:24:59.755Z] [INFO] {
+  "timestamp": "2025-11-11T09:24:59.755Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "2ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:25:00.145Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:00.145Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:25:00.162Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:00.162Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:25:00.176Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:00.176Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "14ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:25:00.199Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:00.199Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "54ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:25:00.204Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:00.204Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:25:00.217Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:00.217Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "13ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:25:01.413Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:01.413Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:25:01.426Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:01.426Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "13ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:25:01.430Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:01.430Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:25:01.440Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:01.440Z",
+  "method": "GET",
+  "url": "/api/clients",
+  "statusCode": 200,
+  "responseTime": "10ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:25:01.732Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:01.732Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:25:01.733Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:01.733Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "1ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:25:02.670Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:02.670Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:25:02.681Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:02.681Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:25:02.690Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:02.690Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:25:02.696Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:02.696Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "6ms",
+  "userId": "anonymous"
+}
+[2025-11-11T09:25:02.723Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:02.723Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "53ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:25:02.732Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:02.732Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:25:02.748Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:02.748Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "67ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:25:02.753Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:02.753Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-11T09:25:02.774Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:02.774Z",
+  "method": "GET",
+  "url": "/api/finance/projects?search=&status=all&year=2025",
+  "statusCode": 200,
+  "responseTime": "42ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-11T09:25:02.799Z] [INFO] {
+  "timestamp": "2025-11-11T09:25:02.799Z",
+  "method": "GET",
+  "url": "/api/finance/stats?year=2025",
+  "statusCode": 200,
+  "responseTime": "46ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}

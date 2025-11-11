@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './YearlyDistributionTable.css';
+import * as XLSX from 'xlsx';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const YearlyDistributionTable = ({ 
   projectData, 
@@ -7,13 +10,314 @@ const YearlyDistributionTable = ({
   compact = false 
 }) => {
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount || 0);
+    return 'Rs ' + new Intl.NumberFormat('en-IN').format(amount || 0);
   };
+
+  const exportToExcel = () => {
+    const yearlyDistribution = projectData.yearlyDistribution || 
+      calculateYearlyDistribution(projectData.payments);
+
+    // Prepare data for Excel export
+    const excelData = [];
+    
+    // Header row with project info
+    excelData.push(['Payment Distribution - ' + projectData.projectName]);
+    excelData.push(['Finalized Fees:', projectData.finalizedFees || 0]);
+    excelData.push(['Total Received:', projectData.totalReceivedFees || 0]);
+    excelData.push(['Pending:', (projectData.finalizedFees || 0) - (projectData.totalReceivedFees || 0)]);
+    excelData.push([]); // Empty row
+    
+    // Table headers
+    excelData.push([
+      'Descriptions',
+      'Amount',
+      'Date', 
+      'Cheque number/NEFT number',
+      'Mode',
+      'Profit Margin',
+      'Drawing',
+      'Documents',
+      'Site Visit',
+      'Marketing and Misc.',
+      'Office Management'
+    ]);
+    
+    // Percentage row
+    excelData.push([
+      'Percentage will vary project',
+      '-',
+      '-',
+      '-',
+      '-',
+      `${projectData.profitMarginPercent || 0}%`,
+      `${projectData.drawingPercent || 0}%`,
+      `${projectData.documentsPercent || 0}%`,
+      `${projectData.siteVisitPercent || 0}%`,
+      `${projectData.marketingAndMiscPercent || 0}%`,
+      `${projectData.officeManagementPercent || 0}%`
+    ]);
+    
+    // Payment data with exact calculations (no rounding issues)
+    if (projectData.payments && projectData.payments.length > 0) {
+      projectData.payments.forEach((payment, index) => {
+        const amount = parseInt(payment.amount) || 0; // Use parseInt to avoid decimal issues
+        const profitMarginAmount = Math.floor((amount * (projectData.profitMarginPercent || 0)) / 100);
+        const drawingAmount = Math.floor((amount * (projectData.drawingPercent || 0)) / 100);
+        const documentsAmount = Math.floor((amount * (projectData.documentsPercent || 0)) / 100);
+        const siteVisitAmount = Math.floor((amount * (projectData.siteVisitPercent || 0)) / 100);
+        const marketingAmount = Math.floor((amount * (projectData.marketingAndMiscPercent || 0)) / 100);
+        const officeAmount = Math.floor((amount * (projectData.officeManagementPercent || 0)) / 100);
+        
+        excelData.push([
+          `Payment ${index + 1}`,
+          amount,
+          payment.date ? new Date(payment.date).toLocaleDateString('en-GB') : '-',
+          payment.chequeNumber || payment.referenceNumber || '-',
+          payment.mode || 'NEFT',
+          profitMarginAmount,
+          drawingAmount,
+          documentsAmount > 0 ? documentsAmount : '-',
+          siteVisitAmount,
+          marketingAmount,
+          officeAmount
+        ]);
+      });
+    }
+    
+    // Yearly totals with exact calculations
+    Object.keys(yearlyDistribution).forEach(year => {
+      const amount = parseInt(yearlyDistribution[year]) || 0;
+      excelData.push([
+        `${year} Total`,
+        amount,
+        '-',
+        '-',
+        '-',
+        Math.floor((amount * (projectData.profitMarginPercent || 0)) / 100),
+        Math.floor((amount * (projectData.drawingPercent || 0)) / 100),
+        Math.floor((amount * (projectData.documentsPercent || 0)) / 100),
+        Math.floor((amount * (projectData.siteVisitPercent || 0)) / 100),
+        Math.floor((amount * (projectData.marketingAndMiscPercent || 0)) / 100),
+        Math.floor((amount * (projectData.officeManagementPercent || 0)) / 100)
+      ]);
+    });
+    
+    // Grand total row
+    excelData.push([
+      'Grand Total',
+      projectData.totalReceivedFees || 0,
+      '-',
+      '-',
+      '-',
+      projectData.profitMargin || 0,
+      projectData.drawing || 0,
+      (projectData.documents && projectData.documents > 0) ? projectData.documents : '-',
+      projectData.siteVisit || 0,
+      projectData.marketingAndMisc || 0,
+      projectData.officeManagement || 0
+    ]);
+    
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(excelData);
+    
+    // Set column widths
+    const colWidths = [
+      { wch: 25 }, // Descriptions
+      { wch: 15 }, // Amount
+      { wch: 12 }, // Date
+      { wch: 18 }, // Cheque/NEFT
+      { wch: 8 },  // Mode
+      { wch: 15 }, // Profit Margin
+      { wch: 12 }, // Drawing
+      { wch: 12 }, // Documents
+      { wch: 12 }, // Site Visit
+      { wch: 18 }, // Marketing
+      { wch: 18 }  // Office Management
+    ];
+    ws['!cols'] = colWidths;
+    
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Payment Distribution');
+    
+    // Save file
+    const filename = `Payment_Distribution_${projectData.projectName.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, filename);
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF('landscape', 'pt', 'a4');
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    // Title
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Payment Distribution - ${projectData.projectName}`, 40, 50);
+    
+    // Project summary - properly spaced
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    
+    // First row of summary
+    doc.text(`Finalized Fees: Rs ${(projectData.finalizedFees || 0).toLocaleString('en-IN')}`, 40, 80);
+    doc.text(`Total Received: Rs ${(projectData.totalReceivedFees || 0).toLocaleString('en-IN')}`, 280, 80);
+    doc.text(`Pending: Rs ${((projectData.finalizedFees || 0) - (projectData.totalReceivedFees || 0)).toLocaleString('en-IN')}`, 520, 80);
+    
+    // Add a separator line
+    doc.setLineWidth(1);
+    doc.line(40, 95, pageWidth - 40, 95);
+    
+    // Prepare table data
+    const yearlyDistribution = projectData.yearlyDistribution || 
+      calculateYearlyDistribution(projectData.payments);
+      
+    const tableData = [];
+    
+    // Percentage row
+    tableData.push([
+      'Percentage will vary project',
+      '-',
+      '-',
+      '-',
+      '-',
+      `${projectData.profitMarginPercent || 0}%`,
+      `${projectData.drawingPercent || 0}%`,
+      `${projectData.documentsPercent || 0}%`,
+      `${projectData.siteVisitPercent || 0}%`,
+      `${projectData.marketingAndMiscPercent || 0}%`,
+      `${projectData.officeManagementPercent || 0}%`
+    ]);
+    
+    // Payment data with exact calculations
+    if (projectData.payments && projectData.payments.length > 0) {
+      projectData.payments.forEach((payment, index) => {
+        const amount = parseInt(payment.amount) || 0; // Use parseInt to avoid decimal issues
+        const profitMarginAmount = Math.floor((amount * (projectData.profitMarginPercent || 0)) / 100);
+        const drawingAmount = Math.floor((amount * (projectData.drawingPercent || 0)) / 100);
+        const documentsAmount = Math.floor((amount * (projectData.documentsPercent || 0)) / 100);
+        const siteVisitAmount = Math.floor((amount * (projectData.siteVisitPercent || 0)) / 100);
+        const marketingAmount = Math.floor((amount * (projectData.marketingAndMiscPercent || 0)) / 100);
+        const officeAmount = Math.floor((amount * (projectData.officeManagementPercent || 0)) / 100);
+        
+        tableData.push([
+          `Payment ${index + 1}`,
+          amount.toLocaleString('en-IN'),
+          payment.date ? new Date(payment.date).toLocaleDateString('en-GB') : '-',
+          payment.chequeNumber || payment.referenceNumber || '-',
+          payment.mode || 'NEFT',
+          profitMarginAmount.toLocaleString('en-IN'),
+          drawingAmount.toLocaleString('en-IN'),
+          documentsAmount > 0 ? documentsAmount.toLocaleString('en-IN') : '-',
+          siteVisitAmount.toLocaleString('en-IN'),
+          marketingAmount.toLocaleString('en-IN'),
+          officeAmount.toLocaleString('en-IN')
+        ]);
+      });
+    }
+    
+    // Yearly totals with exact calculations
+    Object.keys(yearlyDistribution).forEach(year => {
+      const amount = parseInt(yearlyDistribution[year]) || 0;
+      tableData.push([
+        `${year} Total`,
+        amount.toLocaleString('en-IN'),
+        '-',
+        '-',
+        '-',
+        Math.floor((amount * (projectData.profitMarginPercent || 0)) / 100).toLocaleString('en-IN'),
+        Math.floor((amount * (projectData.drawingPercent || 0)) / 100).toLocaleString('en-IN'),
+        Math.floor((amount * (projectData.documentsPercent || 0)) / 100).toLocaleString('en-IN'),
+        Math.floor((amount * (projectData.siteVisitPercent || 0)) / 100).toLocaleString('en-IN'),
+        Math.floor((amount * (projectData.marketingAndMiscPercent || 0)) / 100).toLocaleString('en-IN'),
+        Math.floor((amount * (projectData.officeManagementPercent || 0)) / 100).toLocaleString('en-IN')
+      ]);
+    });
+    
+    // Grand total
+    tableData.push([
+      'Grand Total',
+      (projectData.totalReceivedFees || 0).toLocaleString('en-IN'),
+      '-',
+      '-',
+      '-',
+      (projectData.profitMargin || 0).toLocaleString('en-IN'),
+      (projectData.drawing || 0).toLocaleString('en-IN'),
+      (projectData.documents && projectData.documents > 0) ? projectData.documents.toLocaleString('en-IN') : '-',
+      (projectData.siteVisit || 0).toLocaleString('en-IN'),
+      (projectData.marketingAndMisc || 0).toLocaleString('en-IN'),
+      (projectData.officeManagement || 0).toLocaleString('en-IN')
+    ]);
+    
+    // Create table using autoTable function
+    autoTable(doc, {
+      head: [[
+        'Descriptions',
+        'Amount',
+        'Date',
+        'Cheque/NEFT Number',
+        'Mode',
+        'Profit Margin',
+        'Drawing',
+        'Documents',
+        'Site Visit',
+        'Marketing & Misc.',
+        'Office Management'
+      ]],
+      body: tableData,
+      startY: 110,
+      styles: {
+        fontSize: 9,
+        cellPadding: 4,
+        halign: 'center'
+      },
+      headStyles: {
+        fillColor: [52, 58, 64],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 10,
+        halign: 'center'
+      },
+      columnStyles: {
+        0: { halign: 'left', cellWidth: 85 },
+        1: { halign: 'right', cellWidth: 65 },
+        2: { halign: 'center', cellWidth: 55 },
+        3: { halign: 'center', cellWidth: 75 },
+        4: { halign: 'center', cellWidth: 45 },
+        5: { halign: 'right', cellWidth: 65 },
+        6: { halign: 'right', cellWidth: 55 },
+        7: { halign: 'right', cellWidth: 55 },
+        8: { halign: 'right', cellWidth: 55 },
+        9: { halign: 'right', cellWidth: 75 },
+        10: { halign: 'right', cellWidth: 75 }
+      },
+      alternateRowStyles: {
+        fillColor: [248, 249, 250]
+      },
+      margin: { top: 110, left: 40, right: 40 }
+    });
+    
+    // Add footer
+    const pageCount = doc.internal.getNumberOfPages();
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Generated on: ${new Date().toLocaleString('en-IN')}`, 40, doc.internal.pageSize.getHeight() - 30);
+    doc.text(`Page 1 of ${pageCount}`, pageWidth - 120, doc.internal.pageSize.getHeight() - 30);
+    
+    // Save file
+    const filename = `Payment_Distribution_${projectData.projectName.replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(filename);
+  };
+
+  // Expose functions globally for modal use
+  useEffect(() => {
+    window.exportDistributionExcel = exportToExcel;
+    window.exportDistributionPDF = exportToPDF;
+    
+    return () => {
+      delete window.exportDistributionExcel;
+      delete window.exportDistributionPDF;
+    };
+  }, [projectData]);
 
   const calculateYearlyDistribution = (payments) => {
     const distribution = {};
@@ -36,7 +340,7 @@ const YearlyDistributionTable = ({
         if (!distribution[financialYear]) {
           distribution[financialYear] = 0;
         }
-        distribution[financialYear] += parseFloat(payment.amount) || 0;
+        distribution[financialYear] += parseInt(payment.amount) || 0; // Use parseInt to avoid decimal issues
       }
     });
     
@@ -104,17 +408,18 @@ const YearlyDistributionTable = ({
             {/* Individual payment rows grouped by year */}
             {projectData.payments && projectData.payments.map((payment, index) => {
               const paymentDate = new Date(payment.date);
-              const profitAmount = Math.round((payment.amount * (projectData.profitMarginPercent || 0)) / 100);
-              const drawingAmount = Math.round((payment.amount * (projectData.drawingPercent || 0)) / 100);
-              const documentsAmount = Math.round((payment.amount * (projectData.documentsPercent || 0)) / 100);
-              const siteVisitAmount = Math.round((payment.amount * (projectData.siteVisitPercent || 0)) / 100);
-              const marketingAmount = Math.round((payment.amount * (projectData.marketingAndMiscPercent || 0)) / 100);
-              const officeAmount = Math.round((payment.amount * (projectData.officeManagementPercent || 0)) / 100);
+              const amount = parseInt(payment.amount) || 0; // Use parseInt to avoid decimal issues
+              const profitAmount = Math.floor((amount * (projectData.profitMarginPercent || 0)) / 100);
+              const drawingAmount = Math.floor((amount * (projectData.drawingPercent || 0)) / 100);
+              const documentsAmount = Math.floor((amount * (projectData.documentsPercent || 0)) / 100);
+              const siteVisitAmount = Math.floor((amount * (projectData.siteVisitPercent || 0)) / 100);
+              const marketingAmount = Math.floor((amount * (projectData.marketingAndMiscPercent || 0)) / 100);
+              const officeAmount = Math.floor((amount * (projectData.officeManagementPercent || 0)) / 100);
               
               return (
                 <tr key={`payment-${index}`} className="payment-row">
                   <td>Payment {index + 1}</td>
-                  <td>{payment.amount?.toLocaleString('en-IN')}</td>
+                  <td>{amount?.toLocaleString('en-IN')}</td>
                   <td>{paymentDate.toLocaleDateString('en-IN')}</td>
                   <td>{payment.chequeNeftNumber || '-'}</td>
                   <td>{payment.mode}</td>
@@ -132,17 +437,18 @@ const YearlyDistributionTable = ({
             {Object.entries(yearlyDistribution)
               .sort(([a], [b]) => a.localeCompare(b))
               .map(([year, amount]) => {
-                const profitAmount = Math.round((amount * (projectData.profitMarginPercent || 0)) / 100);
-                const drawingAmount = Math.round((amount * (projectData.drawingPercent || 0)) / 100);
-                const documentsAmount = Math.round((amount * (projectData.documentsPercent || 0)) / 100);
-                const siteVisitAmount = Math.round((amount * (projectData.siteVisitPercent || 0)) / 100);
-                const marketingAmount = Math.round((amount * (projectData.marketingAndMiscPercent || 0)) / 100);
-                const officeAmount = Math.round((amount * (projectData.officeManagementPercent || 0)) / 100);
+                const yearAmount = parseInt(amount) || 0; // Use parseInt to avoid decimal issues
+                const profitAmount = Math.floor((yearAmount * (projectData.profitMarginPercent || 0)) / 100);
+                const drawingAmount = Math.floor((yearAmount * (projectData.drawingPercent || 0)) / 100);
+                const documentsAmount = Math.floor((yearAmount * (projectData.documentsPercent || 0)) / 100);
+                const siteVisitAmount = Math.floor((yearAmount * (projectData.siteVisitPercent || 0)) / 100);
+                const marketingAmount = Math.floor((yearAmount * (projectData.marketingAndMiscPercent || 0)) / 100);
+                const officeAmount = Math.floor((yearAmount * (projectData.officeManagementPercent || 0)) / 100);
                 
                 return (
                   <tr key={year} className="year-summary-row">
                     <td><strong>{year} Total</strong></td>
-                    <td><strong>{amount.toLocaleString('en-IN')}</strong></td>
+                    <td><strong>{yearAmount.toLocaleString('en-IN')}</strong></td>
                     <td><strong>-</strong></td>
                     <td><strong>-</strong></td>
                     <td><strong>-</strong></td>

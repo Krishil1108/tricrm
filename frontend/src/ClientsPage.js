@@ -53,10 +53,13 @@ const ClientsPage = () => {
       setLoading(true);
       setError('');
       const clientsData = await ClientService.getAllClients();
-      setClients(clientsData);
+      // Ensure clientsData is always an array
+      setClients(Array.isArray(clientsData) ? clientsData : []);
     } catch (error) {
       setError('Failed to load clients. Please try again.');
       console.error('Error loading clients:', error);
+      // Set clients to empty array on error
+      setClients([]);
     } finally {
       setLoading(false);
     }
@@ -66,7 +69,7 @@ const ClientsPage = () => {
     if (window.confirm('Are you sure you want to delete this client?')) {
       try {
         await ClientService.deleteClient(clientId);
-        setClients(clients.filter(client => client._id !== clientId));
+        setClients(Array.isArray(clients) ? clients.filter(client => client._id !== clientId) : []);
       } catch (error) {
         setError('Failed to delete client. Please try again.');
         console.error('Error deleting client:', error);
@@ -94,9 +97,9 @@ const ClientsPage = () => {
   const handleStatusChange = async (clientId, newStatus) => {
     try {
       const updatedClient = await ClientService.updateClient(clientId, { status: newStatus });
-      setClients(clients.map(client =>
+      setClients(Array.isArray(clients) ? clients.map(client =>
         client._id === clientId ? updatedClient : client
-      ));
+      ) : []);
     } catch (error) {
       setError('Failed to update client status. Please try again.');
       console.error('Error updating client status:', error);
@@ -178,9 +181,9 @@ const ClientsPage = () => {
       };
       
       const updatedClient = await ClientService.updateClient(editingClient._id, updatedClientData);
-      setClients(clients.map(client => 
+      setClients(Array.isArray(clients) ? clients.map(client => 
         client._id === editingClient._id ? updatedClient : client
-      ));
+      ) : []);
       
       // Reset form and close popup
       setClientData({
@@ -224,8 +227,8 @@ const ClientsPage = () => {
     });
   };
 
-  // Filter and sort clients
-  const filteredClients = clients
+  // Filter and sort clients - ensure clients is always an array
+  const filteredClients = (Array.isArray(clients) ? clients : [])
     .filter(client => {
       const matchesSearch = client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -460,7 +463,7 @@ const ClientsPage = () => {
               </svg>
             </div>
             <div className="stat-info">
-              <div className="stat-number">{clients.length}</div>
+              <div className="stat-number">{Array.isArray(clients) ? clients.length : 0}</div>
               <div className="stat-label">Total Clients</div>
             </div>
           </div>
@@ -472,7 +475,7 @@ const ClientsPage = () => {
               </svg>
             </div>
             <div className="stat-info">
-              <div className="stat-number">{clients.filter(c => c.status === 'Active').length}</div>
+              <div className="stat-number">{Array.isArray(clients) ? clients.filter(c => c.status === 'Active').length : 0}</div>
               <div className="stat-label">Active Clients</div>
             </div>
           </div>
@@ -484,7 +487,7 @@ const ClientsPage = () => {
               </svg>
             </div>
             <div className="stat-info">
-              <div className="stat-number">{clients.filter(c => c.status === 'Pending').length}</div>
+              <div className="stat-number">{Array.isArray(clients) ? clients.filter(c => c.status === 'Pending').length : 0}</div>
               <div className="stat-label">Pending</div>
             </div>
           </div>

@@ -256,7 +256,7 @@ const ProjectPage = () => {
             date: payment.date,
             chequeNeftNumber: payment.chequeNeftNumber || '',
             mode: payment.mode || 'Cheque',
-            amount: parseFloat(payment.amount) || 0
+            amount: parseInt(payment.amount) || 0  // Use parseInt to avoid decimal issues
           }));
       }
       
@@ -312,11 +312,11 @@ const ProjectPage = () => {
         <h1>� Project Management</h1>
         <div className="project-actions">
           <button className="project-btn project-btn-primary" onClick={handleAdd}>
-            ➕ Add New
+            <i className="bi bi-plus-lg"></i> Add New
           </button>
           {activeTab === 'projects' && (
             <button className="project-btn project-btn-info" onClick={() => setShowPercentageConfig(true)}>
-              ⚙️ Configure Percentages
+              <i className="bi bi-gear-fill"></i> Configure Percentages
             </button>
           )}
           {activeTab === 'projects' && (
@@ -336,12 +336,12 @@ const ProjectPage = () => {
                 aria-label="Import Excel file"
                 onKeyDown={handleKeyDown}
               >
-                📥 Import Excel
+                <i className="bi bi-upload"></i> Import Excel
               </label>
             </>
           )}
           <button className="project-btn project-btn-secondary" onClick={handleExport}>
-            📤 Export Excel
+            <i className="bi bi-download"></i> Export Excel
           </button>
         </div>
       </div>
@@ -521,6 +521,20 @@ const ProjectPage = () => {
               />
             </div>
             <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => {
+                if (window.exportDistributionExcel) {
+                  window.exportDistributionExcel();
+                }
+              }}>
+                Export Excel
+              </button>
+              <button className="btn btn-secondary" onClick={() => {
+                if (window.exportDistributionPDF) {
+                  window.exportDistributionPDF();
+                }
+              }}>
+                Export PDF
+              </button>
               <button className="btn btn-secondary" onClick={() => setShowDistributionModal(false)}>
                 Close
               </button>
@@ -557,7 +571,7 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onDelete, formatC
             <th>Expenses</th>
             <th>Net Profit</th>
             <th>Status</th>
-            <th>Actions</th>
+            <th style={{textAlign: 'center'}}>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -579,14 +593,14 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onDelete, formatC
               </td>
               <td>
                 <div className="table-actions">
-                  <button className="action-btn action-btn-edit" onClick={() => onEdit(project)}>
-                    ✏️ Edit
+                  <button className="action-btn btn-edit" onClick={() => onEdit(project)}>
+                    <i className="bi bi-pencil-fill"></i> Edit
                   </button>
-                  <button className="action-btn action-btn-view" onClick={() => onViewDistribution(project)}>
-                    📊 Distribution
+                  <button className="action-btn btn-distribution" onClick={() => onViewDistribution(project)}>
+                    <i className="bi bi-box-arrow-up-right"></i> Distribution
                   </button>
-                  <button className="action-btn action-btn-delete" onClick={() => onDelete(project._id)}>
-                    🗑️ Delete
+                  <button className="action-btn btn-delete" onClick={() => onDelete(project._id)}>
+                    <i className="bi bi-trash-fill"></i> Delete
                   </button>
                 </div>
               </td>
@@ -623,7 +637,7 @@ const ExpensesTable = ({ expenses, onEdit, onDelete, formatCurrency }) => {
             <th>Site Visit</th>
             <th>Office Mgmt</th>
             <th>Total</th>
-            <th>Actions</th>
+            <th style={{textAlign: 'center'}}>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -639,11 +653,11 @@ const ExpensesTable = ({ expenses, onEdit, onDelete, formatCurrency }) => {
               <td className="amount-negative">{formatCurrency(expense.total)}</td>
               <td>
                 <div className="table-actions">
-                  <button className="action-btn action-btn-edit" onClick={() => onEdit(expense)}>
-                    ✏️ Edit
+                  <button className="action-btn btn-edit" onClick={() => onEdit(expense)}>
+                    <i className="bi bi-pencil-fill"></i> Edit
                   </button>
-                  <button className="action-btn action-btn-delete" onClick={() => onDelete(expense._id)}>
-                    🗑️ Delete
+                  <button className="action-btn btn-delete" onClick={() => onDelete(expense._id)}>
+                    <i className="bi bi-trash-fill"></i> Delete
                   </button>
                 </div>
               </td>
@@ -657,7 +671,7 @@ const ExpensesTable = ({ expenses, onEdit, onDelete, formatCurrency }) => {
 
 // Payment Management Functions
 const calculateTotalReceivedFees = (payments) => {
-  return payments.reduce((total, payment) => total + (parseFloat(payment.amount) || 0), 0);
+  return payments.reduce((total, payment) => total + (parseInt(payment.amount) || 0), 0);
 };
 
 const calculateYearlyDistribution = (payments) => {
@@ -679,7 +693,7 @@ const calculateYearlyDistribution = (payments) => {
       if (!distribution[financialYear]) {
         distribution[financialYear] = 0;
       }
-      distribution[financialYear] += parseFloat(payment.amount) || 0;
+      distribution[financialYear] += parseInt(payment.amount) || 0;  // Use parseInt to avoid decimal issues
     }
   });
   
@@ -726,14 +740,14 @@ const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing })
       yearlyDistribution
     };
     
-    // Auto-calculate expense allocations
+    // Auto-calculate expense allocations using Math.floor for consistent results
     const receivedFees = totalReceived;
-    updatedFormData.profitMargin = Math.round((receivedFees * (updatedFormData.profitMarginPercent || 0)) / 100);
-    updatedFormData.drawing = Math.round((receivedFees * (updatedFormData.drawingPercent || 0)) / 100);
-    updatedFormData.documents = Math.round((receivedFees * (updatedFormData.documentsPercent || 0)) / 100);
-    updatedFormData.siteVisit = Math.round((receivedFees * (updatedFormData.siteVisitPercent || 0)) / 100);
-    updatedFormData.marketingAndMisc = Math.round((receivedFees * (updatedFormData.marketingAndMiscPercent || 0)) / 100);
-    updatedFormData.officeManagement = Math.round((receivedFees * (updatedFormData.officeManagementPercent || 0)) / 100);
+    updatedFormData.profitMargin = Math.floor((receivedFees * (updatedFormData.profitMarginPercent || 0)) / 100);
+    updatedFormData.drawing = Math.floor((receivedFees * (updatedFormData.drawingPercent || 0)) / 100);
+    updatedFormData.documents = Math.floor((receivedFees * (updatedFormData.documentsPercent || 0)) / 100);
+    updatedFormData.siteVisit = Math.floor((receivedFees * (updatedFormData.siteVisitPercent || 0)) / 100);
+    updatedFormData.marketingAndMisc = Math.floor((receivedFees * (updatedFormData.marketingAndMiscPercent || 0)) / 100);
+    updatedFormData.officeManagement = Math.floor((receivedFees * (updatedFormData.officeManagementPercent || 0)) / 100);
     
     setFormData(updatedFormData);
   };
@@ -746,7 +760,7 @@ const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing })
                           'profitMargin', 'drawing', 'documents', 'siteVisit', 
                           'marketingAndMisc', 'officeManagement', 'amount'];
     
-    const newValue = numericFields.includes(name) ? parseFloat(value) || 0 : value;
+    const newValue = numericFields.includes(name) ? parseInt(value) || 0 : value;  // Use parseInt to avoid decimal issues
     
     // Update formData
     const updatedFormData = {
@@ -762,13 +776,13 @@ const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing })
       // Use current totalReceivedFees value
       const receivedFees = name === 'totalReceivedFees' ? newValue : (formData.totalReceivedFees || 0);
       
-      // Auto-calculate amounts from saved percentages
-      updatedFormData.profitMargin = Math.round((receivedFees * (updatedFormData.profitMarginPercent || 0)) / 100);
-      updatedFormData.drawing = Math.round((receivedFees * (updatedFormData.drawingPercent || 0)) / 100);
-      updatedFormData.documents = Math.round((receivedFees * (updatedFormData.documentsPercent || 0)) / 100);
-      updatedFormData.siteVisit = Math.round((receivedFees * (updatedFormData.siteVisitPercent || 0)) / 100);
-      updatedFormData.marketingAndMisc = Math.round((receivedFees * (updatedFormData.marketingAndMiscPercent || 0)) / 100);
-      updatedFormData.officeManagement = Math.round((receivedFees * (updatedFormData.officeManagementPercent || 0)) / 100);
+      // Auto-calculate amounts from saved percentages using Math.floor for consistent results
+      updatedFormData.profitMargin = Math.floor((receivedFees * (updatedFormData.profitMarginPercent || 0)) / 100);
+      updatedFormData.drawing = Math.floor((receivedFees * (updatedFormData.drawingPercent || 0)) / 100);
+      updatedFormData.documents = Math.floor((receivedFees * (updatedFormData.documentsPercent || 0)) / 100);
+      updatedFormData.siteVisit = Math.floor((receivedFees * (updatedFormData.siteVisitPercent || 0)) / 100);
+      updatedFormData.marketingAndMisc = Math.floor((receivedFees * (updatedFormData.marketingAndMiscPercent || 0)) / 100);
+      updatedFormData.officeManagement = Math.floor((receivedFees * (updatedFormData.officeManagementPercent || 0)) / 100);
     }
     
     setFormData(updatedFormData);
@@ -779,7 +793,7 @@ const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing })
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: parseFloat(value) || 0
+      [name]: parseInt(value) || 0  // Use parseInt to avoid decimal issues
     });
   };
 

@@ -129,117 +129,109 @@
   align-items: center;
 }
 
-/* Professional Button Base Styles */
+/* Modern Gradient Dashboard Button Styles */
 .project-btn {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  color: white;
   text-decoration: none;
   min-height: 44px;
   box-sizing: border-box;
-  vertical-align: top;
   position: relative;
-  line-height: 1.5;
-  letter-spacing: 0.02em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   outline: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  user-select: none;
+  margin: 0 4px;
 }
 
 .project-btn:focus {
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2), 0 2px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 3px rgba(255, 255, 255, 0.3);
 }
 
 .project-btn:active {
   transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .project-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Ensure labels behave exactly like buttons */
-label.project-btn {
-  margin: 0;
-  user-select: none;
+.project-btn i {
+  font-size: 14px;
 }
 
-/* Primary Button - Professional Blue */
+/* Add New Button - Blue Gradient */
 .project-btn-primary {
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-  color: white;
-  border: 1px solid #357abd;
+  background: linear-gradient(135deg, #3B44F6 0%, #5A60F8 100%);
 }
 
 .project-btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #357abd 0%, #2c5282 100%);
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.25);
+  background: linear-gradient(135deg, #2A32E6 0%, #4950E8 100%);
   transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(59, 68, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-/* Success Button - Professional Green */
-.project-btn-success {
-  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-  color: white;
-  border: 1px solid #38a169;
-}
-
-.project-btn-success:hover:not(:disabled) {
-  background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
-  box-shadow: 0 4px 12px rgba(72, 187, 120, 0.25);
-  transform: translateY(-1px);
-}
-
-/* Info Button - Professional Teal */
+/* Configure Percentages Button - Teal Gradient */
 .project-btn-info {
-  background: linear-gradient(135deg, #4fd1c7 0%, #319795 100%);
-  color: white;
-  border: 1px solid #319795;
+  background: linear-gradient(135deg, #1890FF 0%, #36CFC9 100%);
 }
 
 .project-btn-info:hover:not(:disabled) {
-  background: linear-gradient(135deg, #319795 0%, #2c7a7b 100%);
-  box-shadow: 0 4px 12px rgba(79, 209, 199, 0.25);
+  background: linear-gradient(135deg, #0880EF 0%, #26BFB9 100%);
   transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(24, 144, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-/* Secondary Button - Professional Gray */
+/* Import Excel Button - Green Gradient */
+.project-btn-success {
+  background: linear-gradient(135deg, #006D5B 0%, #08979C 100%);
+}
+
+.project-btn-success:hover:not(:disabled) {
+  background: linear-gradient(135deg, #005D4B 0%, #07878C 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(0, 109, 91, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Export Excel Button - Gray Gradient */
 .project-btn-secondary {
-  background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
-  color: white;
-  border: 1px solid #4a5568;
+  background: linear-gradient(135deg, #434343 0%, #595959 100%);
 }
 
 .project-btn-secondary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
-  box-shadow: 0 4px 12px rgba(113, 128, 150, 0.25);
+  background: linear-gradient(135deg, #333333 0%, #494949 100%);
   transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(67, 67, 67, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-/* Outline Variants for Secondary Actions */
+/* Outline Button for less important actions */
 .project-btn-outline {
-  background: white;
-  color: #4a5568;
-  border: 2px solid #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  color: #495057;
+  border: 2px solid #dee2e6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .project-btn-outline:hover:not(:disabled) {
-  background: #f7fafc;
-  border-color: #cbd5e0;
-  color: #2d3748;
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: #212529;
+  border-color: #adb5bd;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 /* Button Size Variations */
@@ -427,74 +419,60 @@ label.project-btn {
 
 .table-actions {
   display: flex;
-  gap: 8px;
+  gap: 12px;
 }
 
-/* Professional Action Button Styles for Tables */
+/* Rounded Pill Action Button Styles */
 .action-btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 4px;
-  min-width: 80px;
-  height: 32px;
-  line-height: 1;
-  letter-spacing: 0.025em;
-  outline: none;
-  position: relative;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 50px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  min-height: 32px;
+  box-sizing: border-box;
 }
 
-.action-btn:focus {
-  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.action-btn:active {
-  transform: translateY(1px);
-}
-
-.action-btn-view {
-  background: linear-gradient(135deg, #4fd1c7 0%, #319795 100%);
-  color: white;
-  border: 1px solid #319795;
-}
-
-.action-btn-view:hover:not(:disabled) {
-  background: linear-gradient(135deg, #319795 0%, #2c7a7b 100%);
-  box-shadow: 0 3px 8px rgba(79, 209, 199, 0.3);
+.action-btn:hover {
   transform: translateY(-1px);
 }
 
-.action-btn-edit {
-  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-  color: white;
-  border: 1px solid #38a169;
+.action-btn i {
+  font-size: 14px;
 }
 
-.action-btn-edit:hover:not(:disabled) {
-  background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
-  box-shadow: 0 3px 8px rgba(72, 187, 120, 0.3);
-  transform: translateY(-1px);
+/* Edit Button - Green */
+.action-btn.btn-edit {
+  background-color: #28a745;
 }
 
-.action-btn-delete {
-  background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
-  color: white;
-  border: 1px solid #e53e3e;
+.action-btn.btn-edit:hover {
+  background-color: #218838;
 }
 
-.action-btn-delete:hover:not(:disabled) {
-  background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
-  box-shadow: 0 3px 8px rgba(245, 101, 101, 0.3);
-  transform: translateY(-1px);
+/* Distribution Button - Blue */
+.action-btn.btn-distribution {
+  background-color: #0d6efd;
+}
+
+.action-btn.btn-distribution:hover {
+  background-color: #0b5ed7;
+}
+
+/* Delete Button - Red */
+.action-btn.btn-delete {
+  background-color: #dc3545;
+}
+
+.action-btn.btn-delete:hover {
+  background-color: #c82333;
 }
 
 .status-badge {
@@ -1039,6 +1017,41 @@ label.project-btn {
   border-color: #cbd5e0;
   color: #2d3748;
   transform: translateY(-1px);
+}
+
+/* Export Button Styles for Modal */
+.btn-export-excel {
+  background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+  color: white;
+  border: 1px solid #1e7e34;
+}
+
+.btn-export-excel:hover:not(:disabled) {
+  background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-export-pdf {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  border: 1px solid #bd2130;
+}
+
+.btn-export-pdf:hover:not(:disabled) {
+  background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-export-excel::before {
+  content: '📊';
+  margin-right: 5px;
+}
+
+.btn-export-pdf::before {
+  content: '📄';
+  margin-right: 5px;
 }
 
 /* Percentage Configuration Modal Styles */

@@ -299,15 +299,15 @@ router.post('/import/projects', authenticate, upload.single('file'), async (req,
           projectNumber: String(row['Project number']).trim(),
           projectName: String(row['Project name'] || '').trim(),
           link: String(row['Link'] || '').trim(),
-          finalizedFees: parseFloat(row['Finalized Fees']) || 0,
-          totalReceivedFees: parseFloat(row['Total received fees']) || 0,
-          year2024_25: parseFloat(row['2024-25']) || 0,
-          profitMargin: parseFloat(row['Profit margin']) || 0,
-          drawing: parseFloat(row['Drawing']) || 0,
-          documents: parseFloat(row['Documents']) || 0,
-          siteVisit: parseFloat(row['Site visit']) || 0,
-          marketingAndMisc: parseFloat(row['Marketing and Misc']) || 0,
-          officeManagement: parseFloat(row['Office management']) || 0,
+          finalizedFees: parseInt(row['Finalized Fees']) || 0,  // Use parseInt to avoid decimal issues
+          totalReceivedFees: parseInt(row['Total received fees']) || 0,  // Use parseInt to avoid decimal issues
+          year2024_25: parseInt(row['2024-25']) || 0,  // Use parseInt to avoid decimal issues
+          profitMargin: parseInt(row['Profit margin']) || 0,  // Use parseInt to avoid decimal issues
+          drawing: parseInt(row['Drawing']) || 0,  // Use parseInt to avoid decimal issues
+          documents: parseInt(row['Documents']) || 0,  // Use parseInt to avoid decimal issues
+          siteVisit: parseInt(row['Site visit']) || 0,  // Use parseInt to avoid decimal issues
+          marketingAndMisc: parseInt(row['Marketing and Misc']) || 0,  // Use parseInt to avoid decimal issues
+          officeManagement: parseInt(row['Office management']) || 0,  // Use parseInt to avoid decimal issues
           status: row['Status'] || 'Active',
           createdBy: req.user._id
         };
