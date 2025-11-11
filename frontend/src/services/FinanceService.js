@@ -38,6 +38,20 @@ const FinanceService = {
     }
   },
 
+  // Get projects by client ID
+  getProjectsByClient: async (clientId, filters = {}) => {
+    try {
+      const response = await axios.get(`${API_URL}/finance/clients/${clientId}/projects`, {
+        headers: getAuthHeader(),
+        params: filters
+      });
+      return response.data.data || response.data;
+    } catch (error) {
+      console.error('Error fetching client projects:', error);
+      throw error;
+    }
+  },
+
   // Create project
   createProject: async (projectData) => {
     try {

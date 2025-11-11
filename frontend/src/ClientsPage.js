@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import ClientService from './services/ClientService';
 import ExcelExportService from './services/ExcelExportService';
@@ -8,6 +9,7 @@ import './PageContent.css';
 
 const ClientsPage = () => {
   const { canCreate, canEdit, canDelete, canExport, canImport, canDuplicate } = useAuth();
+  const navigate = useNavigate();
   const [clients, setClients] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('name');
@@ -104,6 +106,12 @@ const ClientsPage = () => {
       setError('Failed to update client status. Please try again.');
       console.error('Error updating client status:', error);
     }
+  };
+
+  const handleViewProjects = (client) => {
+    navigate(`/clients/${client._id}/projects`, { 
+      state: { clientName: client.name, clientCompany: client.company } 
+    });
   };
 
   const handleInputChange = (e) => {
@@ -544,6 +552,29 @@ const ClientsPage = () => {
                     <td>{formatDate(client.createdAt)}</td>
                     <td>
                       <div className="action-buttons">
+                        <button
+                          className="view-projects-btn"
+                          onClick={() => handleViewProjects(client)}
+                          title="View Projects"
+                          style={{
+                            backgroundColor: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            padding: '6px 8px',
+                            cursor: 'pointer',
+                            marginRight: '4px',
+                            fontSize: '12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+                          </svg>
+                          Projects
+                        </button>
                         {canEdit('clients') && (
                           <button
                             className="edit-btn"

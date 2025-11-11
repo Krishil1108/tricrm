@@ -14,6 +14,11 @@ const financeProjectSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  clientId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Client',
+    index: true
+  },
   link: {
     type: String
   },

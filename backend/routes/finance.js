@@ -71,6 +71,51 @@ router.get('/projects/:id', authenticate, async (req, res) => {
   }
 });
 
+// Get projects by client ID
+router.get('/clients/:clientId/projects', authenticate, async (req, res) => {
+  try {
+    const { clientId } = req.params;
+    const { status, search, sortBy = 'srNo', order = 'asc' } = req.query;
+    
+    // Build query for projects with the specific clientId
+    let query = { clientId: clientId };
+    
+    // Add status filter if provided
+    if (status && status !== 'all') {
+      query.status = status;
+    }
+    
+    // Add search filter if provided
+    if (search) {
+      query.$or = [
+        { projectName: { $regex: search, $options: 'i' } },
+        { projectNumber: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    // Build sort object
+    const sortOrder = order === 'desc' ? -1 : 1;
+    const sort = { [sortBy]: sortOrder };
+    
+    const projects = await FinanceProject.find(query)
+      .sort(sort)
+      .populate('createdBy', 'username email');
+    
+    res.json({
+      success: true,
+      data: projects,
+      count: projects.length
+    });
+  } catch (error) {
+    console.error('Error fetching client projects:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error while fetching client projects',
+      error: error.message 
+    });
+  }
+});
+
 // Create new project
 router.post('/projects', authenticate, async (req, res) => {
   try {

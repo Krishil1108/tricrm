@@ -527,22 +527,52 @@
   flex-direction: column;
 }
 
-.modal-header {
+/* Project Page specific modal header isolation */
+.project-page .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
   border-bottom: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 8px 8px 0 0;
 }
 
-.modal-header h2 {
+.project-page .modal-header h2,
+.project-page .modal-header h3 {
   margin: 0;
   color: #2c3e50;
-  font-size: 20px;
+  font-size: 1.5rem;
   font-weight: 600;
 }
 
-.modal-body {
+.project-page .modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.project-page .modal-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.project-page .modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 20px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 0 0 8px 8px;
+  justify-content: flex-end;
+}
+
+.project-page .modal-body {
   padding: 24px;
   overflow-y: auto;
   flex: 1;
@@ -905,7 +935,7 @@
   position: relative;
 }
 
-.modal-header {
+.project-page .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -915,14 +945,14 @@
   border-radius: 12px 12px 0 0;
 }
 
-.modal-header h2 {
+.project-page .modal-header h2 {
   margin: 0;
   color: #2c3e50;
   font-size: 24px;
   font-weight: 600;
 }
 
-.close-btn {
+.project-page .close-btn {
   background: none;
   border: none;
   font-size: 24px;
@@ -938,16 +968,16 @@
   transition: all 0.2s;
 }
 
-.close-btn:hover {
+.project-page .close-btn:hover {
   background: #e9ecef;
   color: #495057;
 }
 
-.modal-body {
+.project-page .modal-body {
   padding: 30px;
 }
 
-.modal-footer {
+.project-page .modal-footer {
   padding: 20px 30px;
   border-top: 1px solid #e9ecef;
   background: #f8f9fa;
@@ -1318,38 +1348,95 @@
   }
 }
 
-/* Distribution Modal Styles */
-.distribution-modal {
-  max-width: 95vw;
-  width: 1400px;
+/* Distribution Modal Styles - Isolated to ProjectPage */
+.project-page .distribution-modal {
+  max-width: 98vw;
+  width: 1600px;
   max-height: 90vh;
   margin: 2vh auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  position: relative;
+  z-index: 1001;
 }
 
-.distribution-modal-body {
-  max-height: 70vh;
+.project-page .distribution-modal-body {
+  max-height: 75vh;
   overflow-y: auto;
-  padding: 20px;
+  padding: 24px;
+  background: white;
 }
 
-/* Duplicate removed - styles defined above in main action button section */
+/* Ensure modal content doesn't affect other components */
+.project-page .distribution-modal * {
+  box-sizing: border-box;
+}
 
-/* Responsive adjustments for distribution modal */
-@media (max-width: 1200px) {
-  .distribution-modal {
+/* Override any conflicting styles specifically for distribution table in ProjectPage modal */
+.project-page .distribution-modal .distribution-table {
+  width: 100%;
+  min-width: 1400px;
+  font-size: 13px;
+}
+
+.project-page .distribution-modal .distribution-table th,
+.project-page .distribution-modal .distribution-table td {
+  white-space: nowrap;
+  padding: 8px 12px;
+}
+
+/* Responsive adjustments for distribution modal - ProjectPage specific */
+@media (max-width: 1700px) {
+  .project-page .distribution-modal {
     width: 95vw;
   }
 }
 
+@media (max-width: 1200px) {
+  .project-page .distribution-modal {
+    width: 92vw;
+  }
+  
+  .project-page .distribution-modal .distribution-table {
+    min-width: 1000px;
+  }
+}
+
 @media (max-width: 768px) {
-  .distribution-modal {
+  .project-page .distribution-modal {
     width: 98vw;
     margin: 1vh auto;
     max-height: 95vh;
   }
   
-  .distribution-modal-body {
-    padding: 10px;
-    max-height: 75vh;
+  .project-page .distribution-modal-body {
+    padding: 16px;
+    max-height: 78vh;
+  }
+  
+  .project-page .distribution-modal .distribution-table {
+    min-width: 800px;
+  }
+}
+
+@media (max-width: 480px) {
+  .project-page .distribution-modal {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    border-radius: 0;
+    max-height: 100vh;
+  }
+  
+  .project-page .distribution-modal-body {
+    padding: 12px;
+    max-height: 85vh;
+  }
+  
+  .project-page .distribution-modal .distribution-table {
+    min-width: 600px;
+    font-size: 12px;
   }
 }

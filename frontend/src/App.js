@@ -16,6 +16,7 @@ import ResetPasswordPage from './ResetPasswordPage';
 import Sidebar from './Sidebar';
 import HomePage from './HomePage';
 import ClientsPage from './ClientsPage';
+import ClientProjectsPage from './ClientProjectsPage';
 import DashboardPage from './DashboardPage';
 import SettingsPage from './SettingsPage';
 import ProjectPage from './ProjectPage';
@@ -85,6 +86,15 @@ function App() {
                               element={
                                 <ProtectedRoute requireModule="clients">
                                   <ClientsPage />
+                                </ProtectedRoute>
+                              } 
+                            />
+                            
+                            <Route 
+                              path="/clients/:clientId/projects" 
+                              element={
+                                <ProtectedRoute requireModule="clients">
+                                  <ClientProjectsPage />
                                 </ProtectedRoute>
                               } 
                             />
