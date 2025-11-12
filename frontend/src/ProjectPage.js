@@ -25,7 +25,12 @@ const ProjectPage = () => {
     documentsPercent: 0,
     siteVisitPercent: 0,
     marketingAndMiscPercent: 0,
-    officeManagementPercent: 0
+    officeManagementPercent: 0,
+    includeAssociates: false,
+    numberOfAssociates: 1,
+    associates: [
+      { name: '', company: '', percentage: 0 }
+    ]
   });
   const [showPercentageConfig, setShowPercentageConfig] = useState(false);
   const [selectedProjectForDistribution, setSelectedProjectForDistribution] = useState(null);
@@ -54,7 +59,7 @@ const ProjectPage = () => {
     fetchStats();
     loadPercentageConfig();
     loadClients();
-  }, [activeTab, filters]);
+  }, [activeTab, filters]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadClients = async () => {
     try {
@@ -71,7 +76,21 @@ const ProjectPage = () => {
     try {
       const savedConfig = localStorage.getItem('finance-percentage-config');
       if (savedConfig) {
-        setPercentageConfig(JSON.parse(savedConfig));
+        const parsedConfig = JSON.parse(savedConfig);
+        // Ensure backward compatibility and set defaults for new fields
+        const configWithDefaults = {
+          profitMarginPercent: 0,
+          drawingPercent: 0,
+          documentsPercent: 0,
+          siteVisitPercent: 0,
+          marketingAndMiscPercent: 0,
+          officeManagementPercent: 0,
+          includeAssociates: false,
+          numberOfAssociates: 1,
+          associates: [{ name: '', company: '', percentage: 0 }],
+          ...parsedConfig
+        };
+        setPercentageConfig(configWithDefaults);
       }
     } catch (error) {
       console.error('Error loading percentage configuration:', error);
@@ -606,6 +625,7 @@ const ProjectPage = () => {
           isEditing={!!editingItem}
           clients={clients}
           onAddClient={handleOpenClientModal}
+          percentageConfig={percentageConfig}
         />
       )}
 
@@ -631,6 +651,7 @@ const ProjectPage = () => {
                 projectData={selectedProjectForDistribution}
                 showTitle={false}
                 compact={false}
+                associateConfig={percentageConfig}
               />
             </div>
             <div className="modal-footer">
@@ -967,7 +988,7 @@ const calculateYearlyDistribution = (payments) => {
 };
 
 // Modal Component
-const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing, clients, onAddClient }) => {
+const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing, clients, onAddClient, percentageConfig }) => {
   
   // Payment management functions
   const addPayment = () => {
@@ -1082,6 +1103,7 @@ const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing, c
               updatePayment={updatePayment}
               clients={clients}
               onAddClient={onAddClient}
+              percentageConfig={percentageConfig}
             />
           ) : (
             <ExpenseForm formData={formData} handleChange={handleChange} />
@@ -1102,7 +1124,7 @@ const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing, c
 };
 
 // Project Form
-const ProjectForm = ({ formData, handleChange, handleAmountChange, addPayment, removePayment, updatePayment, clients, onAddClient }) => {
+const ProjectForm = ({ formData, handleChange, handleAmountChange, addPayment, removePayment, updatePayment, clients, onAddClient, percentageConfig }) => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -1285,6 +1307,7 @@ const ProjectForm = ({ formData, handleChange, handleAmountChange, addPayment, r
           projectData={formData}
           showTitle={false}
           compact={false}
+          associateConfig={percentageConfig}
         />
       )}
 
@@ -1565,24 +1588,72 @@ const ExpenseForm = ({ formData, handleChange }) => (
 
 // Percentage Configuration Modal Component
 const PercentageConfigModal = ({ config, onSave, onClose }) => {
-  const [tempConfig, setTempConfig] = useState(config);
+  const [tempConfig, setTempConfig] = useState({
+    ...config,
+    associates: config.associates || [{ name: '', company: '', percentage: 0 }]
+  });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setTempConfig({
       ...tempConfig,
-      [name]: parseFloat(value) || 0
+      [name]: type === 'checkbox' ? checked : (type === 'number' ? parseFloat(value) || 0 : value)
     });
   };
 
+  const handleNumberOfAssociatesChange = (e) => {
+    const count = parseInt(e.target.value) || 1;
+    const newAssociates = Array.from({ length: count }, (_, index) => 
+      tempConfig.associates[index] || { name: '', company: '', percentage: 0 }
+    );
+    
+    setTempConfig({
+      ...tempConfig,
+      numberOfAssociates: count,
+      associates: newAssociates
+    });
+  };
+
+  const handleAssociateChange = (index, field, value) => {
+    const updatedAssociates = tempConfig.associates.map((associate, i) => 
+      i === index ? { 
+        ...associate, 
+        [field]: field === 'percentage' ? parseFloat(value) || 0 : value 
+      } : associate
+    );
+    
+    setTempConfig({
+      ...tempConfig,
+      associates: updatedAssociates
+    });
+  };
+
+  const calculateTotalPercentage = () => {
+    const expenseTotal = Object.keys(tempConfig)
+      .filter(key => key.endsWith('Percent') && key !== 'includeAssociates')
+      .reduce((sum, key) => sum + (tempConfig[key] || 0), 0);
+    
+    const associateTotal = tempConfig.includeAssociates 
+      ? tempConfig.associates.reduce((sum, associate) => sum + (associate.percentage || 0), 0)
+      : 0;
+    
+    return expenseTotal + associateTotal;
+  };
+
   const handleSave = () => {
-    // Validate that percentages don't exceed 100%
-    const total = Object.values(tempConfig).reduce((sum, val) => sum + val, 0);
+    const total = calculateTotalPercentage();
     if (total > 100) {
       alert('Total percentage cannot exceed 100%');
       return;
     }
-    onSave(tempConfig);
+    
+    // Clean up associates array if not including associates
+    const configToSave = {
+      ...tempConfig,
+      associates: tempConfig.includeAssociates ? tempConfig.associates : []
+    };
+    
+    onSave(configToSave);
     onClose();
   };
 
@@ -1597,7 +1668,104 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
         <div className="modal-body">
           <div className="percentage-info">
             <p>💡 Set the default percentages for expense allocation. These will be used automatically when you create new projects.</p>
-            <p><strong>Current Total: {Object.values(tempConfig).reduce((sum, val) => sum + val, 0).toFixed(1)}%</strong></p>
+            <p><strong>Current Total: {calculateTotalPercentage().toFixed(1)}%</strong></p>
+          </div>
+
+          {/* Associates Section */}
+          <div className="associates-section" style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+            <div className="form-group">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
+                <input
+                  type="checkbox"
+                  name="includeAssociates"
+                  checked={tempConfig.includeAssociates || false}
+                  onChange={handleChange}
+                  style={{ marginRight: '5px' }}
+                />
+                <span style={{ fontWeight: '500', fontSize: '16px' }}>👥 Include Associates</span>
+              </label>
+            </div>
+
+            {tempConfig.includeAssociates && (
+              <>
+                <div className="form-group" style={{ marginBottom: '15px' }}>
+                  <label>Number of Associates (max 5)</label>
+                  <select 
+                    value={tempConfig.numberOfAssociates || 1}
+                    onChange={handleNumberOfAssociatesChange}
+                    className="form-input"
+                    style={{ width: '150px' }}
+                  >
+                    {[1, 2, 3, 4, 5].map(num => (
+                      <option key={num} value={num}>{num}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="associates-grid">
+                  {tempConfig.associates.map((associate, index) => (
+                    <div key={index} className="associate-row" style={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: '1fr 1fr 120px', 
+                      gap: '10px', 
+                      marginBottom: '10px',
+                      padding: '10px',
+                      backgroundColor: 'white',
+                      borderRadius: '5px',
+                      border: '1px solid #e0e0e0'
+                    }}>
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label style={{ fontSize: '14px', marginBottom: '5px' }}>Associate Name</label>
+                        <input
+                          type="text"
+                          placeholder="Enter name"
+                          value={associate.name || ''}
+                          onChange={(e) => handleAssociateChange(index, 'name', e.target.value)}
+                          className="form-input"
+                          style={{ fontSize: '14px' }}
+                        />
+                      </div>
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label style={{ fontSize: '14px', marginBottom: '5px' }}>Company Name</label>
+                        <input
+                          type="text"
+                          placeholder="Enter company"
+                          value={associate.company || ''}
+                          onChange={(e) => handleAssociateChange(index, 'company', e.target.value)}
+                          className="form-input"
+                          style={{ fontSize: '14px' }}
+                        />
+                      </div>
+                      <div className="form-group" style={{ margin: 0 }}>
+                        <label style={{ fontSize: '14px', marginBottom: '5px' }}>Share %</label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.1"
+                          value={associate.percentage || ''}
+                          onChange={(e) => handleAssociateChange(index, 'percentage', e.target.value)}
+                          className="form-input"
+                          style={{ fontSize: '14px' }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {tempConfig.includeAssociates && (
+                    <div style={{ 
+                      marginTop: '10px', 
+                      padding: '8px', 
+                      backgroundColor: '#fff3cd', 
+                      borderRadius: '5px',
+                      fontSize: '14px'
+                    }}>
+                      <strong>Associates Total: {tempConfig.associates.reduce((sum, a) => sum + (a.percentage || 0), 0).toFixed(1)}%</strong>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
           <div className="form-grid">

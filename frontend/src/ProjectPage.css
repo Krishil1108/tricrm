@@ -1442,3 +1442,65 @@
     font-size: 12px;
   }
 }
+
+/* Associate Configuration Styles */
+.associates-section {
+  border: 1px solid #e1e5e9;
+  transition: all 0.3s ease;
+}
+
+.associates-section:hover {
+  border-color: #007bff;
+}
+
+.associates-grid {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.associate-row {
+  transition: all 0.2s ease;
+}
+
+.associate-row:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.associate-row label {
+  color: #495057;
+  font-weight: 500;
+}
+
+.associate-row .form-input {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 6px 10px;
+  transition: border-color 0.2s ease;
+}
+
+.associate-row .form-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+.associates-section input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #007bff;
+}
+
+.associates-section select {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 8px 12px;
+  background-color: white;
+  transition: border-color 0.2s ease;
+}
+
+.associates-section select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  outline: none;
+}

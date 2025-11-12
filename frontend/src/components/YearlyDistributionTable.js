@@ -7,7 +7,8 @@ import autoTable from 'jspdf-autotable';
 const YearlyDistributionTable = ({ 
   projectData, 
   showTitle = true, 
-  compact = false 
+  compact = false,
+  associateConfig = null
 }) => {
   const formatCurrency = (amount) => {
     return 'Rs ' + new Intl.NumberFormat('en-IN').format(amount || 0);
@@ -382,6 +383,16 @@ const YearlyDistributionTable = ({
               <th>Date</th>
               <th>Cheque number/NEFT number</th>
               <th>Mode</th>
+              {/* Associate columns if configured */}
+              {associateConfig && associateConfig.includeAssociates && associateConfig.associates && 
+                associateConfig.associates.map((associate, index) => (
+                  <th key={`associate-${index}`} style={{ backgroundColor: '#e7f3ff', color: '#0056b3' }}>
+                    {associate.name || `Associate ${index + 1}`}
+                    <br />
+                    <small>({associate.company || 'N/A'})</small>
+                  </th>
+                ))
+              }
               <th>Profit margin</th>
               <th>Drawing</th>
               <th>Documents</th>
@@ -397,6 +408,14 @@ const YearlyDistributionTable = ({
               <td><strong>-</strong></td>
               <td><strong>-</strong></td>
               <td><strong>-</strong></td>
+              {/* Associate percentage columns */}
+              {associateConfig && associateConfig.includeAssociates && associateConfig.associates && 
+                associateConfig.associates.map((associate, index) => (
+                  <td key={`associate-percent-${index}`} style={{ backgroundColor: '#f0f8ff', fontWeight: 'bold' }}>
+                    {associate.percentage || 0}%
+                  </td>
+                ))
+              }
               <td><strong>{projectData.profitMarginPercent || 0}%</strong></td>
               <td><strong>{projectData.drawingPercent || 0}%</strong></td>
               <td><strong>{projectData.documentsPercent || 0}%</strong></td>
@@ -423,6 +442,17 @@ const YearlyDistributionTable = ({
                   <td>{paymentDate.toLocaleDateString('en-IN')}</td>
                   <td>{payment.chequeNeftNumber || '-'}</td>
                   <td>{payment.mode}</td>
+                  {/* Associate amount columns */}
+                  {associateConfig && associateConfig.includeAssociates && associateConfig.associates && 
+                    associateConfig.associates.map((associate, associateIndex) => {
+                      const associateAmount = Math.floor((amount * (associate.percentage || 0)) / 100);
+                      return (
+                        <td key={`payment-associate-${index}-${associateIndex}`} style={{ backgroundColor: '#f8f9fa' }}>
+                          {associateAmount.toLocaleString('en-IN')}
+                        </td>
+                      );
+                    })
+                  }
                   <td>{profitAmount.toLocaleString('en-IN')}</td>
                   <td>{drawingAmount.toLocaleString('en-IN')}</td>
                   <td>{documentsAmount > 0 ? documentsAmount.toLocaleString('en-IN') : '-'}</td>
@@ -452,6 +482,17 @@ const YearlyDistributionTable = ({
                     <td><strong>-</strong></td>
                     <td><strong>-</strong></td>
                     <td><strong>-</strong></td>
+                    {/* Associate total columns */}
+                    {associateConfig && associateConfig.includeAssociates && associateConfig.associates && 
+                      associateConfig.associates.map((associate, associateIndex) => {
+                        const associateTotalAmount = Math.floor((yearAmount * (associate.percentage || 0)) / 100);
+                        return (
+                          <td key={`year-associate-${year}-${associateIndex}`} style={{ backgroundColor: '#f8f9fa', fontWeight: 'bold' }}>
+                            {associateTotalAmount.toLocaleString('en-IN')}
+                          </td>
+                        );
+                      })
+                    }
                     <td><strong>{profitAmount.toLocaleString('en-IN')}</strong></td>
                     <td><strong>{drawingAmount.toLocaleString('en-IN')}</strong></td>
                     <td><strong>{documentsAmount > 0 ? documentsAmount.toLocaleString('en-IN') : '-'}</strong></td>
@@ -469,6 +510,17 @@ const YearlyDistributionTable = ({
               <td><strong>-</strong></td>
               <td><strong>-</strong></td>
               <td><strong>-</strong></td>
+              {/* Associate grand total columns */}
+              {associateConfig && associateConfig.includeAssociates && associateConfig.associates && 
+                associateConfig.associates.map((associate, associateIndex) => {
+                  const associateGrandTotal = Math.floor(((projectData.totalReceivedFees || 0) * (associate.percentage || 0)) / 100);
+                  return (
+                    <td key={`grand-associate-${associateIndex}`} style={{ backgroundColor: '#e8f4fd', fontWeight: 'bold', border: '2px solid #0056b3' }}>
+                      {associateGrandTotal.toLocaleString('en-IN')}
+                    </td>
+                  );
+                })
+              }
               <td><strong>{projectData.profitMargin?.toLocaleString('en-IN') || '0'}</strong></td>
               <td><strong>{projectData.drawing?.toLocaleString('en-IN') || '0'}</strong></td>
               <td><strong>{(projectData.documents && projectData.documents > 0) ? projectData.documents.toLocaleString('en-IN') : '-'}</strong></td>
@@ -481,7 +533,9 @@ const YearlyDistributionTable = ({
                 <td><strong>Remaining</strong></td>
                 <td><strong>{(projectData.finalizedFees - projectData.totalReceivedFees).toLocaleString('en-IN')}</strong></td>
                 <td colSpan="3"><strong>Pending Receipt</strong></td>
-                <td colSpan="6"><em>Will be allocated as per percentages upon receipt</em></td>
+                <td colSpan={`${6 + (associateConfig && associateConfig.includeAssociates ? associateConfig.associates.length : 0)}`}>
+                  <em>Will be allocated as per percentages upon receipt</em>
+                </td>
               </tr>
             )}
           </tfoot>
