@@ -8,8 +8,37 @@ const YearlyDistributionTable = ({
   projectData, 
   showTitle = true, 
   compact = false,
-  associateConfig = null
+  associateConfig = null,
+  customFields = []
 }) => {
+  
+  // Helper function to get custom field value - supports both old and new data formats
+  const getCustomFieldValue = (fieldName, type = 'percentage') => {
+    // First try to get from top-level project data (old format)
+    const topLevelValue = projectData[fieldName];
+    if (topLevelValue !== undefined && topLevelValue !== null) {
+      return topLevelValue;
+    }
+    
+    // Then try to get from customFields array (new format)
+    if (projectData.customFields && Array.isArray(projectData.customFields)) {
+      const customField = projectData.customFields.find(field => field.fieldName === fieldName);
+      if (customField) {
+        return type === 'percentage' ? customField.percentage : customField.amount;
+      }
+    }
+    
+    // Try customFieldsMetadata as fallback
+    if (projectData.customFieldsMetadata && Array.isArray(projectData.customFieldsMetadata)) {
+      const customField = projectData.customFieldsMetadata.find(field => field.fieldName === fieldName);
+      if (customField) {
+        return type === 'percentage' ? customField.percentage : customField.amount;
+      }
+    }
+    
+    return 0;
+  };
+  
   const formatCurrency = (amount) => {
     return 'Rs ' + new Intl.NumberFormat('en-IN').format(amount || 0);
   };
@@ -29,7 +58,7 @@ const YearlyDistributionTable = ({
     excelData.push([]); // Empty row
     
     // Table headers
-    excelData.push([
+    const headers = [
       'Descriptions',
       'Amount',
       'Date', 
@@ -41,10 +70,19 @@ const YearlyDistributionTable = ({
       'Site Visit',
       'Marketing and Misc.',
       'Office Management'
-    ]);
+    ];
+    
+    // Add custom field headers
+    if (customFields && customFields.length > 0) {
+      customFields.forEach(field => {
+        headers.push(field.name);
+      });
+    }
+    
+    excelData.push(headers);
     
     // Percentage row
-    excelData.push([
+    const percentageRow = [
       'Percentage will vary project',
       '-',
       '-',
@@ -56,7 +94,16 @@ const YearlyDistributionTable = ({
       `${projectData.siteVisitPercent || 0}%`,
       `${projectData.marketingAndMiscPercent || 0}%`,
       `${projectData.officeManagementPercent || 0}%`
-    ]);
+    ];
+    
+    // Add custom field percentages
+    if (customFields && customFields.length > 0) {
+      customFields.forEach(field => {
+        percentageRow.push(`${getCustomFieldValue(field.fieldName, 'percentage')}%`);
+      });
+    }
+    
+    excelData.push(percentageRow);
     
     // Payment data with exact calculations (no rounding issues)
     if (projectData.payments && projectData.payments.length > 0) {
@@ -69,7 +116,7 @@ const YearlyDistributionTable = ({
         const marketingAmount = Math.floor((amount * (projectData.marketingAndMiscPercent || 0)) / 100);
         const officeAmount = Math.floor((amount * (projectData.officeManagementPercent || 0)) / 100);
         
-        excelData.push([
+        const paymentRow = [
           `Payment ${index + 1}`,
           amount,
           payment.date ? new Date(payment.date).toLocaleDateString('en-GB') : '-',
@@ -81,14 +128,24 @@ const YearlyDistributionTable = ({
           siteVisitAmount,
           marketingAmount,
           officeAmount
-        ]);
+        ];
+        
+        // Add custom field amounts
+        if (customFields && customFields.length > 0) {
+          customFields.forEach(field => {
+            const customAmount = Math.floor((amount * (getCustomFieldValue(field.fieldName, 'percentage'))) / 100);
+            paymentRow.push(customAmount > 0 ? customAmount : '-');
+          });
+        }
+        
+        excelData.push(paymentRow);
       });
     }
     
     // Yearly totals with exact calculations
     Object.keys(yearlyDistribution).forEach(year => {
       const amount = parseInt(yearlyDistribution[year]) || 0;
-      excelData.push([
+      const yearlyRow = [
         `${year} Total`,
         amount,
         '-',
@@ -100,11 +157,21 @@ const YearlyDistributionTable = ({
         Math.floor((amount * (projectData.siteVisitPercent || 0)) / 100),
         Math.floor((amount * (projectData.marketingAndMiscPercent || 0)) / 100),
         Math.floor((amount * (projectData.officeManagementPercent || 0)) / 100)
-      ]);
+      ];
+      
+      // Add custom field yearly totals
+      if (customFields && customFields.length > 0) {
+        customFields.forEach(field => {
+          const customYearlyAmount = Math.floor((amount * (getCustomFieldValue(field.fieldName, 'percentage'))) / 100);
+          yearlyRow.push(customYearlyAmount > 0 ? customYearlyAmount : '-');
+        });
+      }
+      
+      excelData.push(yearlyRow);
     });
     
     // Grand total row
-    excelData.push([
+    const grandTotalRow = [
       'Grand Total',
       projectData.totalReceivedFees || 0,
       '-',
@@ -116,7 +183,18 @@ const YearlyDistributionTable = ({
       projectData.siteVisit || 0,
       projectData.marketingAndMisc || 0,
       projectData.officeManagement || 0
-    ]);
+    ];
+    
+    // Add custom field grand totals
+    if (customFields && customFields.length > 0) {
+      customFields.forEach(field => {
+        const percentage = getCustomFieldValue(field.fieldName, 'percentage');
+        const customGrandTotal = Math.floor(((projectData.totalReceivedFees || 0) * percentage) / 100);
+        grandTotalRow.push(customGrandTotal > 0 ? customGrandTotal : '-');
+      });
+    }
+    
+    excelData.push(grandTotalRow);
     
     // Create workbook and worksheet
     const wb = XLSX.utils.book_new();
@@ -235,7 +313,7 @@ const YearlyDistributionTable = ({
     });
     
     // Grand total
-    tableData.push([
+    const grandTotalRow = [
       'Grand Total',
       (projectData.totalReceivedFees || 0).toLocaleString('en-IN'),
       '-',
@@ -247,7 +325,18 @@ const YearlyDistributionTable = ({
       (projectData.siteVisit || 0).toLocaleString('en-IN'),
       (projectData.marketingAndMisc || 0).toLocaleString('en-IN'),
       (projectData.officeManagement || 0).toLocaleString('en-IN')
-    ]);
+    ];
+    
+    // Add custom field grand totals to PDF
+    if (customFields && customFields.length > 0) {
+      customFields.forEach(field => {
+        const percentage = getCustomFieldValue(field.fieldName, 'percentage');
+        const customGrandTotal = Math.floor(((projectData.totalReceivedFees || 0) * percentage) / 100);
+        grandTotalRow.push(customGrandTotal > 0 ? customGrandTotal.toLocaleString('en-IN') : '-');
+      });
+    }
+    
+    tableData.push(grandTotalRow);
     
     // Create table using autoTable function
     autoTable(doc, {
@@ -399,6 +488,12 @@ const YearlyDistributionTable = ({
               <th>Site visit</th>
               <th>Marketing and Misc.</th>
               <th>Office management</th>
+              {/* Custom fields columns */}
+              {customFields && customFields.map((customField, index) => (
+                <th key={`custom-${index}`} style={{ backgroundColor: '#fff3cd', color: '#856404' }}>
+                  {customField.name}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -422,6 +517,12 @@ const YearlyDistributionTable = ({
               <td><strong>{projectData.siteVisitPercent || 0}%</strong></td>
               <td><strong>{projectData.marketingAndMiscPercent || 0}%</strong></td>
               <td><strong>{projectData.officeManagementPercent || 0}%</strong></td>
+              {/* Custom fields percentage columns */}
+              {customFields && customFields.map((customField, index) => (
+                <td key={`custom-percent-${index}`} style={{ backgroundColor: '#fff3cd', fontWeight: 'bold' }}>
+                  {getCustomFieldValue(customField.fieldName, 'percentage')}%
+                </td>
+              ))}
             </tr>
             
             {/* Individual payment rows grouped by year */}
@@ -459,6 +560,15 @@ const YearlyDistributionTable = ({
                   <td>{siteVisitAmount.toLocaleString('en-IN')}</td>
                   <td>{marketingAmount.toLocaleString('en-IN')}</td>
                   <td>{officeAmount.toLocaleString('en-IN')}</td>
+                  {/* Custom fields amount columns */}
+                  {customFields && customFields.map((customField, customIndex) => {
+                    const customAmount = Math.floor((amount * (getCustomFieldValue(customField.fieldName, 'percentage'))) / 100);
+                    return (
+                      <td key={`payment-custom-${index}-${customIndex}`} style={{ backgroundColor: '#fffbf0' }}>
+                        {customAmount > 0 ? customAmount.toLocaleString('en-IN') : '-'}
+                      </td>
+                    );
+                  })}
                 </tr>
               );
             })}
@@ -499,6 +609,15 @@ const YearlyDistributionTable = ({
                     <td><strong>{siteVisitAmount.toLocaleString('en-IN')}</strong></td>
                     <td><strong>{marketingAmount.toLocaleString('en-IN')}</strong></td>
                     <td><strong>{officeAmount.toLocaleString('en-IN')}</strong></td>
+                    {/* Custom fields total columns */}
+                    {customFields && customFields.map((customField, customIndex) => {
+                      const customTotalAmount = Math.floor((yearAmount * (projectData[customField.fieldName] || 0)) / 100);
+                      return (
+                        <td key={`year-custom-${year}-${customIndex}`} style={{ backgroundColor: '#fffbf0', fontWeight: 'bold' }}>
+                          {customTotalAmount > 0 ? customTotalAmount.toLocaleString('en-IN') : '-'}
+                        </td>
+                      );
+                    })}
                   </tr>
                 );
               })}
@@ -527,13 +646,24 @@ const YearlyDistributionTable = ({
               <td><strong>{projectData.siteVisit?.toLocaleString('en-IN') || '0'}</strong></td>
               <td><strong>{projectData.marketingAndMisc?.toLocaleString('en-IN') || '0'}</strong></td>
               <td><strong>{projectData.officeManagement?.toLocaleString('en-IN') || '0'}</strong></td>
+              {/* Custom fields grand total columns */}
+              {customFields && customFields.map((customField, customIndex) => {
+                // Calculate custom field grand total based on percentage and total received fees
+                const percentage = getCustomFieldValue(customField.fieldName, 'percentage');
+                const customGrandTotal = Math.floor(((projectData.totalReceivedFees || 0) * percentage) / 100);
+                return (
+                  <td key={`grand-custom-${customIndex}`} style={{ backgroundColor: '#fff8e1', fontWeight: 'bold', border: '2px solid #ff8f00' }}>
+                    <strong>{customGrandTotal > 0 ? customGrandTotal.toLocaleString('en-IN') : '-'}</strong>
+                  </td>
+                );
+              })}
             </tr>
             {projectData.finalizedFees && projectData.finalizedFees > projectData.totalReceivedFees && (
               <tr className="remaining-row">
                 <td><strong>Remaining</strong></td>
                 <td><strong>{(projectData.finalizedFees - projectData.totalReceivedFees).toLocaleString('en-IN')}</strong></td>
                 <td colSpan="3"><strong>Pending Receipt</strong></td>
-                <td colSpan={`${6 + (associateConfig && associateConfig.includeAssociates ? associateConfig.associates.length : 0)}`}>
+                <td colSpan={`${6 + (associateConfig && associateConfig.includeAssociates ? associateConfig.associates.length : 0) + (customFields ? customFields.length : 0)}`}>
                   <em>Will be allocated as per percentages upon receipt</em>
                 </td>
               </tr>

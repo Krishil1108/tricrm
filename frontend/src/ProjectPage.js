@@ -30,7 +30,8 @@ const ProjectPage = () => {
     numberOfAssociates: 1,
     associates: [
       { name: '', company: '', percentage: 0 }
-    ]
+    ],
+    customFields: [] // Array of custom fields: { name: 'Custom Field', fieldName: 'customFieldPercent', percentage: 0 }
   });
   const [showPercentageConfig, setShowPercentageConfig] = useState(false);
   const [selectedProjectForDistribution, setSelectedProjectForDistribution] = useState(null);
@@ -88,8 +89,31 @@ const ProjectPage = () => {
           includeAssociates: false,
           numberOfAssociates: 1,
           associates: [{ name: '', company: '', percentage: 0 }],
+          customFields: [], // Ensure customFields are loaded
           ...parsedConfig
         };
+        
+        // Fix any existing custom fields with incorrect fieldNames
+        if (configWithDefaults.customFields && configWithDefaults.customFields.length > 0) {
+          configWithDefaults.customFields = configWithDefaults.customFields.map(field => {
+            // If fieldName doesn't match the expected pattern based on name, fix it
+            if (field.name && field.name.trim()) {
+              const expectedFieldName = field.name.trim().replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + 'Percent';
+              if (field.fieldName !== expectedFieldName && !field.fieldName.includes(field.name.trim().replace(/[^a-zA-Z0-9]/g, '').toLowerCase())) {
+                console.log(`Fixing fieldName for "${field.name}" from "${field.fieldName}" to "${expectedFieldName}"`);
+                return {
+                  ...field,
+                  fieldName: expectedFieldName
+                };
+              }
+            }
+            return field;
+          });
+          
+          // Save the corrected config back to localStorage
+          localStorage.setItem('finance-percentage-config', JSON.stringify(configWithDefaults));
+        }
+        
         setPercentageConfig(configWithDefaults);
       }
     } catch (error) {
@@ -172,7 +196,8 @@ const ProjectPage = () => {
   const handleAdd = () => {
     setEditingItem(null);
     if (activeTab === 'projects') {
-      setFormData({
+      // Create base form data
+      const baseFormData = {
         srNo: projects.length + 1,
         projectNumber: '',
         projectName: '',
@@ -195,6 +220,23 @@ const ProjectPage = () => {
         marketingAndMisc: '',
         officeManagement: '',
         status: 'Active'
+      };
+
+      // Add custom fields from percentage config
+      const customFieldsData = {};
+      if (percentageConfig.customFields && percentageConfig.customFields.length > 0) {
+        percentageConfig.customFields.forEach((field) => {
+          // Add percentage field
+          customFieldsData[field.fieldName] = field.percentage;
+          // Add calculated amount field (initially empty)
+          const amountFieldName = field.fieldName.replace('Percent', '');
+          customFieldsData[amountFieldName] = '';
+        });
+      }
+
+      setFormData({
+        ...baseFormData,
+        ...customFieldsData
       });
     } else {
       setFormData({
@@ -219,11 +261,28 @@ const ProjectPage = () => {
       id: payment._id || `existing_payment_${index}_${Date.now()}`
     }));
     
-    const itemWithPayments = {
+    let itemWithPayments = {
       ...item,
       payments: paymentsWithIds,
       yearlyDistribution: paymentsWithIds.length > 0 ? calculateYearlyDistribution(paymentsWithIds) : {}
     };
+    
+    // If the item has custom fields stored as an array, flatten them to form data format
+    if (item.customFields && Array.isArray(item.customFields)) {
+      const customFieldsFormData = {};
+      item.customFields.forEach(field => {
+        // Add percentage field
+        customFieldsFormData[field.fieldName] = field.percentage || 0;
+        // Add amount field
+        const amountFieldName = field.fieldName.replace('Percent', '');
+        customFieldsFormData[amountFieldName] = field.amount || 0;
+      });
+      
+      itemWithPayments = {
+        ...itemWithPayments,
+        ...customFieldsFormData
+      };
+    }
     
     setFormData(itemWithPayments);
     setShowModal(true);
@@ -296,6 +355,34 @@ const ProjectPage = () => {
         }
       });
       
+      // Extract and structure custom fields data
+      const customFieldsData = [];
+      if (percentageConfig.customFields && percentageConfig.customFields.length > 0) {
+        percentageConfig.customFields.forEach(field => {
+          const fieldName = field.fieldName;
+          const percentage = cleanFormData[fieldName] || field.percentage || 0;
+          const amountFieldName = fieldName.replace('Percent', '');
+          const amount = cleanFormData[amountFieldName] || 0;
+          
+          customFieldsData.push({
+            name: field.name,
+            fieldName: fieldName,
+            percentage: percentage,
+            amount: amount
+          });
+          
+          // KEEP the fields at top level for backend compatibility
+          // Don't delete them - the backend needs to store these values
+          cleanFormData[fieldName] = percentage;
+          cleanFormData[amountFieldName] = amount;
+        });
+      }
+      
+      // Add custom fields as a structured array (for reference)
+      if (customFieldsData.length > 0) {
+        cleanFormData.customFieldsMetadata = customFieldsData;
+      }
+      
       // Clean payments data - remove frontend-only id field and ensure proper types
       if (cleanFormData.payments) {
         cleanFormData.payments = cleanFormData.payments
@@ -310,6 +397,14 @@ const ProjectPage = () => {
       
       // Remove frontend-only fields
       delete cleanFormData.yearlyDistribution;
+      
+      // Handle ObjectId fields - convert empty strings to null for MongoDB
+      const objectIdFields = ['clientId'];
+      objectIdFields.forEach(field => {
+        if (cleanFormData[field] === '' || cleanFormData[field] === null || cleanFormData[field] === undefined) {
+          delete cleanFormData[field]; // Remove the field entirely if empty
+        }
+      });
       
       console.log('Sending project data:', cleanFormData);
       
@@ -652,6 +747,7 @@ const ProjectPage = () => {
                 showTitle={false}
                 compact={false}
                 associateConfig={percentageConfig}
+                customFields={percentageConfig.customFields || []}
               />
             </div>
             <div className="modal-footer">
@@ -1514,6 +1610,52 @@ const ProjectForm = ({ formData, handleChange, handleAmountChange, addPayment, r
         </div>
       </div>
 
+      {/* Custom Fields */}
+      {percentageConfig.customFields && percentageConfig.customFields.length > 0 && (
+        <>
+          <div className="form-section-divider" style={{ margin: '20px 0', borderTop: '2px solid #e9ecef' }}></div>
+          <div className="form-section-header">
+            <h4 style={{ color: '#6c757d', fontSize: '16px', margin: '0 0 15px 0' }}>🔧 Custom Fields</h4>
+          </div>
+          {percentageConfig.customFields.map((customField, index) => {
+            const amountFieldName = customField.fieldName.replace('Percent', '');
+            return (
+              <div key={customField.fieldName} className="form-row percentage-row">
+                <div className="form-group">
+                  <label>{customField.name} % (Configured)</label>
+                  <div className="input-with-suffix readonly-field">
+                    <input 
+                      type="number" 
+                      name={customField.fieldName} 
+                      className="form-input readonly" 
+                      value={formData[customField.fieldName] || 0} 
+                      readOnly
+                      min="0"
+                      max="100"
+                      step="0.1"
+                    />
+                    <span className="input-suffix">%</span>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Amount (Auto-calculated)</label>
+                  <div className="calculated-amount">
+                    <input 
+                      type="number" 
+                      name={amountFieldName} 
+                      className="form-input calculated" 
+                      value={formData[amountFieldName] || ""}
+                      onChange={handleAmountChange}
+                    />
+                    <span className="amount-display">{formatCurrency(formData[amountFieldName])}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </>
+      )}
+
       <div className="form-row">
         <div className="form-group">
           <label>Status</label>
@@ -1590,7 +1732,8 @@ const ExpenseForm = ({ formData, handleChange }) => (
 const PercentageConfigModal = ({ config, onSave, onClose }) => {
   const [tempConfig, setTempConfig] = useState({
     ...config,
-    associates: config.associates || [{ name: '', company: '', percentage: 0 }]
+    associates: config.associates || [{ name: '', company: '', percentage: 0 }],
+    customFields: config.customFields || []
   });
 
   const handleChange = (e) => {
@@ -1628,6 +1771,54 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
     });
   };
 
+  const handleCustomFieldChange = (index, field, value) => {
+    const updatedCustomFields = tempConfig.customFields.map((customField, i) => {
+      if (i === index) {
+        const updatedField = { 
+          ...customField, 
+          [field]: field === 'percentage' ? parseFloat(value) || 0 : value 
+        };
+        
+        // If the name is being updated, also update the fieldName
+        if (field === 'name') {
+          // Create a clean field name by removing spaces and special chars, then add Percent
+          const cleanName = value.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+          updatedField.fieldName = cleanName ? `${cleanName}Percent` : `customField${index + 1}Percent`;
+        }
+        
+        return updatedField;
+      }
+      return customField;
+    });
+    
+    setTempConfig({
+      ...tempConfig,
+      customFields: updatedCustomFields
+    });
+  };
+
+  const addCustomField = () => {
+    const defaultName = 'New Field';
+    const newCustomField = {
+      name: defaultName,
+      fieldName: `customField${tempConfig.customFields.length + 1}Percent`,
+      percentage: 0
+    };
+    
+    setTempConfig({
+      ...tempConfig,
+      customFields: [...tempConfig.customFields, newCustomField]
+    });
+  };
+
+  const removeCustomField = (index) => {
+    const updatedCustomFields = tempConfig.customFields.filter((_, i) => i !== index);
+    setTempConfig({
+      ...tempConfig,
+      customFields: updatedCustomFields
+    });
+  };
+
   const calculateTotalPercentage = () => {
     const expenseTotal = Object.keys(tempConfig)
       .filter(key => key.endsWith('Percent') && key !== 'includeAssociates')
@@ -1636,8 +1827,10 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
     const associateTotal = tempConfig.includeAssociates 
       ? tempConfig.associates.reduce((sum, associate) => sum + (associate.percentage || 0), 0)
       : 0;
+
+    const customFieldsTotal = tempConfig.customFields.reduce((sum, field) => sum + (field.percentage || 0), 0);
     
-    return expenseTotal + associateTotal;
+    return expenseTotal + associateTotal + customFieldsTotal;
   };
 
   const handleSave = () => {
@@ -1650,7 +1843,8 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
     // Clean up associates array if not including associates
     const configToSave = {
       ...tempConfig,
-      associates: tempConfig.includeAssociates ? tempConfig.associates : []
+      associates: tempConfig.includeAssociates ? tempConfig.associates : [],
+      customFields: tempConfig.customFields || []
     };
     
     onSave(configToSave);
@@ -1658,17 +1852,69 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
   };
 
   return (
-    <div className="modal">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h2>⚙️ Configure Expense Percentages</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
+    <div className="modal" style={{ 
+      position: 'fixed',
+      top: '0',
+      left: '0',
+      right: '0',
+      bottom: '0',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: '1000',
+      padding: '20px',
+      boxSizing: 'border-box',
+      overflow: 'auto'
+    }}>
+      <div className="modal-content" style={{
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        maxWidth: '800px',
+        width: '100%',
+        maxHeight: '90vh',
+        overflow: 'auto',
+        position: 'relative',
+        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)'
+      }}>
+        <div className="modal-header" style={{
+          padding: '20px 24px 16px',
+          borderBottom: '1px solid #e9ecef',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          position: 'sticky',
+          top: '0',
+          backgroundColor: 'white',
+          zIndex: '10'
+        }}>
+          <h2 style={{ margin: '0', fontSize: '18px', fontWeight: '600', color: '#2c3e50' }}>⚙️ Configure Expense Percentages</h2>
+          <button className="close-btn" onClick={onClose} style={{
+            background: 'none',
+            border: 'none',
+            fontSize: '24px',
+            cursor: 'pointer',
+            color: '#6c757d',
+            padding: '4px',
+            borderRadius: '4px',
+            lineHeight: '1'
+          }}>×</button>
         </div>
         
-        <div className="modal-body">
-          <div className="percentage-info">
-            <p>💡 Set the default percentages for expense allocation. These will be used automatically when you create new projects.</p>
-            <p><strong>Current Total: {calculateTotalPercentage().toFixed(1)}%</strong></p>
+        <div className="modal-body" style={{
+          padding: '20px 24px',
+          maxHeight: 'calc(90vh - 140px)',
+          overflow: 'auto'
+        }}>
+          <div className="percentage-info" style={{
+            marginBottom: '24px',
+            padding: '16px',
+            backgroundColor: '#f8f9fa',
+            borderRadius: '8px',
+            border: '1px solid #e9ecef'
+          }}>
+            <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#495057' }}>💡 Set the default percentages for expense allocation. These will be used automatically when you create new projects.</p>
+            <p style={{ margin: '0', fontWeight: '600', fontSize: '16px', color: '#2c3e50' }}><strong>Current Total: {calculateTotalPercentage().toFixed(1)}%</strong></p>
           </div>
 
           {/* Associates Section */}
@@ -1768,9 +2014,14 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
             )}
           </div>
 
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Profit Margin %</label>
+          <div className="form-grid" style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '20px',
+            marginBottom: '24px'
+          }}>
+            <div className="form-group" style={{ margin: '0' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>Profit Margin %</label>
               <input 
                 type="number" 
                 name="profitMarginPercent" 
@@ -1780,11 +2031,19 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
                 min="0"
                 max="100"
                 step="0.1"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #ddd',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
               />
             </div>
             
-            <div className="form-group">
-              <label>Drawing %</label>
+            <div className="form-group" style={{ margin: '0' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>Drawing %</label>
               <input 
                 type="number" 
                 name="drawingPercent" 
@@ -1794,11 +2053,19 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
                 min="0"
                 max="100"
                 step="0.1"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #ddd',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
               />
             </div>
             
-            <div className="form-group">
-              <label>Documents %</label>
+            <div className="form-group" style={{ margin: '0' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>Documents %</label>
               <input 
                 type="number" 
                 name="documentsPercent" 
@@ -1808,11 +2075,19 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
                 min="0"
                 max="100"
                 step="0.1"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #ddd',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
               />
             </div>
             
-            <div className="form-group">
-              <label>Site Visit %</label>
+            <div className="form-group" style={{ margin: '0' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>Site Visit %</label>
               <input 
                 type="number" 
                 name="siteVisitPercent" 
@@ -1822,11 +2097,19 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
                 min="0"
                 max="100"
                 step="0.1"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #ddd',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
               />
             </div>
             
-            <div className="form-group">
-              <label>Marketing & Misc %</label>
+            <div className="form-group" style={{ margin: '0' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>Marketing & Misc %</label>
               <input 
                 type="number" 
                 name="marketingAndMiscPercent" 
@@ -1836,11 +2119,19 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
                 min="0"
                 max="100"
                 step="0.1"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #ddd',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
               />
             </div>
             
-            <div className="form-group">
-              <label>Office Management %</label>
+            <div className="form-group" style={{ margin: '0' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>Office Management %</label>
               <input 
                 type="number" 
                 name="officeManagementPercent" 
@@ -1850,14 +2141,225 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
                 min="0"
                 max="100"
                 step="0.1"
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #ddd',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  boxSizing: 'border-box'
+                }}
               />
             </div>
           </div>
+
+          {/* Custom Fields Section */}
+          <div className="custom-fields-section" style={{ marginTop: '30px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              marginBottom: '15px',
+              flexWrap: 'wrap',
+              gap: '10px'
+            }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '500' }}>🔧 Custom Fields</h3>
+              <button 
+                type="button"
+                onClick={addCustomField}
+                className="btn btn-secondary"
+                style={{ 
+                  fontSize: '14px', 
+                  padding: '8px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  border: 'none',
+                  backgroundColor: '#28a745',
+                  color: 'white',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  minWidth: 'fit-content'
+                }}
+              >
+                <span style={{ fontSize: '16px' }}>+</span>
+                Add Field
+              </button>
+            </div>
+
+            {tempConfig.customFields.length === 0 && (
+              <p style={{ 
+                color: '#666', 
+                fontStyle: 'italic', 
+                textAlign: 'center',
+                margin: '20px 0',
+                padding: '20px',
+                backgroundColor: 'white',
+                borderRadius: '5px',
+                border: '1px dashed #ccc'
+              }}>
+                No custom fields added yet. Click "Add Field" to create custom percentage categories.
+              </p>
+            )}
+
+            {tempConfig.customFields.map((customField, index) => (
+              <div key={index} className="custom-field-row" style={{ 
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '15px', 
+                marginBottom: '15px',
+                padding: '15px',
+                backgroundColor: 'white',
+                borderRadius: '8px',
+                border: '1px solid #e0e0e0',
+                position: 'relative'
+              }}>
+                {/* Remove button positioned at top right */}
+                <button
+                  type="button"
+                  onClick={() => removeCustomField(index)}
+                  style={{ 
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    fontSize: '18px', 
+                    padding: '4px 8px',
+                    width: '30px',
+                    height: '30px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#dc3545',
+                    border: 'none',
+                    color: 'white',
+                    borderRadius: '50%',
+                    cursor: 'pointer',
+                    lineHeight: '1'
+                  }}
+                  title="Remove this field"
+                >
+                  ×
+                </button>
+
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr auto',
+                  gap: '15px',
+                  alignItems: 'end',
+                  paddingRight: '50px' // Space for remove button
+                }}>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label style={{ fontSize: '14px', marginBottom: '8px', display: 'block', fontWeight: '500' }}>
+                      Field Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter field name (e.g., Travel Expenses, Legal Fees)"
+                      value={customField.name || ''}
+                      onChange={(e) => handleCustomFieldChange(index, 'name', e.target.value)}
+                      className="form-input"
+                      style={{ 
+                        fontSize: '14px',
+                        width: '100%',
+                        padding: '10px 12px',
+                        border: '1px solid #ddd',
+                        borderRadius: '6px',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                  <div className="form-group" style={{ margin: 0, minWidth: '120px' }}>
+                    <label style={{ fontSize: '14px', marginBottom: '8px', display: 'block', fontWeight: '500' }}>
+                      Percentage %
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      placeholder="0.0"
+                      value={customField.percentage || ''}
+                      onChange={(e) => handleCustomFieldChange(index, 'percentage', e.target.value)}
+                      className="form-input"
+                      style={{ 
+                        fontSize: '14px',
+                        width: '100%',
+                        padding: '10px 12px',
+                        border: '1px solid #ddd',
+                        borderRadius: '6px',
+                        boxSizing: 'border-box',
+                        textAlign: 'center'
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+            
+            {tempConfig.customFields.length > 0 && (
+              <div style={{ 
+                marginTop: '15px', 
+                padding: '12px 16px', 
+                backgroundColor: '#e7f3ff', 
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#0056b3',
+                border: '1px solid #b8daff'
+              }}>
+                Custom Fields Total: {tempConfig.customFields.reduce((sum, field) => sum + (field.percentage || 0), 0).toFixed(1)}%
+              </div>
+            )}
+          </div>
         </div>
         
-        <div className="modal-footer">
-          <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
-          <button className="btn btn-primary" onClick={handleSave}>Save Configuration</button>
+        <div className="modal-footer" style={{
+          padding: '16px 24px',
+          borderTop: '1px solid #e9ecef',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: '12px',
+          position: 'sticky',
+          bottom: '0',
+          backgroundColor: 'white',
+          borderBottomLeftRadius: '12px',
+          borderBottomRightRadius: '12px',
+          flexWrap: 'wrap'
+        }}>
+          <button 
+            className="btn btn-secondary" 
+            onClick={onClose}
+            style={{
+              padding: '10px 20px',
+              border: '1px solid #6c757d',
+              backgroundColor: 'transparent',
+              color: '#6c757d',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              minWidth: '100px'
+            }}
+          >
+            Cancel
+          </button>
+          <button 
+            className="btn btn-primary" 
+            onClick={handleSave}
+            style={{
+              padding: '10px 20px',
+              border: 'none',
+              backgroundColor: '#007bff',
+              color: 'white',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              minWidth: '100px'
+            }}
+          >
+            Save Configuration
+          </button>
         </div>
       </div>
     </div>

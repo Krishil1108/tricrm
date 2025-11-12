@@ -127,7 +127,8 @@ const financeProjectSchema = new mongoose.Schema({
     ref: 'User'
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  strict: false  // Allow custom fields to be stored dynamically
 });
 
 // Calculate total expenses
