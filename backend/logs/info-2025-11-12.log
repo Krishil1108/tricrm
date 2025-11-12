@@ -734,3 +734,131 @@
   "responseTime": "53ms",
   "userId": "690c4c43be8f36eb0f3c17b9"
 }
+[2025-11-12T13:08:18.413Z] [INFO] {
+  "timestamp": "2025-11-12T13:08:18.413Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-12T13:08:18.416Z] [INFO] {
+  "timestamp": "2025-11-12T13:08:18.416Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "3ms",
+  "userId": "anonymous"
+}
+[2025-11-12T13:08:25.200Z] [INFO] {
+  "timestamp": "2025-11-12T13:08:25.200Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-12T13:08:25.429Z] [INFO] {
+  "timestamp": "2025-11-12T13:08:25.429Z",
+  "method": "POST",
+  "url": "/api/auth/login",
+  "statusCode": 200,
+  "responseTime": "229ms",
+  "userId": "anonymous"
+}
+[2025-11-12T13:08:25.517Z] [INFO] {
+  "timestamp": "2025-11-12T13:08:25.517Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-12T13:08:25.525Z] [INFO] {
+  "timestamp": "2025-11-12T13:08:25.525Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "8ms",
+  "userId": "anonymous"
+}
+[2025-11-12T13:08:25.536Z] [INFO] {
+  "timestamp": "2025-11-12T13:08:25.536Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-12T13:08:25.550Z] [INFO] {
+  "timestamp": "2025-11-12T13:08:25.550Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "14ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-12T13:08:25.884Z] [INFO] {
+  "timestamp": "2025-11-12T13:08:25.884Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-12T13:08:25.903Z] [INFO] {
+  "timestamp": "2025-11-12T13:08:25.903Z",
+  "method": "GET",
+  "url": "/api/activities/recent?limit=3",
+  "statusCode": 200,
+  "responseTime": "19ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-12T13:10:53.126Z] [INFO] {
+  "timestamp": "2025-11-12T13:10:53.126Z",
+  "method": "GET",
+  "url": "/api/associates",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-12T13:10:53.131Z] [INFO] {
+  "timestamp": "2025-11-12T13:10:53.131Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-12T13:10:53.136Z] [INFO] {
+  "timestamp": "2025-11-12T13:10:53.136Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "5ms",
+  "userId": "anonymous"
+}
+[2025-11-12T13:10:53.150Z] [INFO] {
+  "timestamp": "2025-11-12T13:10:53.150Z",
+  "method": "GET",
+  "url": "/api/associates",
+  "statusCode": 200,
+  "responseTime": "24ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}
+[2025-11-12T13:10:53.161Z] [INFO] {
+  "timestamp": "2025-11-12T13:10:53.161Z",
+  "method": "GET",
+  "url": "/api/associates",
+  "ip": "::1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-12T13:10:53.171Z] [INFO] {
+  "timestamp": "2025-11-12T13:10:53.171Z",
+  "method": "GET",
+  "url": "/api/associates",
+  "statusCode": 200,
+  "responseTime": "10ms",
+  "userId": "690c4c43be8f36eb0f3c17b9"
+}

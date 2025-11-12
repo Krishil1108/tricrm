@@ -37,6 +37,7 @@ class DataEventManager {
   emitBrowserEvents(dataType, data) {
     const eventMap = {
       [DATA_TYPES.CLIENTS]: 'clientAdded',
+      [DATA_TYPES.ASSOCIATES]: 'associateAdded',
       [DATA_TYPES.MEETINGS]: 'meetingScheduled',
       [DATA_TYPES.NOTES]: 'noteAdded'
     };
@@ -60,6 +61,7 @@ export const dataEventManager = new DataEventManager();
 // Data type constants
 export const DATA_TYPES = {
   CLIENTS: 'clients',
+  ASSOCIATES: 'associates',
   MEETINGS: 'meetings',
   NOTES: 'notes'
 };

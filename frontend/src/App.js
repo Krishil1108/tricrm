@@ -17,6 +17,7 @@ import Sidebar from './Sidebar';
 import HomePage from './HomePage';
 import ClientsPage from './ClientsPage';
 import ClientProjectsPage from './ClientProjectsPage';
+import AssociatesPage from './AssociatesPage';
 import DashboardPage from './DashboardPage';
 import SettingsPage from './SettingsPage';
 import ProjectPage from './ProjectPage';
@@ -94,6 +95,24 @@ function App() {
                               path="/clients/:clientId/projects" 
                               element={
                                 <ProtectedRoute requireModule="clients">
+                                  <ClientProjectsPage />
+                                </ProtectedRoute>
+                              } 
+                            />
+                            
+                            <Route 
+                              path="/associates" 
+                              element={
+                                <ProtectedRoute requireModule="associates">
+                                  <AssociatesPage />
+                                </ProtectedRoute>
+                              } 
+                            />
+                            
+                            <Route 
+                              path="/associates/:associateId/projects" 
+                              element={
+                                <ProtectedRoute requireModule="associates">
                                   <ClientProjectsPage />
                                 </ProtectedRoute>
                               } 
