@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import './ProjectPage.css';
 import FinanceService from './services/FinanceService';
 import ClientService from './services/ClientService';
+import AssociateService from './services/AssociateService';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
 import YearlyDistributionTable from './components/YearlyDistributionTable';
+import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 
 const ProjectPage = () => {
   const [activeTab, setActiveTab] = useState('projects');
@@ -31,7 +33,16 @@ const ProjectPage = () => {
     associates: [
       { name: '', company: '', percentage: 0 }
     ],
-    customFields: [] // Array of custom fields: { name: 'Custom Field', fieldName: 'customFieldPercent', percentage: 0 }
+    customFields: [], // Array of custom fields: { name: 'Custom Field', fieldName: 'customFieldPercent', percentage: 0 }
+    // Visibility flags for expense fields in distribution table
+    fieldVisibility: {
+      profitMargin: false,
+      drawing: false,
+      documents: false,
+      siteVisit: false,
+      marketingAndMisc: false,
+      officeManagement: false
+    }
   });
   const [showPercentageConfig, setShowPercentageConfig] = useState(false);
   const [selectedProjectForDistribution, setSelectedProjectForDistribution] = useState(null);
@@ -90,24 +101,35 @@ const ProjectPage = () => {
           numberOfAssociates: 1,
           associates: [{ name: '', company: '', percentage: 0 }],
           customFields: [], // Ensure customFields are loaded
+          fieldVisibility: {
+            profitMargin: false,
+            drawing: false,
+            documents: false,
+            siteVisit: false,
+            marketingAndMisc: false,
+            officeManagement: false
+          },
           ...parsedConfig
         };
         
         // Fix any existing custom fields with incorrect fieldNames
         if (configWithDefaults.customFields && configWithDefaults.customFields.length > 0) {
           configWithDefaults.customFields = configWithDefaults.customFields.map(field => {
+            // Ensure visible property exists (default to false for backward compatibility)
+            const updatedField = {
+              ...field,
+              visible: field.visible !== undefined ? field.visible : false
+            };
+            
             // If fieldName doesn't match the expected pattern based on name, fix it
-            if (field.name && field.name.trim()) {
-              const expectedFieldName = field.name.trim().replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + 'Percent';
-              if (field.fieldName !== expectedFieldName && !field.fieldName.includes(field.name.trim().replace(/[^a-zA-Z0-9]/g, '').toLowerCase())) {
-                console.log(`Fixing fieldName for "${field.name}" from "${field.fieldName}" to "${expectedFieldName}"`);
-                return {
-                  ...field,
-                  fieldName: expectedFieldName
-                };
+            if (updatedField.name && updatedField.name.trim()) {
+              const expectedFieldName = updatedField.name.trim().replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + 'Percent';
+              if (updatedField.fieldName !== expectedFieldName && !updatedField.fieldName.includes(updatedField.name.trim().replace(/[^a-zA-Z0-9]/g, '').toLowerCase())) {
+                console.log(`Fixing fieldName for "${updatedField.name}" from "${updatedField.fieldName}" to "${expectedFieldName}"`);
+                updatedField.fieldName = expectedFieldName;
               }
             }
-            return field;
+            return updatedField;
           });
           
           // Save the corrected config back to localStorage
@@ -748,6 +770,7 @@ const ProjectPage = () => {
                 compact={false}
                 associateConfig={percentageConfig}
                 customFields={percentageConfig.customFields || []}
+                fieldVisibility={percentageConfig.fieldVisibility || {}}
               />
             </div>
             <div className="modal-footer">
@@ -1404,6 +1427,8 @@ const ProjectForm = ({ formData, handleChange, handleAmountChange, addPayment, r
           showTitle={false}
           compact={false}
           associateConfig={percentageConfig}
+          customFields={percentageConfig.customFields || []}
+          fieldVisibility={percentageConfig.fieldVisibility || {}}
         />
       )}
 
@@ -1732,9 +1757,44 @@ const ExpenseForm = ({ formData, handleChange }) => (
 const PercentageConfigModal = ({ config, onSave, onClose }) => {
   const [tempConfig, setTempConfig] = useState({
     ...config,
-    associates: config.associates || [{ name: '', company: '', percentage: 0 }],
-    customFields: config.customFields || []
+    associates: config.associates || [{ id: '', name: '', company: '', percentage: 0 }],
+    customFields: config.customFields || [],
+    fieldVisibility: config.fieldVisibility || {
+      profitMargin: false,
+      drawing: false,
+      documents: false,
+      siteVisit: false,
+      marketingAndMisc: false,
+      officeManagement: false
+    }
   });
+  const [availableAssociates, setAvailableAssociates] = useState([]);
+  const [showAddAssociateModal, setShowAddAssociateModal] = useState(false);
+  const [newAssociateData, setNewAssociateData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    notes: ''
+  });
+
+  useEffect(() => {
+    loadAvailableAssociates();
+  }, []);
+
+  const loadAvailableAssociates = async () => {
+    try {
+      const associatesData = await AssociateService.getAllAssociates();
+      setAvailableAssociates(Array.isArray(associatesData) ? associatesData : []);
+    } catch (error) {
+      console.error('Error loading associates:', error);
+      setAvailableAssociates([]);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -1744,10 +1804,20 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
     });
   };
 
+  const handleVisibilityChange = (field) => {
+    setTempConfig({
+      ...tempConfig,
+      fieldVisibility: {
+        ...tempConfig.fieldVisibility,
+        [field]: !tempConfig.fieldVisibility[field]
+      }
+    });
+  };
+
   const handleNumberOfAssociatesChange = (e) => {
     const count = parseInt(e.target.value) || 1;
     const newAssociates = Array.from({ length: count }, (_, index) => 
-      tempConfig.associates[index] || { name: '', company: '', percentage: 0 }
+      tempConfig.associates[index] || { id: '', name: '', company: '', percentage: 0 }
     );
     
     setTempConfig({
@@ -1755,6 +1825,53 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
       numberOfAssociates: count,
       associates: newAssociates
     });
+  };
+
+  const handleAssociateSelect = (index, associateId) => {
+    const selectedAssociate = availableAssociates.find(a => a._id === associateId);
+    if (selectedAssociate) {
+      const updatedAssociates = tempConfig.associates.map((associate, i) => 
+        i === index ? { 
+          id: selectedAssociate._id,
+          name: selectedAssociate.name,
+          company: selectedAssociate.company || '',
+          percentage: associate.percentage || 0
+        } : associate
+      );
+      setTempConfig({
+        ...tempConfig,
+        associates: updatedAssociates
+      });
+    }
+  };
+
+  const handleAddNewAssociate = async () => {
+    if (!newAssociateData.name || !newAssociateData.email) {
+      alert('Name and Email are required');
+      return;
+    }
+
+    try {
+      const result = await AssociateService.createAssociate(newAssociateData);
+      await loadAvailableAssociates();
+      dataEventManager.emit(DATA_TYPES.ASSOCIATES);
+      setShowAddAssociateModal(false);
+      setNewAssociateData({
+        name: '',
+        email: '',
+        phone: '',
+        company: '',
+        address: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        notes: ''
+      });
+      alert('Associate added successfully!');
+    } catch (error) {
+      console.error('Error adding associate:', error);
+      alert('Failed to add associate. Please try again.');
+    }
   };
 
   const handleAssociateChange = (index, field, value) => {
@@ -1802,7 +1919,8 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
     const newCustomField = {
       name: defaultName,
       fieldName: `customField${tempConfig.customFields.length + 1}Percent`,
-      percentage: 0
+      percentage: 0,
+      visible: false  // Default to unchecked/hidden
     };
     
     setTempConfig({
@@ -1813,6 +1931,16 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
 
   const removeCustomField = (index) => {
     const updatedCustomFields = tempConfig.customFields.filter((_, i) => i !== index);
+    setTempConfig({
+      ...tempConfig,
+      customFields: updatedCustomFields
+    });
+  };
+
+  const handleCustomFieldVisibilityChange = (index) => {
+    const updatedCustomFields = tempConfig.customFields.map((field, i) => 
+      i === index ? { ...field, visible: !field.visible } : field
+    );
     setTempConfig({
       ...tempConfig,
       customFields: updatedCustomFields
@@ -1852,6 +1980,7 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
   };
 
   return (
+    <>
     <div className="modal" style={{ 
       position: 'fixed',
       top: '0',
@@ -1870,77 +1999,113 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
       <div className="modal-content" style={{
         backgroundColor: 'white',
         borderRadius: '12px',
-        maxWidth: '800px',
+        maxWidth: '900px',
         width: '100%',
         maxHeight: '90vh',
         overflow: 'auto',
         position: 'relative',
-        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)'
+        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.2)'
       }}>
         <div className="modal-header" style={{
-          padding: '20px 24px 16px',
-          borderBottom: '1px solid #e9ecef',
+          padding: '24px 28px 20px',
+          borderBottom: '2px solid #e9ecef',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           position: 'sticky',
           top: '0',
           backgroundColor: 'white',
-          zIndex: '10'
+          zIndex: '10',
+          borderTopLeftRadius: '12px',
+          borderTopRightRadius: '12px'
         }}>
-          <h2 style={{ margin: '0', fontSize: '18px', fontWeight: '600', color: '#2c3e50' }}>⚙️ Configure Expense Percentages</h2>
+          <div>
+            <h2 style={{ margin: '0 0 4px 0', fontSize: '20px', fontWeight: '600', color: '#2c3e50' }}>⚙️ Configure Expense Percentages</h2>
+            <p style={{ margin: '0', fontSize: '13px', color: '#6c757d' }}>Set default percentages and visibility for expense categories</p>
+          </div>
           <button className="close-btn" onClick={onClose} style={{
             background: 'none',
             border: 'none',
-            fontSize: '24px',
+            fontSize: '28px',
             cursor: 'pointer',
             color: '#6c757d',
             padding: '4px',
             borderRadius: '4px',
-            lineHeight: '1'
+            lineHeight: '1',
+            width: '32px',
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.2s'
           }}>×</button>
         </div>
         
         <div className="modal-body" style={{
-          padding: '20px 24px',
-          maxHeight: 'calc(90vh - 140px)',
+          padding: '24px 28px',
+          maxHeight: 'calc(90vh - 180px)',
           overflow: 'auto'
         }}>
+          {/* Total Percentage Info */}
           <div className="percentage-info" style={{
             marginBottom: '24px',
-            padding: '16px',
-            backgroundColor: '#f8f9fa',
+            padding: '16px 20px',
+            backgroundColor: '#f0f7ff',
             borderRadius: '8px',
-            border: '1px solid #e9ecef'
+            border: '1px solid #d0e7ff',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '12px'
           }}>
-            <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#495057' }}>💡 Set the default percentages for expense allocation. These will be used automatically when you create new projects.</p>
-            <p style={{ margin: '0', fontWeight: '600', fontSize: '16px', color: '#2c3e50' }}><strong>Current Total: {calculateTotalPercentage().toFixed(1)}%</strong></p>
+            <div>
+              <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#495057', lineHeight: '1.5' }}>
+                💡 <strong>Quick Tip:</strong> Check boxes to show fields in distribution table
+              </p>
+              <p style={{ margin: '0', fontSize: '12px', color: '#6c757d', lineHeight: '1.4' }}>
+                Unchecked fields will be hidden from the expense distribution view
+              </p>
+            </div>
+            <div style={{ 
+              padding: '8px 16px', 
+              backgroundColor: calculateTotalPercentage() > 100 ? '#fff3cd' : '#d4edda',
+              borderRadius: '6px',
+              border: `1px solid ${calculateTotalPercentage() > 100 ? '#ffc107' : '#28a745'}`,
+              minWidth: '140px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '11px', color: '#495057', marginBottom: '2px', fontWeight: '500' }}>Total Allocation</div>
+              <div style={{ fontSize: '20px', fontWeight: '700', color: calculateTotalPercentage() > 100 ? '#856404' : '#155724' }}>
+                {calculateTotalPercentage().toFixed(1)}%
+              </div>
+            </div>
           </div>
 
           {/* Associates Section */}
-          <div className="associates-section" style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+          <div className="associates-section" style={{ marginBottom: '24px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '10px', border: '1px solid #e9ecef' }}>
             <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '15px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
                   name="includeAssociates"
                   checked={tempConfig.includeAssociates || false}
                   onChange={handleChange}
-                  style={{ marginRight: '5px' }}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#17a2b8' }}
                 />
-                <span style={{ fontWeight: '500', fontSize: '16px' }}>👥 Include Associates</span>
+                <span style={{ fontWeight: '600', fontSize: '16px', color: '#2c3e50' }}>👥 Include Associates</span>
               </label>
             </div>
 
             {tempConfig.includeAssociates && (
               <>
-                <div className="form-group" style={{ marginBottom: '15px' }}>
-                  <label>Number of Associates (max 5)</label>
+                <div className="form-group" style={{ marginBottom: '16px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: '500', color: '#495057', marginBottom: '6px', display: 'block' }}>Number of Associates</label>
                   <select 
                     value={tempConfig.numberOfAssociates || 1}
                     onChange={handleNumberOfAssociatesChange}
                     className="form-input"
-                    style={{ width: '150px' }}
+                    style={{ width: '120px', padding: '8px 12px', fontSize: '14px', border: '1px solid #ced4da', borderRadius: '6px' }}
                   >
                     {[1, 2, 3, 4, 5].map(num => (
                       <option key={num} value={num}>{num}</option>
@@ -1952,38 +2117,44 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
                   {tempConfig.associates.map((associate, index) => (
                     <div key={index} className="associate-row" style={{ 
                       display: 'grid', 
-                      gridTemplateColumns: '1fr 1fr 120px', 
-                      gap: '10px', 
-                      marginBottom: '10px',
-                      padding: '10px',
+                      gridTemplateColumns: '1fr 1fr 100px', 
+                      gap: '12px', 
+                      marginBottom: '12px',
+                      padding: '14px',
                       backgroundColor: 'white',
-                      borderRadius: '5px',
-                      border: '1px solid #e0e0e0'
+                      borderRadius: '8px',
+                      border: '1px solid #dee2e6',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
                     }}>
                       <div className="form-group" style={{ margin: 0 }}>
-                        <label style={{ fontSize: '14px', marginBottom: '5px' }}>Associate Name</label>
-                        <input
-                          type="text"
-                          placeholder="Enter name"
-                          value={associate.name || ''}
-                          onChange={(e) => handleAssociateChange(index, 'name', e.target.value)}
+                        <label style={{ fontSize: '12px', marginBottom: '6px', display: 'block', fontWeight: '500', color: '#495057' }}>Associate Name</label>
+                        <select
+                          value={associate.id || ''}
+                          onChange={(e) => handleAssociateSelect(index, e.target.value)}
                           className="form-input"
-                          style={{ fontSize: '14px' }}
-                        />
+                          style={{ fontSize: '14px', padding: '8px 10px', width: '100%', border: '1px solid #ced4da', borderRadius: '6px', backgroundColor: 'white' }}
+                        >
+                          <option value="">Select Associate...</option>
+                          {availableAssociates.map((availAssociate) => (
+                            <option key={availAssociate._id} value={availAssociate._id}>
+                              {availAssociate.name}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                       <div className="form-group" style={{ margin: 0 }}>
-                        <label style={{ fontSize: '14px', marginBottom: '5px' }}>Company Name</label>
+                        <label style={{ fontSize: '12px', marginBottom: '6px', display: 'block', fontWeight: '500', color: '#495057' }}>Company Name</label>
                         <input
                           type="text"
-                          placeholder="Enter company"
+                          placeholder="Auto-filled"
                           value={associate.company || ''}
-                          onChange={(e) => handleAssociateChange(index, 'company', e.target.value)}
+                          readOnly
                           className="form-input"
-                          style={{ fontSize: '14px' }}
+                          style={{ fontSize: '14px', padding: '8px 10px', width: '100%', border: '1px solid #ced4da', borderRadius: '6px', backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
                         />
                       </div>
                       <div className="form-group" style={{ margin: 0 }}>
-                        <label style={{ fontSize: '14px', marginBottom: '5px' }}>Share %</label>
+                        <label style={{ fontSize: '12px', marginBottom: '6px', display: 'block', fontWeight: '500', color: '#495057' }}>Share %</label>
                         <input
                           type="number"
                           min="0"
@@ -1992,21 +2163,51 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
                           value={associate.percentage || ''}
                           onChange={(e) => handleAssociateChange(index, 'percentage', e.target.value)}
                           className="form-input"
-                          style={{ fontSize: '14px' }}
+                          style={{ fontSize: '14px', padding: '8px 10px', width: '100%', border: '1px solid #ced4da', borderRadius: '6px', textAlign: 'center' }}
                         />
                       </div>
                     </div>
                   ))}
                   
+                  {/* Add New Associate Button */}
+                  <div style={{ marginTop: '12px', marginBottom: '12px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddAssociateModal(true)}
+                      style={{
+                        padding: '10px 20px',
+                        backgroundColor: '#17a2b8',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseOver={(e) => e.target.style.backgroundColor = '#138496'}
+                      onMouseOut={(e) => e.target.style.backgroundColor = '#17a2b8'}
+                    >
+                      <span style={{ fontSize: '16px' }}>+</span>
+                      Add New Associate
+                    </button>
+                  </div>
+                  
                   {tempConfig.includeAssociates && (
                     <div style={{ 
-                      marginTop: '10px', 
-                      padding: '8px', 
+                      marginTop: '12px', 
+                      padding: '10px 14px', 
                       backgroundColor: '#fff3cd', 
-                      borderRadius: '5px',
-                      fontSize: '14px'
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      color: '#856404',
+                      border: '1px solid #ffc107'
                     }}>
-                      <strong>Associates Total: {tempConfig.associates.reduce((sum, a) => sum + (a.percentage || 0), 0).toFixed(1)}%</strong>
+                      Associates Total: {tempConfig.associates.reduce((sum, a) => sum + (a.percentage || 0), 0).toFixed(1)}%
                     </div>
                   )}
                 </div>
@@ -2014,189 +2215,369 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
             )}
           </div>
 
-          <div className="form-grid" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '20px',
-            marginBottom: '24px'
-          }}>
-            <div className="form-group" style={{ margin: '0' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>Profit Margin %</label>
-              <input 
-                type="number" 
-                name="profitMarginPercent" 
-                className="form-input" 
-                value={tempConfig.profitMarginPercent || ""} 
-                onChange={handleChange}
-                min="0"
-                max="100"
-                step="0.1"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: '1px solid #ddd',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
-            
-            <div className="form-group" style={{ margin: '0' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>Drawing %</label>
-              <input 
-                type="number" 
-                name="drawingPercent" 
-                className="form-input" 
-                value={tempConfig.drawingPercent || ""} 
-                onChange={handleChange}
-                min="0"
-                max="100"
-                step="0.1"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: '1px solid #ddd',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
-            
-            <div className="form-group" style={{ margin: '0' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>Documents %</label>
-              <input 
-                type="number" 
-                name="documentsPercent" 
-                className="form-input" 
-                value={tempConfig.documentsPercent || ""} 
-                onChange={handleChange}
-                min="0"
-                max="100"
-                step="0.1"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: '1px solid #ddd',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
-            
-            <div className="form-group" style={{ margin: '0' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>Site Visit %</label>
-              <input 
-                type="number" 
-                name="siteVisitPercent" 
-                className="form-input" 
-                value={tempConfig.siteVisitPercent || ""} 
-                onChange={handleChange}
-                min="0"
-                max="100"
-                step="0.1"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: '1px solid #ddd',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
-            
-            <div className="form-group" style={{ margin: '0' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>Marketing & Misc %</label>
-              <input 
-                type="number" 
-                name="marketingAndMiscPercent" 
-                className="form-input" 
-                value={tempConfig.marketingAndMiscPercent || ""} 
-                onChange={handleChange}
-                min="0"
-                max="100"
-                step="0.1"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: '1px solid #ddd',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
-            
-            <div className="form-group" style={{ margin: '0' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#495057' }}>Office Management %</label>
-              <input 
-                type="number" 
-                name="officeManagementPercent" 
-                className="form-input" 
-                value={tempConfig.officeManagementPercent || ""} 
-                onChange={handleChange}
-                min="0"
-                max="100"
-                step="0.1"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: '1px solid #ddd',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  boxSizing: 'border-box'
-                }}
-              />
+          {/* Expense Fields Section */}
+          <div style={{ marginBottom: '24px' }}>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '15px', fontWeight: '600', color: '#2c3e50', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              💼 Expense Categories
+              <span style={{ fontSize: '12px', fontWeight: '400', color: '#6c757d' }}>(Check to show in table)</span>
+            </h3>
+            <div className="form-grid" style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+              gap: '16px'
+            }}>
+              <div className="form-group" style={{ margin: '0' }}>
+                <div style={{ 
+                  padding: '12px 14px',
+                  backgroundColor: 'white',
+                  borderRadius: '8px',
+                  border: '1px solid #dee2e6',
+                  transition: 'all 0.2s'
+                }}>
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    marginBottom: '10px', 
+                    fontSize: '13px', 
+                    fontWeight: '500', 
+                    color: '#495057',
+                    cursor: 'pointer'
+                  }}>
+                    <span>Profit Margin %</span>
+                    <input
+                      type="checkbox"
+                      checked={tempConfig.fieldVisibility?.profitMargin || false}
+                      onChange={() => handleVisibilityChange('profitMargin')}
+                      style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#007bff' }}
+                    />
+                  </label>
+                  <input 
+                    type="number" 
+                    name="profitMarginPercent" 
+                    className="form-input" 
+                    value={tempConfig.profitMarginPercent || ""} 
+                    onChange={handleChange}
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    placeholder="0.0"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1px solid #ced4da',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      boxSizing: 'border-box',
+                      textAlign: 'right',
+                      fontWeight: '500'
+                    }}
+                  />
+                </div>
+              </div>
+              
+              <div className="form-group" style={{ margin: '0' }}>
+                <div style={{ 
+                  padding: '12px 14px',
+                  backgroundColor: 'white',
+                  borderRadius: '8px',
+                  border: '1px solid #dee2e6',
+                  transition: 'all 0.2s'
+                }}>
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    marginBottom: '10px', 
+                    fontSize: '13px', 
+                    fontWeight: '500', 
+                    color: '#495057',
+                    cursor: 'pointer'
+                  }}>
+                    <span>Drawing %</span>
+                    <input
+                      type="checkbox"
+                      checked={tempConfig.fieldVisibility?.drawing || false}
+                      onChange={() => handleVisibilityChange('drawing')}
+                      style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#007bff' }}
+                    />
+                  </label>
+                  <input 
+                    type="number" 
+                    name="drawingPercent" 
+                    className="form-input" 
+                    value={tempConfig.drawingPercent || ""} 
+                    onChange={handleChange}
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    placeholder="0.0"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1px solid #ced4da',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      boxSizing: 'border-box',
+                      textAlign: 'right',
+                      fontWeight: '500'
+                    }}
+                  />
+                </div>
+              </div>
+              
+              <div className="form-group" style={{ margin: '0' }}>
+                <div style={{ 
+                  padding: '12px 14px',
+                  backgroundColor: 'white',
+                  borderRadius: '8px',
+                  border: '1px solid #dee2e6',
+                  transition: 'all 0.2s'
+                }}>
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    marginBottom: '10px', 
+                    fontSize: '13px', 
+                    fontWeight: '500', 
+                    color: '#495057',
+                    cursor: 'pointer'
+                  }}>
+                    <span>Documents %</span>
+                    <input
+                      type="checkbox"
+                      checked={tempConfig.fieldVisibility?.documents || false}
+                      onChange={() => handleVisibilityChange('documents')}
+                      style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#007bff' }}
+                    />
+                  </label>
+                  <input 
+                    type="number" 
+                    name="documentsPercent" 
+                    className="form-input" 
+                    value={tempConfig.documentsPercent || ""} 
+                    onChange={handleChange}
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    placeholder="0.0"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1px solid #ced4da',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      boxSizing: 'border-box',
+                      textAlign: 'right',
+                      fontWeight: '500'
+                    }}
+                  />
+                </div>
+              </div>
+              
+              <div className="form-group" style={{ margin: '0' }}>
+                <div style={{ 
+                  padding: '12px 14px',
+                  backgroundColor: 'white',
+                  borderRadius: '8px',
+                  border: '1px solid #dee2e6',
+                  transition: 'all 0.2s'
+                }}>
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    marginBottom: '10px', 
+                    fontSize: '13px', 
+                    fontWeight: '500', 
+                    color: '#495057',
+                    cursor: 'pointer'
+                  }}>
+                    <span>Site Visit %</span>
+                    <input
+                      type="checkbox"
+                      checked={tempConfig.fieldVisibility?.siteVisit || false}
+                      onChange={() => handleVisibilityChange('siteVisit')}
+                      style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#007bff' }}
+                    />
+                  </label>
+                  <input 
+                    type="number" 
+                    name="siteVisitPercent" 
+                    className="form-input" 
+                    value={tempConfig.siteVisitPercent || ""} 
+                    onChange={handleChange}
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    placeholder="0.0"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1px solid #ced4da',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      boxSizing: 'border-box',
+                      textAlign: 'right',
+                      fontWeight: '500'
+                    }}
+                  />
+                </div>
+              </div>
+              
+              <div className="form-group" style={{ margin: '0' }}>
+                <div style={{ 
+                  padding: '12px 14px',
+                  backgroundColor: 'white',
+                  borderRadius: '8px',
+                  border: '1px solid #dee2e6',
+                  transition: 'all 0.2s'
+                }}>
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    marginBottom: '10px', 
+                    fontSize: '13px', 
+                    fontWeight: '500', 
+                    color: '#495057',
+                    cursor: 'pointer'
+                  }}>
+                    <span>Marketing & Misc %</span>
+                    <input
+                      type="checkbox"
+                      checked={tempConfig.fieldVisibility?.marketingAndMisc || false}
+                      onChange={() => handleVisibilityChange('marketingAndMisc')}
+                      style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#007bff' }}
+                    />
+                  </label>
+                  <input 
+                    type="number" 
+                    name="marketingAndMiscPercent" 
+                    className="form-input" 
+                    value={tempConfig.marketingAndMiscPercent || ""} 
+                    onChange={handleChange}
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    placeholder="0.0"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1px solid #ced4da',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      boxSizing: 'border-box',
+                      textAlign: 'right',
+                      fontWeight: '500'
+                    }}
+                  />
+                </div>
+              </div>
+              
+              <div className="form-group" style={{ margin: '0' }}>
+                <div style={{ 
+                  padding: '12px 14px',
+                  backgroundColor: 'white',
+                  borderRadius: '8px',
+                  border: '1px solid #dee2e6',
+                  transition: 'all 0.2s'
+                }}>
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    marginBottom: '10px', 
+                    fontSize: '13px', 
+                    fontWeight: '500', 
+                    color: '#495057',
+                    cursor: 'pointer'
+                  }}>
+                    <span>Office Management %</span>
+                    <input
+                      type="checkbox"
+                      checked={tempConfig.fieldVisibility?.officeManagement || false}
+                      onChange={() => handleVisibilityChange('officeManagement')}
+                      style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#007bff' }}
+                    />
+                  </label>
+                  <input 
+                    type="number" 
+                    name="officeManagementPercent" 
+                    className="form-input" 
+                    value={tempConfig.officeManagementPercent || ""} 
+                    onChange={handleChange}
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    placeholder="0.0"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1px solid #ced4da',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      boxSizing: 'border-box',
+                      textAlign: 'right',
+                      fontWeight: '500'
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Custom Fields Section */}
-          <div className="custom-fields-section" style={{ marginTop: '30px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+          <div className="custom-fields-section" style={{ marginTop: '24px', padding: '20px', backgroundColor: '#fffbf5', borderRadius: '10px', border: '1px solid #ffe4b5' }}>
             <div style={{ 
               display: 'flex', 
               justifyContent: 'space-between', 
               alignItems: 'center', 
-              marginBottom: '15px',
+              marginBottom: '18px',
               flexWrap: 'wrap',
-              gap: '10px'
+              gap: '12px'
             }}>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '500' }}>🔧 Custom Fields</h3>
+              <div>
+                <h3 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: '600', color: '#2c3e50' }}>🔧 Custom Fields</h3>
+                <p style={{ margin: '0', fontSize: '12px', color: '#6c757d' }}>Add custom expense categories as needed</p>
+              </div>
               <button 
                 type="button"
                 onClick={addCustomField}
                 className="btn btn-secondary"
                 style={{ 
-                  fontSize: '14px', 
-                  padding: '8px 16px',
+                  fontSize: '13px', 
+                  padding: '10px 18px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '5px',
+                  gap: '6px',
                   border: 'none',
                   backgroundColor: '#28a745',
                   color: 'white',
                   borderRadius: '6px',
                   cursor: 'pointer',
-                  minWidth: 'fit-content'
+                  fontWeight: '500',
+                  boxShadow: '0 2px 4px rgba(40, 167, 69, 0.2)',
+                  transition: 'all 0.2s'
                 }}
               >
-                <span style={{ fontSize: '16px' }}>+</span>
+                <span style={{ fontSize: '18px', lineHeight: '1' }}>+</span>
                 Add Field
               </button>
             </div>
 
             {tempConfig.customFields.length === 0 && (
               <p style={{ 
-                color: '#666', 
+                color: '#6c757d', 
                 fontStyle: 'italic', 
                 textAlign: 'center',
-                margin: '20px 0',
-                padding: '20px',
+                margin: '24px 0',
+                padding: '24px',
                 backgroundColor: 'white',
-                borderRadius: '5px',
-                border: '1px dashed #ccc'
+                borderRadius: '8px',
+                border: '2px dashed #dee2e6',
+                fontSize: '13px'
               }}>
                 No custom fields added yet. Click "Add Field" to create custom percentage categories.
               </p>
@@ -2206,13 +2587,14 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
               <div key={index} className="custom-field-row" style={{ 
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '15px', 
-                marginBottom: '15px',
-                padding: '15px',
+                gap: '12px', 
+                marginBottom: '16px',
+                padding: '16px',
                 backgroundColor: 'white',
-                borderRadius: '8px',
-                border: '1px solid #e0e0e0',
-                position: 'relative'
+                borderRadius: '10px',
+                border: '1px solid #e9ecef',
+                position: 'relative',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
               }}>
                 {/* Remove button positioned at top right */}
                 <button
@@ -2220,12 +2602,12 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
                   onClick={() => removeCustomField(index)}
                   style={{ 
                     position: 'absolute',
-                    top: '10px',
-                    right: '10px',
-                    fontSize: '18px', 
-                    padding: '4px 8px',
-                    width: '30px',
-                    height: '30px',
+                    top: '12px',
+                    right: '12px',
+                    fontSize: '20px', 
+                    padding: '0',
+                    width: '28px',
+                    height: '28px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -2234,7 +2616,10 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
                     color: 'white',
                     borderRadius: '50%',
                     cursor: 'pointer',
-                    lineHeight: '1'
+                    lineHeight: '1',
+                    fontWeight: 'bold',
+                    boxShadow: '0 2px 4px rgba(220, 53, 69, 0.3)',
+                    transition: 'all 0.2s'
                   }}
                   title="Remove this field"
                 >
@@ -2243,18 +2628,18 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
 
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: '1fr auto',
-                  gap: '15px',
+                  gridTemplateColumns: '1fr 140px',
+                  gap: '14px',
                   alignItems: 'end',
-                  paddingRight: '50px' // Space for remove button
+                  paddingRight: '40px' // Space for remove button
                 }}>
                   <div className="form-group" style={{ margin: 0 }}>
-                    <label style={{ fontSize: '14px', marginBottom: '8px', display: 'block', fontWeight: '500' }}>
+                    <label style={{ fontSize: '12px', marginBottom: '8px', display: 'block', fontWeight: '500', color: '#495057' }}>
                       Field Name
                     </label>
                     <input
                       type="text"
-                      placeholder="Enter field name (e.g., Travel Expenses, Legal Fees)"
+                      placeholder="e.g., Travel Expenses, Legal Fees"
                       value={customField.name || ''}
                       onChange={(e) => handleCustomFieldChange(index, 'name', e.target.value)}
                       className="form-input"
@@ -2262,14 +2647,14 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
                         fontSize: '14px',
                         width: '100%',
                         padding: '10px 12px',
-                        border: '1px solid #ddd',
+                        border: '1px solid #ced4da',
                         borderRadius: '6px',
                         boxSizing: 'border-box'
                       }}
                     />
                   </div>
-                  <div className="form-group" style={{ margin: 0, minWidth: '120px' }}>
-                    <label style={{ fontSize: '14px', marginBottom: '8px', display: 'block', fontWeight: '500' }}>
+                  <div className="form-group" style={{ margin: 0 }}>
+                    <label style={{ fontSize: '12px', marginBottom: '8px', display: 'block', fontWeight: '500', color: '#495057' }}>
                       Percentage %
                     </label>
                     <input
@@ -2285,39 +2670,69 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
                         fontSize: '14px',
                         width: '100%',
                         padding: '10px 12px',
-                        border: '1px solid #ddd',
+                        border: '1px solid #ced4da',
                         borderRadius: '6px',
                         boxSizing: 'border-box',
-                        textAlign: 'center'
+                        textAlign: 'right',
+                        fontWeight: '500'
                       }}
                     />
                   </div>
+                </div>
+                
+                {/* Show checkbox below the fields */}
+                <div style={{ paddingTop: '8px', borderTop: '1px solid #f0f0f0' }}>
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px', 
+                    fontSize: '13px', 
+                    cursor: 'pointer', 
+                    padding: '8px 12px',
+                    backgroundColor: '#f8f9fa',
+                    borderRadius: '6px',
+                    width: 'fit-content',
+                    border: '1px solid #e9ecef'
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={customField.visible || false}
+                      onChange={() => handleCustomFieldVisibilityChange(index)}
+                      style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#28a745' }}
+                    />
+                    <span style={{ fontSize: '13px', color: '#495057', fontWeight: '500' }}>Show in distribution table</span>
+                  </label>
                 </div>
               </div>
             ))}
             
             {tempConfig.customFields.length > 0 && (
               <div style={{ 
-                marginTop: '15px', 
+                marginTop: '16px', 
                 padding: '12px 16px', 
                 backgroundColor: '#e7f3ff', 
                 borderRadius: '8px',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: '600',
                 color: '#0056b3',
-                border: '1px solid #b8daff'
+                border: '1px solid #b8daff',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
               }}>
-                Custom Fields Total: {tempConfig.customFields.reduce((sum, field) => sum + (field.percentage || 0), 0).toFixed(1)}%
+                <span>Custom Fields Total:</span>
+                <span style={{ fontSize: '15px' }}>{tempConfig.customFields.reduce((sum, field) => sum + (field.percentage || 0), 0).toFixed(1)}%</span>
               </div>
             )}
           </div>
         </div>
         
         <div className="modal-footer" style={{
-          padding: '16px 24px',
-          borderTop: '1px solid #e9ecef',
+          padding: '20px 28px',
+          borderTop: '2px solid #e9ecef',
           display: 'flex',
-          justifyContent: 'flex-end',
+          justifyContent: 'space-between',
+          alignItems: 'center',
           gap: '12px',
           position: 'sticky',
           bottom: '0',
@@ -2326,43 +2741,333 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
           borderBottomRightRadius: '12px',
           flexWrap: 'wrap'
         }}>
-          <button 
-            className="btn btn-secondary" 
-            onClick={onClose}
-            style={{
-              padding: '10px 20px',
-              border: '1px solid #6c757d',
-              backgroundColor: 'transparent',
-              color: '#6c757d',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500',
-              minWidth: '100px'
-            }}
-          >
-            Cancel
-          </button>
-          <button 
-            className="btn btn-primary" 
-            onClick={handleSave}
-            style={{
-              padding: '10px 20px',
-              border: 'none',
-              backgroundColor: '#007bff',
-              color: 'white',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500',
-              minWidth: '100px'
-            }}
-          >
-            Save Configuration
-          </button>
+          <div style={{ fontSize: '12px', color: '#6c757d' }}>
+            {calculateTotalPercentage() > 100 && (
+              <span style={{ color: '#dc3545', fontWeight: '500' }}>⚠️ Total exceeds 100%</span>
+            )}
+            {calculateTotalPercentage() === 100 && (
+              <span style={{ color: '#28a745', fontWeight: '500' }}>✓ Perfect allocation</span>
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button 
+              className="btn btn-secondary" 
+              onClick={onClose}
+              style={{
+                padding: '11px 24px',
+                border: '1px solid #6c757d',
+                backgroundColor: 'transparent',
+                color: '#6c757d',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                minWidth: '100px',
+                transition: 'all 0.2s'
+              }}
+            >
+              Cancel
+            </button>
+            <button 
+              className="btn btn-primary" 
+              onClick={handleSave}
+              style={{
+                padding: '11px 24px',
+                border: 'none',
+                backgroundColor: '#28a745',
+                color: 'white',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                minWidth: '140px',
+                boxShadow: '0 2px 4px rgba(40, 167, 69, 0.3)',
+                transition: 'all 0.2s'
+              }}
+            >
+              Save Configuration
+            </button>
+          </div>
         </div>
       </div>
     </div>
+
+    {/* Add New Associate Modal */}
+    {showAddAssociateModal && (
+      <div style={{
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        right: '0',
+        bottom: '0',
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: '2000',
+        padding: '20px'
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          maxWidth: '600px',
+          width: '100%',
+          maxHeight: '90vh',
+          overflow: 'auto',
+          boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)'
+        }}>
+          <div style={{
+            padding: '24px',
+            borderBottom: '2px solid #e9ecef',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            position: 'sticky',
+            top: '0',
+            backgroundColor: 'white',
+            zIndex: '10',
+            borderTopLeftRadius: '12px',
+            borderTopRightRadius: '12px'
+          }}>
+            <h3 style={{ margin: '0', fontSize: '18px', fontWeight: '600', color: '#2c3e50' }}>➕ Add New Associate</h3>
+            <button 
+              onClick={() => setShowAddAssociateModal(false)}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '24px',
+                cursor: 'pointer',
+                color: '#6c757d',
+                padding: '4px',
+                borderRadius: '4px',
+                lineHeight: '1',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >×</button>
+          </div>
+
+          <div style={{ padding: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#495057' }}>
+                  Name <span style={{ color: '#dc3545' }}>*</span>
+                </label>
+                <input
+                  type="text"
+                  value={newAssociateData.name}
+                  onChange={(e) => setNewAssociateData({ ...newAssociateData, name: e.target.value })}
+                  placeholder="Enter associate name"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ced4da',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#495057' }}>
+                  Email <span style={{ color: '#dc3545' }}>*</span>
+                </label>
+                <input
+                  type="email"
+                  value={newAssociateData.email}
+                  onChange={(e) => setNewAssociateData({ ...newAssociateData, email: e.target.value })}
+                  placeholder="Enter email"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ced4da',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#495057' }}>Phone</label>
+                <input
+                  type="text"
+                  value={newAssociateData.phone}
+                  onChange={(e) => setNewAssociateData({ ...newAssociateData, phone: e.target.value })}
+                  placeholder="Enter phone"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ced4da',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#495057' }}>Company</label>
+                <input
+                  type="text"
+                  value={newAssociateData.company}
+                  onChange={(e) => setNewAssociateData({ ...newAssociateData, company: e.target.value })}
+                  placeholder="Enter company"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ced4da',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#495057' }}>Address</label>
+                <input
+                  type="text"
+                  value={newAssociateData.address}
+                  onChange={(e) => setNewAssociateData({ ...newAssociateData, address: e.target.value })}
+                  placeholder="Street address"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ced4da',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#495057' }}>City</label>
+                <input
+                  type="text"
+                  value={newAssociateData.city}
+                  onChange={(e) => setNewAssociateData({ ...newAssociateData, city: e.target.value })}
+                  placeholder="City"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ced4da',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#495057' }}>State</label>
+                <input
+                  type="text"
+                  value={newAssociateData.state}
+                  onChange={(e) => setNewAssociateData({ ...newAssociateData, state: e.target.value })}
+                  placeholder="State"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ced4da',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#495057' }}>Zip Code</label>
+                <input
+                  type="text"
+                  value={newAssociateData.zipCode}
+                  onChange={(e) => setNewAssociateData({ ...newAssociateData, zipCode: e.target.value })}
+                  placeholder="Zip code"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ced4da',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ display: 'block', marginBottom: '6px', fontSize: '13px', fontWeight: '500', color: '#495057' }}>Notes</label>
+                <textarea
+                  value={newAssociateData.notes}
+                  onChange={(e) => setNewAssociateData({ ...newAssociateData, notes: e.target.value })}
+                  placeholder="Additional notes"
+                  rows="3"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #ced4da',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box',
+                    resize: 'vertical'
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div style={{
+            padding: '20px 24px',
+            borderTop: '2px solid #e9ecef',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: '12px',
+            position: 'sticky',
+            bottom: '0',
+            backgroundColor: 'white',
+            borderBottomLeftRadius: '12px',
+            borderBottomRightRadius: '12px'
+          }}>
+            <button 
+              onClick={() => setShowAddAssociateModal(false)}
+              style={{
+                padding: '10px 20px',
+                border: '1px solid #6c757d',
+                backgroundColor: 'transparent',
+                color: '#6c757d',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleAddNewAssociate}
+              style={{
+                padding: '10px 20px',
+                border: 'none',
+                backgroundColor: '#17a2b8',
+                color: 'white',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}
+            >
+              Add Associate
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 
