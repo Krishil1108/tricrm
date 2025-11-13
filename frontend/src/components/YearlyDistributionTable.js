@@ -141,12 +141,19 @@ const YearlyDistributionTable = ({
     if (projectData.payments && projectData.payments.length > 0) {
       projectData.payments.forEach((payment, index) => {
         const amount = parseInt(payment.amount) || 0; // Use parseInt to avoid decimal issues
-        const profitMarginAmount = Math.floor((amount * (projectData.profitMarginPercent || 0)) / 100);
-        const drawingAmount = Math.floor((amount * (projectData.drawingPercent || 0)) / 100);
-        const documentsAmount = Math.floor((amount * (projectData.documentsPercent || 0)) / 100);
-        const siteVisitAmount = Math.floor((amount * (projectData.siteVisitPercent || 0)) / 100);
-        const marketingAmount = Math.floor((amount * (projectData.marketingAndMiscPercent || 0)) / 100);
-        const officeAmount = Math.floor((amount * (projectData.officeManagementPercent || 0)) / 100);
+        // Calculate total associate percentage from all associates
+        const totalAssociatePercent = projectData.projectAssociates && projectData.projectAssociates.length > 0
+          ? projectData.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+          : 0;
+        // Deduct associate share before calculating expenses
+        const associateShare = Math.floor((amount * totalAssociatePercent) / 100);
+        const amountAfterAssociate = amount - associateShare;
+        const profitMarginAmount = Math.floor((amountAfterAssociate * (projectData.profitMarginPercent || 0)) / 100);
+        const drawingAmount = Math.floor((amountAfterAssociate * (projectData.drawingPercent || 0)) / 100);
+        const documentsAmount = Math.floor((amountAfterAssociate * (projectData.documentsPercent || 0)) / 100);
+        const siteVisitAmount = Math.floor((amountAfterAssociate * (projectData.siteVisitPercent || 0)) / 100);
+        const marketingAmount = Math.floor((amountAfterAssociate * (projectData.marketingAndMiscPercent || 0)) / 100);
+        const officeAmount = Math.floor((amountAfterAssociate * (projectData.officeManagementPercent || 0)) / 100);
         
         const paymentRow = [
           `Payment ${index + 1}`,
@@ -167,7 +174,7 @@ const YearlyDistributionTable = ({
         // Add visible custom field amounts
         if (visibleCustomFields && visibleCustomFields.length > 0) {
           visibleCustomFields.forEach(field => {
-            const customAmount = Math.floor((amount * (getCustomFieldValue(field.fieldName, 'percentage'))) / 100);
+            const customAmount = Math.floor((amountAfterAssociate * (getCustomFieldValue(field.fieldName, 'percentage'))) / 100);
             paymentRow.push(customAmount > 0 ? customAmount : '-');
           });
         }
@@ -179,6 +186,13 @@ const YearlyDistributionTable = ({
     // Yearly totals with exact calculations
     Object.keys(yearlyDistribution).forEach(year => {
       const amount = parseInt(yearlyDistribution[year]) || 0;
+      // Calculate total associate percentage from all associates
+      const totalAssociatePercent = projectData.projectAssociates && projectData.projectAssociates.length > 0
+        ? projectData.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+        : 0;
+      // Deduct associate share before calculating expenses
+      const associateShare = Math.floor((amount * totalAssociatePercent) / 100);
+      const amountAfterAssociate = amount - associateShare;
       const yearlyRow = [
         `${year} Total`,
         amount,
@@ -188,17 +202,17 @@ const YearlyDistributionTable = ({
       ];
       
       // Add visible default field yearly totals
-      if (effectiveFieldVisibility.profitMargin) yearlyRow.push(Math.floor((amount * (projectData.profitMarginPercent || 0)) / 100));
-      if (effectiveFieldVisibility.drawing) yearlyRow.push(Math.floor((amount * (projectData.drawingPercent || 0)) / 100));
-      if (effectiveFieldVisibility.documents) yearlyRow.push(Math.floor((amount * (projectData.documentsPercent || 0)) / 100));
-      if (effectiveFieldVisibility.siteVisit) yearlyRow.push(Math.floor((amount * (projectData.siteVisitPercent || 0)) / 100));
-      if (effectiveFieldVisibility.marketingAndMisc) yearlyRow.push(Math.floor((amount * (projectData.marketingAndMiscPercent || 0)) / 100));
-      if (effectiveFieldVisibility.officeManagement) yearlyRow.push(Math.floor((amount * (projectData.officeManagementPercent || 0)) / 100));
+      if (effectiveFieldVisibility.profitMargin) yearlyRow.push(Math.floor((amountAfterAssociate * (projectData.profitMarginPercent || 0)) / 100));
+      if (effectiveFieldVisibility.drawing) yearlyRow.push(Math.floor((amountAfterAssociate * (projectData.drawingPercent || 0)) / 100));
+      if (effectiveFieldVisibility.documents) yearlyRow.push(Math.floor((amountAfterAssociate * (projectData.documentsPercent || 0)) / 100));
+      if (effectiveFieldVisibility.siteVisit) yearlyRow.push(Math.floor((amountAfterAssociate * (projectData.siteVisitPercent || 0)) / 100));
+      if (effectiveFieldVisibility.marketingAndMisc) yearlyRow.push(Math.floor((amountAfterAssociate * (projectData.marketingAndMiscPercent || 0)) / 100));
+      if (effectiveFieldVisibility.officeManagement) yearlyRow.push(Math.floor((amountAfterAssociate * (projectData.officeManagementPercent || 0)) / 100));
       
       // Add visible custom field yearly totals
       if (visibleCustomFields && visibleCustomFields.length > 0) {
         visibleCustomFields.forEach(field => {
-          const customYearlyAmount = Math.floor((amount * (getCustomFieldValue(field.fieldName, 'percentage'))) / 100);
+          const customYearlyAmount = Math.floor((amountAfterAssociate * (getCustomFieldValue(field.fieldName, 'percentage'))) / 100);
           yearlyRow.push(customYearlyAmount > 0 ? customYearlyAmount : '-');
         });
       }
@@ -490,6 +504,36 @@ const YearlyDistributionTable = ({
 
   return (
     <div className="yearly-distribution-wrapper">
+      {/* Associate Share Notice - Always visible when project has associates */}
+      {((projectData.projectAssociates && projectData.projectAssociates.length > 0) || projectData.associateId) && (
+        <div style={{
+          backgroundColor: '#fff3cd',
+          border: '2px solid #ffc107',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          marginBottom: '16px',
+          textAlign: 'center'
+        }}>
+          <strong style={{
+            fontSize: '15px',
+            color: '#856404',
+            fontWeight: '700',
+            display: 'block',
+            letterSpacing: '0.3px'
+          }}>
+            ⚠️ IMPORTANT: EXPENSE DISTRIBUTION IS CALCULATED AFTER DEDUCTING ASSOCIATE SHARE
+          </strong>
+          <p style={{
+            margin: '8px 0 0 0',
+            fontSize: '13px',
+            color: '#856404',
+            fontWeight: '500'
+          }}>
+            For associate share percentage details, go to "Associate Share Distribution" button
+          </p>
+        </div>
+      )}
+      
       {showTitle && (
         <div className="distribution-header">
           <h3>📊 Yearly Payment Distribution - {projectData.projectName}</h3>
@@ -510,16 +554,6 @@ const YearlyDistributionTable = ({
               <th>Date</th>
               <th>Cheque number/NEFT number</th>
               <th>Mode</th>
-              {/* Associate columns if configured */}
-              {associateConfig && associateConfig.includeAssociates && associateConfig.associates && 
-                associateConfig.associates.map((associate, index) => (
-                  <th key={`associate-${index}`} style={{ backgroundColor: '#e7f3ff', color: '#0056b3' }}>
-                    {associate.name || `Associate ${index + 1}`}
-                    <br />
-                    <small>({associate.company || 'N/A'})</small>
-                  </th>
-                ))
-              }
               {effectiveFieldVisibility.profitMargin && <th>Profit margin</th>}
               {effectiveFieldVisibility.drawing && <th>Drawing</th>}
               {effectiveFieldVisibility.documents && <th>Documents</th>}
@@ -541,14 +575,6 @@ const YearlyDistributionTable = ({
               <td><strong>-</strong></td>
               <td><strong>-</strong></td>
               <td><strong>-</strong></td>
-              {/* Associate percentage columns */}
-              {associateConfig && associateConfig.includeAssociates && associateConfig.associates && 
-                associateConfig.associates.map((associate, index) => (
-                  <td key={`associate-percent-${index}`} style={{ backgroundColor: '#f0f8ff', fontWeight: 'bold' }}>
-                    {associate.percentage || 0}%
-                  </td>
-                ))
-              }
               {effectiveFieldVisibility.profitMargin && <td><strong>{projectData.profitMarginPercent || 0}%</strong></td>}
               {effectiveFieldVisibility.drawing && <td><strong>{projectData.drawingPercent || 0}%</strong></td>}
               {effectiveFieldVisibility.documents && <td><strong>{projectData.documentsPercent || 0}%</strong></td>}
@@ -567,12 +593,19 @@ const YearlyDistributionTable = ({
             {projectData.payments && projectData.payments.map((payment, index) => {
               const paymentDate = new Date(payment.date);
               const amount = parseInt(payment.amount) || 0; // Use parseInt to avoid decimal issues
-              const profitAmount = Math.floor((amount * (projectData.profitMarginPercent || 0)) / 100);
-              const drawingAmount = Math.floor((amount * (projectData.drawingPercent || 0)) / 100);
-              const documentsAmount = Math.floor((amount * (projectData.documentsPercent || 0)) / 100);
-              const siteVisitAmount = Math.floor((amount * (projectData.siteVisitPercent || 0)) / 100);
-              const marketingAmount = Math.floor((amount * (projectData.marketingAndMiscPercent || 0)) / 100);
-              const officeAmount = Math.floor((amount * (projectData.officeManagementPercent || 0)) / 100);
+              // Calculate total associate percentage from all associates
+              const totalAssociatePercent = projectData.projectAssociates && projectData.projectAssociates.length > 0
+                ? projectData.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+                : 0;
+              // Deduct associate share before calculating expenses
+              const associateShare = Math.floor((amount * totalAssociatePercent) / 100);
+              const amountAfterAssociate = amount - associateShare;
+              const profitAmount = Math.floor((amountAfterAssociate * (projectData.profitMarginPercent || 0)) / 100);
+              const drawingAmount = Math.floor((amountAfterAssociate * (projectData.drawingPercent || 0)) / 100);
+              const documentsAmount = Math.floor((amountAfterAssociate * (projectData.documentsPercent || 0)) / 100);
+              const siteVisitAmount = Math.floor((amountAfterAssociate * (projectData.siteVisitPercent || 0)) / 100);
+              const marketingAmount = Math.floor((amountAfterAssociate * (projectData.marketingAndMiscPercent || 0)) / 100);
+              const officeAmount = Math.floor((amountAfterAssociate * (projectData.officeManagementPercent || 0)) / 100);
               
               return (
                 <tr key={`payment-${index}`} className="payment-row">
@@ -580,18 +613,7 @@ const YearlyDistributionTable = ({
                   <td>{amount?.toLocaleString('en-IN')}</td>
                   <td>{paymentDate.toLocaleDateString('en-IN')}</td>
                   <td>{payment.chequeNeftNumber || '-'}</td>
-                  <td>{payment.mode}</td>
-                  {/* Associate amount columns */}
-                  {associateConfig && associateConfig.includeAssociates && associateConfig.associates && 
-                    associateConfig.associates.map((associate, associateIndex) => {
-                      const associateAmount = Math.floor((amount * (associate.percentage || 0)) / 100);
-                      return (
-                        <td key={`payment-associate-${index}-${associateIndex}`} style={{ backgroundColor: '#f8f9fa' }}>
-                          {associateAmount.toLocaleString('en-IN')}
-                        </td>
-                      );
-                    })
-                  }
+                  <td>{payment.mode || '-'}</td>
                   {effectiveFieldVisibility.profitMargin && <td>{profitAmount.toLocaleString('en-IN')}</td>}
                   {effectiveFieldVisibility.drawing && <td>{drawingAmount.toLocaleString('en-IN')}</td>}
                   {effectiveFieldVisibility.documents && <td>{documentsAmount > 0 ? documentsAmount.toLocaleString('en-IN') : '-'}</td>}
@@ -600,7 +622,7 @@ const YearlyDistributionTable = ({
                   {effectiveFieldVisibility.officeManagement && <td>{officeAmount.toLocaleString('en-IN')}</td>}
                   {/* Custom fields amount columns */}
                   {visibleCustomFields && visibleCustomFields.map((customField, customIndex) => {
-                    const customAmount = Math.floor((amount * (getCustomFieldValue(customField.fieldName, 'percentage'))) / 100);
+                    const customAmount = Math.floor((amountAfterAssociate * (getCustomFieldValue(customField.fieldName, 'percentage'))) / 100);
                     return (
                       <td key={`payment-custom-${index}-${customIndex}`} style={{ backgroundColor: '#fffbf0' }}>
                         {customAmount > 0 ? customAmount.toLocaleString('en-IN') : '-'}
@@ -616,12 +638,19 @@ const YearlyDistributionTable = ({
               .sort(([a], [b]) => a.localeCompare(b))
               .map(([year, amount]) => {
                 const yearAmount = parseInt(amount) || 0; // Use parseInt to avoid decimal issues
-                const profitAmount = Math.floor((yearAmount * (projectData.profitMarginPercent || 0)) / 100);
-                const drawingAmount = Math.floor((yearAmount * (projectData.drawingPercent || 0)) / 100);
-                const documentsAmount = Math.floor((yearAmount * (projectData.documentsPercent || 0)) / 100);
-                const siteVisitAmount = Math.floor((yearAmount * (projectData.siteVisitPercent || 0)) / 100);
-                const marketingAmount = Math.floor((yearAmount * (projectData.marketingAndMiscPercent || 0)) / 100);
-                const officeAmount = Math.floor((yearAmount * (projectData.officeManagementPercent || 0)) / 100);
+                // Calculate total associate percentage from all associates
+                const totalAssociatePercent = projectData.projectAssociates && projectData.projectAssociates.length > 0
+                  ? projectData.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+                  : 0;
+                // Deduct associate share before calculating expenses
+                const associateShare = Math.floor((yearAmount * totalAssociatePercent) / 100);
+                const amountAfterAssociate = yearAmount - associateShare;
+                const profitAmount = Math.floor((amountAfterAssociate * (projectData.profitMarginPercent || 0)) / 100);
+                const drawingAmount = Math.floor((amountAfterAssociate * (projectData.drawingPercent || 0)) / 100);
+                const documentsAmount = Math.floor((amountAfterAssociate * (projectData.documentsPercent || 0)) / 100);
+                const siteVisitAmount = Math.floor((amountAfterAssociate * (projectData.siteVisitPercent || 0)) / 100);
+                const marketingAmount = Math.floor((amountAfterAssociate * (projectData.marketingAndMiscPercent || 0)) / 100);
+                const officeAmount = Math.floor((amountAfterAssociate * (projectData.officeManagementPercent || 0)) / 100);
                 
                 return (
                   <tr key={year} className="year-summary-row">
@@ -630,17 +659,6 @@ const YearlyDistributionTable = ({
                     <td><strong>-</strong></td>
                     <td><strong>-</strong></td>
                     <td><strong>-</strong></td>
-                    {/* Associate total columns */}
-                    {associateConfig && associateConfig.includeAssociates && associateConfig.associates && 
-                      associateConfig.associates.map((associate, associateIndex) => {
-                        const associateTotalAmount = Math.floor((yearAmount * (associate.percentage || 0)) / 100);
-                        return (
-                          <td key={`year-associate-${year}-${associateIndex}`} style={{ backgroundColor: '#f8f9fa', fontWeight: 'bold' }}>
-                            {associateTotalAmount.toLocaleString('en-IN')}
-                          </td>
-                        );
-                      })
-                    }
                     {effectiveFieldVisibility.profitMargin && <td><strong>{profitAmount.toLocaleString('en-IN')}</strong></td>}
                     {effectiveFieldVisibility.drawing && <td><strong>{drawingAmount.toLocaleString('en-IN')}</strong></td>}
                     {effectiveFieldVisibility.documents && <td><strong>{documentsAmount > 0 ? documentsAmount.toLocaleString('en-IN') : '-'}</strong></td>}
@@ -649,7 +667,7 @@ const YearlyDistributionTable = ({
                     {effectiveFieldVisibility.officeManagement && <td><strong>{officeAmount.toLocaleString('en-IN')}</strong></td>}
                     {/* Custom fields total columns */}
                     {visibleCustomFields && visibleCustomFields.map((customField, customIndex) => {
-                      const customTotalAmount = Math.floor((yearAmount * (projectData[customField.fieldName] || 0)) / 100);
+                      const customTotalAmount = Math.floor((amountAfterAssociate * (projectData[customField.fieldName] || 0)) / 100);
                       return (
                         <td key={`year-custom-${year}-${customIndex}`} style={{ backgroundColor: '#fffbf0', fontWeight: 'bold' }}>
                           {customTotalAmount > 0 ? customTotalAmount.toLocaleString('en-IN') : '-'}
@@ -667,17 +685,6 @@ const YearlyDistributionTable = ({
               <td><strong>-</strong></td>
               <td><strong>-</strong></td>
               <td><strong>-</strong></td>
-              {/* Associate grand total columns */}
-              {associateConfig && associateConfig.includeAssociates && associateConfig.associates && 
-                associateConfig.associates.map((associate, associateIndex) => {
-                  const associateGrandTotal = Math.floor(((projectData.totalReceivedFees || 0) * (associate.percentage || 0)) / 100);
-                  return (
-                    <td key={`grand-associate-${associateIndex}`} style={{ backgroundColor: '#e8f4fd', fontWeight: 'bold', border: '2px solid #0056b3' }}>
-                      {associateGrandTotal.toLocaleString('en-IN')}
-                    </td>
-                  );
-                })
-              }
               {effectiveFieldVisibility.profitMargin && <td><strong>{projectData.profitMargin?.toLocaleString('en-IN') || '0'}</strong></td>}
               {effectiveFieldVisibility.drawing && <td><strong>{projectData.drawing?.toLocaleString('en-IN') || '0'}</strong></td>}
               {effectiveFieldVisibility.documents && <td><strong>{(projectData.documents && projectData.documents > 0) ? projectData.documents.toLocaleString('en-IN') : '-'}</strong></td>}
@@ -708,7 +715,6 @@ const YearlyDistributionTable = ({
                   (effectiveFieldVisibility.siteVisit ? 1 : 0) +
                   (effectiveFieldVisibility.marketingAndMisc ? 1 : 0) +
                   (effectiveFieldVisibility.officeManagement ? 1 : 0) +
-                  (associateConfig && associateConfig.includeAssociates ? associateConfig.associates.length : 0) + 
                   (visibleCustomFields ? visibleCustomFields.length : 0)
                 }`}>
                   <em>Will be allocated as per percentages upon receipt</em>

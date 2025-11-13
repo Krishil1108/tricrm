@@ -18,6 +18,7 @@ import HomePage from './HomePage';
 import ClientsPage from './ClientsPage';
 import ClientProjectsPage from './ClientProjectsPage';
 import AssociatesPage from './AssociatesPage';
+import AssociateProjectsPage from './AssociateProjectsPage';
 import DashboardPage from './DashboardPage';
 import SettingsPage from './SettingsPage';
 import ProjectPage from './ProjectPage';
@@ -113,7 +114,7 @@ function App() {
                               path="/associates/:associateId/projects" 
                               element={
                                 <ProtectedRoute requireModule="associates">
-                                  <ClientProjectsPage />
+                                  <AssociateProjectsPage />
                                 </ProtectedRoute>
                               } 
                             />

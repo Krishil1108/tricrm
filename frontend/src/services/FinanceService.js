@@ -52,6 +52,20 @@ const FinanceService = {
     }
   },
 
+  // Get projects by associate ID
+  getProjectsByAssociate: async (associateId, filters = {}) => {
+    try {
+      const response = await axios.get(`${API_URL}/finance/projects/associate/${associateId}`, {
+        headers: getAuthHeader(),
+        params: filters
+      });
+      return response.data.data || response.data;
+    } catch (error) {
+      console.error('Error fetching associate projects:', error);
+      throw error;
+    }
+  },
+
   // Create project
   createProject: async (projectData) => {
     try {

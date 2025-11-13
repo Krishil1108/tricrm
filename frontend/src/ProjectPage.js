@@ -64,6 +64,21 @@ const ProjectPage = () => {
     notes: ''
   });
   
+  // Associate-related state
+  const [associates, setAssociates] = useState([]);
+  const [showAssociateModal, setShowAssociateModal] = useState(false);
+  const [associateFormData, setAssociateFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    notes: ''
+  });
+  
   const { showLoading, hideLoading } = useLoading();
   const { showSuccess, showError } = useToast();
 
@@ -72,6 +87,7 @@ const ProjectPage = () => {
     fetchStats();
     loadPercentageConfig();
     loadClients();
+    loadAssociates();
   }, [activeTab, filters]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Helper function to convert ISO date to yyyy-MM-dd format for date inputs
@@ -93,6 +109,17 @@ const ProjectPage = () => {
       console.error('Error loading clients:', error);
       showError('Failed to load clients');
       setClients([]);
+    }
+  };
+
+  const loadAssociates = async () => {
+    try {
+      const associatesData = await AssociateService.getAllAssociates();
+      setAssociates(Array.isArray(associatesData) ? associatesData : []);
+    } catch (error) {
+      console.error('Error loading associates:', error);
+      showError('Failed to load associates');
+      setAssociates([]);
     }
   };
 
@@ -308,6 +335,7 @@ const ProjectPage = () => {
         projectNumber: '',
         projectName: '',
         clientId: '',
+        projectAssociates: [], // Changed to array for multiple associates
         finalizedFees: '',
         totalReceivedFees: 0,
         payments: [],
@@ -371,6 +399,7 @@ const ProjectPage = () => {
     let itemWithPayments = {
       ...item,
       payments: paymentsWithIds,
+      paymentGivenDate: formatDateForInput(item.paymentGivenDate), // Format payment given date
       yearlyDistribution: paymentsWithIds.length > 0 ? calculateYearlyDistribution(paymentsWithIds) : {}
     };
     
@@ -444,6 +473,31 @@ const ProjectPage = () => {
           hideLoading();
           return;
         }
+        
+        // Validate no duplicate associates
+        if (formData.projectAssociates && formData.projectAssociates.length > 0) {
+          const associateIds = formData.projectAssociates
+            .map(a => a.associateId)
+            .filter(id => id); // Remove empty values
+          
+          const uniqueIds = new Set(associateIds);
+          if (associateIds.length !== uniqueIds.size) {
+            showError('You cannot select the same associate multiple times in one project');
+            hideLoading();
+            return;
+          }
+          
+          // Validate that all associates have required fields
+          const hasInvalidAssociate = formData.projectAssociates.some(a => {
+            return a.associateId && (!a.percentage || a.percentage <= 0);
+          });
+          
+          if (hasInvalidAssociate) {
+            showError('All selected associates must have a valid share percentage');
+            hideLoading();
+            return;
+          }
+        }
       }
       
       // Clean the form data - convert empty strings to 0 for numeric fields
@@ -507,7 +561,7 @@ const ProjectPage = () => {
       delete cleanFormData.yearlyDistribution;
       
       // Handle ObjectId fields - convert empty strings to null for MongoDB
-      const objectIdFields = ['clientId'];
+      const objectIdFields = ['clientId', 'associateId'];
       objectIdFields.forEach(field => {
         if (cleanFormData[field] === '' || cleanFormData[field] === null || cleanFormData[field] === undefined) {
           delete cleanFormData[field]; // Remove the field entirely if empty
@@ -588,6 +642,37 @@ const ProjectPage = () => {
     });
   };
 
+  // Associate management functions
+  const handleOpenAssociateModal = () => {
+    setAssociateFormData({
+      name: '',
+      email: '',
+      phone: '',
+      company: '',
+      address: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      notes: ''
+    });
+    setShowAssociateModal(true);
+  };
+
+  const handleCloseAssociateModal = () => {
+    setShowAssociateModal(false);
+    setAssociateFormData({
+      name: '',
+      email: '',
+      phone: '',
+      company: '',
+      address: '',
+      city: '',
+      state: '',
+      zipCode: '',
+      notes: ''
+    });
+  };
+
   const handleClientInputChange = (e) => {
     const { name, value } = e.target;
     setClientFormData(prev => ({
@@ -634,6 +719,57 @@ const ProjectPage = () => {
     } catch (error) {
       console.error('Error creating client:', error);
       showError('Failed to create client: ' + (error.response?.data?.message || error.message));
+    } finally {
+      hideLoading();
+    }
+  };
+
+  const handleAssociateInputChange = (e) => {
+    const { name, value } = e.target;
+    setAssociateFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleAssociateSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      showLoading();
+      
+      // Create the full address string
+      const fullAddress = [
+        associateFormData.address,
+        associateFormData.city,
+        associateFormData.state,
+        associateFormData.zipCode
+      ].filter(part => part.trim()).join(', ');
+
+      const associateDataToSend = {
+        name: associateFormData.name,
+        email: associateFormData.email,
+        phone: associateFormData.phone,
+        company: associateFormData.company,
+        address: fullAddress,
+        notes: associateFormData.notes
+      };
+
+      const newAssociate = await AssociateService.createAssociate(associateDataToSend);
+      
+      // Update the associates list
+      setAssociates(prev => [...prev, newAssociate]);
+      
+      // Auto-select the newly created associate in the project form
+      setFormData(prev => ({
+        ...prev,
+        associateId: newAssociate._id
+      }));
+      
+      showSuccess('Associate added successfully');
+      handleCloseAssociateModal();
+    } catch (error) {
+      console.error('Error creating associate:', error);
+      showError('Failed to create associate: ' + (error.response?.data?.message || error.message));
     } finally {
       hideLoading();
     }
@@ -827,7 +963,9 @@ const ProjectPage = () => {
           onClose={() => setShowModal(false)}
           isEditing={!!editingItem}
           clients={clients}
+          associates={associates}
           onAddClient={handleOpenClientModal}
+          onAddAssociate={handleOpenAssociateModal}
           percentageConfig={percentageConfig}
         />
       )}
@@ -1034,6 +1172,159 @@ const ProjectPage = () => {
           </div>
         </div>
       )}
+
+      {/* Associate Modal */}
+      {showAssociateModal && (
+        <div className="modal-overlay" onClick={handleCloseAssociateModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Add New Associate</h2>
+              <button className="modal-close" onClick={handleCloseAssociateModal}>×</button>
+            </div>
+
+            <form onSubmit={handleAssociateSubmit} className="modal-body">
+              <div className="form-section">
+                <h3>Personal Information</h3>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="associate-name">Full Name *</label>
+                    <input
+                      type="text"
+                      id="associate-name"
+                      name="name"
+                      className="form-input"
+                      value={associateFormData.name}
+                      onChange={handleAssociateInputChange}
+                      placeholder="Enter associate's full name"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="associate-email">Email Address *</label>
+                    <input
+                      type="email"
+                      id="associate-email"
+                      name="email"
+                      className="form-input"
+                      value={associateFormData.email}
+                      onChange={handleAssociateInputChange}
+                      placeholder="associate@example.com"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="associate-phone">Phone Number</label>
+                    <input
+                      type="tel"
+                      id="associate-phone"
+                      name="phone"
+                      className="form-input"
+                      value={associateFormData.phone}
+                      onChange={handleAssociateInputChange}
+                      placeholder="+1 (555) 123-4567"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="associate-company">Company</label>
+                    <input
+                      type="text"
+                      id="associate-company"
+                      name="company"
+                      className="form-input"
+                      value={associateFormData.company}
+                      onChange={handleAssociateInputChange}
+                      placeholder="Company name"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h3>Address Information</h3>
+                <div className="form-group">
+                  <label htmlFor="associate-address">Street Address</label>
+                  <input
+                    type="text"
+                    id="associate-address"
+                    name="address"
+                    className="form-input"
+                    value={associateFormData.address}
+                    onChange={handleAssociateInputChange}
+                    placeholder="123 Main Street"
+                  />
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="associate-city">City</label>
+                    <input
+                      type="text"
+                      id="associate-city"
+                      name="city"
+                      className="form-input"
+                      value={associateFormData.city}
+                      onChange={handleAssociateInputChange}
+                      placeholder="City"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="associate-state">State/Province</label>
+                    <input
+                      type="text"
+                      id="associate-state"
+                      name="state"
+                      className="form-input"
+                      value={associateFormData.state}
+                      onChange={handleAssociateInputChange}
+                      placeholder="State"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="associate-zipCode">ZIP/Postal Code</label>
+                    <input
+                      type="text"
+                      id="associate-zipCode"
+                      name="zipCode"
+                      className="form-input"
+                      value={associateFormData.zipCode}
+                      onChange={handleAssociateInputChange}
+                      placeholder="12345"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h3>Additional Information</h3>
+                <div className="form-group">
+                  <label htmlFor="associate-notes">Notes</label>
+                  <textarea
+                    id="associate-notes"
+                    name="notes"
+                    className="form-input"
+                    rows="3"
+                    value={associateFormData.notes}
+                    onChange={handleAssociateInputChange}
+                    placeholder="Any additional notes about the associate..."
+                  />
+                </div>
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="finance-btn finance-btn-secondary" onClick={handleCloseAssociateModal}>
+                  Cancel
+                </button>
+                <button type="submit" className="finance-btn finance-btn-primary">
+                  Add Associate
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
@@ -1193,7 +1484,19 @@ const calculateYearlyDistribution = (payments) => {
 };
 
 // Modal Component
-const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing, clients, onAddClient, percentageConfig }) => {
+const Modal = ({ 
+  activeTab, 
+  formData, 
+  setFormData, 
+  onSave, 
+  onClose, 
+  isEditing, 
+  clients, 
+  associates = [], 
+  onAddClient,
+  onAddAssociate, 
+  percentageConfig 
+}) => {
   
   // Payment management functions
   const addPayment = () => {
@@ -1280,15 +1583,6 @@ const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing, c
     setFormData(updatedFormData);
   };
 
-  // Allow manual amount override
-  const handleAmountChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: parseInt(value) || 0  // Use parseInt to avoid decimal issues
-    });
-  };
-
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -1301,13 +1595,14 @@ const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing, c
           {activeTab === 'projects' ? (
             <ProjectForm 
               formData={formData} 
-              handleChange={handleChange} 
-              handleAmountChange={handleAmountChange}
+              handleChange={handleChange}
               addPayment={addPayment}
               removePayment={removePayment}
               updatePayment={updatePayment}
               clients={clients}
+              associates={associates}
               onAddClient={onAddClient}
+              onAddAssociate={onAddAssociate}
               percentageConfig={percentageConfig}
             />
           ) : (
@@ -1329,7 +1624,7 @@ const Modal = ({ activeTab, formData, setFormData, onSave, onClose, isEditing, c
 };
 
 // Project Form
-const ProjectForm = ({ formData, handleChange, handleAmountChange, addPayment, removePayment, updatePayment, clients, onAddClient, percentageConfig }) => {
+const ProjectForm = ({ formData, handleChange, addPayment, removePayment, updatePayment, clients, associates, onAddClient, onAddAssociate, percentageConfig }) => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -1506,266 +1801,256 @@ const ProjectForm = ({ formData, handleChange, handleAmountChange, addPayment, r
         </div>
       )}
 
-      {/* Yearly Distribution Section */}
-      {formData.yearlyDistribution && Object.keys(formData.yearlyDistribution).length > 0 && (
-        <YearlyDistributionTable 
-          projectData={formData}
-          showTitle={false}
-          compact={false}
-          associateConfig={percentageConfig}
-          customFields={percentageConfig.customFields || []}
-          fieldVisibility={percentageConfig.fieldVisibility || {}}
-        />
-      )}
+      {/* Associates Section - Support multiple associates */}
+      <div style={{ marginTop: '20px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>Associates (Optional)</h3>
+          {(!formData.projectAssociates || formData.projectAssociates.length < 5) && (
+            <button 
+              type="button" 
+              className="project-btn project-btn-success"
+              onClick={() => {
+                const newAssociates = [...(formData.projectAssociates || []), { 
+                  associateId: '', 
+                  percentage: 0, 
+                  amountPaid: 0, 
+                  paymentGivenDate: '' 
+                }];
+                handleChange({ target: { name: 'projectAssociates', value: newAssociates } });
+              }}
+              style={{
+                padding: '6px 12px',
+                fontSize: '13px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <span style={{ fontSize: '16px', fontWeight: 'bold' }}>+</span>
+              Add Associate
+            </button>
+          )}
+        </div>
 
-      <div className="form-section-header">
-        <h3>💡 Expense Allocation (Auto-calculated from saved percentages)</h3>
-        <p className="form-helper-text">Amounts are automatically calculated based on your saved percentage configuration. Use "Configure Percentages" to modify.</p>
-      </div>
+        {formData.projectAssociates && formData.projectAssociates.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {formData.projectAssociates.map((assoc, index) => (
+              <div key={index} style={{ 
+                padding: '16px', 
+                border: '2px solid #e9ecef', 
+                borderRadius: '8px', 
+                backgroundColor: '#f8f9fa',
+                position: 'relative'
+              }}>
+                <div style={{ 
+                  position: 'absolute', 
+                  top: '8px', 
+                  right: '8px',
+                  display: 'flex',
+                  gap: '8px',
+                  alignItems: 'center'
+                }}>
+                  <span style={{ fontSize: '12px', fontWeight: '600', color: '#6c757d' }}>
+                    Associate #{index + 1}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newAssociates = formData.projectAssociates.filter((_, i) => i !== index);
+                      handleChange({ target: { name: 'projectAssociates', value: newAssociates } });
+                    }}
+                    style={{
+                      padding: '4px 8px',
+                      fontSize: '12px',
+                      backgroundColor: '#dc3545',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ✕ Remove
+                  </button>
+                </div>
 
-      {/* Profit Margin */}
-      <div className="form-row percentage-row">
-        <div className="form-group">
-          <label>Profit Margin % (Configured)</label>
-          <div className="input-with-suffix readonly-field">
-            <input 
-              type="number" 
-              name="profitMarginPercent" 
-              className="form-input readonly" 
-              value={formData.profitMarginPercent || 0} 
-              readOnly
-              min="0"
-              max="100"
-              step="0.1"
-            />
-            <span className="input-suffix">%</span>
-          </div>
-        </div>
-        <div className="form-group">
-          <label>Amount (Auto-calculated)</label>
-          <div className="calculated-amount">
-            <input 
-              type="number" 
-              name="profitMargin" 
-              className="form-input calculated" 
-              value={formData.profitMargin || ''}
-              onChange={handleAmountChange}
-            />
-            <span className="amount-display">{formatCurrency(formData.profitMargin)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Drawing */}
-      <div className="form-row percentage-row">
-        <div className="form-group">
-          <label>Drawing % (Configured)</label>
-          <div className="input-with-suffix readonly-field">
-            <input 
-              type="number" 
-              name="drawingPercent" 
-              className="form-input readonly" 
-              value={formData.drawingPercent || 0} 
-              readOnly
-              min="0"
-              max="100"
-              step="0.1"
-            />
-            <span className="input-suffix">%</span>
-          </div>
-        </div>
-        <div className="form-group">
-          <label>Amount (Auto-calculated)</label>
-          <div className="calculated-amount">
-            <input 
-              type="number" 
-              name="drawing" 
-              className="form-input calculated" 
-              value={formData.drawing || ''}
-              onChange={handleAmountChange}
-            />
-            <span className="amount-display">{formatCurrency(formData.drawing)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Documents */}
-      <div className="form-row percentage-row">
-        <div className="form-group">
-          <label>Documents % (Configured)</label>
-          <div className="input-with-suffix readonly-field">
-            <input 
-              type="number" 
-              name="documentsPercent" 
-              className="form-input readonly" 
-              value={formData.documentsPercent || 0} 
-              readOnly
-              min="0"
-              max="100"
-              step="0.1"
-            />
-            <span className="input-suffix">%</span>
-          </div>
-        </div>
-        <div className="form-group">
-          <label>Amount (Auto-calculated)</label>
-          <div className="calculated-amount">
-            <input 
-              type="number" 
-              name="documents" 
-              className="form-input calculated" 
-              value={formData.documents || ""}
-              onChange={handleAmountChange}
-            />
-            <span className="amount-display">{formatCurrency(formData.documents)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Site Visit */}
-      <div className="form-row percentage-row">
-        <div className="form-group">
-          <label>Site Visit % (Configured)</label>
-          <div className="input-with-suffix readonly-field">
-            <input 
-              type="number" 
-              name="siteVisitPercent" 
-              className="form-input readonly" 
-              value={formData.siteVisitPercent || 0} 
-              readOnly
-              min="0"
-              max="100"
-              step="0.1"
-            />
-            <span className="input-suffix">%</span>
-          </div>
-        </div>
-        <div className="form-group">
-          <label>Amount (Auto-calculated)</label>
-          <div className="calculated-amount">
-            <input 
-              type="number" 
-              name="siteVisit" 
-              className="form-input calculated" 
-              value={formData.siteVisit || ""}
-              onChange={handleAmountChange}
-            />
-            <span className="amount-display">{formatCurrency(formData.siteVisit)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Marketing & Misc */}
-      <div className="form-row percentage-row">
-        <div className="form-group">
-          <label>Marketing & Misc % (Configured)</label>
-          <div className="input-with-suffix readonly-field">
-            <input 
-              type="number" 
-              name="marketingAndMiscPercent" 
-              className="form-input readonly" 
-              value={formData.marketingAndMiscPercent || 0} 
-              readOnly
-              min="0"
-              max="100"
-              step="0.1"
-            />
-            <span className="input-suffix">%</span>
-          </div>
-        </div>
-        <div className="form-group">
-          <label>Amount (Auto-calculated)</label>
-          <div className="calculated-amount">
-            <input 
-              type="number" 
-              name="marketingAndMisc" 
-              className="form-input calculated" 
-              value={formData.marketingAndMisc || ""}
-              onChange={handleAmountChange}
-            />
-            <span className="amount-display">{formatCurrency(formData.marketingAndMisc)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Office Management */}
-      <div className="form-row percentage-row">
-        <div className="form-group">
-          <label>Office Management % (Configured)</label>
-          <div className="input-with-suffix readonly-field">
-            <input 
-              type="number" 
-              name="officeManagementPercent" 
-              className="form-input readonly" 
-              value={formData.officeManagementPercent || 0} 
-              readOnly
-              min="0"
-              max="100"
-              step="0.1"
-            />
-            <span className="input-suffix">%</span>
-          </div>
-        </div>
-        <div className="form-group">
-          <label>Amount (Auto-calculated)</label>
-          <div className="calculated-amount">
-            <input 
-              type="number" 
-              name="officeManagement" 
-              className="form-input calculated" 
-              value={formData.officeManagement || ""}
-              onChange={handleAmountChange}
-            />
-            <span className="amount-display">{formatCurrency(formData.officeManagement)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Custom Fields */}
-      {percentageConfig.customFields && percentageConfig.customFields.length > 0 && (
-        <>
-          <div className="form-section-divider" style={{ margin: '20px 0', borderTop: '2px solid #e9ecef' }}></div>
-          <div className="form-section-header">
-            <h4 style={{ color: '#6c757d', fontSize: '16px', margin: '0 0 15px 0' }}>🔧 Custom Fields</h4>
-          </div>
-          {percentageConfig.customFields.map((customField, index) => {
-            const amountFieldName = customField.fieldName.replace('Percent', '');
-            return (
-              <div key={customField.fieldName} className="form-row percentage-row">
-                <div className="form-group">
-                  <label>{customField.name} % (Configured)</label>
-                  <div className="input-with-suffix readonly-field">
-                    <input 
-                      type="number" 
-                      name={customField.fieldName} 
-                      className="form-input readonly" 
-                      value={formData[customField.fieldName] || 0} 
-                      readOnly
-                      min="0"
-                      max="100"
-                      step="0.1"
-                    />
-                    <span className="input-suffix">%</span>
+                <div className="form-row" style={{ marginTop: '24px' }}>
+                  <div className="form-group">
+                    <label>Choose Associate *</label>
+                    <select 
+                      className="form-input" 
+                      value={assoc.associateId || ''} 
+                      onChange={(e) => {
+                        const selectedId = e.target.value;
+                        
+                        // Check if this associate is already selected in another row
+                        const isDuplicate = formData.projectAssociates.some((a, i) => 
+                          i !== index && a.associateId === selectedId && selectedId !== ''
+                        );
+                        
+                        if (isDuplicate) {
+                          alert('This associate is already added to this project. Please select a different associate.');
+                          return;
+                        }
+                        
+                        const newAssociates = [...formData.projectAssociates];
+                        newAssociates[index].associateId = selectedId;
+                        handleChange({ target: { name: 'projectAssociates', value: newAssociates } });
+                      }}
+                      required
+                      style={{
+                        borderColor: (() => {
+                          const isDuplicate = assoc.associateId && formData.projectAssociates.some((a, i) => 
+                            i !== index && a.associateId === assoc.associateId
+                          );
+                          return isDuplicate ? '#dc3545' : '';
+                        })()
+                      }}
+                    >
+                      <option value="">Select an associate...</option>
+                      {(associates || []).map(associate => {
+                        // Check if this associate is already selected in another row
+                        const isAlreadySelected = formData.projectAssociates.some((a, i) => 
+                          i !== index && a.associateId === associate._id
+                        );
+                        return (
+                          <option 
+                            key={associate._id} 
+                            value={associate._id}
+                            disabled={isAlreadySelected}
+                            style={{ color: isAlreadySelected ? '#999' : '' }}
+                          >
+                            {associate.name} {associate.company ? `(${associate.company})` : ''} {isAlreadySelected ? '(Already added)' : ''}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    {(() => {
+                      const isDuplicate = assoc.associateId && formData.projectAssociates.some((a, i) => 
+                        i !== index && a.associateId === assoc.associateId
+                      );
+                      return isDuplicate && (
+                        <div style={{ 
+                          marginTop: '4px', 
+                          fontSize: '12px', 
+                          color: '#dc3545',
+                          fontWeight: '500'
+                        }}>
+                          ⚠️ This associate is already added
+                        </div>
+                      );
+                    })()}
+                  </div>
+                  <div className="form-group">
+                    <button 
+                      type="button" 
+                      className="project-btn project-btn-success add-client-btn"
+                      onClick={onAddAssociate}
+                      style={{
+                        marginTop: '24px',
+                        padding: '8px 16px',
+                        fontSize: '14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                      }}
+                    >
+                      <span style={{ fontSize: '18px', fontWeight: 'bold' }}>+</span>
+                      Add New Associate
+                    </button>
                   </div>
                 </div>
-                <div className="form-group">
-                  <label>Amount (Auto-calculated)</label>
-                  <div className="calculated-amount">
-                    <input 
-                      type="number" 
-                      name={amountFieldName} 
-                      className="form-input calculated" 
-                      value={formData[amountFieldName] || ""}
-                      onChange={handleAmountChange}
-                    />
-                    <span className="amount-display">{formatCurrency(formData[amountFieldName])}</span>
-                  </div>
-                </div>
+
+                {assoc.associateId && (
+                  <>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Share Percentage * <span style={{fontSize: '12px', color: '#666'}}>(Amount will be deducted before expense distribution)</span></label>
+                        <input 
+                          type="number" 
+                          className="form-input" 
+                          value={assoc.percentage || ''} 
+                          onChange={(e) => {
+                            const newAssociates = [...formData.projectAssociates];
+                            newAssociates[index].percentage = parseFloat(e.target.value) || 0;
+                            handleChange({ target: { name: 'projectAssociates', value: newAssociates } });
+                          }}
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          placeholder="Enter percentage (0-100)"
+                          required
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Amount Paid</label>
+                        <input 
+                          type="number" 
+                          className="form-input" 
+                          value={assoc.amountPaid || 0} 
+                          onChange={(e) => {
+                            const newAssociates = [...formData.projectAssociates];
+                            newAssociates[index].amountPaid = parseFloat(e.target.value) || 0;
+                            handleChange({ target: { name: 'projectAssociates', value: newAssociates } });
+                          }}
+                          min="0"
+                          placeholder="Amount already paid"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label>Payment Given Date (Optional)</label>
+                        <input 
+                          type="date" 
+                          className="form-input" 
+                          value={assoc.paymentGivenDate || ''} 
+                          onChange={(e) => {
+                            const newAssociates = [...formData.projectAssociates];
+                            newAssociates[index].paymentGivenDate = e.target.value;
+                            handleChange({ target: { name: 'projectAssociates', value: newAssociates } });
+                          }}
+                        />
+                      </div>
+                      <div className="form-group"></div>
+                    </div>
+                  </>
+                )}
               </div>
-            );
-          })}
-        </>
-      )}
+            ))}
+          </div>
+        )}
+
+        {(!formData.projectAssociates || formData.projectAssociates.length === 0) && (
+          <div style={{ 
+            padding: '32px', 
+            textAlign: 'center', 
+            backgroundColor: '#f8f9fa', 
+            borderRadius: '8px',
+            border: '2px dashed #dee2e6'
+          }}>
+            <p style={{ margin: 0, color: '#6c757d', fontSize: '14px' }}>
+              No associates added yet. Click "Add Associate" to add up to 5 associates.
+            </p>
+          </div>
+        )}
+
+        {formData.projectAssociates && formData.projectAssociates.length > 0 && (
+          <div style={{ 
+            marginTop: '12px', 
+            padding: '12px', 
+            backgroundColor: '#fff3cd', 
+            borderRadius: '6px',
+            border: '1px solid #ffc107'
+          }}>
+            <strong>Total Associate Share: </strong>
+            {formData.projectAssociates.reduce((sum, a) => sum + (parseFloat(a.percentage) || 0), 0).toFixed(2)}%
+            {formData.projectAssociates.reduce((sum, a) => sum + (parseFloat(a.percentage) || 0), 0) > 100 && (
+              <span style={{ color: '#856404', marginLeft: '8px' }}>⚠️ Warning: Total exceeds 100%</span>
+            )}
+          </div>
+        )}
+      </div>
 
       <div className="form-row">
         <div className="form-group">
@@ -1938,7 +2223,7 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
     }
 
     try {
-      const result = await AssociateService.createAssociate(newAssociateData);
+      await AssociateService.createAssociate(newAssociateData);
       await loadAvailableAssociates();
       dataEventManager.emit(DATA_TYPES.ASSOCIATES);
       setShowAddAssociateModal(false);
@@ -2182,139 +2467,6 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
                 {calculateTotalPercentage().toFixed(1)}%
               </div>
             </div>
-          </div>
-
-          {/* Associates Section */}
-          <div className="associates-section" style={{ marginBottom: '24px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '10px', border: '1px solid #e9ecef' }}>
-            <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  name="includeAssociates"
-                  checked={tempConfig.includeAssociates || false}
-                  onChange={handleChange}
-                  style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#17a2b8' }}
-                />
-                <span style={{ fontWeight: '600', fontSize: '16px', color: '#2c3e50' }}>👥 Include Associates</span>
-              </label>
-            </div>
-
-            {tempConfig.includeAssociates && (
-              <>
-                <div className="form-group" style={{ marginBottom: '16px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: '500', color: '#495057', marginBottom: '6px', display: 'block' }}>Number of Associates</label>
-                  <select 
-                    value={tempConfig.numberOfAssociates || 1}
-                    onChange={handleNumberOfAssociatesChange}
-                    className="form-input"
-                    style={{ width: '120px', padding: '8px 12px', fontSize: '14px', border: '1px solid #ced4da', borderRadius: '6px' }}
-                  >
-                    {[1, 2, 3, 4, 5].map(num => (
-                      <option key={num} value={num}>{num}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="associates-grid">
-                  {tempConfig.associates.map((associate, index) => (
-                    <div key={index} className="associate-row" style={{ 
-                      display: 'grid', 
-                      gridTemplateColumns: '1fr 1fr 100px', 
-                      gap: '12px', 
-                      marginBottom: '12px',
-                      padding: '14px',
-                      backgroundColor: 'white',
-                      borderRadius: '8px',
-                      border: '1px solid #dee2e6',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-                    }}>
-                      <div className="form-group" style={{ margin: 0 }}>
-                        <label style={{ fontSize: '12px', marginBottom: '6px', display: 'block', fontWeight: '500', color: '#495057' }}>Associate Name</label>
-                        <select
-                          value={associate.id || ''}
-                          onChange={(e) => handleAssociateSelect(index, e.target.value)}
-                          className="form-input"
-                          style={{ fontSize: '14px', padding: '8px 10px', width: '100%', border: '1px solid #ced4da', borderRadius: '6px', backgroundColor: 'white' }}
-                        >
-                          <option value="">Select Associate...</option>
-                          {availableAssociates.map((availAssociate) => (
-                            <option key={availAssociate._id} value={availAssociate._id}>
-                              {availAssociate.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="form-group" style={{ margin: 0 }}>
-                        <label style={{ fontSize: '12px', marginBottom: '6px', display: 'block', fontWeight: '500', color: '#495057' }}>Company Name</label>
-                        <input
-                          type="text"
-                          placeholder="Auto-filled"
-                          value={associate.company || ''}
-                          readOnly
-                          className="form-input"
-                          style={{ fontSize: '14px', padding: '8px 10px', width: '100%', border: '1px solid #ced4da', borderRadius: '6px', backgroundColor: '#f8f9fa', cursor: 'not-allowed' }}
-                        />
-                      </div>
-                      <div className="form-group" style={{ margin: 0 }}>
-                        <label style={{ fontSize: '12px', marginBottom: '6px', display: 'block', fontWeight: '500', color: '#495057' }}>Share %</label>
-                        <input
-                          type="number"
-                          min="0"
-                          max="100"
-                          step="0.1"
-                          value={associate.percentage || ''}
-                          onChange={(e) => handleAssociateChange(index, 'percentage', e.target.value)}
-                          className="form-input"
-                          style={{ fontSize: '14px', padding: '8px 10px', width: '100%', border: '1px solid #ced4da', borderRadius: '6px', textAlign: 'center' }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {/* Add New Associate Button */}
-                  <div style={{ marginTop: '12px', marginBottom: '12px' }}>
-                    <button
-                      type="button"
-                      onClick={() => setShowAddAssociateModal(true)}
-                      style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#17a2b8',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        transition: 'all 0.2s'
-                      }}
-                      onMouseOver={(e) => e.target.style.backgroundColor = '#138496'}
-                      onMouseOut={(e) => e.target.style.backgroundColor = '#17a2b8'}
-                    >
-                      <span style={{ fontSize: '16px' }}>+</span>
-                      Add New Associate
-                    </button>
-                  </div>
-                  
-                  {tempConfig.includeAssociates && (
-                    <div style={{ 
-                      marginTop: '12px', 
-                      padding: '10px 14px', 
-                      backgroundColor: '#fff3cd', 
-                      borderRadius: '6px',
-                      fontSize: '13px',
-                      fontWeight: '600',
-                      color: '#856404',
-                      border: '1px solid #ffc107'
-                    }}>
-                      Associates Total: {tempConfig.associates.reduce((sum, a) => sum + (a.percentage || 0), 0).toFixed(1)}%
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
           </div>
 
           {/* Expense Fields Section */}

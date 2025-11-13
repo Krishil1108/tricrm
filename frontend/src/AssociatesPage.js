@@ -571,6 +571,7 @@ const AssociatesPage = () => {
                   <th>Email</th>
                   <th>Company</th>
                   <th>Phone</th>
+                  <th>Projects</th>
                   <th>Status</th>
                   <th>Added Date</th>
                   <th style={{ textAlign: 'center' }}>Actions</th>
@@ -590,6 +591,11 @@ const AssociatesPage = () => {
                     <td>{associate.email}</td>
                     <td>{associate.company || '-'}</td>
                     <td>{associate.phone || '-'}</td>
+                    <td>
+                      <span className="project-count-badge" title={`${associate.projectCount || 0} project(s)`}>
+                        {associate.projectCount || 0}
+                      </span>
+                    </td>
                     <td>
                       <select
                         value={associate.status}

@@ -117,6 +117,53 @@ router.get('/clients/:clientId/projects', authenticate, async (req, res) => {
   }
 });
 
+// Get projects by associate
+router.get('/projects/associate/:associateId', authenticate, async (req, res) => {
+  try {
+    const { associateId } = req.params;
+    const { search, status, sortBy = 'createdAt', order = 'desc' } = req.query;
+    
+    // Build query for projects where this associate is in projectAssociates array
+    let query = { 
+      'projectAssociates.associateId': associateId 
+    };
+    
+    // Add status filter if provided
+    if (status && status !== 'all') {
+      query.status = status;
+    }
+    
+    // Add search filter if provided
+    if (search) {
+      query.$or = [
+        { projectName: { $regex: search, $options: 'i' } },
+        { projectNumber: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    // Build sort object
+    const sortOrder = order === 'desc' ? -1 : 1;
+    const sort = { [sortBy]: sortOrder };
+    
+    const projects = await FinanceProject.find(query)
+      .sort(sort)
+      .populate('createdBy', 'username email');
+    
+    res.json({
+      success: true,
+      data: projects,
+      count: projects.length
+    });
+  } catch (error) {
+    console.error('Error fetching associate projects:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error while fetching associate projects',
+      error: error.message 
+    });
+  }
+});
+
 // Create new project
 router.post('/projects', authenticate, async (req, res) => {
   try {

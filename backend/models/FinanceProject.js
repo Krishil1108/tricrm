@@ -19,6 +19,41 @@ const financeProjectSchema = new mongoose.Schema({
     ref: 'Client',
     index: true
   },
+  // Support for multiple associates (1-5 per project)
+  projectAssociates: [{
+    associateId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Associate',
+      required: true,
+      index: true
+    },
+    percentage: {
+      type: Number,
+      required: true,
+      min: 0,
+      max: 100
+    },
+    amountPaid: {
+      type: Number,
+      default: 0
+    },
+    paymentGivenDate: {
+      type: Date
+    }
+  }],
+  // Calculated total associate allocation (sum of all associates)
+  totalAssociateAmount: {
+    type: Number,
+    default: 0
+  },
+  totalAssociatePaid: {
+    type: Number,
+    default: 0
+  },
+  totalAssociatePending: {
+    type: Number,
+    default: 0
+  },
   link: {
     type: String
   },
@@ -166,13 +201,36 @@ financeProjectSchema.pre('save', function(next) {
   
   const receivedFees = this.totalReceivedFees || 0;
   
-  // Calculate amounts from percentages
-  this.profitMargin = Math.round((receivedFees * (this.profitMarginPercent || 0)) / 100);
-  this.drawing = Math.round((receivedFees * (this.drawingPercent || 0)) / 100);
-  this.documents = Math.round((receivedFees * (this.documentsPercent || 0)) / 100);
-  this.siteVisit = Math.round((receivedFees * (this.siteVisitPercent || 0)) / 100);
-  this.marketingAndMisc = Math.round((receivedFees * (this.marketingAndMiscPercent || 0)) / 100);
-  this.officeManagement = Math.round((receivedFees * (this.officeManagementPercent || 0)) / 100);
+  // Calculate total associate allocation from all associates
+  if (this.projectAssociates && this.projectAssociates.length > 0) {
+    // Calculate total percentage and amount for all associates
+    const totalAssociatePercentage = this.projectAssociates.reduce((sum, assoc) => {
+      return sum + (assoc.percentage || 0);
+    }, 0);
+    
+    this.totalAssociateAmount = Math.round((receivedFees * totalAssociatePercentage) / 100);
+    
+    this.totalAssociatePaid = this.projectAssociates.reduce((sum, assoc) => {
+      return sum + (assoc.amountPaid || 0);
+    }, 0);
+    
+    this.totalAssociatePending = this.totalAssociateAmount - this.totalAssociatePaid;
+  } else {
+    this.totalAssociateAmount = 0;
+    this.totalAssociatePaid = 0;
+    this.totalAssociatePending = 0;
+  }
+  
+  // Calculate remaining amount after associate allocation for expense distribution
+  const amountForExpenses = receivedFees - (this.totalAssociateAmount || 0);
+  
+  // Calculate expense amounts from percentages based on remaining amount
+  this.profitMargin = Math.round((amountForExpenses * (this.profitMarginPercent || 0)) / 100);
+  this.drawing = Math.round((amountForExpenses * (this.drawingPercent || 0)) / 100);
+  this.documents = Math.round((amountForExpenses * (this.documentsPercent || 0)) / 100);
+  this.siteVisit = Math.round((amountForExpenses * (this.siteVisitPercent || 0)) / 100);
+  this.marketingAndMisc = Math.round((amountForExpenses * (this.marketingAndMiscPercent || 0)) / 100);
+  this.officeManagement = Math.round((amountForExpenses * (this.officeManagementPercent || 0)) / 100);
   
   next();
 });
@@ -193,19 +251,38 @@ financeProjectSchema.pre('findOneAndUpdate', function(next) {
   if (update.$set || update.totalReceivedFees !== undefined) {
     const receivedFees = update.$set?.totalReceivedFees || update.totalReceivedFees || 0;
     
-    // If percentage fields are being updated, calculate the amounts
+    // Calculate total associate allocation if projectAssociates are being updated
     if (update.$set) {
+      if (update.$set.projectAssociates && update.$set.projectAssociates.length > 0) {
+        const totalAssociatePercentage = update.$set.projectAssociates.reduce((sum, assoc) => {
+          return sum + (assoc.percentage || 0);
+        }, 0);
+        
+        update.$set.totalAssociateAmount = Math.round((receivedFees * totalAssociatePercentage) / 100);
+        
+        update.$set.totalAssociatePaid = update.$set.projectAssociates.reduce((sum, assoc) => {
+          return sum + (assoc.amountPaid || 0);
+        }, 0);
+        
+        update.$set.totalAssociatePending = update.$set.totalAssociateAmount - update.$set.totalAssociatePaid;
+      }
+      
+      // Calculate remaining amount after associate allocation
+      const associateAllocation = update.$set.totalAssociateAmount || 0;
+      const amountForExpenses = receivedFees - associateAllocation;
+    
+      // If percentage fields are being updated, calculate the amounts from remaining balance
       if (update.$set.profitMarginPercent !== undefined) {
-        update.$set.profitMargin = Math.round((receivedFees * (update.$set.profitMarginPercent || 0)) / 100);
+        update.$set.profitMargin = Math.round((amountForExpenses * (update.$set.profitMarginPercent || 0)) / 100);
       }
       if (update.$set.drawingPercent !== undefined) {
-        update.$set.drawing = Math.round((receivedFees * (update.$set.drawingPercent || 0)) / 100);
+        update.$set.drawing = Math.round((amountForExpenses * (update.$set.drawingPercent || 0)) / 100);
       }
       if (update.$set.documentsPercent !== undefined) {
-        update.$set.documents = Math.round((receivedFees * (update.$set.documentsPercent || 0)) / 100);
+        update.$set.documents = Math.round((amountForExpenses * (update.$set.documentsPercent || 0)) / 100);
       }
       if (update.$set.siteVisitPercent !== undefined) {
-        update.$set.siteVisit = Math.round((receivedFees * (update.$set.siteVisitPercent || 0)) / 100);
+        update.$set.siteVisit = Math.round((amountForExpenses * (update.$set.siteVisitPercent || 0)) / 100);
       }
       if (update.$set.marketingAndMiscPercent !== undefined) {
         update.$set.marketingAndMisc = Math.round((receivedFees * (update.$set.marketingAndMiscPercent || 0)) / 100);

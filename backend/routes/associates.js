@@ -1,15 +1,30 @@
 const express = require('express');
 const router = express.Router();
 const Associate = require('../models/Associate');
+const FinanceProject = require('../models/FinanceProject');
 const Activity = require('../models/Activity');
 
-// GET /api/associates - Get all associates
+// GET /api/associates - Get all associates with project counts
 router.get('/', async (req, res) => {
   try {
     const associates = await Associate.find({}).sort({ createdAt: -1 });
+    
+    // Get project counts for each associate (counting projects where associate appears in projectAssociates array)
+    const associatesWithCounts = await Promise.all(
+      associates.map(async (associate) => {
+        const projectCount = await FinanceProject.countDocuments({ 
+          'projectAssociates.associateId': associate._id 
+        });
+        return {
+          ...associate.toObject(),
+          projectCount
+        };
+      })
+    );
+    
     res.json({
       success: true,
-      data: associates
+      data: associatesWithCounts
     });
   } catch (error) {
     console.error('Error fetching associates:', error);
