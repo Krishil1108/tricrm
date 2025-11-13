@@ -13,8 +13,33 @@ const YearlyDistributionTable = ({
   fieldVisibility = {}
 }) => {
   
+  // CRITICAL: Use project's config snapshot if available
+  // For projects without snapshot (legacy projects before versioning):
+  // - Show ALL default fields (all visible by default for backward compatibility)
+  // - Don't show any custom fields (they didn't exist when project was created)
+  const hasSnapshot = projectData.configSnapshot && Object.keys(projectData.configSnapshot).length > 0;
+  
+  if (hasSnapshot) {
+    // Project has snapshot: use its configuration exactly as it was
+    var effectiveConfig = projectData.configSnapshot;
+    var effectiveCustomFields = effectiveConfig.customFields || [];
+    var effectiveFieldVisibility = effectiveConfig.fieldVisibility || {};
+  } else {
+    // Legacy project without snapshot: show all default fields, no custom fields
+    var effectiveConfig = {};
+    var effectiveCustomFields = [];
+    var effectiveFieldVisibility = {
+      profitMargin: true,
+      drawing: true,
+      documents: true,
+      siteVisit: true,
+      marketingAndMisc: true,
+      officeManagement: true
+    };
+  }
+  
   // Filter visible custom fields based on visibility flag
-  const visibleCustomFields = customFields.filter(field => field.visible);
+  const visibleCustomFields = effectiveCustomFields.filter(field => field.visible);
   
   // Helper function to get custom field value - supports both old and new data formats
   const getCustomFieldValue = (fieldName, type = 'percentage') => {
@@ -71,12 +96,12 @@ const YearlyDistributionTable = ({
     ];
     
     // Add visible default field headers
-    if (fieldVisibility.profitMargin) headers.push('Profit Margin');
-    if (fieldVisibility.drawing) headers.push('Drawing');
-    if (fieldVisibility.documents) headers.push('Documents');
-    if (fieldVisibility.siteVisit) headers.push('Site Visit');
-    if (fieldVisibility.marketingAndMisc) headers.push('Marketing and Misc.');
-    if (fieldVisibility.officeManagement) headers.push('Office Management');
+    if (effectiveFieldVisibility.profitMargin) headers.push('Profit Margin');
+    if (effectiveFieldVisibility.drawing) headers.push('Drawing');
+    if (effectiveFieldVisibility.documents) headers.push('Documents');
+    if (effectiveFieldVisibility.siteVisit) headers.push('Site Visit');
+    if (effectiveFieldVisibility.marketingAndMisc) headers.push('Marketing and Misc.');
+    if (effectiveFieldVisibility.officeManagement) headers.push('Office Management');
     
     // Add visible custom field headers
     if (visibleCustomFields && visibleCustomFields.length > 0) {
@@ -96,12 +121,12 @@ const YearlyDistributionTable = ({
       '-'
     ];
     
-    if (fieldVisibility.profitMargin) percentageRow.push(`${projectData.profitMarginPercent || 0}%`);
-    if (fieldVisibility.drawing) percentageRow.push(`${projectData.drawingPercent || 0}%`);
-    if (fieldVisibility.documents) percentageRow.push(`${projectData.documentsPercent || 0}%`);
-    if (fieldVisibility.siteVisit) percentageRow.push(`${projectData.siteVisitPercent || 0}%`);
-    if (fieldVisibility.marketingAndMisc) percentageRow.push(`${projectData.marketingAndMiscPercent || 0}%`);
-    if (fieldVisibility.officeManagement) percentageRow.push(`${projectData.officeManagementPercent || 0}%`);
+    if (effectiveFieldVisibility.profitMargin) percentageRow.push(`${projectData.profitMarginPercent || 0}%`);
+    if (effectiveFieldVisibility.drawing) percentageRow.push(`${projectData.drawingPercent || 0}%`);
+    if (effectiveFieldVisibility.documents) percentageRow.push(`${projectData.documentsPercent || 0}%`);
+    if (effectiveFieldVisibility.siteVisit) percentageRow.push(`${projectData.siteVisitPercent || 0}%`);
+    if (effectiveFieldVisibility.marketingAndMisc) percentageRow.push(`${projectData.marketingAndMiscPercent || 0}%`);
+    if (effectiveFieldVisibility.officeManagement) percentageRow.push(`${projectData.officeManagementPercent || 0}%`);
     
     // Add visible custom field percentages
     if (visibleCustomFields && visibleCustomFields.length > 0) {
@@ -132,12 +157,12 @@ const YearlyDistributionTable = ({
         ];
         
         // Add visible default field amounts
-        if (fieldVisibility.profitMargin) paymentRow.push(profitMarginAmount);
-        if (fieldVisibility.drawing) paymentRow.push(drawingAmount);
-        if (fieldVisibility.documents) paymentRow.push(documentsAmount > 0 ? documentsAmount : '-');
-        if (fieldVisibility.siteVisit) paymentRow.push(siteVisitAmount);
-        if (fieldVisibility.marketingAndMisc) paymentRow.push(marketingAmount);
-        if (fieldVisibility.officeManagement) paymentRow.push(officeAmount);
+        if (effectiveFieldVisibility.profitMargin) paymentRow.push(profitMarginAmount);
+        if (effectiveFieldVisibility.drawing) paymentRow.push(drawingAmount);
+        if (effectiveFieldVisibility.documents) paymentRow.push(documentsAmount > 0 ? documentsAmount : '-');
+        if (effectiveFieldVisibility.siteVisit) paymentRow.push(siteVisitAmount);
+        if (effectiveFieldVisibility.marketingAndMisc) paymentRow.push(marketingAmount);
+        if (effectiveFieldVisibility.officeManagement) paymentRow.push(officeAmount);
         
         // Add visible custom field amounts
         if (visibleCustomFields && visibleCustomFields.length > 0) {
@@ -163,12 +188,12 @@ const YearlyDistributionTable = ({
       ];
       
       // Add visible default field yearly totals
-      if (fieldVisibility.profitMargin) yearlyRow.push(Math.floor((amount * (projectData.profitMarginPercent || 0)) / 100));
-      if (fieldVisibility.drawing) yearlyRow.push(Math.floor((amount * (projectData.drawingPercent || 0)) / 100));
-      if (fieldVisibility.documents) yearlyRow.push(Math.floor((amount * (projectData.documentsPercent || 0)) / 100));
-      if (fieldVisibility.siteVisit) yearlyRow.push(Math.floor((amount * (projectData.siteVisitPercent || 0)) / 100));
-      if (fieldVisibility.marketingAndMisc) yearlyRow.push(Math.floor((amount * (projectData.marketingAndMiscPercent || 0)) / 100));
-      if (fieldVisibility.officeManagement) yearlyRow.push(Math.floor((amount * (projectData.officeManagementPercent || 0)) / 100));
+      if (effectiveFieldVisibility.profitMargin) yearlyRow.push(Math.floor((amount * (projectData.profitMarginPercent || 0)) / 100));
+      if (effectiveFieldVisibility.drawing) yearlyRow.push(Math.floor((amount * (projectData.drawingPercent || 0)) / 100));
+      if (effectiveFieldVisibility.documents) yearlyRow.push(Math.floor((amount * (projectData.documentsPercent || 0)) / 100));
+      if (effectiveFieldVisibility.siteVisit) yearlyRow.push(Math.floor((amount * (projectData.siteVisitPercent || 0)) / 100));
+      if (effectiveFieldVisibility.marketingAndMisc) yearlyRow.push(Math.floor((amount * (projectData.marketingAndMiscPercent || 0)) / 100));
+      if (effectiveFieldVisibility.officeManagement) yearlyRow.push(Math.floor((amount * (projectData.officeManagementPercent || 0)) / 100));
       
       // Add visible custom field yearly totals
       if (visibleCustomFields && visibleCustomFields.length > 0) {
@@ -191,12 +216,12 @@ const YearlyDistributionTable = ({
     ];
     
     // Add visible default field grand totals
-    if (fieldVisibility.profitMargin) grandTotalRow.push(projectData.profitMargin || 0);
-    if (fieldVisibility.drawing) grandTotalRow.push(projectData.drawing || 0);
-    if (fieldVisibility.documents) grandTotalRow.push((projectData.documents && projectData.documents > 0) ? projectData.documents : '-');
-    if (fieldVisibility.siteVisit) grandTotalRow.push(projectData.siteVisit || 0);
-    if (fieldVisibility.marketingAndMisc) grandTotalRow.push(projectData.marketingAndMisc || 0);
-    if (fieldVisibility.officeManagement) grandTotalRow.push(projectData.officeManagement || 0);
+    if (effectiveFieldVisibility.profitMargin) grandTotalRow.push(projectData.profitMargin || 0);
+    if (effectiveFieldVisibility.drawing) grandTotalRow.push(projectData.drawing || 0);
+    if (effectiveFieldVisibility.documents) grandTotalRow.push((projectData.documents && projectData.documents > 0) ? projectData.documents : '-');
+    if (effectiveFieldVisibility.siteVisit) grandTotalRow.push(projectData.siteVisit || 0);
+    if (effectiveFieldVisibility.marketingAndMisc) grandTotalRow.push(projectData.marketingAndMisc || 0);
+    if (effectiveFieldVisibility.officeManagement) grandTotalRow.push(projectData.officeManagement || 0);
     
     // Add visible custom field grand totals
     if (visibleCustomFields && visibleCustomFields.length > 0) {
@@ -495,12 +520,12 @@ const YearlyDistributionTable = ({
                   </th>
                 ))
               }
-              {fieldVisibility.profitMargin && <th>Profit margin</th>}
-              {fieldVisibility.drawing && <th>Drawing</th>}
-              {fieldVisibility.documents && <th>Documents</th>}
-              {fieldVisibility.siteVisit && <th>Site visit</th>}
-              {fieldVisibility.marketingAndMisc && <th>Marketing and Misc.</th>}
-              {fieldVisibility.officeManagement && <th>Office management</th>}
+              {effectiveFieldVisibility.profitMargin && <th>Profit margin</th>}
+              {effectiveFieldVisibility.drawing && <th>Drawing</th>}
+              {effectiveFieldVisibility.documents && <th>Documents</th>}
+              {effectiveFieldVisibility.siteVisit && <th>Site visit</th>}
+              {effectiveFieldVisibility.marketingAndMisc && <th>Marketing and Misc.</th>}
+              {effectiveFieldVisibility.officeManagement && <th>Office management</th>}
               {/* Custom fields columns */}
               {visibleCustomFields && visibleCustomFields.map((customField, index) => (
                 <th key={`custom-${index}`} style={{ backgroundColor: '#fff3cd', color: '#856404' }}>
@@ -524,12 +549,12 @@ const YearlyDistributionTable = ({
                   </td>
                 ))
               }
-              {fieldVisibility.profitMargin && <td><strong>{projectData.profitMarginPercent || 0}%</strong></td>}
-              {fieldVisibility.drawing && <td><strong>{projectData.drawingPercent || 0}%</strong></td>}
-              {fieldVisibility.documents && <td><strong>{projectData.documentsPercent || 0}%</strong></td>}
-              {fieldVisibility.siteVisit && <td><strong>{projectData.siteVisitPercent || 0}%</strong></td>}
-              {fieldVisibility.marketingAndMisc && <td><strong>{projectData.marketingAndMiscPercent || 0}%</strong></td>}
-              {fieldVisibility.officeManagement && <td><strong>{projectData.officeManagementPercent || 0}%</strong></td>}
+              {effectiveFieldVisibility.profitMargin && <td><strong>{projectData.profitMarginPercent || 0}%</strong></td>}
+              {effectiveFieldVisibility.drawing && <td><strong>{projectData.drawingPercent || 0}%</strong></td>}
+              {effectiveFieldVisibility.documents && <td><strong>{projectData.documentsPercent || 0}%</strong></td>}
+              {effectiveFieldVisibility.siteVisit && <td><strong>{projectData.siteVisitPercent || 0}%</strong></td>}
+              {effectiveFieldVisibility.marketingAndMisc && <td><strong>{projectData.marketingAndMiscPercent || 0}%</strong></td>}
+              {effectiveFieldVisibility.officeManagement && <td><strong>{projectData.officeManagementPercent || 0}%</strong></td>}
               {/* Custom fields percentage columns */}
               {visibleCustomFields && visibleCustomFields.map((customField, index) => (
                 <td key={`custom-percent-${index}`} style={{ backgroundColor: '#fff3cd', fontWeight: 'bold' }}>
@@ -567,12 +592,12 @@ const YearlyDistributionTable = ({
                       );
                     })
                   }
-                  {fieldVisibility.profitMargin && <td>{profitAmount.toLocaleString('en-IN')}</td>}
-                  {fieldVisibility.drawing && <td>{drawingAmount.toLocaleString('en-IN')}</td>}
-                  {fieldVisibility.documents && <td>{documentsAmount > 0 ? documentsAmount.toLocaleString('en-IN') : '-'}</td>}
-                  {fieldVisibility.siteVisit && <td>{siteVisitAmount.toLocaleString('en-IN')}</td>}
-                  {fieldVisibility.marketingAndMisc && <td>{marketingAmount.toLocaleString('en-IN')}</td>}
-                  {fieldVisibility.officeManagement && <td>{officeAmount.toLocaleString('en-IN')}</td>}
+                  {effectiveFieldVisibility.profitMargin && <td>{profitAmount.toLocaleString('en-IN')}</td>}
+                  {effectiveFieldVisibility.drawing && <td>{drawingAmount.toLocaleString('en-IN')}</td>}
+                  {effectiveFieldVisibility.documents && <td>{documentsAmount > 0 ? documentsAmount.toLocaleString('en-IN') : '-'}</td>}
+                  {effectiveFieldVisibility.siteVisit && <td>{siteVisitAmount.toLocaleString('en-IN')}</td>}
+                  {effectiveFieldVisibility.marketingAndMisc && <td>{marketingAmount.toLocaleString('en-IN')}</td>}
+                  {effectiveFieldVisibility.officeManagement && <td>{officeAmount.toLocaleString('en-IN')}</td>}
                   {/* Custom fields amount columns */}
                   {visibleCustomFields && visibleCustomFields.map((customField, customIndex) => {
                     const customAmount = Math.floor((amount * (getCustomFieldValue(customField.fieldName, 'percentage'))) / 100);
@@ -616,12 +641,12 @@ const YearlyDistributionTable = ({
                         );
                       })
                     }
-                    {fieldVisibility.profitMargin && <td><strong>{profitAmount.toLocaleString('en-IN')}</strong></td>}
-                    {fieldVisibility.drawing && <td><strong>{drawingAmount.toLocaleString('en-IN')}</strong></td>}
-                    {fieldVisibility.documents && <td><strong>{documentsAmount > 0 ? documentsAmount.toLocaleString('en-IN') : '-'}</strong></td>}
-                    {fieldVisibility.siteVisit && <td><strong>{siteVisitAmount.toLocaleString('en-IN')}</strong></td>}
-                    {fieldVisibility.marketingAndMisc && <td><strong>{marketingAmount.toLocaleString('en-IN')}</strong></td>}
-                    {fieldVisibility.officeManagement && <td><strong>{officeAmount.toLocaleString('en-IN')}</strong></td>}
+                    {effectiveFieldVisibility.profitMargin && <td><strong>{profitAmount.toLocaleString('en-IN')}</strong></td>}
+                    {effectiveFieldVisibility.drawing && <td><strong>{drawingAmount.toLocaleString('en-IN')}</strong></td>}
+                    {effectiveFieldVisibility.documents && <td><strong>{documentsAmount > 0 ? documentsAmount.toLocaleString('en-IN') : '-'}</strong></td>}
+                    {effectiveFieldVisibility.siteVisit && <td><strong>{siteVisitAmount.toLocaleString('en-IN')}</strong></td>}
+                    {effectiveFieldVisibility.marketingAndMisc && <td><strong>{marketingAmount.toLocaleString('en-IN')}</strong></td>}
+                    {effectiveFieldVisibility.officeManagement && <td><strong>{officeAmount.toLocaleString('en-IN')}</strong></td>}
                     {/* Custom fields total columns */}
                     {visibleCustomFields && visibleCustomFields.map((customField, customIndex) => {
                       const customTotalAmount = Math.floor((yearAmount * (projectData[customField.fieldName] || 0)) / 100);
@@ -653,12 +678,12 @@ const YearlyDistributionTable = ({
                   );
                 })
               }
-              {fieldVisibility.profitMargin && <td><strong>{projectData.profitMargin?.toLocaleString('en-IN') || '0'}</strong></td>}
-              {fieldVisibility.drawing && <td><strong>{projectData.drawing?.toLocaleString('en-IN') || '0'}</strong></td>}
-              {fieldVisibility.documents && <td><strong>{(projectData.documents && projectData.documents > 0) ? projectData.documents.toLocaleString('en-IN') : '-'}</strong></td>}
-              {fieldVisibility.siteVisit && <td><strong>{projectData.siteVisit?.toLocaleString('en-IN') || '0'}</strong></td>}
-              {fieldVisibility.marketingAndMisc && <td><strong>{projectData.marketingAndMisc?.toLocaleString('en-IN') || '0'}</strong></td>}
-              {fieldVisibility.officeManagement && <td><strong>{projectData.officeManagement?.toLocaleString('en-IN') || '0'}</strong></td>}
+              {effectiveFieldVisibility.profitMargin && <td><strong>{projectData.profitMargin?.toLocaleString('en-IN') || '0'}</strong></td>}
+              {effectiveFieldVisibility.drawing && <td><strong>{projectData.drawing?.toLocaleString('en-IN') || '0'}</strong></td>}
+              {effectiveFieldVisibility.documents && <td><strong>{(projectData.documents && projectData.documents > 0) ? projectData.documents.toLocaleString('en-IN') : '-'}</strong></td>}
+              {effectiveFieldVisibility.siteVisit && <td><strong>{projectData.siteVisit?.toLocaleString('en-IN') || '0'}</strong></td>}
+              {effectiveFieldVisibility.marketingAndMisc && <td><strong>{projectData.marketingAndMisc?.toLocaleString('en-IN') || '0'}</strong></td>}
+              {effectiveFieldVisibility.officeManagement && <td><strong>{projectData.officeManagement?.toLocaleString('en-IN') || '0'}</strong></td>}
               {/* Custom fields grand total columns */}
               {visibleCustomFields && visibleCustomFields.map((customField, customIndex) => {
                 // Calculate custom field grand total based on percentage and total received fees
@@ -677,12 +702,12 @@ const YearlyDistributionTable = ({
                 <td><strong>{(projectData.finalizedFees - projectData.totalReceivedFees).toLocaleString('en-IN')}</strong></td>
                 <td colSpan="3"><strong>Pending Receipt</strong></td>
                 <td colSpan={`${
-                  (fieldVisibility.profitMargin ? 1 : 0) +
-                  (fieldVisibility.drawing ? 1 : 0) +
-                  (fieldVisibility.documents ? 1 : 0) +
-                  (fieldVisibility.siteVisit ? 1 : 0) +
-                  (fieldVisibility.marketingAndMisc ? 1 : 0) +
-                  (fieldVisibility.officeManagement ? 1 : 0) +
+                  (effectiveFieldVisibility.profitMargin ? 1 : 0) +
+                  (effectiveFieldVisibility.drawing ? 1 : 0) +
+                  (effectiveFieldVisibility.documents ? 1 : 0) +
+                  (effectiveFieldVisibility.siteVisit ? 1 : 0) +
+                  (effectiveFieldVisibility.marketingAndMisc ? 1 : 0) +
+                  (effectiveFieldVisibility.officeManagement ? 1 : 0) +
                   (associateConfig && associateConfig.includeAssociates ? associateConfig.associates.length : 0) + 
                   (visibleCustomFields ? visibleCustomFields.length : 0)
                 }`}>

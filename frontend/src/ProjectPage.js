@@ -3,6 +3,7 @@ import './ProjectPage.css';
 import FinanceService from './services/FinanceService';
 import ClientService from './services/ClientService';
 import AssociateService from './services/AssociateService';
+import ConfigurationVersionService from './services/ConfigurationVersionService';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
 import YearlyDistributionTable from './components/YearlyDistributionTable';
@@ -73,6 +74,17 @@ const ProjectPage = () => {
     loadClients();
   }, [activeTab, filters]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Helper function to convert ISO date to yyyy-MM-dd format for date inputs
+  const formatDateForInput = (isoDate) => {
+    if (!isoDate) return '';
+    try {
+      const date = new Date(isoDate);
+      return date.toISOString().split('T')[0];
+    } catch (error) {
+      return '';
+    }
+  };
+
   const loadClients = async () => {
     try {
       const clientsData = await ClientService.getAllClients();
@@ -84,12 +96,69 @@ const ProjectPage = () => {
     }
   };
 
-  const loadPercentageConfig = () => {
+  const loadPercentageConfig = async () => {
+    try {
+      // Try to load from version service first
+      const currentConfigData = await ConfigurationVersionService.getCurrentConfiguration();
+      if (currentConfigData && currentConfigData.data) {
+        const config = currentConfigData.data.configuration;
+        
+        // Ensure default values for all fields
+        const configWithDefaults = {
+          profitMarginPercent: config.profitMarginPercent || 0,
+          drawingPercent: config.drawingPercent || 0,
+          documentsPercent: config.documentsPercent || 0,
+          siteVisitPercent: config.siteVisitPercent || 0,
+          marketingAndMiscPercent: config.marketingAndMiscPercent || 0,
+          officeManagementPercent: config.officeManagementPercent || 0,
+          includeAssociates: config.includeAssociates || false,
+          numberOfAssociates: config.numberOfAssociates || 1,
+          associates: config.associates || [{ id: '', name: '', company: '', percentage: 0 }],
+          customFields: config.customFields || [],
+          fieldVisibility: {
+            profitMargin: config.fieldVisibility?.profitMargin || false,
+            drawing: config.fieldVisibility?.drawing || false,
+            documents: config.fieldVisibility?.documents || false,
+            siteVisit: config.fieldVisibility?.siteVisit || false,
+            marketingAndMisc: config.fieldVisibility?.marketingAndMisc || false,
+            officeManagement: config.fieldVisibility?.officeManagement || false
+          },
+          _currentVersion: currentConfigData.data.version
+        };
+        
+        // Fix any existing custom fields with incorrect fieldNames
+        if (configWithDefaults.customFields && configWithDefaults.customFields.length > 0) {
+          configWithDefaults.customFields = configWithDefaults.customFields.map(field => {
+            const updatedField = {
+              ...field,
+              visible: field.visible !== undefined ? field.visible : false
+            };
+            
+            if (updatedField.name && updatedField.name.trim()) {
+              const expectedFieldName = updatedField.name.trim().replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + 'Percent';
+              if (updatedField.fieldName !== expectedFieldName && !updatedField.fieldName.includes(updatedField.name.trim().replace(/[^a-zA-Z0-9]/g, '').toLowerCase())) {
+                updatedField.fieldName = expectedFieldName;
+              }
+            }
+            return updatedField;
+          });
+        }
+        
+        setPercentageConfig(configWithDefaults);
+        // Also save to localStorage as backup
+        localStorage.setItem('finance-percentage-config', JSON.stringify(configWithDefaults));
+        return;
+      }
+    } catch (error) {
+      console.error('Error loading from version service:', error);
+      console.log('Falling back to localStorage');
+    }
+    
+    // Fallback to localStorage if version service fails
     try {
       const savedConfig = localStorage.getItem('finance-percentage-config');
       if (savedConfig) {
         const parsedConfig = JSON.parse(savedConfig);
-        // Ensure backward compatibility and set defaults for new fields
         const configWithDefaults = {
           profitMarginPercent: 0,
           drawingPercent: 0,
@@ -100,7 +169,7 @@ const ProjectPage = () => {
           includeAssociates: false,
           numberOfAssociates: 1,
           associates: [{ name: '', company: '', percentage: 0 }],
-          customFields: [], // Ensure customFields are loaded
+          customFields: [],
           fieldVisibility: {
             profitMargin: false,
             drawing: false,
@@ -112,27 +181,22 @@ const ProjectPage = () => {
           ...parsedConfig
         };
         
-        // Fix any existing custom fields with incorrect fieldNames
         if (configWithDefaults.customFields && configWithDefaults.customFields.length > 0) {
           configWithDefaults.customFields = configWithDefaults.customFields.map(field => {
-            // Ensure visible property exists (default to false for backward compatibility)
             const updatedField = {
               ...field,
               visible: field.visible !== undefined ? field.visible : false
             };
             
-            // If fieldName doesn't match the expected pattern based on name, fix it
             if (updatedField.name && updatedField.name.trim()) {
               const expectedFieldName = updatedField.name.trim().replace(/[^a-zA-Z0-9]/g, '').toLowerCase() + 'Percent';
               if (updatedField.fieldName !== expectedFieldName && !updatedField.fieldName.includes(updatedField.name.trim().replace(/[^a-zA-Z0-9]/g, '').toLowerCase())) {
-                console.log(`Fixing fieldName for "${updatedField.name}" from "${updatedField.fieldName}" to "${expectedFieldName}"`);
                 updatedField.fieldName = expectedFieldName;
               }
             }
             return updatedField;
           });
           
-          // Save the corrected config back to localStorage
           localStorage.setItem('finance-percentage-config', JSON.stringify(configWithDefaults));
         }
         
@@ -143,11 +207,31 @@ const ProjectPage = () => {
     }
   };
 
-  const savePercentageConfig = (config) => {
+  const savePercentageConfig = async (config, changeDescription = '') => {
     try {
+      // Remove internal tracking fields before saving
+      const configToSave = { ...config };
+      delete configToSave._currentVersion;
+      
+      // Save to version service
+      const result = await ConfigurationVersionService.saveConfiguration(
+        configToSave,
+        changeDescription
+      );
+      
+      // Also save to localStorage as backup
       localStorage.setItem('finance-percentage-config', JSON.stringify(config));
-      setPercentageConfig(config);
-      showSuccess('Percentage configuration saved successfully');
+      
+      // Extract version number safely
+      const versionNumber = result?.data?.version || result?.version || 1;
+      
+      // Update local state with new version
+      setPercentageConfig({
+        ...config,
+        _currentVersion: versionNumber
+      });
+      
+      showSuccess(`Configuration v${versionNumber} saved successfully`);
     } catch (error) {
       showError('Error saving configuration');
       console.error('Error saving percentage configuration:', error);
@@ -280,7 +364,8 @@ const ProjectPage = () => {
     // Ensure payments array exists and add frontend IDs for existing payments
     const paymentsWithIds = (item.payments || []).map((payment, index) => ({
       ...payment,
-      id: payment._id || `existing_payment_${index}_${Date.now()}`
+      id: payment._id || `existing_payment_${index}_${Date.now()}`,
+      date: formatDateForInput(payment.date) // Convert ISO date to yyyy-MM-dd
     }));
     
     let itemWithPayments = {
@@ -334,7 +419,8 @@ const ProjectPage = () => {
     // Ensure payments array exists and add frontend IDs for existing payments
     const paymentsWithIds = (project.payments || []).map((payment, index) => ({
       ...payment,
-      id: payment._id || `existing_payment_${index}_${Date.now()}`
+      id: payment._id || `existing_payment_${index}_${Date.now()}`,
+      date: formatDateForInput(payment.date) // Convert ISO date to yyyy-MM-dd
     }));
     
     const projectWithPayments = {
@@ -2020,8 +2106,24 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
           borderTopRightRadius: '12px'
         }}>
           <div>
-            <h2 style={{ margin: '0 0 4px 0', fontSize: '20px', fontWeight: '600', color: '#2c3e50' }}>⚙️ Configure Expense Percentages</h2>
-            <p style={{ margin: '0', fontSize: '13px', color: '#6c757d' }}>Set default percentages and visibility for expense categories</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <h2 style={{ margin: '0', fontSize: '20px', fontWeight: '600', color: '#2c3e50' }}>⚙️ Configure Expense Percentages</h2>
+              {tempConfig._currentVersion && (
+                <span style={{
+                  padding: '4px 10px',
+                  backgroundColor: '#e3f2fd',
+                  color: '#1976d2',
+                  borderRadius: '12px',
+                  fontSize: '11px',
+                  fontWeight: '600',
+                  border: '1px solid #90caf9'
+                }}>
+                  v{tempConfig._currentVersion}
+                </span>
+              )}
+            </div>
+            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#6c757d' }}>Set default percentages and visibility for expense categories</p>
+            <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#9e9e9e', fontStyle: 'italic' }}>⚠️ Changes will only apply to new projects created after saving</p>
           </div>
           <button className="close-btn" onClick={onClose} style={{
             background: 'none',

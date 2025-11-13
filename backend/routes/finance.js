@@ -3,6 +3,7 @@ const router = express.Router();
 const FinanceProject = require('../models/FinanceProject');
 const BankExpense = require('../models/BankExpense');
 const { authenticate } = require('../middleware/auth');
+const ConfigurationVersionService = require('../services/ConfigurationVersionService');
 const multer = require('multer');
 const XLSX = require('xlsx');
 
@@ -119,9 +120,14 @@ router.get('/clients/:clientId/projects', authenticate, async (req, res) => {
 // Create new project
 router.post('/projects', authenticate, async (req, res) => {
   try {
+    // Get current configuration version
+    const currentConfig = await ConfigurationVersionService.getCurrentVersion();
+    
     const projectData = {
       ...req.body,
-      createdBy: req.user._id
+      createdBy: req.user._id,
+      configVersion: currentConfig.version,
+      configSnapshot: currentConfig.configuration
     };
     
     const project = new FinanceProject(projectData);

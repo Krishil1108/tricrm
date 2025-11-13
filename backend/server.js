@@ -146,6 +146,7 @@ const meetingRoutes = require('./routes/meetings');
 const noteRoutes = require('./routes/notes');
 const activityRoutes = require('./routes/activities');
 const financeRoutes = require('./routes/finance');
+const configurationVersionRoutes = require('./routes/configurationVersions');
 
 // Public routes (no authentication required)
 app.use('/api/auth', authRoutes);
@@ -158,6 +159,7 @@ app.use('/api/associates', authenticate, associateRoutes);
 app.use('/api/meetings', authenticate, meetingRoutes);
 app.use('/api/notes', authenticate, noteRoutes);
 app.use('/api/activities', authenticate, activityRoutes);
+app.use('/api/configuration-versions', authenticate, configurationVersionRoutes);
 app.use('/api/finance', authenticate, financeRoutes);
 
 // Basic route

@@ -122,6 +122,16 @@ const financeProjectSchema = new mongoose.Schema({
     enum: ['Active', 'Completed', 'On Hold', 'Cancelled'],
     default: 'Active'
   },
+  configVersion: {
+    type: Number,
+    required: true,
+    default: 1,
+    index: true
+  },
+  configSnapshot: {
+    type: Object,
+    default: {}
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
