@@ -1,0 +1,26 @@
+# Render deployment configuration
+# This file helps Render understand how to deploy your application
+
+services:
+  - type: web
+    name: tricrm-backend
+    env: node
+    region: oregon
+    plan: starter  # Free tier: starter, Paid: standard/pro
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        fromService:
+          type: web
+          name: tricrm-backend
+          property: port
+    # Add your environment variables in Render dashboard:
+    # MONGODB_URI, JWT_SECRET, EMAIL_* variables
+    
+    healthCheckPath: /api/health
+    
+    # Auto-deploy on every push to main branch
+    autoDeploy: true
