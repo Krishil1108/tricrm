@@ -85,44 +85,15 @@ const ClientsPage = () => {
   const handleEdit = (client) => {
     setEditingClient(client);
     
-    // Check if address fields are empty but full address exists (legacy data)
-    let addressData = {
-      address: client.address || '',
-      city: client.city || '',
-      state: client.state || '',
-      zipCode: client.zipCode || ''
-    };
-
-    // If individual address fields are empty but the main address field has data,
-    // try to parse it (for backward compatibility)
-    if (client.address && !client.city && !client.state && !client.zipCode) {
-      const addressParts = client.address.split(',').map(part => part.trim());
-      if (addressParts.length >= 3) {
-        addressData.address = addressParts[0] || '';
-        addressData.city = addressParts[1] || '';
-        
-        // Handle "State ZipCode" format in the last part
-        const stateZipPart = addressParts[addressParts.length - 1] || '';
-        const stateZipMatch = stateZipPart.match(/^(.+?)\s+(\d{5}(?:-\d{4})?)$/);
-        if (stateZipMatch) {
-          addressData.state = stateZipMatch[1].trim();
-          addressData.zipCode = stateZipMatch[2].trim();
-        } else {
-          addressData.state = stateZipPart;
-          addressData.zipCode = '';
-        }
-      }
-    }
-
     setClientData({
       name: client.name || '',
       email: client.email || '',
       phone: client.phone || '',
       company: client.company || '',
-      address: addressData.address,
-      city: addressData.city,
-      state: addressData.state,
-      zipCode: addressData.zipCode,
+      address: client.address || '',
+      city: client.city || '',
+      state: client.state || '',
+      zipCode: client.zipCode || '',
       country: client.country || 'India',
       notes: client.notes || ''
     });
