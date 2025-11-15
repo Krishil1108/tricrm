@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useCompany } from './CompanyContext';
 import './PageContent.css';
 import './SettingsPage.css';
+import API_BASE_URL from './config/api';
 
 const SettingsPage = () => {
   const { companyInfo, updateCompanyInfo } = useCompany();
