@@ -3,6 +3,7 @@ import Calendar from './Calendar';
 import { useCompany } from './CompanyContext';
 import ActionModal from './components/ActionModal';
 import ActivitySection from './components/ActivitySection';
+import Watermark from './components/Watermark';
 import './CRMDashboard.css';
 
 const HomePage = () => {
@@ -393,6 +394,9 @@ const HomePage = () => {
         onClose={handleCloseModal}
         selectedDate={selectedDate}
       />
+      
+      {/* Watermark */}
+      <Watermark />
     </div>
   );
 };

@@ -5,6 +5,7 @@ import AssociateService from './services/AssociateService';
 import ExcelExportService from './services/ExcelExportService';
 import ExcelImport from './components/ExcelImport';
 import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
+import Watermark from './components/Watermark';
 import './PageContent.css';
 
 const AssociatesPage = () => {
@@ -968,6 +969,9 @@ const AssociatesPage = () => {
           onSuccess={handleImportSuccess}
         />
       )}
+      
+      {/* Watermark */}
+      <Watermark />
     </div>
   );
 };

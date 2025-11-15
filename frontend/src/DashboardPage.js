@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import FilterPanel from './components/dashboard/FilterPanel';
 import ReportsPanel from './components/dashboard/ReportsPanel';
 import DashboardService from './services/DashboardService';
+import Watermark from './components/Watermark';
 import './PageContent.css';
 import './DashboardPage.css';
 
@@ -136,6 +137,9 @@ const DashboardPage = () => {
           />
         </div>
       </div>
+      
+      {/* Watermark */}
+      <Watermark />
     </div>
   );
 };

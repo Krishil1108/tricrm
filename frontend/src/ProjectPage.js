@@ -8,6 +8,7 @@ import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
 import YearlyDistributionTable from './components/YearlyDistributionTable';
 import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
+import Watermark from './components/Watermark';
 
 const ProjectPage = () => {
   const [activeTab, setActiveTab] = useState('projects');
@@ -3321,6 +3322,9 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
         </div>
       </div>
     )}
+    
+    {/* Watermark */}
+    <Watermark />
     </>
   );
 };

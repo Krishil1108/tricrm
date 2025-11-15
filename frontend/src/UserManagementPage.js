@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
+import Watermark from './components/Watermark';
 import './UserManagementPage.css';
 import API_BASE_URL from './config/api';
 
@@ -425,6 +426,9 @@ function UserManagementPage() {
           </div>
         </div>
       )}
+      
+      {/* Watermark */}
+      <Watermark />
     </div>
   );
 }

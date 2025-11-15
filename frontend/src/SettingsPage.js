@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useCompany } from './CompanyContext';
+import Watermark from './components/Watermark';
 import './PageContent.css';
 import './SettingsPage.css';
 import API_BASE_URL from './config/api';
@@ -1282,6 +1283,9 @@ const SettingsPage = () => {
           )}
         </div>
       </div>
+      
+      {/* Watermark */}
+      <Watermark />
     </div>
   );
 };

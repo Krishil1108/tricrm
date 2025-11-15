@@ -1,0 +1,43 @@
+/* Arviz Intelligence Watermark Styles */
+.arviz-watermark {
+  position: fixed;
+  bottom: 10px;
+  right: 15px;
+  font-size: 10px;
+  color: rgba(0, 0, 0, 0.4);
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2px 6px;
+  border-radius: 3px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .arviz-watermark {
+    color: rgba(255, 255, 255, 0.6);
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .arviz-watermark {
+    font-size: 9px;
+    bottom: 8px;
+    right: 10px;
+    padding: 1px 4px;
+  }
+}
+
+/* Hover effect */
+.arviz-watermark:hover {
+  opacity: 0.8;
+  transform: scale(1.02);
+  transition: all 0.2s ease;
+}
