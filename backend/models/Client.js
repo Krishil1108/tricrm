@@ -36,6 +36,11 @@ const clientSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  country: {
+    type: String,
+    trim: true,
+    default: 'India'
+  },
   notes: {
     type: String,
     trim: true

@@ -2372,33 +2372,65 @@ textarea::placeholder {
 
 /* View Client Form Styles */
 .view-form {
-  padding: 0;
+  padding: 20px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.view-form .form-section {
+  margin-bottom: 30px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.view-form .form-section h3 {
+  margin: 0 0 20px 0;
+  color: #2d3748;
+  font-size: 16px;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 10px;
 }
 
 .view-form .form-value {
-  padding: 12px 16px;
-  background-color: #f8f9fa;
-  border: 1px solid #e1e5e9;
+  padding: 14px 16px;
+  background-color: #f7fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 6px;
   color: #2d3748;
   font-size: 14px;
   min-height: 20px;
   display: flex;
   align-items: center;
+  word-wrap: break-word;
+  line-height: 1.4;
 }
 
 .view-form .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .view-form .form-group label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   font-weight: 600;
   font-size: 13px;
   color: #4a5568;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.view-form .form-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 0;
+}
+
+.view-form .form-row .form-group {
+  flex: 1;
 }
 
 .status-badge {

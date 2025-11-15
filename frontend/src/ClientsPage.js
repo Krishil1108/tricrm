@@ -34,6 +34,7 @@ const ClientsPage = () => {
     city: '',
     state: '',
     zipCode: '',
+    country: 'India',
     notes: ''
   });
   const [saved, setSaved] = useState(false);
@@ -122,6 +123,7 @@ const ClientsPage = () => {
       city: addressData.city,
       state: addressData.state,
       zipCode: addressData.zipCode,
+      country: client.country || 'India',
       notes: client.notes || ''
     });
     setShowEditPopup(true);
@@ -270,6 +272,7 @@ const ClientsPage = () => {
       city: '',
       state: '',
       zipCode: '',
+      country: 'India',
       notes: ''
     });
   };
@@ -823,6 +826,9 @@ const ClientsPage = () => {
                       placeholder="NY"
                     />
                   </div>
+                </div>
+
+                <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="zipCode">ZIP Code</label>
                     <input
@@ -832,6 +838,17 @@ const ClientsPage = () => {
                       value={clientData.zipCode}
                       onChange={handleInputChange}
                       placeholder="10001"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="country">Country</label>
+                    <input
+                      type="text"
+                      id="country"
+                      name="country"
+                      value={clientData.country}
+                      onChange={handleInputChange}
+                      placeholder="India"
                     />
                   </div>
                 </div>
@@ -968,15 +985,27 @@ const ClientsPage = () => {
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="edit-zipCode">ZIP Code</label>
-                  <input
-                    type="text"
-                    id="edit-zipCode"
-                    value={clientData.zipCode}
-                    onChange={(e) => setClientData({...clientData, zipCode: e.target.value})}
-                    placeholder="10001"
-                  />
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="edit-zipCode">ZIP Code</label>
+                    <input
+                      type="text"
+                      id="edit-zipCode"
+                      value={clientData.zipCode}
+                      onChange={(e) => setClientData({...clientData, zipCode: e.target.value})}
+                      placeholder="10001"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="edit-country">Country</label>
+                    <input
+                      type="text"
+                      id="edit-country"
+                      value={clientData.country}
+                      onChange={(e) => setClientData({...clientData, country: e.target.value})}
+                      placeholder="India"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -1069,9 +1098,15 @@ const ClientsPage = () => {
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label>ZIP Code</label>
-                  <div className="form-value">{viewingClient.zipCode || '-'}</div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>ZIP Code</label>
+                    <div className="form-value">{viewingClient.zipCode || '-'}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Country</label>
+                    <div className="form-value">{viewingClient.country || '-'}</div>
+                  </div>
                 </div>
               </div>
 
