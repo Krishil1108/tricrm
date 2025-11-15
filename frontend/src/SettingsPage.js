@@ -151,7 +151,7 @@ const SettingsPage = () => {
       setStatsError(null);
 
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/system/stats', {
+      const response = await fetch(`${API_BASE_URL}/system/stats`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

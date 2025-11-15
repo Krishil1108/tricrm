@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import './UserManagementPage.css';
+import API_BASE_URL from './config/api';
 
 function UserManagementPage() {
   const { token } = useAuth();
@@ -35,7 +36,7 @@ function UserManagementPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/users', {
+      const response = await fetch(`${API_BASE_URL}/users`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -51,7 +52,7 @@ function UserManagementPage() {
 
   const fetchRoles = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/roles', {
+      const response = await fetch(`${API_BASE_URL}/roles`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -102,8 +103,8 @@ function UserManagementPage() {
     e.preventDefault();
 
     const url = editingUser
-      ? `http://localhost:5000/api/users/${editingUser._id}`
-      : 'http://localhost:5000/api/users';
+      ? `${API_BASE_URL}/users/${editingUser._id}`
+      : `${API_BASE_URL}/users`;
 
     const method = editingUser ? 'PUT' : 'POST';
 
@@ -139,7 +140,7 @@ function UserManagementPage() {
     if (!window.confirm('Are you sure you want to delete this user?')) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -159,7 +160,7 @@ function UserManagementPage() {
 
   const handleToggleStatus = async (userId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${userId}/toggle-status`, {
+      const response = await fetch(`${API_BASE_URL}/users/${userId}/toggle-status`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -201,7 +202,7 @@ function UserManagementPage() {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${resetPasswordUser._id}/reset-password`, {
+      const response = await fetch(`${API_BASE_URL}/users/${resetPasswordUser._id}/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

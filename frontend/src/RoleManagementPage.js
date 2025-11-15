@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import './RoleManagementPage.css';
+import API_BASE_URL from './config/api';
 
 function RoleManagementPage() {
   const { token } = useAuth();
@@ -100,7 +101,7 @@ function RoleManagementPage() {
 
   const fetchRoles = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/roles', {
+      const response = await fetch(`${API_BASE_URL}/roles`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await response.json();
@@ -240,8 +241,8 @@ function RoleManagementPage() {
     e.preventDefault();
 
     const url = editingRole
-      ? `http://localhost:5000/api/roles/${editingRole._id}`
-      : 'http://localhost:5000/api/roles';
+      ? `${API_BASE_URL}/roles/${editingRole._id}`
+      : `${API_BASE_URL}/roles`;
 
     const method = editingRole ? 'PUT' : 'POST';
 
@@ -273,7 +274,7 @@ function RoleManagementPage() {
     if (!window.confirm('Are you sure you want to delete this role?')) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/roles/${roleId}`, {
+      const response = await fetch(`${API_BASE_URL}/roles/${roleId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

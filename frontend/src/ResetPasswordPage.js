@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import './ResetPasswordPage.css';
+import API_BASE_URL from './config/api';
 
 function ResetPasswordPage() {
   const { token } = useParams();
@@ -40,7 +41,7 @@ function ResetPasswordPage() {
 
   const verifyToken = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/auth/verify-reset-token/${token}`);
+      const response = await fetch(`${API_BASE_URL}/auth/verify-reset-token/${token}`);
       const data = await response.json();
 
       if (response.ok && data.data.valid) {
@@ -107,7 +108,7 @@ function ResetPasswordPage() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/reset-password', {
+      const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

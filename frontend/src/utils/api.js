@@ -1,6 +1,7 @@
 // API utility for handling authenticated requests
+import API_BASE_URL_CONFIG from '../config/api';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = API_BASE_URL_CONFIG;
 
 // Get auth headers with token
 const getAuthHeaders = () => {
