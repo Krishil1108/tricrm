@@ -16,8 +16,10 @@ const ClientsPage = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [showEditPopup, setShowEditPopup] = useState(false);
+  const [showViewPopup, setShowViewPopup] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [editingClient, setEditingClient] = useState(null);
+  const [viewingClient, setViewingClient] = useState(null);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -124,6 +126,11 @@ const ClientsPage = () => {
     });
     setShowEditPopup(true);
     setError('');
+  };
+
+  const handleView = (client) => {
+    setViewingClient(client);
+    setShowViewPopup(true);
   };
 
   const handleStatusChange = async (clientId, newStatus) => {
@@ -251,7 +258,9 @@ const ClientsPage = () => {
   const handleClosePopup = () => {
     setShowAddPopup(false);
     setShowEditPopup(false);
+    setShowViewPopup(false);
     setEditingClient(null);
+    setViewingClient(null);
     setClientData({
       name: '',
       email: '',
@@ -614,6 +623,16 @@ const ClientsPage = () => {
                           </svg>
                           Projects
                         </button>
+                        <button
+                          className="view-btn action-btn"
+                          onClick={() => handleView(client)}
+                          title="View Client Details"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                          </svg>
+                          View
+                        </button>
                         {canEdit('clients') && (
                           <button
                             className="edit-btn action-btn"
@@ -873,28 +892,31 @@ const ClientsPage = () => {
                       id="edit-name"
                       value={clientData.name}
                       onChange={(e) => setClientData({...clientData, name: e.target.value})}
+                      placeholder="Enter client's full name"
                       required
                     />
                   </div>
                   <div className="form-group">
-                    <label htmlFor="edit-email">Email *</label>
+                    <label htmlFor="edit-email">Email Address *</label>
                     <input
                       type="email"
                       id="edit-email"
                       value={clientData.email}
                       onChange={(e) => setClientData({...clientData, email: e.target.value})}
+                      placeholder="client@example.com"
                       required
                     />
                   </div>
                 </div>
                 <div className="form-row">
                   <div className="form-group">
-                    <label htmlFor="edit-phone">Phone</label>
+                    <label htmlFor="edit-phone">Phone Number</label>
                     <input
                       type="tel"
                       id="edit-phone"
                       value={clientData.phone}
                       onChange={(e) => setClientData({...clientData, phone: e.target.value})}
+                      placeholder="+1 (555) 123-4567"
                     />
                   </div>
                   <div className="form-group">
@@ -904,6 +926,7 @@ const ClientsPage = () => {
                       id="edit-company"
                       value={clientData.company}
                       onChange={(e) => setClientData({...clientData, company: e.target.value})}
+                      placeholder="Company name"
                     />
                   </div>
                 </div>
@@ -911,17 +934,17 @@ const ClientsPage = () => {
 
               <div className="form-section">
                 <h3>Address Information</h3>
-                <div className="form-row">
-                  <div className="form-group full-width">
-                    <label htmlFor="edit-address">Street Address</label>
-                    <input
-                      type="text"
-                      id="edit-address"
-                      value={clientData.address}
-                      onChange={(e) => setClientData({...clientData, address: e.target.value})}
-                    />
-                  </div>
+                <div className="form-group">
+                  <label htmlFor="edit-address">Street Address</label>
+                  <input
+                    type="text"
+                    id="edit-address"
+                    value={clientData.address}
+                    onChange={(e) => setClientData({...clientData, address: e.target.value})}
+                    placeholder="123 Main Street"
+                  />
                 </div>
+
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="edit-city">City</label>
@@ -930,6 +953,7 @@ const ClientsPage = () => {
                       id="edit-city"
                       value={clientData.city}
                       onChange={(e) => setClientData({...clientData, city: e.target.value})}
+                      placeholder="New York"
                     />
                   </div>
                   <div className="form-group">
@@ -939,46 +963,159 @@ const ClientsPage = () => {
                       id="edit-state"
                       value={clientData.state}
                       onChange={(e) => setClientData({...clientData, state: e.target.value})}
+                      placeholder="NY"
                     />
                   </div>
-                  <div className="form-group">
-                    <label htmlFor="edit-zipCode">ZIP Code</label>
-                    <input
-                      type="text"
-                      id="edit-zipCode"
-                      value={clientData.zipCode}
-                      onChange={(e) => setClientData({...clientData, zipCode: e.target.value})}
-                    />
-                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="edit-zipCode">ZIP Code</label>
+                  <input
+                    type="text"
+                    id="edit-zipCode"
+                    value={clientData.zipCode}
+                    onChange={(e) => setClientData({...clientData, zipCode: e.target.value})}
+                    placeholder="10001"
+                  />
                 </div>
               </div>
 
               <div className="form-section">
                 <h3>Additional Information</h3>
-                <div className="form-row">
-                  <div className="form-group full-width">
-                    <label htmlFor="edit-notes">Notes</label>
-                    <textarea
-                      id="edit-notes"
-                      rows="3"
-                      value={clientData.notes}
-                      onChange={(e) => setClientData({...clientData, notes: e.target.value})}
-                    ></textarea>
-                  </div>
+                <div className="form-group">
+                  <label htmlFor="edit-notes">Notes</label>
+                  <textarea
+                    id="edit-notes"
+                    value={clientData.notes}
+                    onChange={(e) => setClientData({...clientData, notes: e.target.value})}
+                    placeholder="Any additional notes about the client..."
+                    rows="3"
+                  />
                 </div>
               </div>
 
               {error && <div className="error-message">{error}</div>}
 
-              <div className="form-actions">
-                <button type="button" className="cancel-btn" onClick={handleClosePopup}>
+              <div className="popup-actions">
+                <button type="button" onClick={handleClosePopup} className="cancel-btn">
                   Cancel
                 </button>
-                <button type="submit" className="submit-btn" disabled={loading}>
+                <button type="submit" className="save-btn" disabled={loading}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{marginRight: '8px'}}>
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                  </svg>
                   {loading ? 'Updating...' : 'Update Client'}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Client Popup */}
+      {showViewPopup && viewingClient && (
+        <div className="popup-overlay">
+          <div className="popup-container">
+            <div className="popup-header">
+              <h2>Client Details</h2>
+              <button className="close-btn" onClick={handleClosePopup}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>
+              </button>
+            </div>
+
+            <div className="popup-form view-form">
+              <div className="form-section">
+                <h3>Personal Information</h3>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Full Name</label>
+                    <div className="form-value">{viewingClient.name}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Email Address</label>
+                    <div className="form-value">{viewingClient.email}</div>
+                  </div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Phone Number</label>
+                    <div className="form-value">{viewingClient.phone || '-'}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>Company</label>
+                    <div className="form-value">{viewingClient.company || '-'}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h3>Address Information</h3>
+                <div className="form-group">
+                  <label>Street Address</label>
+                  <div className="form-value">{viewingClient.address || '-'}</div>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>City</label>
+                    <div className="form-value">{viewingClient.city || '-'}</div>
+                  </div>
+                  <div className="form-group">
+                    <label>State</label>
+                    <div className="form-value">{viewingClient.state || '-'}</div>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>ZIP Code</label>
+                  <div className="form-value">{viewingClient.zipCode || '-'}</div>
+                </div>
+              </div>
+
+              <div className="form-section">
+                <h3>Additional Information</h3>
+                <div className="form-group">
+                  <label>Status</label>
+                  <div className="form-value">
+                    <span className={`status-badge ${viewingClient.status?.toLowerCase()}`}>
+                      {viewingClient.status}
+                    </span>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Added Date</label>
+                  <div className="form-value">{formatDate(viewingClient.createdAt)}</div>
+                </div>
+                <div className="form-group">
+                  <label>Notes</label>
+                  <div className="form-value">{viewingClient.notes || 'No notes available'}</div>
+                </div>
+              </div>
+
+              <div className="popup-actions">
+                <button type="button" onClick={handleClosePopup} className="cancel-btn">
+                  Close
+                </button>
+                {canEdit('clients') && (
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      handleEdit(viewingClient);
+                      setShowViewPopup(false);
+                    }} 
+                    className="save-btn"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{marginRight: '8px'}}>
+                      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                    </svg>
+                    Edit Client
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}

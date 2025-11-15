@@ -2369,3 +2369,81 @@ textarea::placeholder {
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
 }
+
+/* View Client Form Styles */
+.view-form {
+  padding: 0;
+}
+
+.view-form .form-value {
+  padding: 12px 16px;
+  background-color: #f8f9fa;
+  border: 1px solid #e1e5e9;
+  border-radius: 6px;
+  color: #2d3748;
+  font-size: 14px;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.view-form .form-group {
+  margin-bottom: 16px;
+}
+
+.view-form .form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #4a5568;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-badge.inactive {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.status-badge.pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+/* View Button Styles */
+.view-btn {
+  background: linear-gradient(135deg, #17a2b8, #138496);
+  color: white;
+}
+
+.view-btn:hover {
+  background: linear-gradient(135deg, #138496, #117a8b);
+  transform: translateY(-1px);
+}
+
+/* Ensure consistent action button spacing */
+.action-buttons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
