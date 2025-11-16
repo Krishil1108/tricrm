@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import FinanceService from './services/FinanceService';
+import WhatsAppService from './services/WhatsAppService';
+import { FaWhatsapp } from 'react-icons/fa';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
 import './ClientProjectsPage.css';
@@ -105,6 +107,50 @@ const AssociateProjectsPage = () => {
 
   const handleEditProject = (projectId) => {
     navigate('/projects', { state: { editProjectId: projectId } });
+  };
+
+  const sharePaymentDetails = (project, associateData, associatePercentage, associateAmount, amountPaid, pendingAmount) => {
+    try {
+      // Get associate phone number
+      const associatePhone = associateData?.associateId?.phone || associate?.phone;
+      
+      if (!associatePhone) {
+        showError('Associate phone number is not available. Cannot send WhatsApp message.');
+        return;
+      }
+
+      // Create payment details message
+      const paymentStatus = pendingAmount === 0 ? 'Completed' : amountPaid > 0 ? 'Partial' : 'Pending';
+      
+      const message = `🏗️ *Project Payment Details*
+
+📋 *Project:* ${project.projectName}
+🔢 *Project Number:* ${project.projectNumber}
+
+💰 *Your Share Details:*
+▫️ Share Percentage: ${associatePercentage}%
+▫️ Allocated Amount: ${formatCurrency(associateAmount)}
+▫️ Amount Paid: ${formatCurrency(amountPaid)}
+▫️ Pending Amount: ${formatCurrency(pendingAmount)}
+▫️ Payment Status: ${paymentStatus}
+
+${associateData?.paymentGivenDate ? `📅 Last Payment Date: ${formatDate(associateData.paymentGivenDate)}` : ''}
+
+${pendingAmount > 0 ? '⏰ *Please follow up for pending payment settlement.*' : '✅ *Payment completed successfully!*'}
+
+Thank you for your association with us.
+
+Best regards,
+Finance Team`;
+
+      // Send WhatsApp message
+      WhatsAppService.sendDirectMessage(associatePhone, message);
+      
+      showSuccess(`WhatsApp opened with payment details for ${project.projectName}`);
+    } catch (error) {
+      console.error('Error sharing payment details:', error);
+      showError('Failed to share payment details via WhatsApp');
+    }
   };
 
   const filteredProjects = projects.filter(project => {
@@ -278,7 +324,6 @@ const AssociateProjectsPage = () => {
                     <th>Project Number</th>
                     <th>Project Name</th>
                     <th>Finalized Fees</th>
-                    <th>Received Fees</th>
                     <th>Associate Share %</th>
                     <th>Associate Amount</th>
                     <th>Amount Paid to Associate</th>
@@ -310,7 +355,6 @@ const AssociateProjectsPage = () => {
                           </div>
                         </td>
                         <td>{formatCurrency(project.finalizedFees)}</td>
-                        <td>{formatCurrency(project.totalReceivedFees)}</td>
                         <td>
                           {associatePercentage > 0 ? (
                             <span className="percentage-badge">{associatePercentage}%</span>
@@ -337,6 +381,13 @@ const AssociateProjectsPage = () => {
                             >
                               ✏️ Edit
                             </button>
+                            <button
+                              className="whatsapp-btn"
+                              onClick={() => sharePaymentDetails(project, associateData, associatePercentage, associateAmount, amountPaid, pendingAmount)}
+                              title="Share payment details via WhatsApp"
+                            >
+                              <FaWhatsapp />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -352,13 +403,13 @@ const AssociateProjectsPage = () => {
                     <th>Sr. No.</th>
                     <th>Project Number</th>
                     <th>Project Name</th>
-                    <th>Total Received</th>
                     <th>Associate Share %</th>
                     <th>Allocated Amount</th>
                     <th>Payment Status</th>
                     <th>Paid Amount</th>
                     <th>Pending Amount</th>
                     <th>Payment Date</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -384,7 +435,6 @@ const AssociateProjectsPage = () => {
                             <strong>{project.projectName}</strong>
                           </div>
                         </td>
-                        <td>{formatCurrency(project.totalReceivedFees)}</td>
                         <td>
                           {associatePercentage > 0 ? (
                             <span className="percentage-badge">{associatePercentage}%</span>
@@ -406,6 +456,15 @@ const AssociateProjectsPage = () => {
                           <span className={paymentDate ? 'payment-date' : 'no-payment-date'}>
                             {formatDate(paymentDate)}
                           </span>
+                        </td>
+                        <td>
+                          <button
+                            className="whatsapp-btn"
+                            onClick={() => sharePaymentDetails(project, associateData, associatePercentage, associateAmount, amountPaid, pendingAmount)}
+                            title="Share payment details via WhatsApp"
+                          >
+                            <FaWhatsapp />
+                          </button>
                         </td>
                       </tr>
                     );
