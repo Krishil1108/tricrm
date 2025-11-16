@@ -1554,8 +1554,8 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
                         setDropdownOpenId(dropdownOpenId === project._id ? null : project._id);
                       }}
                       style={{
-                        background: '#6c757d',
-                        color: 'white',
+                        background: 'transparent',
+                        color: '#000',
                         border: 'none',
                         padding: '6px 10px',
                         borderRadius: '4px',
@@ -1592,7 +1592,7 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
                                 const viewportHeight = window.innerHeight;
                                 const viewportWidth = window.innerWidth;
                                 
-                                let top = rect.bottom + 4;
+                                let top = rect.bottom;
                                 let left = rect.right - dropdownRect.width;
                                 
                                 // Calculate available space above and below
@@ -1604,19 +1604,19 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
                                 if (rect.bottom > viewportHeight / 2) {
                                   // Try to position above first if in bottom half
                                   if (spaceAbove >= dropdownRect.height || spaceAbove > spaceBelow) {
-                                    top = rect.top - dropdownRect.height - 2;
+                                    top = rect.top - dropdownRect.height;
                                   } else {
-                                    top = rect.bottom + 2;
+                                    top = rect.bottom;
                                   }
                                 } else {
                                   // In top half, prefer below but check space
                                   if (spaceBelow >= dropdownRect.height) {
-                                    top = rect.bottom + 2;
+                                    top = rect.bottom;
                                   } else if (spaceAbove >= dropdownRect.height) {
-                                    top = rect.top - dropdownRect.height - 2;
+                                    top = rect.top - dropdownRect.height;
                                   } else {
                                     // Not enough space either way, use the side with more space
-                                    top = spaceBelow > spaceAbove ? rect.bottom + 2 : rect.top - dropdownRect.height - 2;
+                                    top = spaceBelow > spaceAbove ? rect.bottom : rect.top - dropdownRect.height;
                                   }
                                 }
                                 

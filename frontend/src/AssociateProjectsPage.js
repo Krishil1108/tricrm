@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import FinanceService from './services/FinanceService';
-import WhatsAppService from './services/WhatsAppService';
-import { FaWhatsapp } from 'react-icons/fa';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
 import './ClientProjectsPage.css';
@@ -12,7 +10,7 @@ const AssociateProjectsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { showLoading, hideLoading } = useLoading();
-  const { showError, showSuccess } = useToast();
+  const { showError } = useToast();
   
   const [projects, setProjects] = useState([]);
   const [associateInfo] = useState({
@@ -109,49 +107,7 @@ const AssociateProjectsPage = () => {
     navigate('/projects', { state: { editProjectId: projectId } });
   };
 
-  const sharePaymentDetails = (project, associateData, associatePercentage, associateAmount, amountPaid, pendingAmount) => {
-    try {
-      // Get associate phone number from associateData or associateInfo
-      const associatePhone = associateData?.associateId?.phone || associateData?.phone;
-      
-      if (!associatePhone) {
-        showError('Associate phone number is not available. Cannot send WhatsApp message.');
-        return;
-      }
 
-      // Create payment details message
-      const paymentStatus = pendingAmount === 0 ? 'Completed' : amountPaid > 0 ? 'Partial' : 'Pending';
-      
-      const message = `🏗️ *Project Payment Details*
-
-📋 *Project:* ${project.projectName}
-🔢 *Project Number:* ${project.projectNumber}
-
-💰 *Your Share Details:*
-▫️ Share Percentage: ${associatePercentage}%
-▫️ Allocated Amount: ${formatCurrency(associateAmount)}
-▫️ Amount Paid: ${formatCurrency(amountPaid)}
-▫️ Pending Amount: ${formatCurrency(pendingAmount)}
-▫️ Payment Status: ${paymentStatus}
-
-${associateData?.paymentGivenDate ? `📅 Last Payment Date: ${formatDate(associateData.paymentGivenDate)}` : ''}
-
-${pendingAmount > 0 ? '⏰ *Please follow up for pending payment settlement.*' : '✅ *Payment completed successfully!*'}
-
-Thank you for your association with us.
-
-Best regards,
-Finance Team`;
-
-      // Send WhatsApp message
-      WhatsAppService.sendDirectMessage(associatePhone, message);
-      
-      showSuccess(`WhatsApp opened with payment details for ${project.projectName}`);
-    } catch (error) {
-      console.error('Error sharing payment details:', error);
-      showError('Failed to share payment details via WhatsApp');
-    }
-  };
 
   const filteredProjects = projects.filter(project => {
     const matchesSearch = project.projectName?.toLowerCase().includes(filters.search.toLowerCase()) ||
@@ -381,13 +337,6 @@ Finance Team`;
                             >
                               ✏️ Edit
                             </button>
-                            <button
-                              className="whatsapp-btn"
-                              onClick={() => sharePaymentDetails(project, associateData, associatePercentage, associateAmount, amountPaid, pendingAmount)}
-                              title="Share payment details via WhatsApp"
-                            >
-                              <FaWhatsapp />
-                            </button>
                           </div>
                         </td>
                       </tr>
@@ -458,13 +407,15 @@ Finance Team`;
                           </span>
                         </td>
                         <td>
-                          <button
-                            className="whatsapp-btn"
-                            onClick={() => sharePaymentDetails(project, associateData, associatePercentage, associateAmount, amountPaid, pendingAmount)}
-                            title="Share payment details via WhatsApp"
-                          >
-                            <FaWhatsapp />
-                          </button>
+                          <div className="action-buttons">
+                            <button
+                              className="action-btn btn-edit"
+                              onClick={() => handleEditProject(project._id)}
+                              title="Edit Project"
+                            >
+                              ✏️ Edit
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );

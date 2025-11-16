@@ -814,34 +814,6 @@
   }
 }
 
-/* WhatsApp Button Styling */
-.whatsapp-btn {
-  background-color: #25d366;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  margin-left: 8px;
-  box-shadow: 0 2px 4px rgba(37, 211, 102, 0.2);
-}
-
-.whatsapp-btn:hover {
-  background-color: #128c7e;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(37, 211, 102, 0.3);
-}
-
-.whatsapp-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(37, 211, 102, 0.2);
-}
-
 /* Action buttons container */
 .action-buttons {
   display: flex;
