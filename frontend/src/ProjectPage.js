@@ -49,6 +49,8 @@ const ProjectPage = () => {
   const [showPercentageConfig, setShowPercentageConfig] = useState(false);
   const [selectedProjectForDistribution, setSelectedProjectForDistribution] = useState(null);
   const [showDistributionModal, setShowDistributionModal] = useState(false);
+  const [selectedProjectForAssociateDistribution, setSelectedProjectForAssociateDistribution] = useState(null);
+  const [showAssociateDistributionModal, setShowAssociateDistributionModal] = useState(false);
   
   // Client-related state
   const [clients, setClients] = useState([]);
@@ -462,6 +464,11 @@ const ProjectPage = () => {
     
     setSelectedProjectForDistribution(projectWithPayments);
     setShowDistributionModal(true);
+  };
+
+  const handleViewAssociateDistribution = (project) => {
+    setSelectedProjectForAssociateDistribution(project);
+    setShowAssociateDistributionModal(true);
   };
 
   const handleSave = async () => {
@@ -943,6 +950,7 @@ const ProjectPage = () => {
           projects={projects}
           onEdit={handleEdit}
           onViewDistribution={handleViewDistribution}
+          onViewAssociateDistribution={handleViewAssociateDistribution}
           onDelete={handleDelete}
           formatCurrency={formatCurrency}
         />
@@ -1015,6 +1023,141 @@ const ProjectPage = () => {
                 Export PDF
               </button>
               <button className="btn btn-secondary" onClick={() => setShowDistributionModal(false)}>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Associate Distribution Modal */}
+      {showAssociateDistributionModal && selectedProjectForAssociateDistribution && (
+        <div className="modal-overlay" onClick={() => setShowAssociateDistributionModal(false)}>
+          <div className="modal-content distribution-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>👥 Associate Distribution - {selectedProjectForAssociateDistribution.projectName}</h3>
+              <button className="modal-close" onClick={() => setShowAssociateDistributionModal(false)}>×</button>
+            </div>
+            <div className="modal-body distribution-modal-body">
+              {selectedProjectForAssociateDistribution.projectAssociates && selectedProjectForAssociateDistribution.projectAssociates.length > 0 ? (
+                <div>
+                  <div style={{ marginBottom: '20px', padding: '16px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                      <span><strong>Project:</strong> {selectedProjectForAssociateDistribution.projectName}</span>
+                      <span><strong>Total Received Fees:</strong> ₹{selectedProjectForAssociateDistribution.totalReceivedFees?.toLocaleString('en-IN') || '0'}</span>
+                    </div>
+                  </div>
+
+                  <div style={{ border: '1px solid #dee2e6', borderRadius: '8px', overflow: 'hidden', backgroundColor: '#fff' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr style={{ backgroundColor: '#f8f9fa' }}>
+                          <th style={{ padding: '16px', textAlign: 'left', borderBottom: '2px solid #dee2e6', fontWeight: '600' }}>Associate</th>
+                          <th style={{ padding: '16px', textAlign: 'center', borderBottom: '2px solid #dee2e6', fontWeight: '600' }}>Share %</th>
+                          <th style={{ padding: '16px', textAlign: 'right', borderBottom: '2px solid #dee2e6', fontWeight: '600' }}>Distribution Amount</th>
+                          <th style={{ padding: '16px', textAlign: 'right', borderBottom: '2px solid #dee2e6', fontWeight: '600' }}>Amount Paid</th>
+                          <th style={{ padding: '16px', textAlign: 'right', borderBottom: '2px solid #dee2e6', fontWeight: '600' }}>Pending Amount</th>
+                          <th style={{ padding: '16px', textAlign: 'center', borderBottom: '2px solid #dee2e6', fontWeight: '600' }}>Payment Date</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedProjectForAssociateDistribution.projectAssociates
+                          .filter(assoc => assoc.associateId && assoc.percentage > 0)
+                          .map((assoc, index) => {
+                            const associateName = associates.find(a => a._id === assoc.associateId)?.name || 'Unknown Associate';
+                            const distributionAmount = (selectedProjectForAssociateDistribution.totalReceivedFees * (assoc.percentage / 100));
+                            const amountPaid = assoc.amountPaid || 0;
+                            const pendingAmount = distributionAmount - amountPaid;
+                            
+                            return (
+                              <tr key={index} style={{ borderBottom: '1px solid #f8f9fa' }}>
+                                <td style={{ padding: '16px', borderBottom: '1px solid #f8f9fa' }}>
+                                  <strong style={{ color: '#495057' }}>{associateName}</strong>
+                                </td>
+                                <td style={{ padding: '16px', textAlign: 'center', borderBottom: '1px solid #f8f9fa', fontWeight: '600' }}>
+                                  {assoc.percentage}%
+                                </td>
+                                <td style={{ padding: '16px', textAlign: 'right', borderBottom: '1px solid #f8f9fa', fontWeight: '600', color: '#28a745', fontSize: '15px' }}>
+                                  ₹{distributionAmount.toLocaleString('en-IN')}
+                                </td>
+                                <td style={{ padding: '16px', textAlign: 'right', borderBottom: '1px solid #f8f9fa', fontWeight: '500', color: amountPaid > 0 ? '#28a745' : '#6c757d' }}>
+                                  ₹{amountPaid.toLocaleString('en-IN')}
+                                </td>
+                                <td style={{ 
+                                  padding: '16px', 
+                                  textAlign: 'right', 
+                                  borderBottom: '1px solid #f8f9fa',
+                                  fontWeight: '600',
+                                  fontSize: '15px',
+                                  color: pendingAmount > 0 ? '#dc3545' : '#28a745'
+                                }}>
+                                  ₹{pendingAmount.toLocaleString('en-IN')}
+                                </td>
+                                <td style={{ padding: '16px', textAlign: 'center', borderBottom: '1px solid #f8f9fa', fontSize: '13px', color: '#6c757d' }}>
+                                  {assoc.paymentGivenDate ? new Date(assoc.paymentGivenDate).toLocaleDateString('en-IN') : '-'}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                      </tbody>
+                      <tfoot>
+                        <tr style={{ backgroundColor: '#e9ecef', fontWeight: '600' }}>
+                          <td style={{ padding: '16px', borderTop: '2px solid #dee2e6', fontSize: '15px' }}>TOTAL</td>
+                          <td style={{ padding: '16px', textAlign: 'center', borderTop: '2px solid #dee2e6', fontSize: '15px' }}>
+                            {selectedProjectForAssociateDistribution.projectAssociates
+                              .filter(assoc => assoc.associateId && assoc.percentage > 0)
+                              .reduce((sum, a) => sum + (parseFloat(a.percentage) || 0), 0)
+                              .toFixed(2)}%
+                          </td>
+                          <td style={{ padding: '16px', textAlign: 'right', borderTop: '2px solid #dee2e6', color: '#28a745', fontSize: '16px', fontWeight: 'bold' }}>
+                            ₹{selectedProjectForAssociateDistribution.projectAssociates
+                              .filter(assoc => assoc.associateId && assoc.percentage > 0)
+                              .reduce((sum, a) => sum + (selectedProjectForAssociateDistribution.totalReceivedFees * ((a.percentage || 0) / 100)), 0)
+                              .toLocaleString('en-IN')}
+                          </td>
+                          <td style={{ padding: '16px', textAlign: 'right', borderTop: '2px solid #dee2e6', color: '#28a745', fontSize: '15px', fontWeight: 'bold' }}>
+                            ₹{selectedProjectForAssociateDistribution.projectAssociates
+                              .reduce((sum, a) => sum + (a.amountPaid || 0), 0)
+                              .toLocaleString('en-IN')}
+                          </td>
+                          <td style={{ padding: '16px', textAlign: 'right', borderTop: '2px solid #dee2e6', color: '#dc3545', fontSize: '16px', fontWeight: 'bold' }}>
+                            ₹{selectedProjectForAssociateDistribution.projectAssociates
+                              .filter(assoc => assoc.associateId && assoc.percentage > 0)
+                              .reduce((sum, a) => {
+                                const distributionAmount = selectedProjectForAssociateDistribution.totalReceivedFees * ((a.percentage || 0) / 100);
+                                const amountPaid = a.amountPaid || 0;
+                                return sum + (distributionAmount - amountPaid);
+                              }, 0)
+                              .toLocaleString('en-IN')}
+                          </td>
+                          <td style={{ padding: '16px', borderTop: '2px solid #dee2e6' }}>-</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                  
+                  <div style={{ 
+                    marginTop: '20px', 
+                    padding: '16px', 
+                    backgroundColor: '#fff3cd', 
+                    borderRadius: '8px',
+                    border: '1px solid #ffc107',
+                    fontSize: '14px',
+                    color: '#856404'
+                  }}>
+                    💡 <strong>Note:</strong> Distribution amounts are calculated based on the total received fees (₹{selectedProjectForAssociateDistribution.totalReceivedFees?.toLocaleString('en-IN') || '0'}) and each associate's percentage share. This distribution is deducted before expense calculations.
+                  </div>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '40px', color: '#6c757d' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>👥</div>
+                  <h4>No Associates Found</h4>
+                  <p>This project doesn't have any associates assigned with percentage shares.</p>
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setShowAssociateDistributionModal(false)}>
                 Close
               </button>
             </div>
@@ -1332,7 +1475,7 @@ const ProjectPage = () => {
 };
 
 // Projects Table Component
-const ProjectsTable = ({ projects, onEdit, onViewDistribution, onDelete, formatCurrency }) => {
+const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDistribution, onDelete, formatCurrency }) => {
   if (projects.length === 0) {
     return (
       <div className="empty-state">
@@ -1385,6 +1528,9 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onDelete, formatC
                   </button>
                   <button className="action-btn btn-distribution" onClick={() => onViewDistribution(project)}>
                     <i className="bi bi-box-arrow-up-right"></i> Distribution
+                  </button>
+                  <button className="action-btn btn-associate-distribution" onClick={() => onViewAssociateDistribution(project)}>
+                    <i className="bi bi-people-fill"></i> Associate Distribution
                   </button>
                   <button className="action-btn btn-delete" onClick={() => onDelete(project._id)}>
                     <i className="bi bi-trash-fill"></i> Delete
@@ -2059,6 +2205,8 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
             )}
           </div>
         )}
+
+
       </div>
 
       <div className="form-row">
