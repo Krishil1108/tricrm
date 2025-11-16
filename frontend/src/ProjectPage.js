@@ -1504,7 +1504,7 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
   }
 
   return (
-    <div className="project-table-container">
+    <div className="project-table-container" style={{ position: 'relative', overflow: 'visible' }}>
       <table className="project-table">
         <thead>
           <tr>
@@ -1572,16 +1572,58 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
                       <div 
                         className="dropdown-menu"
                         style={{
-                          position: 'absolute',
-                          top: '100%',
-                          right: '0',
+                          position: 'fixed',
                           background: 'white',
                           border: '1px solid #dee2e6',
                           borderRadius: '6px',
                           boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                          zIndex: 1000,
+                          zIndex: 9999,
                           minWidth: '180px',
-                          marginTop: '4px'
+                          transform: 'translateX(-100%)',
+                          marginLeft: '-8px'
+                        }}
+                        ref={(el) => {
+                          if (el && dropdownOpenId === project._id) {
+                            setTimeout(() => {
+                              const button = el.previousElementSibling;
+                              if (button) {
+                                const rect = button.getBoundingClientRect();
+                                const dropdownRect = el.getBoundingClientRect();
+                                const viewportHeight = window.innerHeight;
+                                const viewportWidth = window.innerWidth;
+                                
+                                let top = rect.bottom + 4;
+                                let left = rect.right - dropdownRect.width;
+                                
+                                // Check if dropdown would go below viewport
+                                if (top + dropdownRect.height > viewportHeight - 20) {
+                                  top = rect.top - dropdownRect.height - 4;
+                                }
+                                
+                                // Ensure dropdown doesn't go above viewport
+                                if (top < 10) {
+                                  top = rect.bottom + 4;
+                                }
+                                
+                                // Check if dropdown would go outside left edge
+                                if (left < 10) {
+                                  left = rect.left;
+                                  el.style.transform = 'translateX(0)';
+                                } else {
+                                  el.style.transform = 'translateX(-100%)';
+                                }
+                                
+                                // Check if dropdown would go outside right edge
+                                if (left + dropdownRect.width > viewportWidth - 10) {
+                                  left = viewportWidth - dropdownRect.width - 10;
+                                  el.style.transform = 'translateX(0)';
+                                }
+                                
+                                el.style.top = `${Math.max(10, top)}px`;
+                                el.style.left = `${Math.max(10, left)}px`;
+                              }
+                            }, 0);
+                          }
                         }}
                       >
                         <button 
