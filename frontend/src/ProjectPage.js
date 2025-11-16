@@ -1595,14 +1595,26 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
                                 let top = rect.bottom + 4;
                                 let left = rect.right - dropdownRect.width;
                                 
-                                // Check if dropdown would go below viewport
-                                if (top + dropdownRect.height > viewportHeight - 20) {
+                                // Calculate available space above and below
+                                const spaceBelow = viewportHeight - rect.bottom - 30; // 30px buffer
+                                const spaceAbove = rect.top - 30; // 30px buffer
+                                
+                                // If there's more space above and the dropdown won't fit below, place it above
+                                if (dropdownRect.height > spaceBelow && spaceAbove > spaceBelow) {
+                                  top = rect.top - dropdownRect.height - 4;
+                                }
+                                // If dropdown would go below viewport, place it above
+                                else if (top + dropdownRect.height > viewportHeight - 20) {
                                   top = rect.top - dropdownRect.height - 4;
                                 }
                                 
                                 // Ensure dropdown doesn't go above viewport
                                 if (top < 10) {
-                                  top = rect.bottom + 4;
+                                  top = Math.max(10, rect.bottom + 4);
+                                  // If still not enough space, try to fit it within viewport
+                                  if (top + dropdownRect.height > viewportHeight - 10) {
+                                    top = Math.max(10, viewportHeight - dropdownRect.height - 10);
+                                  }
                                 }
                                 
                                 // Check if dropdown would go outside left edge
