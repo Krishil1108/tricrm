@@ -1506,65 +1506,67 @@
 }
 
 /* Finance Button Styles - Modal Actions */
-.finance-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+button.finance-btn, .finance-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 12px 24px !important;
+  border: none !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
   color: white !important;
-  text-decoration: none;
-  min-height: 44px;
-  box-sizing: border-box;
-  position: relative;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  outline: none;
-  user-select: none;
+  text-decoration: none !important;
+  min-height: 44px !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  outline: none !important;
+  user-select: none !important;
+  min-width: 100px !important;
+  letter-spacing: 0.02em !important;
 }
 
-.finance-btn:focus {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 3px rgba(255, 255, 255, 0.3);
+button.finance-btn:focus, .finance-btn:focus {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 3px rgba(255, 255, 255, 0.3) !important;
 }
 
-.finance-btn:active {
-  transform: translateY(1px);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+button.finance-btn:active, .finance-btn:active {
+  transform: translateY(1px) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
 }
 
-.finance-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+button.finance-btn:disabled, .finance-btn:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
   transform: none !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* Finance Button Primary - Save/Submit Actions */
-.finance-btn-primary {
-  background: linear-gradient(135deg, #3B44F6 0%, #5A60F8 100%);
+button.finance-btn-primary, .finance-btn-primary {
+  background: linear-gradient(135deg, #3B44F6 0%, #5A60F8 100%) !important;
   color: white !important;
 }
 
-.finance-btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2A32E6 0%, #4950E8 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(59, 68, 246, 0.25);
+button.finance-btn-primary:hover:not(:disabled), .finance-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2A32E6 0%, #4950E8 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(59, 68, 246, 0.25) !important;
 }
 
 /* Finance Button Secondary - Cancel Actions */
-.finance-btn-secondary {
-  background: linear-gradient(135deg, #6c757d 0%, #868e96 100%);
+button.finance-btn-secondary, .finance-btn-secondary {
+  background: linear-gradient(135deg, #6c757d 0%, #868e96 100%) !important;
   color: white !important;
 }
 
-.finance-btn-secondary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #5c636a 0%, #767d86 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(108, 117, 125, 0.25);
+button.finance-btn-secondary:hover:not(:disabled), .finance-btn-secondary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5c636a 0%, #767d86 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(108, 117, 125, 0.25) !important;
 }

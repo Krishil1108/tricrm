@@ -1596,25 +1596,35 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
                                 let left = rect.right - dropdownRect.width;
                                 
                                 // Calculate available space above and below
-                                const spaceBelow = viewportHeight - rect.bottom - 30; // 30px buffer
-                                const spaceAbove = rect.top - 30; // 30px buffer
+                                const spaceBelow = viewportHeight - rect.bottom - 20; // 20px buffer
+                                const spaceAbove = rect.top - 20; // 20px buffer
                                 
-                                // If there's more space above and the dropdown won't fit below, place it above
-                                if (dropdownRect.height > spaceBelow && spaceAbove > spaceBelow) {
-                                  top = rect.top - dropdownRect.height - 4;
-                                }
-                                // If dropdown would go below viewport, place it above
-                                else if (top + dropdownRect.height > viewportHeight - 20) {
-                                  top = rect.top - dropdownRect.height - 4;
-                                }
-                                
-                                // Ensure dropdown doesn't go above viewport
-                                if (top < 10) {
-                                  top = Math.max(10, rect.bottom + 4);
-                                  // If still not enough space, try to fit it within viewport
-                                  if (top + dropdownRect.height > viewportHeight - 10) {
-                                    top = Math.max(10, viewportHeight - dropdownRect.height - 10);
+                                // Always try to position close to the button first
+                                // If we're in the bottom half of the screen, prefer positioning above
+                                if (rect.bottom > viewportHeight / 2) {
+                                  // Try to position above first if in bottom half
+                                  if (spaceAbove >= dropdownRect.height || spaceAbove > spaceBelow) {
+                                    top = rect.top - dropdownRect.height - 2;
+                                  } else {
+                                    top = rect.bottom + 2;
                                   }
+                                } else {
+                                  // In top half, prefer below but check space
+                                  if (spaceBelow >= dropdownRect.height) {
+                                    top = rect.bottom + 2;
+                                  } else if (spaceAbove >= dropdownRect.height) {
+                                    top = rect.top - dropdownRect.height - 2;
+                                  } else {
+                                    // Not enough space either way, use the side with more space
+                                    top = spaceBelow > spaceAbove ? rect.bottom + 2 : rect.top - dropdownRect.height - 2;
+                                  }
+                                }
+                                
+                                // Final bounds checking
+                                if (top < 5) {
+                                  top = 5;
+                                } else if (top + dropdownRect.height > viewportHeight - 5) {
+                                  top = Math.max(5, viewportHeight - dropdownRect.height - 5);
                                 }
                                 
                                 // Check if dropdown would go outside left edge
