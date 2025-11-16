@@ -335,6 +335,7 @@ const ProjectPage = () => {
         srNo: projects.length + 1,
         projectNumber: '',
         projectName: '',
+        projectLocation: '',
         clientId: '',
         projectAssociates: [], // Changed to array for multiple associates
         finalizedFees: '',
@@ -1350,6 +1351,7 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onDelete, formatC
             <th>Sr. No.</th>
             <th>Project Number</th>
             <th>Project Name</th>
+            <th>Project Location</th>
             <th>Finalized Fees</th>
             <th>Received Fees</th>
             <th>Expenses</th>
@@ -1364,6 +1366,7 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onDelete, formatC
               <td>{project.srNo}</td>
               <td>{project.projectNumber}</td>
               <td>{project.projectName}</td>
+              <td>{project.projectLocation || '-'}</td>
               <td>{formatCurrency(project.finalizedFees)}</td>
               <td>{formatCurrency(project.totalReceivedFees)}</td>
               <td>{formatCurrency(project.totalExpenses)}</td>
@@ -1650,6 +1653,11 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
       <div className="form-group">
         <label>Project Name *</label>
         <input type="text" name="projectName" className="form-input" value={formData.projectName || ''} onChange={handleChange} required />
+      </div>
+
+      <div className="form-group">
+        <label>Project Location</label>
+        <input type="text" name="projectLocation" className="form-input" value={formData.projectLocation || ''} onChange={handleChange} placeholder="Enter project location (e.g., Mumbai, Delhi, etc.)" />
       </div>
 
       {/* Client Selection Field */}
