@@ -1578,9 +1578,7 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
                           borderRadius: '6px',
                           boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                           zIndex: 9999,
-                          minWidth: '180px',
-                          transform: 'translateX(-100%)',
-                          marginLeft: '-8px'
+                          minWidth: '180px'
                         }}
                         ref={(el) => {
                           if (el && dropdownOpenId === project._id) {
@@ -1595,54 +1593,34 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
                                 let top = rect.bottom;
                                 let left = rect.right - dropdownRect.width;
                                 
-                                // Calculate available space above and below
-                                const spaceBelow = viewportHeight - rect.bottom - 20; // 20px buffer
-                                const spaceAbove = rect.top - 20; // 20px buffer
+                                // Calculate available space
+                                const spaceBelow = viewportHeight - rect.bottom - 20;
+                                const spaceAbove = rect.top - 20;
                                 
-                                // Always try to position close to the button first
-                                // If we're in the bottom half of the screen, prefer positioning above
+                                // Position above if in bottom half and more space above
                                 if (rect.bottom > viewportHeight / 2) {
-                                  // Try to position above first if in bottom half
                                   if (spaceAbove >= dropdownRect.height || spaceAbove > spaceBelow) {
                                     top = rect.top - dropdownRect.height;
-                                  } else {
-                                    top = rect.bottom;
                                   }
                                 } else {
-                                  // In top half, prefer below but check space
-                                  if (spaceBelow >= dropdownRect.height) {
-                                    top = rect.bottom;
-                                  } else if (spaceAbove >= dropdownRect.height) {
+                                  if (spaceBelow < dropdownRect.height && spaceAbove >= dropdownRect.height) {
                                     top = rect.top - dropdownRect.height;
-                                  } else {
-                                    // Not enough space either way, use the side with more space
-                                    top = spaceBelow > spaceAbove ? rect.bottom : rect.top - dropdownRect.height;
                                   }
                                 }
                                 
-                                // Final bounds checking
-                                if (top < 5) {
-                                  top = 5;
-                                } else if (top + dropdownRect.height > viewportHeight - 5) {
+                                // Ensure within viewport bounds
+                                if (top < 5) top = 5;
+                                else if (top + dropdownRect.height > viewportHeight - 5) {
                                   top = Math.max(5, viewportHeight - dropdownRect.height - 5);
                                 }
                                 
-                                // Check if dropdown would go outside left edge
-                                if (left < 10) {
-                                  left = rect.left;
-                                  el.style.transform = 'translateX(0)';
-                                } else {
-                                  el.style.transform = 'translateX(-100%)';
-                                }
-                                
-                                // Check if dropdown would go outside right edge
-                                if (left + dropdownRect.width > viewportWidth - 10) {
+                                if (left < 10) left = rect.left;
+                                else if (left + dropdownRect.width > viewportWidth - 10) {
                                   left = viewportWidth - dropdownRect.width - 10;
-                                  el.style.transform = 'translateX(0)';
                                 }
                                 
-                                el.style.top = `${Math.max(10, top)}px`;
-                                el.style.left = `${Math.max(10, left)}px`;
+                                el.style.top = `${top}px`;
+                                el.style.left = `${left}px`;
                               }
                             }, 0);
                           }
