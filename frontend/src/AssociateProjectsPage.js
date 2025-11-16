@@ -12,7 +12,7 @@ const AssociateProjectsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { showLoading, hideLoading } = useLoading();
-  const { showError } = useToast();
+  const { showError, showSuccess } = useToast();
   
   const [projects, setProjects] = useState([]);
   const [associateInfo] = useState({
@@ -111,8 +111,8 @@ const AssociateProjectsPage = () => {
 
   const sharePaymentDetails = (project, associateData, associatePercentage, associateAmount, amountPaid, pendingAmount) => {
     try {
-      // Get associate phone number
-      const associatePhone = associateData?.associateId?.phone || associate?.phone;
+      // Get associate phone number from associateData or associateInfo
+      const associatePhone = associateData?.associateId?.phone || associateData?.phone;
       
       if (!associatePhone) {
         showError('Associate phone number is not available. Cannot send WhatsApp message.');
