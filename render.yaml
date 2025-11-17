@@ -7,7 +7,7 @@ services:
     env: node
     region: oregon
     plan: starter  # Free tier: starter, Paid: standard/pro
-    buildCommand: cd backend && npm install
+    buildCommand: cd backend && npm ci --production --silent
     startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV

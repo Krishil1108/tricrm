@@ -96,15 +96,26 @@ app.use((req, res, next) => {
   next();
 });
 
-// MongoDB connection
+// MongoDB connection with optimized settings for deployment
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/tricrm';
 
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  maxPoolSize: 10, // Maintain up to 10 socket connections
+  serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+  socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+  bufferCommands: false, // Disable mongoose buffering
+  bufferMaxEntries: 0 // Disable mongoose buffering
 })
-.then(() => console.log('MongoDB connected successfully'))
-.catch((err) => console.log('MongoDB connection error:', err));
+.then(() => {
+  console.log('MongoDB connected successfully');
+  console.log(`Database: ${mongoose.connection.db.databaseName}`);
+})
+.catch((err) => {
+  console.error('MongoDB connection error:', err.message);
+  process.exit(1);
+});
 
 // Import authentication middleware
 const { authenticate } = require('./middleware/auth');
@@ -276,6 +287,39 @@ app.get('*', (req, res) => {
 // Global Error Handler Middleware (MUST be last)
 app.use(globalErrorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// Graceful shutdown handling
+process.on('SIGTERM', () => {
+  console.log('SIGTERM signal received: closing HTTP server');
+  mongoose.connection.close();
+  process.exit(0);
 });
+
+process.on('SIGINT', () => {
+  console.log('SIGINT signal received: closing HTTP server');
+  mongoose.connection.close();
+  process.exit(0);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err.message);
+  console.error(err.stack);
+  process.exit(1);
+});
+
+// Handle unhandled rejections
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Rejection:', err.message);
+  console.error(err.stack);
+  process.exit(1);
+});
+
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`📊 API Documentation: http://localhost:${PORT}/api-docs`);
+  console.log(`🏥 Health Check: http://localhost:${PORT}/api/health`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+});
+
+// Set server timeout for better performance
+server.timeout = 30000; // 30 seconds
