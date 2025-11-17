@@ -815,15 +815,17 @@ const ProjectPage = () => {
       <div className="page-header">
         <h1>� Project Management</h1>
         <div className="project-actions">
-          <button className="project-btn project-btn-primary" onClick={handleAdd}>
-            <i className="bi bi-plus-lg"></i> Add New
-          </button>
-          {activeTab === 'projects' && (
+          {canAddNewProject() && (
+            <button className="project-btn project-btn-primary" onClick={handleAdd}>
+              <i className="bi bi-plus-lg"></i> Add New
+            </button>
+          )}
+          {activeTab === 'projects' && canConfigurePercentagesGranular() && (
             <button className="project-btn project-btn-info" onClick={() => setShowPercentageConfig(true)}>
               <i className="bi bi-gear-fill"></i> Configure Percentages
             </button>
           )}
-          {activeTab === 'projects' && (
+          {activeTab === 'projects' && canImportExcel() && (
             <>
               <input
                 type="file"
@@ -844,9 +846,11 @@ const ProjectPage = () => {
               </label>
             </>
           )}
-          <button className="project-btn project-btn-secondary" onClick={handleExport}>
-            <i className="bi bi-download"></i> Export Excel
-          </button>
+          {canExportExcel() && (
+            <button className="project-btn project-btn-secondary" onClick={handleExport}>
+              <i className="bi bi-download"></i> Export Excel
+            </button>
+          )}
         </div>
       </div>
 
@@ -981,6 +985,10 @@ const ProjectPage = () => {
           formatCurrency={formatCurrency}
           dropdownOpenId={dropdownOpenId}
           setDropdownOpenId={setDropdownOpenId}
+          canEdit={canEditProject}
+          canDelete={canDeleteProject}
+          canExpenseDistribution={canExpenseDistribution}
+          canAssociateDistribution={canAssociateDistribution}
         />
       ) : (
         <ExpensesTable
@@ -1503,7 +1511,7 @@ const ProjectPage = () => {
 };
 
 // Projects Table Component
-const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDistribution, onDelete, formatCurrency, dropdownOpenId, setDropdownOpenId }) => {
+const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDistribution, onDelete, formatCurrency, dropdownOpenId, setDropdownOpenId, canEdit, canDelete, canExpenseDistribution, canAssociateDistribution }) => {
   if (projects.length === 0) {
     return (
       <div className="empty-state">
@@ -1551,34 +1559,39 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
               </td>
               <td>
                 <div className="table-actions" style={{ position: 'relative' }}>
-                  <button className="action-btn btn-edit" onClick={() => onEdit(project)}>
-                    <i className="bi bi-pencil-fill"></i> Edit
-                  </button>
-                  <button className="action-btn btn-delete" onClick={() => onDelete(project._id)}>
-                    <i className="bi bi-trash-fill"></i> Delete
-                  </button>
-                  <div className="dropdown-container" style={{ position: 'relative', display: 'inline-block' }}>
-                    <button 
-                      className="action-btn btn-more"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setDropdownOpenId(dropdownOpenId === project._id ? null : project._id);
-                      }}
-                      style={{
-                        background: 'transparent',
-                        color: '#000',
-                        border: 'none',
-                        padding: '6px 10px',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      ⋮
+                  {canEdit() && (
+                    <button className="action-btn btn-edit" onClick={() => onEdit(project)}>
+                      <i className="bi bi-pencil-fill"></i> Edit
                     </button>
+                  )}
+                  {canDelete() && (
+                    <button className="action-btn btn-delete" onClick={() => onDelete(project._id)}>
+                      <i className="bi bi-trash-fill"></i> Delete
+                    </button>
+                  )}
+                  {(canExpenseDistribution() || canAssociateDistribution()) && (
+                    <div className="dropdown-container" style={{ position: 'relative', display: 'inline-block' }}>
+                      <button 
+                        className="action-btn btn-more"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDropdownOpenId(dropdownOpenId === project._id ? null : project._id);
+                        }}
+                        style={{
+                          background: 'transparent',
+                          color: '#000',
+                          border: 'none',
+                          padding: '6px 10px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '16px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        ⋮
+                      </button>
                     {dropdownOpenId === project._id && (
                       <div 
                         className="dropdown-menu"
@@ -1637,62 +1650,67 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
                           }
                         }}
                       >
-                        <button 
-                          className="dropdown-item"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onViewDistribution(project);
-                            setDropdownOpenId(null);
-                          }}
-                          style={{
-                            width: '100%',
-                            padding: '10px 16px',
-                            border: 'none',
-                            background: 'transparent',
-                            textAlign: 'left',
-                            cursor: 'pointer',
-                            fontSize: '14px',
-                            color: '#495057',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                          }}
-                          onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
-                          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                        >
-                          <i className="bi bi-box-arrow-up-right" style={{ color: '#17a2b8' }}></i>
-                          Expense Distribution
-                        </button>
-                        <button 
-                          className="dropdown-item"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onViewAssociateDistribution(project);
-                            setDropdownOpenId(null);
-                          }}
-                          style={{
-                            width: '100%',
-                            padding: '10px 16px',
-                            border: 'none',
-                            background: 'transparent',
-                            textAlign: 'left',
-                            cursor: 'pointer',
-                            fontSize: '14px',
-                            color: '#495057',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            borderTop: '1px solid #f8f9fa'
-                          }}
-                          onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
-                          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                        >
-                          <i className="bi bi-people-fill" style={{ color: '#28a745' }}></i>
-                          Associate Distribution
-                        </button>
+                        {canExpenseDistribution() && (
+                          <button 
+                            className="dropdown-item"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onViewDistribution(project);
+                              setDropdownOpenId(null);
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '10px 16px',
+                              border: 'none',
+                              background: 'transparent',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              fontSize: '14px',
+                              color: '#495057',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px'
+                            }}
+                            onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                          >
+                            <i className="bi bi-box-arrow-up-right" style={{ color: '#17a2b8' }}></i>
+                            Expense Distribution
+                          </button>
+                        )}
+                        {canAssociateDistribution() && (
+                          <button 
+                            className="dropdown-item"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onViewAssociateDistribution(project);
+                              setDropdownOpenId(null);
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '10px 16px',
+                              border: 'none',
+                              background: 'transparent',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              fontSize: '14px',
+                              color: '#495057',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '8px',
+                              borderTop: '1px solid #f8f9fa'
+                            }}
+                            onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                          >
+                            <i className="bi bi-people-fill" style={{ color: '#28a745' }}></i>
+                            Associate Distribution
+                          </button>
+                        )}
                       </div>
                     )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </td>
             </tr>
