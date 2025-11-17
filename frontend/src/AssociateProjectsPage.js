@@ -40,7 +40,6 @@ const AssociateProjectsPage = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [selectedAssociate, setSelectedAssociate] = useState(null);
   const [selectedAssociateData, setSelectedAssociateData] = useState(null);
-  const [editingTransactionIndex, setEditingTransactionIndex] = useState(null);
   const [editingTransactionId, setEditingTransactionId] = useState(null);
   const [paymentFormData, setPaymentFormData] = useState({
     transactionDate: new Date().toISOString().split('T')[0],
@@ -147,7 +146,6 @@ const AssociateProjectsPage = () => {
     });
     
     // Reset editing state
-    setEditingTransactionIndex(null);
     setEditingTransactionId(null);
     
     setShowPaymentModal(true);
@@ -196,7 +194,6 @@ const AssociateProjectsPage = () => {
       setSelectedProject(null);
       setSelectedAssociate(null);
       setSelectedAssociateData(null);
-      setEditingTransactionIndex(null);
       setEditingTransactionId(null);
       
     } catch (error) {
@@ -226,7 +223,6 @@ const AssociateProjectsPage = () => {
       chequeNeftNumber: payment.chequeNeftNumber || '',
       notes: payment.notes || ''
     });
-    setEditingTransactionIndex(index);
     setEditingTransactionId(payment._id);
     setShowPaymentModal(true);
     setShowPaymentHistoryModal(false);
@@ -316,6 +312,12 @@ const AssociateProjectsPage = () => {
       
       // Fetch payment history for this associate in this project
       const response = await FinanceService.getAssociatePaymentTransactions(project._id, associateId);
+      console.log('Payment history response:', response);
+      console.log('Transactions:', response.data.transactions);
+      if (response.data.transactions && response.data.transactions.length > 0) {
+        console.log('First transaction sample:', response.data.transactions[0]);
+        console.log('First transaction keys:', Object.keys(response.data.transactions[0]));
+      }
       setPaymentHistory(response.data.transactions || []);
       setShowPaymentHistoryModal(true);
       

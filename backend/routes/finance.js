@@ -660,8 +660,11 @@ router.put('/projects/:projectId/associate/:associateId/payments/:transactionId'
     const transactionIndex = transactions.findIndex(
       trans => trans._id.toString() === transactionId
     );
+    console.log('Transaction index found:', transactionIndex);
 
     if (transactionIndex === -1) {
+      console.log('ERROR: Transaction not found for ID:', transactionId);
+      console.log('Available transaction IDs:', transactions.map(t => t._id.toString()));
       return res.status(404).json({ message: 'Transaction not found' });
     }
 
@@ -709,7 +712,12 @@ router.put('/projects/:projectId/associate/:associateId/payments/:transactionId'
 router.delete('/projects/:projectId/associate/:associateId/payments/:transactionId', authenticate, async (req, res) => {
   try {
     const { projectId, associateId, transactionId } = req.params;
-    console.log('Delete transaction request:', { projectId, associateId, transactionId });
+    console.log('=== DELETE TRANSACTION DEBUG ===');
+    console.log('Request URL:', req.originalUrl);
+    console.log('Route params:', { projectId, associateId, transactionId });
+    console.log('ProjectId type:', typeof projectId, 'length:', projectId?.length);
+    console.log('AssociateId type:', typeof associateId, 'length:', associateId?.length);
+    console.log('TransactionId type:', typeof transactionId, 'length:', transactionId?.length);
 
     const project = await FinanceProject.findById(projectId);
     if (!project) {
@@ -720,18 +728,27 @@ router.delete('/projects/:projectId/associate/:associateId/payments/:transaction
     const associateIndex = project.projectAssociates.findIndex(
       assoc => assoc.associateId.toString() === associateId
     );
+    console.log('Associate index found:', associateIndex);
 
     if (associateIndex === -1) {
+      console.log('ERROR: Associate not found for ID:', associateId);
       return res.status(404).json({ message: 'Associate not found in project' });
     }
 
     // Find and remove the transaction
     const transactions = project.projectAssociates[associateIndex].paymentTransactions || [];
+    console.log('Looking for transaction:', transactionId);
+    console.log('Available transactions:', transactions.map(t => ({ id: t._id.toString(), date: t.transactionDate, amount: t.amount })));
+    
     const transactionIndex = transactions.findIndex(
       trans => trans._id.toString() === transactionId
     );
+    console.log('Transaction index found:', transactionIndex);
 
     if (transactionIndex === -1) {
+      console.log('ERROR: Transaction not found for ID:', transactionId);
+      console.log('Transaction ID type:', typeof transactionId);
+      console.log('Available transaction IDs:', transactions.map(t => t._id.toString()));
       return res.status(404).json({ message: 'Transaction not found' });
     }
 
