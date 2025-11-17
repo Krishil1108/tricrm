@@ -32,6 +32,32 @@ const AssociateProjectsPage = () => {
     status: 'all'
   });
   const [activeView, setActiveView] = useState('owner'); // 'owner' or 'associate'
+  
+  // Payment modal states
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showPaymentHistoryModal, setShowPaymentHistoryModal] = useState(false);
+  const [paymentHistory, setPaymentHistory] = useState([]);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedAssociateData, setSelectedAssociateData] = useState(null);
+  const [paymentFormData, setPaymentFormData] = useState({
+    transactionDate: new Date().toISOString().split('T')[0],
+    paymentMode: 'Cheque',
+    chequeNeftNumber: '',
+    amount: '',
+    notes: ''
+  });
+  
+  // Payment modal states
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedAssociateData, setSelectedAssociateData] = useState(null);
+  const [paymentFormData, setPaymentFormData] = useState({
+    transactionDate: new Date().toISOString().split('T')[0],
+    paymentMode: 'Cheque',
+    chequeNeftNumber: '',
+    amount: '',
+    notes: ''
+  });
 
   useEffect(() => {
     fetchAssociateProjects();
@@ -109,7 +135,90 @@ const AssociateProjectsPage = () => {
     navigate('/projects', { state: { editProjectId: projectId } });
   };
 
+  // Payment handling functions
+  const handleAddPayment = (project, associateData) => {
+    setSelectedProject(project);
+    setSelectedAssociateData(associateData);
+    
+    // Calculate suggested amount based on percentage
+    const associateAmount = Math.round((project.totalReceivedFees * (associateData?.percentage || 0)) / 100);
+    const amountPaid = associateData?.amountPaid || 0;
+    const pendingAmount = associateAmount - amountPaid;
+    
+    setPaymentFormData({
+      transactionDate: new Date().toISOString().split('T')[0],
+      paymentMode: 'Cheque',
+      chequeNeftNumber: '',
+      amount: pendingAmount > 0 ? pendingAmount : '',
+      percentageShare: associateData?.percentage || 0,
+      notes: ''
+    });
+    
+    setShowPaymentModal(true);
+  };
 
+  const handlePaymentSubmit = async (e) => {
+    e.preventDefault();
+    
+    try {
+      showLoading();
+      
+      const paymentData = {
+        projectId: selectedProject._id,
+        associateId: associateId,
+        transactionDate: paymentFormData.transactionDate,
+        paymentMode: paymentFormData.paymentMode,
+        chequeNeftNumber: paymentFormData.chequeNeftNumber,
+        amount: parseFloat(paymentFormData.amount),
+        percentageShare: paymentFormData.percentageShare,
+        notes: paymentFormData.notes
+      };
+      
+      // Call API to add payment transaction
+      await FinanceService.addAssociatePaymentTransaction(paymentData);
+      
+      // Refresh the projects list
+      await fetchAssociateProjects();
+      
+      // Close modal and reset form
+      setShowPaymentModal(false);
+      setSelectedProject(null);
+      setSelectedAssociateData(null);
+      
+    } catch (error) {
+      console.error('Error adding payment:', error);
+      showError('Failed to add payment transaction');
+    } finally {
+      hideLoading();
+    }
+  };
+
+  const handlePaymentInputChange = (field, value) => {
+    setPaymentFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleViewPayments = async (project, associateData) => {
+    try {
+      showLoading();
+      setSelectedProject(project);
+      setSelectedAssociateData(associateData);
+      
+      // Fetch payment history for this associate in this project
+      const response = await FinanceService.getAssociatePaymentTransactions(project._id, associateId);
+      setPaymentHistory(response.data.transactions || []);
+      setShowPaymentHistoryModal(true);
+      
+    } catch (error) {
+      console.error('Error fetching payment history:', error);
+      showError('Failed to load payment history');
+      setPaymentHistory([]);
+    } finally {
+      hideLoading();
+    }
+  };
 
   const filteredProjects = projects.filter(project => {
     const matchesSearch = project.projectName?.toLowerCase().includes(filters.search.toLowerCase()) ||
@@ -335,6 +444,21 @@ const AssociateProjectsPage = () => {
                         <td>
                           <div className="action-buttons">
                             <button
+                              className="action-btn btn-payment"
+                              onClick={() => handleAddPayment(project, associateData)}
+                              title="Add Payment"
+                              disabled={pendingAmount <= 0}
+                            >
+                              💳 Add Payment
+                            </button>
+                            <button
+                              className="action-btn btn-view-payments"
+                              onClick={() => handleViewPayments(project, associateData)}
+                              title="View Payment History"
+                            >
+                              📋 Payments
+                            </button>
+                            <button
                               className="action-btn btn-edit"
                               onClick={() => handleEditProject(project._id)}
                               title="Edit Project"
@@ -430,6 +554,167 @@ const AssociateProjectsPage = () => {
           </div>
         )}
       </div>
+
+      {/* Payment Modal */}
+      {showPaymentModal && (
+        <div className="modal-overlay" onClick={() => setShowPaymentModal(false)}>
+          <div className="modal-content payment-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Add Payment Transaction</h3>
+              <button className="modal-close" onClick={() => setShowPaymentModal(false)}>×</button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="payment-info">
+                <h4>{selectedProject?.projectName}</h4>
+                <p><strong>Project Number:</strong> {selectedProject?.projectNumber}</p>
+                <p><strong>Associate Share:</strong> {paymentFormData.percentageShare}%</p>
+              </div>
+              
+              <form onSubmit={handlePaymentSubmit} className="payment-form">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="transactionDate">Transaction Date *</label>
+                    <input
+                      type="date"
+                      id="transactionDate"
+                      value={paymentFormData.transactionDate}
+                      onChange={(e) => handlePaymentInputChange('transactionDate', e.target.value)}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label htmlFor="paymentMode">Payment Mode *</label>
+                    <select
+                      id="paymentMode"
+                      value={paymentFormData.paymentMode}
+                      onChange={(e) => handlePaymentInputChange('paymentMode', e.target.value)}
+                      required
+                    >
+                      <option value="Cheque">Cheque</option>
+                      <option value="NEFT">NEFT</option>
+                      <option value="RTGS">RTGS</option>
+                      <option value="UPI">UPI</option>
+                      <option value="Cash">Cash</option>
+                      <option value="DD">DD</option>
+                      <option value="Bank Transfer">Bank Transfer</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="chequeNeftNumber">Cheque/NEFT Number</label>
+                    <input
+                      type="text"
+                      id="chequeNeftNumber"
+                      value={paymentFormData.chequeNeftNumber}
+                      onChange={(e) => handlePaymentInputChange('chequeNeftNumber', e.target.value)}
+                      placeholder="Enter cheque or transaction number"
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label htmlFor="amount">Amount *</label>
+                    <input
+                      type="number"
+                      id="amount"
+                      value={paymentFormData.amount}
+                      onChange={(e) => handlePaymentInputChange('amount', e.target.value)}
+                      placeholder="Enter payment amount"
+                      min="0"
+                      step="0.01"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className="form-group">
+                  <label htmlFor="notes">Notes</label>
+                  <textarea
+                    id="notes"
+                    value={paymentFormData.notes}
+                    onChange={(e) => handlePaymentInputChange('notes', e.target.value)}
+                    placeholder="Add any notes about this payment"
+                    rows="3"
+                  />
+                </div>
+                
+                <div className="modal-actions">
+                  <button type="button" className="btn-secondary" onClick={() => setShowPaymentModal(false)}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-primary">
+                    Add Payment
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Payment History Modal */}
+      {showPaymentHistoryModal && (
+        <div className="modal-overlay" onClick={() => setShowPaymentHistoryModal(false)}>
+          <div className="modal-content payment-history-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Payment History</h3>
+              <button className="modal-close" onClick={() => setShowPaymentHistoryModal(false)}>×</button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="payment-info">
+                <h4>{selectedProject?.projectName}</h4>
+                <p><strong>Project Number:</strong> {selectedProject?.projectNumber}</p>
+                <p><strong>Associate Share:</strong> {selectedAssociateData?.percentage}%</p>
+                <p><strong>Total Paid:</strong> {formatCurrency(selectedAssociateData?.amountPaid || 0)}</p>
+              </div>
+              
+              {paymentHistory.length > 0 ? (
+                <div className="payment-history-table">
+                  <table className="payment-table">
+                    <thead>
+                      <tr>
+                        <th>Date</th>
+                        <th>Mode</th>
+                        <th>Cheque/Ref No.</th>
+                        <th>Amount</th>
+                        <th>Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paymentHistory.map((payment, index) => (
+                        <tr key={index}>
+                          <td>{formatDate(payment.transactionDate)}</td>
+                          <td>
+                            <span className={`payment-mode-badge ${payment.paymentMode.toLowerCase()}`}>
+                              {payment.paymentMode}
+                            </span>
+                          </td>
+                          <td>{payment.chequeNeftNumber || '-'}</td>
+                          <td className="amount-cell">{formatCurrency(payment.amount)}</td>
+                          <td>{payment.notes || '-'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  
+                  <div className="payment-summary">
+                    <p><strong>Total Transactions:</strong> {paymentHistory.length}</p>
+                    <p><strong>Total Amount Paid:</strong> {formatCurrency(paymentHistory.reduce((sum, payment) => sum + payment.amount, 0))}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="no-payments">
+                  <p>No payment transactions found for this associate in this project.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

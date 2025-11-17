@@ -233,6 +233,34 @@ const FinanceService = {
       console.error('Error exporting expenses:', error);
       throw error;
     }
+  },
+
+  // ==================== ASSOCIATE PAYMENT METHODS ====================
+  
+  // Add payment transaction for an associate
+  addAssociatePaymentTransaction: async (paymentData) => {
+    try {
+      const response = await axios.post(`${API_URL}/finance/projects/associate-payment`, paymentData, {
+        headers: getAuthHeader()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error adding associate payment transaction:', error);
+      throw error;
+    }
+  },
+
+  // Get payment transactions for an associate in a project
+  getAssociatePaymentTransactions: async (projectId, associateId) => {
+    try {
+      const response = await axios.get(`${API_URL}/finance/projects/${projectId}/associate/${associateId}/payments`, {
+        headers: getAuthHeader()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching associate payment transactions:', error);
+      throw error;
+    }
   }
 };
 

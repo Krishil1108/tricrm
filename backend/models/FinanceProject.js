@@ -43,7 +43,40 @@ const financeProjectSchema = new mongoose.Schema({
     },
     paymentGivenDate: {
       type: Date
-    }
+    },
+    // Multiple payment transactions for this associate (10-15 stages)
+    paymentTransactions: [{
+      transactionDate: {
+        type: Date,
+        required: true
+      },
+      paymentMode: {
+        type: String,
+        enum: ['Cheque', 'NEFT', 'RTGS', 'UPI', 'Cash', 'DD', 'Bank Transfer'],
+        default: 'Cheque'
+      },
+      chequeNeftNumber: {
+        type: String,
+        default: ''
+      },
+      amount: {
+        type: Number,
+        required: true,
+        min: 0
+      },
+      percentageShare: {
+        type: Number,
+        default: 0
+      },
+      notes: {
+        type: String,
+        default: ''
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now
+      }
+    }]
   }],
   // Calculated total associate allocation (sum of all associates)
   totalAssociateAmount: {

@@ -509,4 +509,123 @@ router.get('/export/expenses', authenticate, async (req, res) => {
   }
 });
 
+// ==================== ASSOCIATE PAYMENT ROUTES ====================
+
+// Add payment transaction for an associate
+router.post('/projects/associate-payment', authenticate, async (req, res) => {
+  try {
+    const { 
+      projectId, 
+      associateId, 
+      transactionDate, 
+      paymentMode, 
+      chequeNeftNumber, 
+      amount, 
+      percentageShare, 
+      notes 
+    } = req.body;
+
+    // Find the project
+    const project = await FinanceProject.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    // Find the associate in the project
+    const associateIndex = project.projectAssociates.findIndex(
+      assoc => assoc.associateId.toString() === associateId
+    );
+
+    if (associateIndex === -1) {
+      return res.status(404).json({ message: 'Associate not found in project' });
+    }
+
+    // Create new payment transaction
+    const newTransaction = {
+      transactionDate: new Date(transactionDate),
+      paymentMode,
+      chequeNeftNumber: chequeNeftNumber || '',
+      amount: parseFloat(amount),
+      percentageShare: parseFloat(percentageShare),
+      notes: notes || '',
+      createdAt: new Date()
+    };
+
+    // Add transaction to the associate's payment history
+    if (!project.projectAssociates[associateIndex].paymentTransactions) {
+      project.projectAssociates[associateIndex].paymentTransactions = [];
+    }
+    
+    project.projectAssociates[associateIndex].paymentTransactions.push(newTransaction);
+
+    // Update the total amount paid to associate
+    const existingPaid = project.projectAssociates[associateIndex].amountPaid || 0;
+    project.projectAssociates[associateIndex].amountPaid = existingPaid + parseFloat(amount);
+
+    // Update payment given date to latest transaction date
+    project.projectAssociates[associateIndex].paymentGivenDate = new Date(transactionDate);
+
+    // Save the project
+    await project.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Payment transaction added successfully',
+      transaction: newTransaction
+    });
+
+  } catch (error) {
+    console.error('Error adding associate payment transaction:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Failed to add payment transaction', 
+      error: error.message 
+    });
+  }
+});
+
+// Get payment transactions for an associate in a project
+router.get('/projects/:projectId/associate/:associateId/payments', authenticate, async (req, res) => {
+  try {
+    const { projectId, associateId } = req.params;
+
+    const project = await FinanceProject.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    // Find the associate in the project
+    const associate = project.projectAssociates.find(
+      assoc => assoc.associateId.toString() === associateId
+    );
+
+    if (!associate) {
+      return res.status(404).json({ message: 'Associate not found in project' });
+    }
+
+    const transactions = associate.paymentTransactions || [];
+
+    res.json({
+      success: true,
+      data: {
+        associate: {
+          associateId: associate.associateId,
+          percentage: associate.percentage,
+          amountPaid: associate.amountPaid,
+          paymentGivenDate: associate.paymentGivenDate
+        },
+        transactions: transactions.sort((a, b) => new Date(b.transactionDate) - new Date(a.transactionDate))
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching associate payment transactions:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Failed to fetch payment transactions', 
+      error: error.message 
+    });
+  }
+});
+
 module.exports = router;
