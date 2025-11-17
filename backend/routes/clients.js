@@ -1,15 +1,30 @@
 const express = require('express');
 const router = express.Router();
 const Client = require('../models/Client');
+const FinanceProject = require('../models/FinanceProject');
 const Activity = require('../models/Activity');
 
-// GET /api/clients - Get all clients
+// GET /api/clients - Get all clients with project counts
 router.get('/', async (req, res) => {
   try {
     const clients = await Client.find({}).sort({ createdAt: -1 });
+    
+    // Get project counts for each client (counting projects where client is assigned)
+    const clientsWithCounts = await Promise.all(
+      clients.map(async (client) => {
+        const projectCount = await FinanceProject.countDocuments({ 
+          clientId: client._id 
+        });
+        return {
+          ...client.toObject(),
+          projectCount
+        };
+      })
+    );
+    
     res.json({
       success: true,
-      data: clients
+      data: clientsWithCounts
     });
   } catch (error) {
     console.error('Error fetching clients:', error);

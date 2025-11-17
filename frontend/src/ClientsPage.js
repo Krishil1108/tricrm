@@ -578,6 +578,7 @@ const ClientsPage = () => {
                   <th>Email</th>
                   <th>Company</th>
                   <th>Phone</th>
+                  <th>Projects</th>
                   <th>Status</th>
                   <th>Added Date</th>
                   <th style={{ textAlign: 'center' }}>Actions</th>
@@ -597,6 +598,11 @@ const ClientsPage = () => {
                     <td>{client.email}</td>
                     <td>{client.company || '-'}</td>
                     <td>{client.phone || '-'}</td>
+                    <td>
+                      <span className="project-count-badge" title={`${client.projectCount || 0} project(s)`}>
+                        {client.projectCount || 0}
+                      </span>
+                    </td>
                     <td>
                       <select
                         value={client.status}
