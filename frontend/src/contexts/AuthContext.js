@@ -207,6 +207,7 @@ export const AuthProvider = ({ children }) => {
       'configure_percentages': () => permissions.finance?.configure_percentages,
       'import_excel_projects': () => permissions.finance?.import,
       'export_excel_projects': () => permissions.finance?.export,
+      'add_payment': () => permissions.finance?.add_payment,
       'view_project_summary_cards': () => permissions.finance?.viewStats,
       'expense_distribution': () => permissions.finance?.expense_distribution,
       'associate_distribution': () => permissions.finance?.associate_distribution

@@ -76,6 +76,7 @@ const RoleManagementPage = () => {
         { key: 'configure_percentages', label: 'Configure Percentages', description: 'Access percentage configuration settings', icon: '⚙️' },
         { key: 'import', label: 'Import Excel', description: 'Import projects from Excel files', icon: '📥' },
         { key: 'export', label: 'Export Excel', description: 'Export project data to Excel', icon: '📤' },
+        { key: 'add_payment', label: 'Add Payment', description: 'Add payment details in project form', icon: '💳' },
         { key: 'expense_distribution', label: 'Expense Distribution', description: 'View and manage expense distributions', icon: '💰' },
         { key: 'associate_distribution', label: 'Associate Distribution', description: 'View and manage associate distributions', icon: '🤝' },
         { key: 'viewStats', label: 'View Summary Cards', description: 'View project statistics cards', icon: '📊' }
@@ -176,6 +177,7 @@ const RoleManagementPage = () => {
           configure_percentages: role.permissions?.finance?.configure_percentages || false,
           import: role.permissions?.finance?.import || false,
           export: role.permissions?.finance?.export || false,
+          add_payment: role.permissions?.finance?.add_payment || false,
           expense_distribution: role.permissions?.finance?.expense_distribution || false,
           associate_distribution: role.permissions?.finance?.associate_distribution || false,
           viewStats: role.permissions?.finance?.viewStats || false
@@ -247,6 +249,7 @@ const RoleManagementPage = () => {
           configure_percentages: false,
           import: false,
           export: false,
+          add_payment: false,
           expense_distribution: false,
           associate_distribution: false,
           viewStats: false
