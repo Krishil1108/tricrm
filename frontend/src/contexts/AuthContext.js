@@ -32,6 +32,8 @@ export const AuthProvider = ({ children }) => {
 
           if (response.ok) {
             const data = await response.json();
+            console.log('[Auth Debug] Loaded user data:', data.user);
+            console.log('[Auth Debug] User role permissions:', data.user.role.permissions);
             setUser(data.user);
             setPermissions(data.user.role.permissions);
             setToken(savedToken);
@@ -165,8 +167,14 @@ export const AuthProvider = ({ children }) => {
 
   // New granular permission checker - maps granular permissions to original structure
   const hasGranularPermission = (permissionKey) => {
-    if (!permissions) return false;
-    if (user?.role?.name === 'Admin') return true;
+    if (!permissions) {
+      console.log(`[Permission Check] No permissions found for key: ${permissionKey}`);
+      return false;
+    }
+    if (user?.role?.name === 'Admin') {
+      console.log(`[Permission Check] Admin user - allowing: ${permissionKey}`);
+      return true;
+    }
     
     // Map granular permission keys to original nested structure
     const permissionMap = {
@@ -205,7 +213,10 @@ export const AuthProvider = ({ children }) => {
     };
     
     const mappedPermission = permissionMap[permissionKey];
-    return mappedPermission ? mappedPermission() : false;
+    const result = mappedPermission ? mappedPermission() : false;
+    console.log(`[Permission Check] Key: ${permissionKey}, Result: ${result}, User: ${user?.username}, Role: ${user?.role?.name}`);
+    console.log('[Permission Check] Current permissions:', permissions);
+    return result;
   };
 
   // Convenient action permission helpers
