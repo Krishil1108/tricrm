@@ -103,6 +103,44 @@ function UserManagementPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate form data
+    if (!formData.fullName.trim()) {
+      showMessage('error', 'Full Name is required');
+      return;
+    }
+    if (!formData.username.trim()) {
+      showMessage('error', 'Username is required');
+      return;
+    }
+    if (!formData.email.trim()) {
+      showMessage('error', 'Email is required');
+      return;
+    }
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email.trim())) {
+      showMessage('error', 'Please enter a valid email address');
+      return;
+    }
+    if (!formData.role) {
+      showMessage('error', 'Role is required');
+      return;
+    }
+    // Validate role exists
+    const selectedRole = roles.find(role => role._id === formData.role);
+    if (!selectedRole) {
+      showMessage('error', 'Please select a valid role');
+      return;
+    }
+    if (!editingUser && !formData.password) {
+      showMessage('error', 'Password is required for new users');
+      return;
+    }
+    if (!editingUser && formData.password.length < 6) {
+      showMessage('error', 'Password must be at least 6 characters');
+      return;
+    }
+
     const url = editingUser
       ? `${API_BASE_URL}/users/${editingUser._id}`
       : `${API_BASE_URL}/users`;
@@ -114,7 +152,12 @@ function UserManagementPage() {
       : formData;
 
     try {
-      console.log('Sending payload:', payload); // Debug log
+      console.log('Form data before processing:', formData);
+      console.log('Available roles:', roles);
+      console.log('Selected role object:', selectedRole);
+      console.log('Sending payload:', payload);
+      console.log('Request URL:', url);
+      console.log('Request method:', method);
       
       const response = await fetch(url, {
         method,
@@ -125,19 +168,39 @@ function UserManagementPage() {
         body: JSON.stringify(payload)
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      
       const data = await response.json();
-      console.log('Response data:', data); // Debug log
+      console.log('Response data:', JSON.stringify(data, null, 2));
 
       if (response.ok && data.success) {
         showMessage('success', data.message || 'User saved successfully');
         fetchUsers();
         handleCloseModal();
       } else {
-        console.error('API Error:', data);
-        showMessage('error', data.message || data.error || 'Failed to save user');
+        console.error('API Error Details:');
+        console.error('Status:', response.status);
+        console.error('Data:', JSON.stringify(data, null, 2));
+        
+        let errorMessage = 'Failed to save user';
+        if (data.message) {
+          errorMessage = data.message;
+        } else if (data.error) {
+          errorMessage = data.error;
+        } else if (data.errors && Array.isArray(data.errors)) {
+          errorMessage = data.errors.map(err => err.msg || err.message || err).join(', ');
+        } else if (data.details) {
+          errorMessage = JSON.stringify(data.details);
+        }
+        
+        showMessage('error', errorMessage);
       }
     } catch (error) {
-      console.error('Request Error:', error);
+      console.error('Request Error Details:');
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Full error:', error);
       showMessage('error', `Network error: ${error.message}`);
     }
   };
