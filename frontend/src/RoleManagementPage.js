@@ -175,9 +175,6 @@ function RoleManagementPage() {
         { key: 'sorting_columns', label: 'Column Sorting', description: 'Sort table columns', icon: '🔀', implemented: true },
         { key: 'advanced_filters', label: 'Advanced Filters', description: 'Access advanced filtering options', icon: '🎛️', implemented: true }
       ]
-    }
-        { key: 'import', label: 'Import', description: 'Import clients from Excel', icon: '📥', implemented: true }
-      ]
     },
     {
       title: 'Dashboard Module Actions',
