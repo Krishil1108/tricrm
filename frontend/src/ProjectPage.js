@@ -20,7 +20,9 @@ const ProjectPage = () => {
     canConfigurePercentagesGranular,
     canImportExcel,
     canExportExcel,
-    canViewProjectSummaryCards
+    canViewProjectSummaryCards,
+    canExpenseDistribution,
+    canAssociateDistribution
   } = useAuth();
   const [activeTab, setActiveTab] = useState('projects');
   const [projects, setProjects] = useState([]);
