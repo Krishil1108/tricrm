@@ -163,18 +163,49 @@ export const AuthProvider = ({ children }) => {
     return permissions[module]?.[action] === true;
   };
 
-  // New granular permission checker
+  // New granular permission checker - maps granular permissions to original structure
   const hasGranularPermission = (permissionKey) => {
     if (!permissions) return false;
     if (user?.role?.name === 'Admin') return true;
     
-    // Check across all modules for the specific permission
-    for (const moduleKey in permissions) {
-      if (permissions[moduleKey] && permissions[moduleKey][permissionKey] === true) {
-        return true;
-      }
-    }
-    return false;
+    // Map granular permission keys to original nested structure
+    const permissionMap = {
+      // Client Management permissions
+      'view_client_page': () => permissions.clients?.view,
+      'add_new_client': () => permissions.clients?.create,
+      'edit_client': () => permissions.clients?.edit,
+      'delete_client': () => permissions.clients?.delete,
+      'view_client_details': () => permissions.clients?.view_details,
+      'view_client_projects': () => permissions.clients?.view_projects,
+      'export_clients_excel': () => permissions.clients?.export,
+      'import_clients_excel': () => permissions.clients?.import,
+      'view_client_summary_cards': () => permissions.clients?.stats_cards,
+      
+      // Associate Management permissions  
+      'view_associates_page': () => permissions.associates?.view,
+      'add_new_associate': () => permissions.associates?.create,
+      'edit_associate': () => permissions.associates?.edit,
+      'delete_associate': () => permissions.associates?.delete,
+      'export_associates_excel': () => permissions.associates?.export,
+      'import_associates_excel': () => permissions.associates?.import,
+      'view_associate_summary_cards': () => permissions.associates?.stats_cards,
+      'view_associated_projects': () => permissions.associates?.view_projects,
+      
+      // Project Management permissions
+      'view_project_management_page': () => permissions.finance?.view,
+      'add_new_project': () => permissions.finance?.create,
+      'edit_project': () => permissions.finance?.edit,
+      'delete_project': () => permissions.finance?.delete,
+      'configure_percentages': () => permissions.finance?.configure_percentages,
+      'import_excel_projects': () => permissions.finance?.import,
+      'export_excel_projects': () => permissions.finance?.export,
+      'view_project_summary_cards': () => permissions.finance?.viewStats,
+      'expense_distribution': () => permissions.finance?.expense_distribution,
+      'associate_distribution': () => permissions.finance?.associate_distribution
+    };
+    
+    const mappedPermission = permissionMap[permissionKey];
+    return mappedPermission ? mappedPermission() : false;
   };
 
   // Convenient action permission helpers
@@ -203,18 +234,36 @@ export const AuthProvider = ({ children }) => {
   const canDeleteClient = () => hasGranularPermission('delete_client');
   const canViewClientDetails = () => hasGranularPermission('view_client_details');
   const canViewClientProjects = () => hasGranularPermission('view_client_projects');
-  const canExportClients = () => hasGranularPermission('export_clients');
-  const canImportClients = () => hasGranularPermission('import_clients');
+  const canExportClients = () => hasGranularPermission('export_clients_excel');
+  const canImportClients = () => hasGranularPermission('import_clients_excel');
   const canViewClientSummaryCards = () => hasGranularPermission('view_client_summary_cards');
+
+  // Client Projects Page permissions
+  const canViewClientProjectsPage = () => hasGranularPermission('view_client_projects_list_page');
+  const canAddProjectFromClient = () => hasGranularPermission('add_new_project_from_client');
+  const canBackToClients = () => hasGranularPermission('back_to_clients');
+  const canEditProjectFromClient = () => hasGranularPermission('edit_project_from_client');
+  const canViewProjectSummaryCardsClient = () => hasGranularPermission('view_project_summary_cards_client');
+  const canViewDistributionSectionClient = () => hasGranularPermission('view_distribution_section_client');
 
   // Granular permission helpers for Associate Management
   const canViewAssociatesPage = () => hasGranularPermission('view_associates_page');
   const canAddNewAssociate = () => hasGranularPermission('add_new_associate');
   const canEditAssociate = () => hasGranularPermission('edit_associate');
   const canDeleteAssociate = () => hasGranularPermission('delete_associate');
-  const canExportAssociates = () => hasGranularPermission('export_associates');
-  const canImportAssociates = () => hasGranularPermission('import_associates');
+  const canExportAssociates = () => hasGranularPermission('export_associates_excel');
+  const canImportAssociates = () => hasGranularPermission('import_associates_excel');
   const canViewAssociateSummaryCards = () => hasGranularPermission('view_associate_summary_cards');
+  const canViewAssociatedProjects = () => hasGranularPermission('view_associated_projects');
+
+  // Associate Projects Page permissions
+  const canViewAssociateProjectsPage = () => hasGranularPermission('view_associate_projects_page');
+  const canAddProjectFromAssociate = () => hasGranularPermission('add_new_project_from_associate');
+  const canBackToAssociates = () => hasGranularPermission('back_to_associates');
+  const canEditProjectFromAssociate = () => hasGranularPermission('edit_project_from_associate');
+  const canViewSummaryCardsAssociate = () => hasGranularPermission('view_summary_cards_associate');
+  const canViewOwnerView = () => hasGranularPermission('view_owner_view');
+  const canViewAssociateDetails = () => hasGranularPermission('view_associate_details');
 
   // Granular permission helpers for Project Management
   const canViewProjectManagementPage = () => hasGranularPermission('view_project_management_page');
@@ -222,16 +271,24 @@ export const AuthProvider = ({ children }) => {
   const canEditProject = () => hasGranularPermission('edit_project');
   const canDeleteProject = () => hasGranularPermission('delete_project');
   const canConfigurePercentagesGranular = () => hasGranularPermission('configure_percentages');
-  const canImportExcel = () => hasGranularPermission('import_excel');
-  const canExportExcel = () => hasGranularPermission('export_excel');
+  const canImportExcel = () => hasGranularPermission('import_excel_projects');
+  const canExportExcel = () => hasGranularPermission('export_excel_projects');
   const canViewProjectSummaryCards = () => hasGranularPermission('view_project_summary_cards');
+  const canExpenseDistribution = () => hasGranularPermission('expense_distribution');
+  const canAssociateDistribution = () => hasGranularPermission('associate_distribution');
 
-  // Granular permission helpers for User and Role Management
-  const canViewUserManagementPage = () => hasGranularPermission('view_user_management_page');
-  const canAddNewUser = () => hasGranularPermission('add_new_user');
-  const canEditUser = () => hasGranularPermission('edit_user');
-  const canDeleteUser = () => hasGranularPermission('delete_user');
-  const canViewRoleManagementPage = () => hasGranularPermission('view_role_management_page');
+  // Add New Project Form permissions
+  const canViewAddProjectForm = () => hasGranularPermission('view_add_project_form');
+  const canAddClientFromProject = () => hasGranularPermission('add_new_client_from_project');
+  const canAddPayment = () => hasGranularPermission('add_payment');
+  const canAddAssociates = () => hasGranularPermission('add_associates');
+
+  // Keep legacy User/Role Management (these will stay as admin-only features)
+  const canViewUserManagementPage = () => isAdmin();
+  const canAddNewUser = () => isAdmin();
+  const canEditUser = () => isAdmin();
+  const canDeleteUser = () => isAdmin();
+  const canViewRoleManagementPage = () => isAdmin();
 
   // Check if user is admin
   const isAdmin = () => {
@@ -276,6 +333,13 @@ export const AuthProvider = ({ children }) => {
     canExportClients,
     canImportClients,
     canViewClientSummaryCards,
+    // Client Projects Page permissions
+    canViewClientProjectsPage,
+    canAddProjectFromClient,
+    canBackToClients,
+    canEditProjectFromClient,
+    canViewProjectSummaryCardsClient,
+    canViewDistributionSectionClient,
     // Granular Associate Management permissions
     canViewAssociatesPage,
     canAddNewAssociate,
@@ -284,6 +348,15 @@ export const AuthProvider = ({ children }) => {
     canExportAssociates,
     canImportAssociates,
     canViewAssociateSummaryCards,
+    canViewAssociatedProjects,
+    // Associate Projects Page permissions
+    canViewAssociateProjectsPage,
+    canAddProjectFromAssociate,
+    canBackToAssociates,
+    canEditProjectFromAssociate,
+    canViewSummaryCardsAssociate,
+    canViewOwnerView,
+    canViewAssociateDetails,
     // Granular Project Management permissions
     canViewProjectManagementPage,
     canAddNewProject,
@@ -293,7 +366,14 @@ export const AuthProvider = ({ children }) => {
     canImportExcel,
     canExportExcel,
     canViewProjectSummaryCards,
-    // Granular User/Role Management permissions
+    canExpenseDistribution,
+    canAssociateDistribution,
+    // Add New Project Form permissions
+    canViewAddProjectForm,
+    canAddClientFromProject,
+    canAddPayment,
+    canAddAssociates,
+    // User/Role Management permissions (Admin only)
     canViewUserManagementPage,
     canAddNewUser,
     canEditUser,
