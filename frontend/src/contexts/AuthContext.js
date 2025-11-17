@@ -171,6 +171,15 @@ export const AuthProvider = ({ children }) => {
   const canDuplicate = (module) => hasPermission(module, 'duplicate');
   const canExport = (module) => hasPermission(module, 'export');
   const canImport = (module) => hasPermission(module, 'import');
+  
+  // Enhanced permission helpers for new functionality
+  const canViewProjects = (module) => hasPermission(module, 'view_projects');
+  const canViewDetails = (module) => hasPermission(module, 'view_details');
+  const canManagePayments = (module) => hasPermission(module, 'payment_management');
+  const canConfigurePercentages = (module) => hasPermission(module, 'percentage_config');
+  const canViewDistributions = (module) => hasPermission(module, 'expense_distribution') || hasPermission(module, 'associate_distribution');
+  const canAccessUIComponents = (component) => hasPermission('ui_components', component);
+  const canPerformDataOperations = (operation) => hasPermission('data_operations', operation);
 
   // Check if user is admin
   const isAdmin = () => {
@@ -195,6 +204,13 @@ export const AuthProvider = ({ children }) => {
     canDuplicate,
     canExport,
     canImport,
+    canViewProjects,
+    canViewDetails,
+    canManagePayments,
+    canConfigurePercentages,
+    canViewDistributions,
+    canAccessUIComponents,
+    canPerformDataOperations,
     isAdmin,
     isAuthenticated: !!user
   };
