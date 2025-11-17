@@ -58,169 +58,206 @@ function RoleManagementPage() {
       ]
     },
     {
-      title: 'Clients Module',
+      title: 'Client Management Module',
       key: 'clients',
-      description: 'Fine-grained control over clients module functionality',
+      description: 'Comprehensive control over client management functionality',
       permissions: [
-        { key: 'view', label: 'View Clients', description: 'View client list and details', icon: '👁️', implemented: true },
-        { key: 'create', label: 'Add Clients', description: 'Create new clients', icon: '➕', implemented: true },
-        { key: 'edit', label: 'Edit Clients', description: 'Edit existing clients', icon: '✏️', implemented: true },
-        { key: 'delete', label: 'Delete Clients', description: 'Delete clients', icon: '🗑️', implemented: true },
-        { key: 'export', label: 'Export Data', description: 'Export client data to Excel', icon: '📤', implemented: true },
-        { key: 'import', label: 'Import Data', description: 'Import clients from Excel', icon: '📥', implemented: true },
-        { key: 'duplicate', label: 'Duplicate Clients', description: 'Create duplicates of existing clients', icon: '📋', implemented: true },
-        { key: 'view_details', label: 'View Client Details', description: 'Access detailed client information popup', icon: '🔍', implemented: true },
-        { key: 'view_projects', label: 'View Client Projects', description: 'Navigate to client project pages', icon: '📂', implemented: true },
-        { key: 'search_filter', label: 'Search & Filter', description: 'Use search and filtering options', icon: '🔎', implemented: true },
-        { key: 'status_management', label: 'Status Management', description: 'Change client status (Active/Inactive)', icon: '🔄', implemented: true }
+        // Page Permissions
+        { key: 'view_client_page', label: 'View Client Page', description: 'Access to main clients page', icon: '👁️', implemented: true },
+        { key: 'view_client_projects_page', label: 'View Client Projects Page', description: 'Access to client project list page', icon: '📂', implemented: true },
+        
+        // Button Permissions - Client Page
+        { key: 'add_new_client', label: 'Add New Client', description: 'Create new clients', icon: '➕', implemented: true },
+        { key: 'edit_client', label: 'Edit Client', description: 'Edit existing clients', icon: '✏️', implemented: true },
+        { key: 'delete_client', label: 'Delete Client', description: 'Delete clients', icon: '🗑️', implemented: true },
+        { key: 'view_client_details', label: 'View Client Details', description: 'Access client details popup/modal', icon: '🔍', implemented: true },
+        { key: 'view_client_projects', label: 'View Client Projects', description: 'Navigate to client project pages', icon: '📂', implemented: true },
+        { key: 'export_clients', label: 'Export Clients to Excel', description: 'Export client data to Excel', icon: '📤', implemented: true },
+        { key: 'import_clients', label: 'Import Clients from Excel', description: 'Import clients from Excel', icon: '📥', implemented: true },
+        
+        // Summary Components - Client Page
+        { key: 'view_client_summary_cards', label: 'View Client Summary Cards', description: 'View client statistics cards', icon: '📊', implemented: true },
+        
+        // Button Permissions - Client Projects Page
+        { key: 'add_new_project_from_client', label: 'Add New Project (Client Page)', description: 'Add project from client projects page', icon: '🆕', implemented: true },
+        { key: 'back_to_clients', label: 'Back to Clients', description: 'Navigate back to clients page', icon: '🔙', implemented: true },
+        { key: 'edit_project_from_client', label: 'Edit Project (Client Page)', description: 'Edit project from client projects page', icon: '✏️', implemented: true },
+        
+        // Summary/Sections - Client Projects Page
+        { key: 'view_project_summary_cards_client', label: 'View Project Summary Cards (Client)', description: 'View project statistics on client projects page', icon: '📈', implemented: true },
+        { key: 'view_distribution_section_client', label: 'View Distribution Section (Client)', description: 'View distribution details on client projects page', icon: '💰', implemented: true }
       ]
     },
     {
-      title: 'Associates Module',
+      title: 'Associate Management Module',
       key: 'associates',
-      description: 'Control access to associates management features',
+      description: 'Comprehensive control over associate management functionality',
       permissions: [
-        { key: 'view', label: 'View Associates', description: 'View associates list and details', icon: '👁️', implemented: true },
-        { key: 'create', label: 'Add Associates', description: 'Create new associates', icon: '➕', implemented: true },
-        { key: 'edit', label: 'Edit Associates', description: 'Edit existing associates', icon: '✏️', implemented: true },
-        { key: 'delete', label: 'Delete Associates', description: 'Delete associates', icon: '🗑️', implemented: true },
-        { key: 'export', label: 'Export Data', description: 'Export associate data', icon: '📤', implemented: true },
-        { key: 'import', label: 'Import Data', description: 'Import associates from Excel', icon: '📥', implemented: true },
-        { key: 'view_projects', label: 'View Associate Projects', description: 'Navigate to associate project pages', icon: '📂', implemented: true },
-        { key: 'payment_details', label: 'Payment Details', description: 'View and manage associate payments', icon: '💳', implemented: true },
-        { key: 'percentage_config', label: 'Percentage Configuration', description: 'Configure associate percentage shares', icon: '📊', implemented: true }
+        // Page Permissions
+        { key: 'view_associates_page', label: 'View Associates Page', description: 'Access to main associates page', icon: '👁️', implemented: true },
+        { key: 'view_associate_projects_page', label: 'View Associate Projects Page', description: 'Access to associate projects page', icon: '📂', implemented: true },
+        
+        // Button Permissions - Associate Page
+        { key: 'add_new_associate', label: 'Add New Associate', description: 'Create new associates', icon: '➕', implemented: true },
+        { key: 'edit_associate', label: 'Edit Associate', description: 'Edit existing associates', icon: '✏️', implemented: true },
+        { key: 'delete_associate', label: 'Delete Associate', description: 'Delete associates', icon: '🗑️', implemented: true },
+        { key: 'export_associates', label: 'Export Associates to Excel', description: 'Export associate data to Excel', icon: '📤', implemented: true },
+        { key: 'import_associates', label: 'Import Associates from Excel', description: 'Import associates from Excel', icon: '📥', implemented: true },
+        { key: 'view_associated_projects', label: 'View Associated Projects', description: 'Navigate to associate projects page', icon: '📂', implemented: true },
+        
+        // Summary Components - Associate Page
+        { key: 'view_associate_summary_cards', label: 'View Associate Summary Cards', description: 'View associate statistics cards', icon: '📊', implemented: true },
+        
+        // Button Permissions - Associate Projects Page
+        { key: 'add_new_project_from_associate', label: 'Add New Project (Associate Page)', description: 'Add project from associate projects page', icon: '🆕', implemented: true },
+        { key: 'back_to_associates', label: 'Back to Associates', description: 'Navigate back to associates page', icon: '🔙', implemented: true },
+        { key: 'edit_project_from_associate', label: 'Edit Project (Associate Page)', description: 'Edit project from associate projects page', icon: '✏️', implemented: true },
+        
+        // Summary Components - Associate Projects Page
+        { key: 'view_summary_cards_associate_projects', label: 'View Summary Cards (Associate Projects)', description: 'View summary cards on associate projects page', icon: '📈', implemented: true },
+        { key: 'view_owner_view', label: 'View Owner View', description: 'Access owner view section', icon: '👑', implemented: true },
+        { key: 'view_associate_details', label: 'View Associate Details', description: 'View detailed associate information', icon: '🔍', implemented: true }
       ]
     },
     {
-      title: 'Finance/Projects Module',
+      title: 'Project Management Module',
       key: 'finance',
-      description: 'Comprehensive control over finance and project management',
+      description: 'Comprehensive control over project management and financial operations',
       permissions: [
-        { key: 'view', label: 'View Projects', description: 'View project list and details', icon: '👁️', implemented: true },
-        { key: 'create', label: 'Add Projects', description: 'Create new projects', icon: '➕', implemented: true },
-        { key: 'edit', label: 'Edit Projects', description: 'Edit existing projects', icon: '✏️', implemented: true },
-        { key: 'delete', label: 'Delete Projects', description: 'Delete projects', icon: '🗑️', implemented: true },
-        { key: 'export', label: 'Export Data', description: 'Export project data to Excel', icon: '📤', implemented: true },
-        { key: 'import', label: 'Import Data', description: 'Import projects from Excel', icon: '📥', implemented: true },
+        // Page Permissions
+        { key: 'view_project_management_page', label: 'View Project Management Page', description: 'Access to main project management page', icon: '👁️', implemented: true },
+        { key: 'view_add_project_form', label: 'View Add New Project Form', description: 'Access to add project form/modal', icon: '📝', implemented: true },
+        
+        // Button Permissions - Project Management Page
+        { key: 'add_new_project', label: 'Add New Project', description: 'Create new projects', icon: '➕', implemented: true },
+        { key: 'configure_percentages', label: 'Configure Percentages', description: 'Access percentage configuration settings', icon: '⚙️', implemented: true },
+        { key: 'import_excel', label: 'Import Excel', description: 'Import projects from Excel files', icon: '📥', implemented: true },
+        { key: 'export_excel', label: 'Export Excel', description: 'Export project data to Excel', icon: '📤', implemented: true },
+        { key: 'edit_project', label: 'Edit Project', description: 'Edit existing projects', icon: '✏️', implemented: true },
+        { key: 'delete_project', label: 'Delete Project', description: 'Delete projects', icon: '🗑️', implemented: true },
         { key: 'expense_distribution', label: 'Expense Distribution', description: 'View and manage expense distributions', icon: '💰', implemented: true },
         { key: 'associate_distribution', label: 'Associate Distribution', description: 'View and manage associate distributions', icon: '🤝', implemented: true },
-        { key: 'payment_management', label: 'Payment Management', description: 'Add and manage project payments', icon: '💳', implemented: true },
-        { key: 'percentage_config', label: 'Percentage Configuration', description: 'Configure project percentage settings', icon: '⚙️', implemented: true },
-        { key: 'financial_reports', label: 'Financial Reports', description: 'Access to financial reporting features', icon: '📊', implemented: true },
-        { key: 'project_status', label: 'Project Status Management', description: 'Change project status (Active/Completed)', icon: '🔄', implemented: true }
+        
+        // Summary Components - Project Management Page
+        { key: 'view_project_summary_cards', label: 'View Project Summary Cards', description: 'View project statistics and summary cards', icon: '📊', implemented: true },
+        
+        // Button Permissions - Add New Project Form
+        { key: 'add_new_client_from_project', label: 'Add New Client (Project Form)', description: 'Add client from project creation form', icon: '👤', implemented: true },
+        { key: 'add_payment', label: 'Add Payment', description: 'Add payment details in project form', icon: '💳', implemented: true },
+        { key: 'add_associates_to_project', label: 'Add Associates to Project', description: 'Add and configure associates in project form', icon: '👥', implemented: true }
       ]
     },
     {
-      title: 'Dashboard Module',
-      key: 'dashboard',
-      description: 'Control access to dashboard analytics and insights',
+      title: 'Reports Module',
+      key: 'reports',
+      description: 'Access to various reporting and analytics features',
       permissions: [
-        { key: 'view', label: 'View Dashboard', description: 'Access to main dashboard', icon: '👁️', implemented: true },
-        { key: 'financial_overview', label: 'Financial Overview', description: 'View financial statistics and charts', icon: '💹', implemented: true },
-        { key: 'project_analytics', label: 'Project Analytics', description: 'View project progress and analytics', icon: '📈', implemented: true },
-        { key: 'client_reports', label: 'Client Reports', description: 'Access client-related reports and metrics', icon: '👥', implemented: true },
-        { key: 'associate_reports', label: 'Associate Reports', description: 'View associate performance reports', icon: '🤝', implemented: true },
-        { key: 'export_reports', label: 'Export Reports', description: 'Export dashboard reports', icon: '📤', implemented: true },
-        { key: 'date_filters', label: 'Date Filtering', description: 'Use date range filters on dashboard', icon: '📅', implemented: true },
-        { key: 'drill_down', label: 'Drill Down Analysis', description: 'Access detailed analytics and breakdowns', icon: '🔍', implemented: true }
+        // Page Permissions
+        { key: 'view_reports_page', label: 'View Reports Page', description: 'Access to main reports dashboard', icon: '👁️', implemented: false },
+        
+        // Report Generation Permissions
+        { key: 'generate_client_reports', label: 'Generate Client Reports', description: 'Create and export client-related reports', icon: '📊', implemented: false },
+        { key: 'generate_associate_reports', label: 'Generate Associate Reports', description: 'Create and export associate-related reports', icon: '📈', implemented: false },
+        { key: 'generate_project_reports', label: 'Generate Project Reports', description: 'Create and export project financial reports', icon: '📋', implemented: false },
+        { key: 'generate_payment_reports', label: 'Generate Payment Reports', description: 'Create and export payment history reports', icon: '💰', implemented: false },
+        { key: 'generate_summary_reports', label: 'Generate Summary Reports', description: 'Create comprehensive summary reports', icon: '📄', implemented: false },
+        
+        // Export Permissions
+        { key: 'export_reports_pdf', label: 'Export Reports to PDF', description: 'Export reports in PDF format', icon: '📝', implemented: false },
+        { key: 'export_reports_excel', label: 'Export Reports to Excel', description: 'Export reports in Excel format', icon: '📤', implemented: false },
+        
+        // Advanced Reporting
+        { key: 'custom_date_ranges', label: 'Custom Date Ranges', description: 'Set custom date ranges for reports', icon: '📅', implemented: false },
+        { key: 'advanced_filters', label: 'Advanced Filters', description: 'Use advanced filtering options in reports', icon: '🔍', implemented: false }
       ]
     },
     {
-      title: 'Settings Module',
-      key: 'settings',
-      description: 'Control access to system settings and configurations',
+      title: 'Profile Module',
+      key: 'profile',
+      description: 'User profile and account settings management',
       permissions: [
-        { key: 'view', label: 'View Settings', description: 'Access to settings page', icon: '👁️', implemented: true },
-        { key: 'profile_settings', label: 'Profile Settings', description: 'Manage personal profile settings', icon: '👤', implemented: true },
-        { key: 'system_settings', label: 'System Settings', description: 'Configure system-wide settings', icon: '⚙️', implemented: true },
-        { key: 'notification_settings', label: 'Notification Settings', description: 'Manage notification preferences', icon: '🔔', implemented: true },
-        { key: 'theme_settings', label: 'Theme Settings', description: 'Change application theme and appearance', icon: '🎨', implemented: true },
-        { key: 'data_settings', label: 'Data Settings', description: 'Configure data retention and backup settings', icon: '💾', implemented: true },
-        { key: 'integration_settings', label: 'Integration Settings', description: 'Manage third-party integrations', icon: '🔗', implemented: true }
+        // Page Permissions
+        { key: 'view_profile_page', label: 'View Profile Page', description: 'Access to user profile page', icon: '👁️', implemented: false },
+        
+        // Profile Management
+        { key: 'edit_personal_info', label: 'Edit Personal Information', description: 'Update personal details and contact information', icon: '✏️', implemented: false },
+        { key: 'change_password', label: 'Change Password', description: 'Update account password', icon: '🔑', implemented: false },
+        { key: 'upload_profile_picture', label: 'Upload Profile Picture', description: 'Change profile picture/avatar', icon: '📷', implemented: false },
+        { key: 'view_activity_log', label: 'View Activity Log', description: 'Access personal activity and login history', icon: '📜', implemented: false },
+        
+        // Account Settings
+        { key: 'notification_preferences', label: 'Notification Preferences', description: 'Configure email and system notifications', icon: '🔔', implemented: false },
+        { key: 'privacy_settings', label: 'Privacy Settings', description: 'Manage privacy and data sharing preferences', icon: '🔒', implemented: false },
+        { key: 'account_security', label: 'Account Security', description: 'Manage two-factor authentication and security settings', icon: '🛡️', implemented: false }
       ]
     },
     {
-      title: 'Administration',
-      key: 'admin',
-      description: 'Administrative functions and user management',
+      title: 'User Management Module',
+      key: 'user_management',
+      description: 'Comprehensive control over user account management',
       permissions: [
-        { key: 'view', label: 'View Admin Panel', description: 'Access to administration area', icon: '👁️', implemented: true },
-        { key: 'user_management', label: 'User Management', description: 'Manage system users', icon: '👥', implemented: true },
-        { key: 'role_management', label: 'Role Management', description: 'Create and manage user roles', icon: '🛡️', implemented: true },
-        { key: 'system_logs', label: 'System Logs', description: 'View system activity logs', icon: '📝', implemented: true },
-        { key: 'backup_restore', label: 'Backup & Restore', description: 'Manage system backups', icon: '💾', implemented: true },
-        { key: 'security_settings', label: 'Security Settings', description: 'Configure security policies', icon: '🔒', implemented: true }
+        // Page Permissions
+        { key: 'view_user_management_page', label: 'View User Management Page', description: 'Access to user management interface', icon: '👁️', implemented: true },
+        
+        // User Operations
+        { key: 'add_new_user', label: 'Add New User', description: 'Create new user accounts', icon: '➕', implemented: true },
+        { key: 'edit_user', label: 'Edit User', description: 'Modify existing user accounts', icon: '✏️', implemented: true },
+        { key: 'delete_user', label: 'Delete User', description: 'Remove user accounts from system', icon: '🗑️', implemented: true },
+        { key: 'view_user_details', label: 'View User Details', description: 'Access detailed user information', icon: '🔍', implemented: true },
+        
+        // Role and Permission Management
+        { key: 'assign_roles', label: 'Assign Roles', description: 'Assign and modify user roles', icon: '👤', implemented: true },
+        { key: 'manage_user_permissions', label: 'Manage User Permissions', description: 'Configure individual user permissions', icon: '🔐', implemented: true },
+        
+        // Account Management
+        { key: 'reset_user_passwords', label: 'Reset User Passwords', description: 'Reset passwords for user accounts', icon: '🔑', implemented: true },
+        { key: 'activate_deactivate_users', label: 'Activate/Deactivate Users', description: 'Enable or disable user accounts', icon: '🔴', implemented: true },
+        { key: 'export_user_list', label: 'Export User List', description: 'Export user data to Excel', icon: '📤', implemented: true },
+        
+        // Advanced User Management
+        { key: 'bulk_user_operations', label: 'Bulk User Operations', description: 'Perform bulk operations on multiple users', icon: '📦', implemented: false },
+        { key: 'user_audit_log', label: 'User Audit Log', description: 'View user activity and audit logs', icon: '📋', implemented: false }
       ]
     },
     {
-      title: 'Data Export/Import',
-      key: 'data_operations',
-      description: 'Control over data import/export operations across all modules',
+      title: 'Role Management Module',
+      key: 'role_management',
+      description: 'Advanced role and permission system configuration',
       permissions: [
-        { key: 'bulk_export', label: 'Bulk Data Export', description: 'Export large datasets across modules', icon: '📤', implemented: true },
-        { key: 'bulk_import', label: 'Bulk Data Import', description: 'Import large datasets across modules', icon: '📥', implemented: true },
-        { key: 'data_validation', label: 'Data Validation', description: 'Validate imported data before processing', icon: '✅', implemented: true },
-        { key: 'custom_reports', label: 'Custom Reports', description: 'Generate custom data reports', icon: '📊', implemented: true }
+        // Page Permissions
+        { key: 'view_role_management_page', label: 'View Role Management Page', description: 'Access to role management interface', icon: '👁️', implemented: true },
+        
+        // Role Operations
+        { key: 'create_new_role', label: 'Create New Role', description: 'Create custom roles with specific permissions', icon: '➕', implemented: true },
+        { key: 'edit_existing_role', label: 'Edit Existing Role', description: 'Modify permissions for existing roles', icon: '✏️', implemented: true },
+        { key: 'delete_custom_role', label: 'Delete Custom Role', description: 'Remove custom roles from system', icon: '🗑️', implemented: true },
+        { key: 'duplicate_role', label: 'Duplicate Role', description: 'Create copy of existing role for customization', icon: '📋', implemented: false },
+        
+        // Permission Management
+        { key: 'configure_all_permissions', label: 'Configure All Permissions', description: 'Manage all system-wide permissions', icon: '⚙️', implemented: true },
+        { key: 'module_permission_control', label: 'Module Permission Control', description: 'Control access to specific application modules', icon: '🏗️', implemented: true },
+        { key: 'granular_permission_setting', label: 'Granular Permission Setting', description: 'Set detailed page and button-level permissions', icon: '🔧', implemented: true },
+        
+        // Role Assignment and Management
+        { key: 'assign_roles_to_users', label: 'Assign Roles to Users', description: 'Link roles to user accounts', icon: '🔗', implemented: true },
+        { key: 'view_role_assignments', label: 'View Role Assignments', description: 'See which users have which roles', icon: '👥', implemented: false },
+        { key: 'role_hierarchy_management', label: 'Role Hierarchy Management', description: 'Manage role inheritance and hierarchy', icon: '🏛️', implemented: false },
+        
+        // System Administration
+        { key: 'manage_system_roles', label: 'Manage System Roles', description: 'Configure built-in system roles', icon: '🔒', implemented: true },
+        { key: 'permission_audit', label: 'Permission Audit', description: 'Audit and review permission usage', icon: '🔍', implemented: false },
+        { key: 'export_role_configuration', label: 'Export Role Configuration', description: 'Export role and permission settings', icon: '📤', implemented: false }
       ]
     },
-    {
-      title: 'UI Components Access',
-      key: 'ui_components',
-      description: 'Fine-grained control over UI elements and actions',
-      permissions: [
-        { key: 'action_buttons', label: 'Action Buttons', description: 'Access to Edit, Delete, and other action buttons', icon: '🔘', implemented: true },
-        { key: 'dropdown_menus', label: 'Dropdown Menus', description: 'Access to three-dots and other dropdown menus', icon: '📋', implemented: true },
-        { key: 'status_badges', label: 'Status Badges', description: 'View and interact with status indicators', icon: '🏷️', implemented: true },
-        { key: 'pagination_controls', label: 'Pagination Controls', description: 'Use pagination and page size controls', icon: '📄', implemented: true },
-        { key: 'sorting_columns', label: 'Column Sorting', description: 'Sort table columns', icon: '🔀', implemented: true },
-        { key: 'advanced_filters', label: 'Advanced Filters', description: 'Access advanced filtering options', icon: '🎛️', implemented: true }
-      ]
-    },
-    {
-      title: 'Dashboard Module Actions',
-      key: 'dashboard',
-      description: 'Actions available in the Dashboard module',
-      permissions: [
-        { key: 'view', label: 'View Dashboard', description: 'Access dashboard page', icon: '👁️', implemented: true },
-        { key: 'viewAnalytics', label: 'View Analytics', description: 'View analytics data', icon: '📊', implemented: true },
-        { key: 'viewReports', label: 'View Reports', description: 'View reports', icon: '📈', implemented: true }
-      ]
-    },
-    {
-      title: 'Finance Module Actions',
-      key: 'finance',
-      description: 'Actions available in the Finance module',
-      permissions: [
-        { key: 'view', label: 'View', description: 'View finance data', icon: '👁️', implemented: true },
-        { key: 'create', label: 'Add', description: 'Create new finance entries', icon: '➕', implemented: true },
-        { key: 'edit', label: 'Edit', description: 'Edit finance entries', icon: '✏️', implemented: true },
-        { key: 'delete', label: 'Delete', description: 'Delete finance entries', icon: '🗑️', implemented: true },
-        { key: 'import', label: 'Import', description: 'Import data from Excel', icon: '📥', implemented: true },
-        { key: 'export', label: 'Export', description: 'Export to Excel', icon: '📤', implemented: true },
-        { key: 'viewStats', label: 'View Statistics', description: 'View financial statistics', icon: '📊', implemented: true }
-      ]
-    },
-    {
-      title: 'Settings Module Actions',
-      key: 'settings',
-      description: 'Actions available in the Settings module',
-      permissions: [
-        { key: 'view', label: 'View Settings', description: 'Access settings page', icon: '👁️', implemented: true },
-        { key: 'viewCompanySettings', label: 'View Company Info', description: 'View company settings', icon: '🏢', implemented: true },
-        { key: 'editCompanySettings', label: 'Edit Company Info', description: 'Edit company settings', icon: '✏️', implemented: true },
-        { key: 'manageUsers', label: 'Manage Users', description: 'User management access', icon: '👥', implemented: true },
-        { key: 'manageRoles', label: 'Manage Roles', description: 'Role management access', icon: '🔐', implemented: true }
-      ]
-    }
+
   ];
 
   // Filter to show only implemented permissions and apply search/category filters
   const getFilteredPermissionGroups = () => {
     const categoryMap = {
-      core: ['modules', 'home', 'clients', 'associates', 'finance', 'dashboard', 'settings'],
-      data: ['data_operations'],
-      admin: ['admin'],
-      ui: ['ui_components']
+      core: ['clients', 'associates', 'finance', 'reports', 'profile'],
+      admin: ['user_management', 'role_management'],
+      all: ['clients', 'associates', 'finance', 'reports', 'profile', 'user_management', 'role_management']
     };
 
     let filteredGroups = permissionGroups.map(group => ({
