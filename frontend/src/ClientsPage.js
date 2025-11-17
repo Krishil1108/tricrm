@@ -9,7 +9,7 @@ import Watermark from './components/Watermark';
 import './PageContent.css';
 
 const ClientsPage = () => {
-  const { canCreate, canEdit, canDelete, canExport, canImport, canDuplicate } = useAuth();
+  const { canCreate, canEdit, canDelete, canExport, canImport, canDuplicate, canViewStats } = useAuth();
   const navigate = useNavigate();
   const [clients, setClients] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -449,25 +449,27 @@ const ClientsPage = () => {
           </div>
         )}
 
-        {/* Client Statistics */}
-<div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-label">Total Clients</div>
-            <div className="stat-value">{Array.isArray(clients) ? clients.length : 0}</div>
+        {/* Client Statistics - Role-based visibility */}
+        {canViewStats('clients') && (
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-label">Total Clients</div>
+              <div className="stat-value">{Array.isArray(clients) ? clients.length : 0}</div>
+            </div>
+            <div className="stat-card success">
+              <div className="stat-label">Active Clients</div>
+              <div className="stat-value">{Array.isArray(clients) ? clients.filter(c => c.status === 'Active').length : 0}</div>
+            </div>
+            <div className="stat-card warning">
+              <div className="stat-label">Pending</div>
+              <div className="stat-value">{Array.isArray(clients) ? clients.filter(c => c.status === 'Pending').length : 0}</div>
+            </div>
+            <div className="stat-card danger">
+              <div className="stat-label">Inactive Clients</div>
+              <div className="stat-value">{Array.isArray(clients) ? clients.filter(c => c.status === 'Inactive').length : 0}</div>
+            </div>
           </div>
-          <div className="stat-card success">
-            <div className="stat-label">Active Clients</div>
-            <div className="stat-value">{Array.isArray(clients) ? clients.filter(c => c.status === 'Active').length : 0}</div>
-          </div>
-          <div className="stat-card warning">
-            <div className="stat-label">Pending</div>
-            <div className="stat-value">{Array.isArray(clients) ? clients.filter(c => c.status === 'Pending').length : 0}</div>
-          </div>
-          <div className="stat-card danger">
-            <div className="stat-label">Inactive Clients</div>
-            <div className="stat-value">{Array.isArray(clients) ? clients.filter(c => c.status === 'Inactive').length : 0}</div>
-          </div>
-        </div>
+        )}
 
         {/* Controls */}
         <div className="finance-filters" style={{

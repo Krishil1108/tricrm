@@ -4,6 +4,7 @@ import FinanceService from './services/FinanceService';
 import ClientService from './services/ClientService';
 import AssociateService from './services/AssociateService';
 import ConfigurationVersionService from './services/ConfigurationVersionService';
+import { useAuth } from './contexts/AuthContext';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
 import YearlyDistributionTable from './components/YearlyDistributionTable';
@@ -11,6 +12,7 @@ import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import Watermark from './components/Watermark';
 
 const ProjectPage = () => {
+  const { canViewStats } = useAuth();
   const [activeTab, setActiveTab] = useState('projects');
   const [projects, setProjects] = useState([]);
   const [expenses, setExpenses] = useState([]);
@@ -839,8 +841,8 @@ const ProjectPage = () => {
         </div>
       </div>
 
-      {/* Statistics */}
-      {stats && (
+      {/* Statistics - Role-based visibility */}
+      {stats && canViewStats('finance') && (
         <div className="stats-grid">
           <div className="stat-card">
             <div className="stat-label">Total Projects</div>

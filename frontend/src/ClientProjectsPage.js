@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
 import FinanceService from './services/FinanceService';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
@@ -9,6 +10,7 @@ const ClientProjectsPage = () => {
   const { clientId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const { canViewStats } = useAuth();
   const { showLoading, hideLoading } = useLoading();
   const { showError } = useToast();
   
@@ -161,37 +163,39 @@ const ClientProjectsPage = () => {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">📊</div>
-          <div className="stat-info">
-            <div className="stat-number">{stats.totalProjects}</div>
-            <div className="stat-label">Total Projects</div>
+      {/* Stats Cards - Role-based visibility */}
+      {canViewStats('clients') && (
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-icon">📊</div>
+            <div className="stat-info">
+              <div className="stat-number">{stats.totalProjects}</div>
+              <div className="stat-label">Total Projects</div>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon">💰</div>
+            <div className="stat-info">
+              <div className="stat-number">{formatCurrency(stats.totalContractValue)}</div>
+              <div className="stat-label">Total Contract Value</div>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon">✅</div>
+            <div className="stat-info">
+              <div className="stat-number">{formatCurrency(stats.totalReceived)}</div>
+              <div className="stat-label">Total Received</div>
+            </div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-icon">⏳</div>
+            <div className="stat-info">
+              <div className="stat-number">{formatCurrency(stats.outstandingAmount)}</div>
+              <div className="stat-label">Outstanding Amount</div>
+            </div>
           </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon">💰</div>
-          <div className="stat-info">
-            <div className="stat-number">{formatCurrency(stats.totalContractValue)}</div>
-            <div className="stat-label">Total Contract Value</div>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">✅</div>
-          <div className="stat-info">
-            <div className="stat-number">{formatCurrency(stats.totalReceived)}</div>
-            <div className="stat-label">Total Received</div>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">⏳</div>
-          <div className="stat-info">
-            <div className="stat-number">{formatCurrency(stats.outstandingAmount)}</div>
-            <div className="stat-label">Outstanding Amount</div>
-          </div>
-        </div>
-      </div>
+      )}
 
       {/* Filters */}
       <div className="project-controls">

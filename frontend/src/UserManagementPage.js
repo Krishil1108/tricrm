@@ -114,6 +114,8 @@ function UserManagementPage() {
       : formData;
 
     try {
+      console.log('Sending payload:', payload); // Debug log
+      
       const response = await fetch(url, {
         method,
         headers: {
@@ -124,16 +126,19 @@ function UserManagementPage() {
       });
 
       const data = await response.json();
+      console.log('Response data:', data); // Debug log
 
-      if (data.success) {
-        showMessage('success', data.message);
+      if (response.ok && data.success) {
+        showMessage('success', data.message || 'User saved successfully');
         fetchUsers();
         handleCloseModal();
       } else {
-        showMessage('error', data.message);
+        console.error('API Error:', data);
+        showMessage('error', data.message || data.error || 'Failed to save user');
       }
     } catch (error) {
-      showMessage('error', 'An error occurred');
+      console.error('Request Error:', error);
+      showMessage('error', `Network error: ${error.message}`);
     }
   };
 

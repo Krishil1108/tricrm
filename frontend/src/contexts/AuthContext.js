@@ -180,6 +180,7 @@ export const AuthProvider = ({ children }) => {
   const canViewDistributions = (module) => hasPermission(module, 'expense_distribution') || hasPermission(module, 'associate_distribution');
   const canAccessUIComponents = (component) => hasPermission('ui_components', component);
   const canPerformDataOperations = (operation) => hasPermission('data_operations', operation);
+  const canViewStats = (module) => hasPermission(module, 'stats_cards') || hasPermission(module, 'viewStats') || hasPermission('home', 'stats_cards');
 
   // Check if user is admin
   const isAdmin = () => {
@@ -211,6 +212,7 @@ export const AuthProvider = ({ children }) => {
     canViewDistributions,
     canAccessUIComponents,
     canPerformDataOperations,
+    canViewStats,
     isAdmin,
     isAuthenticated: !!user
   };
