@@ -22,7 +22,8 @@ const ProjectPage = () => {
     canExportExcel,
     canViewProjectSummaryCards,
     canExpenseDistribution,
-    canAssociateDistribution
+    canAssociateDistribution,
+    hasPermission
   } = useAuth();
   const [activeTab, setActiveTab] = useState('projects');
   const [projects, setProjects] = useState([]);
@@ -2041,8 +2042,8 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
         </div>
       </div>
 
-      {/* Payment Management Section - Temporarily Disabled */}
-      {false && (
+      {/* Payment Management Section */}
+      {hasPermission('finance', 'add_payment') && (
         <div className="form-section-header">
           <h3>💳 Payment Details</h3>
           <button 
@@ -2056,7 +2057,7 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
         </div>
       )}
 
-      {false && formData.payments && formData.payments.length > 0 && (
+      {hasPermission('finance', 'add_payment') && formData.payments && formData.payments.length > 0 && (
         <div className="payments-section">
           {formData.payments.map((payment, index) => (
             <div key={payment.id} className="payment-row">
@@ -2130,7 +2131,7 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
         </div>
       )}
 
-      {false && formData.payments && formData.payments.length === 0 && (
+      {hasPermission('finance', 'add_payment') && formData.payments && formData.payments.length === 0 && (
         <div className="empty-payments">
           <p>No payments added yet. Click "Add Payment" to start adding payment details.</p>
         </div>
