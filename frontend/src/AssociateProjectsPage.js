@@ -46,18 +46,6 @@ const AssociateProjectsPage = () => {
     amount: '',
     notes: ''
   });
-  
-  // Payment modal states
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [selectedAssociateData, setSelectedAssociateData] = useState(null);
-  const [paymentFormData, setPaymentFormData] = useState({
-    transactionDate: new Date().toISOString().split('T')[0],
-    paymentMode: 'Cheque',
-    chequeNeftNumber: '',
-    amount: '',
-    notes: ''
-  });
 
   useEffect(() => {
     fetchAssociateProjects();
