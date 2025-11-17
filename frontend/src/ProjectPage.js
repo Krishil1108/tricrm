@@ -12,7 +12,16 @@ import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import Watermark from './components/Watermark';
 
 const ProjectPage = () => {
-  const { canViewStats } = useAuth();
+  const { 
+    canViewProjectManagementPage,
+    canAddNewProject,
+    canEditProject,
+    canDeleteProject,
+    canConfigurePercentagesGranular,
+    canImportExcel,
+    canExportExcel,
+    canViewProjectSummaryCards
+  } = useAuth();
   const [activeTab, setActiveTab] = useState('projects');
   const [projects, setProjects] = useState([]);
   const [expenses, setExpenses] = useState([]);
@@ -842,7 +851,7 @@ const ProjectPage = () => {
       </div>
 
       {/* Statistics - Role-based visibility */}
-      {stats && canViewStats('finance') && (
+      {stats && canViewProjectSummaryCards() && (
         <div className="stats-grid">
           <div className="stat-card">
             <div className="stat-label">Total Projects</div>

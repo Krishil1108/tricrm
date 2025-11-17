@@ -9,7 +9,14 @@ import Watermark from './components/Watermark';
 import './PageContent.css';
 
 const AssociatesPage = () => {
-    const { canCreate, canEdit, canDelete, canExport, canImport, canDuplicate, canViewStats } = useAuth();
+    const { 
+    canAddNewAssociate,
+    canEditAssociate, 
+    canDeleteAssociate, 
+    canExportAssociates, 
+    canImportAssociates,
+    canViewAssociateSummaryCards
+  } = useAuth();
   const navigate = useNavigate();
   const [associates, setAssociates] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -355,7 +362,7 @@ const AssociatesPage = () => {
           <p>Manage and view all your associates</p>
         </div>
         <div className="header-actions">
-          {canCreate('associates') && (
+          {canAddNewAssociate() && (
             <button 
               className="add-client-btn"
               onClick={() => setShowAddPopup(true)}
@@ -366,7 +373,7 @@ const AssociatesPage = () => {
               Add New Associate
             </button>
           )}
-          {canExport('associates') && (
+          {canExportAssociates() && (
             <button 
               className="export-btn enhanced-export-btn"
               onClick={handleExportToExcel}
@@ -381,7 +388,7 @@ const AssociatesPage = () => {
               </div>
             </button>
           )}
-          {canImport('associates') && (
+          {canImportAssociates() && (
             <button 
               className="import-btn"
               onClick={() => setShowImportModal(true)}
@@ -426,7 +433,7 @@ const AssociatesPage = () => {
         )}
 
         {/* Associate Statistics - Role-based visibility */}
-        {canViewStats('associates') && (
+        {canViewAssociateSummaryCards() && (
           <div className="stats-grid">
             <div className="stat-card">
               <div className="stat-label">Total Associates</div>
@@ -594,7 +601,7 @@ const AssociatesPage = () => {
                           </svg>
                           Projects
                         </button>
-                        {canEdit('associates') && (
+                        {canEditAssociate() && (
                           <button
                             className="edit-btn action-btn"
                             onClick={() => handleEdit(associate)}
@@ -605,7 +612,7 @@ const AssociatesPage = () => {
                             </svg>
                           </button>
                         )}
-                        {canDelete('associates') && (
+                        {canDeleteAssociate() && (
                           <button
                             className="delete-btn action-btn"
                             onClick={() => handleDelete(associate._id)}

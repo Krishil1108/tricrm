@@ -5,7 +5,12 @@ import './UserManagementPage.css';
 import API_BASE_URL from './config/api';
 
 function UserManagementPage() {
-  const { token } = useAuth();
+  const { 
+    token, 
+    canAddNewUser,
+    canEditUser,
+    canDeleteUser
+  } = useAuth();
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -305,9 +310,11 @@ function UserManagementPage() {
     <div className="user-management-page">
       <div className="page-header">
         <h1>User Management</h1>
-        <button className="btn-primary" onClick={() => handleOpenModal()}>
-          + Add New User
-        </button>
+        {canAddNewUser() && (
+          <button className="btn-primary" onClick={() => handleOpenModal()}>
+            + Add New User
+          </button>
+        )}
       </div>
 
       {message.text && (
@@ -343,7 +350,7 @@ function UserManagementPage() {
                 </td>
                 <td>{user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}</td>
                 <td className="actions">
-                  <button className="btn-edit" onClick={() => handleOpenModal(user)}>Edit</button>
+                  {canEditUser() && <button className="btn-edit" onClick={() => handleOpenModal(user)}>Edit</button>}
                   <button className="btn-warning" onClick={() => handleOpenPasswordModal(user)}>Reset Password</button>
                   <button 
                     className={user.isActive ? 'btn-warning' : 'btn-success'} 
@@ -351,7 +358,7 @@ function UserManagementPage() {
                   >
                     {user.isActive ? 'Deactivate' : 'Activate'}
                   </button>
-                  <button className="btn-danger" onClick={() => handleDelete(user._id)}>Delete</button>
+                  {canDeleteUser() && <button className="btn-danger" onClick={() => handleDelete(user._id)}>Delete</button>}
                 </td>
               </tr>
             ))}
