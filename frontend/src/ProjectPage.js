@@ -1016,6 +1016,7 @@ const ProjectPage = () => {
           onAddClient={handleOpenClientModal}
           onAddAssociate={handleOpenAssociateModal}
           percentageConfig={percentageConfig}
+          hasPermission={hasPermission}
         />
       )}
 
@@ -1824,7 +1825,8 @@ const Modal = ({
   associates = [], 
   onAddClient,
   onAddAssociate, 
-  percentageConfig 
+  percentageConfig,
+  hasPermission 
 }) => {
   
   // Payment management functions
