@@ -7,6 +7,17 @@ const ConfigurationVersionService = require('../services/ConfigurationVersionSer
 const multer = require('multer');
 const XLSX = require('xlsx');
 
+// Security: Limit XLSX processing to prevent DoS attacks
+const XLSX_OPTIONS = {
+  cellFormula: false, // Disable formula evaluation
+  cellHTML: false,    // Disable HTML content
+  cellNF: false,      // Disable number formats
+  cellStyles: false,  // Disable styles
+  sheetStubs: false,  // Disable empty cells
+  bookVBA: false,     // Disable VBA macros
+  password: null      // No password support
+};
+
 // Configure multer for file uploads
 const storage = multer.memoryStorage();
 const upload = multer({ 
@@ -377,7 +388,15 @@ router.post('/import/projects', authenticate, upload.single('file'), async (req,
       return res.status(400).json({ message: 'No file uploaded' });
     }
     
-    const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
+    // Security: Add file size check and safe parsing options
+    if (req.file.buffer.length > 5 * 1024 * 1024) { // 5MB limit
+      return res.status(400).json({ message: 'File too large. Maximum size is 5MB.' });
+    }
+    
+    const workbook = XLSX.read(req.file.buffer, { 
+      type: 'buffer',
+      ...XLSX_OPTIONS
+    });
     const sheetName = workbook.SheetNames[0];
     const worksheet = workbook.Sheets[sheetName];
     const data = XLSX.utils.sheet_to_json(worksheet);
