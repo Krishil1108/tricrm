@@ -141,7 +141,7 @@ const AssociateProjectsPage = () => {
     setSelectedAssociateData(associateData);
     
     // Calculate suggested amount based on percentage
-    const associateAmount = Math.round((project.totalReceivedFees * (associateData?.percentage || 0)) / 100);
+    const associateAmount = Math.round((project.finalizedFees * (associateData?.percentage || 0)) / 100);
     const amountPaid = associateData?.amountPaid || 0;
     const pendingAmount = associateAmount - amountPaid;
     
@@ -409,7 +409,7 @@ const AssociateProjectsPage = () => {
                     );
                     
                     const associatePercentage = associateData?.percentage || 0;
-                    const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
+                    const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
                     const amountPaid = associateData?.amountPaid || 0;
                     const pendingAmount = associateAmount - amountPaid;
                     const paymentDate = associateData?.paymentGivenDate;
@@ -497,7 +497,7 @@ const AssociateProjectsPage = () => {
                     );
                     
                     const associatePercentage = associateData?.percentage || 0;
-                    const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
+                    const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
                     const amountPaid = associateData?.amountPaid || 0;
                     const pendingAmount = associateAmount - amountPaid;
                     const paymentDate = associateData?.paymentGivenDate;
