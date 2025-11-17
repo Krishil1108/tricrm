@@ -279,12 +279,15 @@ const FinanceService = {
   // Delete payment transaction for an associate
   deleteAssociatePaymentTransaction: async (projectId, associateId, transactionId) => {
     try {
+      console.log('Delete API call:', `${API_URL}/finance/projects/${projectId}/associate/${associateId}/payments/${transactionId}`);
       const response = await axios.delete(`${API_URL}/finance/projects/${projectId}/associate/${associateId}/payments/${transactionId}`, {
         headers: getAuthHeader()
       });
       return response.data;
     } catch (error) {
       console.error('Error deleting associate payment transaction:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
       throw error;
     }
   }

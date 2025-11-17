@@ -709,6 +709,7 @@ router.put('/projects/:projectId/associate/:associateId/payments/:transactionId'
 router.delete('/projects/:projectId/associate/:associateId/payments/:transactionId', authenticate, async (req, res) => {
   try {
     const { projectId, associateId, transactionId } = req.params;
+    console.log('Delete transaction request:', { projectId, associateId, transactionId });
 
     const project = await FinanceProject.findById(projectId);
     if (!project) {

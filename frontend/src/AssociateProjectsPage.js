@@ -234,12 +234,20 @@ const AssociateProjectsPage = () => {
 
   // Delete transaction handler
   const handleDeleteTransaction = async (index, payment) => {
+    console.log('Delete transaction data:', {
+      projectId: selectedProject._id,
+      associateId: associateId,
+      transactionId: payment._id,
+      payment: payment,
+      paymentKeys: Object.keys(payment)
+    });
+    
     if (window.confirm('Are you sure you want to delete this payment transaction?')) {
       try {
         showLoading('Deleting payment transaction...');
         const response = await FinanceService.deleteAssociatePaymentTransaction(
           selectedProject._id, 
-          selectedAssociate._id, 
+          associateId, 
           payment._id
         );
 
@@ -798,7 +806,7 @@ const AssociateProjectsPage = () => {
                     </thead>
                     <tbody>
                       {paymentHistory.map((payment, index) => (
-                        <tr key={index}>
+                        <tr key={payment._id || index}>
                           <td>{formatDate(payment.transactionDate)}</td>
                           <td>
                             <span className={`payment-mode-badge ${payment.paymentMode.toLowerCase()}`}>

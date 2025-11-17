@@ -30,3 +30,35 @@
   "responseTime": "5ms",
   "userId": "anonymous"
 }
+[2025-11-17T17:47:15.865Z] [INFO] {
+  "timestamp": "2025-11-17T17:47:15.865Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-17T17:47:15.869Z] [INFO] {
+  "timestamp": "2025-11-17T17:47:15.869Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "4ms",
+  "userId": "anonymous"
+}
+[2025-11-17T17:47:15.899Z] [INFO] {
+  "timestamp": "2025-11-17T17:47:15.899Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36"
+}
+[2025-11-17T17:47:15.903Z] [INFO] {
+  "timestamp": "2025-11-17T17:47:15.903Z",
+  "method": "GET",
+  "url": "/favicon.ico",
+  "statusCode": 200,
+  "responseTime": "4ms",
+  "userId": "anonymous"
+}
