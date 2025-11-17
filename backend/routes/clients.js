@@ -52,13 +52,15 @@ router.post('/', async (req, res) => {
       dateAdded
     } = req.body;
 
-    // Check if client with email already exists
-    const existingClient = await Client.findOne({ email });
-    if (existingClient) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Client with this email already exists' 
-      });
+    // Check if client with email already exists (only if email is provided)
+    if (email) {
+      const existingClient = await Client.findOne({ email });
+      if (existingClient) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Client with this email already exists' 
+        });
+      }
     }
 
     const newClient = new Client({
@@ -208,18 +210,18 @@ router.post('/bulk', async (req, res) => {
       const clientData = clients[i];
       
       try {
-        // Validate required fields
-        if (!clientData.name || !clientData.email) {
+        // Validate required fields (only name is required now)
+        if (!clientData.name) {
           results.failed.push({
             row: i + 1,
             data: clientData,
-            error: 'Name and email are required fields'
+            error: 'Name is required'
           });
           continue;
         }
 
-        // Check for duplicate email
-        const existingClient = await Client.findOne({ email: clientData.email });
+        // Check for duplicate email (only if email is provided)
+        const existingClient = clientData.email ? await Client.findOne({ email: clientData.email }) : null;
         if (existingClient) {
           results.duplicates.push({
             row: i + 1,

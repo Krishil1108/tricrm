@@ -879,7 +879,7 @@ const ClientsPage = () => {
                     />
                   </div>
                   <div className="form-group">
-                    <label htmlFor="email">Email Address *</label>
+                    <label htmlFor="email">Email Address</label>
                     <input
                       type="email"
                       id="email"
@@ -887,7 +887,6 @@ const ClientsPage = () => {
                       value={clientData.email}
                       onChange={handleInputChange}
                       placeholder="client@example.com"
-                      required
                     />
                   </div>
                 </div>
@@ -1043,14 +1042,13 @@ const ClientsPage = () => {
                     />
                   </div>
                   <div className="form-group">
-                    <label htmlFor="edit-email">Email Address *</label>
+                    <label htmlFor="edit-email">Email Address</label>
                     <input
                       type="email"
                       id="edit-email"
                       value={clientData.email}
                       onChange={(e) => setClientData({...clientData, email: e.target.value})}
                       placeholder="client@example.com"
-                      required
                     />
                   </div>
                 </div>
