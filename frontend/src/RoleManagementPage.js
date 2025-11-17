@@ -316,6 +316,9 @@ function RoleManagementPage() {
   const handleOpenModal = (role = null) => {
     if (role) {
       setEditingRole(role);
+      console.log('Editing role:', role);
+      console.log('Role permissions:', role.permissions);
+      
       // Ensure all permission groups are initialized, even if not in the role object
       const initializedPermissions = {
         modules: role.permissions?.modules || {},
@@ -323,17 +326,19 @@ function RoleManagementPage() {
         clients: role.permissions?.clients || {},
         associates: role.permissions?.associates || {},
         finance: role.permissions?.finance || {},
-        dashboard: role.permissions?.dashboard || {},
-        settings: role.permissions?.settings || {},
-        admin: role.permissions?.admin || {},
-        data_operations: role.permissions?.data_operations || {},
-        ui_components: role.permissions?.ui_components || {}
+        reports: role.permissions?.reports || {},
+        profile: role.permissions?.profile || {},
+        user_management: role.permissions?.user_management || {},
+        role_management: role.permissions?.role_management || {}
       };
-      setFormData({
+      console.log('Initialized permissions:', initializedPermissions);
+      const newFormData = {
         name: role.name,
         description: role.description,
         permissions: initializedPermissions
-      });
+      };
+      console.log('Setting form data:', newFormData);
+      setFormData(newFormData);
     } else {
       setEditingRole(null);
       setFormData({
@@ -344,12 +349,11 @@ function RoleManagementPage() {
           home: {},
           clients: {},
           associates: {},
-          dashboard: {},
           finance: {},
-          settings: {},
-          admin: {},
-          data_operations: {},
-          ui_components: {}
+          reports: {},
+          profile: {},
+          user_management: {},
+          role_management: {}
         }
       });
     }
