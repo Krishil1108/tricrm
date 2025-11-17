@@ -261,6 +261,32 @@ const FinanceService = {
       console.error('Error fetching associate payment transactions:', error);
       throw error;
     }
+  },
+
+  // Update payment transaction for an associate
+  updateAssociatePaymentTransaction: async (projectId, associateId, transactionId, paymentData) => {
+    try {
+      const response = await axios.put(`${API_URL}/finance/projects/${projectId}/associate/${associateId}/payments/${transactionId}`, paymentData, {
+        headers: getAuthHeader()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating associate payment transaction:', error);
+      throw error;
+    }
+  },
+
+  // Delete payment transaction for an associate
+  deleteAssociatePaymentTransaction: async (projectId, associateId, transactionId) => {
+    try {
+      const response = await axios.delete(`${API_URL}/finance/projects/${projectId}/associate/${associateId}/payments/${transactionId}`, {
+        headers: getAuthHeader()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting associate payment transaction:', error);
+      throw error;
+    }
   }
 };
 

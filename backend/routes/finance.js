@@ -628,4 +628,138 @@ router.get('/projects/:projectId/associate/:associateId/payments', authenticate,
   }
 });
 
+// Update payment transaction for an associate
+router.put('/projects/:projectId/associate/:associateId/payments/:transactionId', authenticate, async (req, res) => {
+  try {
+    const { projectId, associateId, transactionId } = req.params;
+    const { 
+      transactionDate, 
+      paymentMode, 
+      chequeNeftNumber, 
+      amount, 
+      percentageShare, 
+      notes 
+    } = req.body;
+
+    const project = await FinanceProject.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    // Find the associate in the project
+    const associateIndex = project.projectAssociates.findIndex(
+      assoc => assoc.associateId.toString() === associateId
+    );
+
+    if (associateIndex === -1) {
+      return res.status(404).json({ message: 'Associate not found in project' });
+    }
+
+    // Find the transaction
+    const transactions = project.projectAssociates[associateIndex].paymentTransactions || [];
+    const transactionIndex = transactions.findIndex(
+      trans => trans._id.toString() === transactionId
+    );
+
+    if (transactionIndex === -1) {
+      return res.status(404).json({ message: 'Transaction not found' });
+    }
+
+    // Get old amount to recalculate total
+    const oldAmount = transactions[transactionIndex].amount;
+    const newAmount = parseFloat(amount);
+    const amountDifference = newAmount - oldAmount;
+
+    // Update the transaction
+    transactions[transactionIndex] = {
+      ...transactions[transactionIndex].toObject(),
+      transactionDate: new Date(transactionDate),
+      paymentMode,
+      chequeNeftNumber: chequeNeftNumber || '',
+      amount: newAmount,
+      percentageShare: parseFloat(percentageShare),
+      notes: notes || '',
+      updatedAt: new Date()
+    };
+
+    // Update the total amount paid to associate
+    const currentPaid = project.projectAssociates[associateIndex].amountPaid || 0;
+    project.projectAssociates[associateIndex].amountPaid = currentPaid + amountDifference;
+
+    // Save the project
+    await project.save();
+
+    res.json({
+      success: true,
+      message: 'Payment transaction updated successfully',
+      transaction: transactions[transactionIndex]
+    });
+
+  } catch (error) {
+    console.error('Error updating associate payment transaction:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Failed to update payment transaction', 
+      error: error.message 
+    });
+  }
+});
+
+// Delete payment transaction for an associate
+router.delete('/projects/:projectId/associate/:associateId/payments/:transactionId', authenticate, async (req, res) => {
+  try {
+    const { projectId, associateId, transactionId } = req.params;
+
+    const project = await FinanceProject.findById(projectId);
+    if (!project) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
+    // Find the associate in the project
+    const associateIndex = project.projectAssociates.findIndex(
+      assoc => assoc.associateId.toString() === associateId
+    );
+
+    if (associateIndex === -1) {
+      return res.status(404).json({ message: 'Associate not found in project' });
+    }
+
+    // Find and remove the transaction
+    const transactions = project.projectAssociates[associateIndex].paymentTransactions || [];
+    const transactionIndex = transactions.findIndex(
+      trans => trans._id.toString() === transactionId
+    );
+
+    if (transactionIndex === -1) {
+      return res.status(404).json({ message: 'Transaction not found' });
+    }
+
+    // Get the amount to subtract from total
+    const deletedAmount = transactions[transactionIndex].amount;
+
+    // Remove the transaction
+    transactions.splice(transactionIndex, 1);
+
+    // Update the total amount paid to associate
+    const currentPaid = project.projectAssociates[associateIndex].amountPaid || 0;
+    project.projectAssociates[associateIndex].amountPaid = Math.max(0, currentPaid - deletedAmount);
+
+    // Save the project
+    await project.save();
+
+    res.json({
+      success: true,
+      message: 'Payment transaction deleted successfully'
+    });
+
+  } catch (error) {
+    console.error('Error deleting associate payment transaction:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Failed to delete payment transaction', 
+      error: error.message 
+    });
+  }
+});
+
 module.exports = router;

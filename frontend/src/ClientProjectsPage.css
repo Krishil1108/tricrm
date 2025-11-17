@@ -1103,6 +1103,102 @@
   font-size: 16px;
 }
 
+/* Payment Info Header with WhatsApp Button */
+.payment-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.payment-info-header > div {
+  flex: 1;
+}
+
+.btn-whatsapp {
+  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 140px;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+}
+
+.btn-whatsapp:hover {
+  background: linear-gradient(135deg, #128c7e 0%, #25d366 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
+}
+
+.btn-whatsapp:active {
+  transform: translateY(0);
+}
+
+/* Transaction Actions */
+.transaction-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.action-btn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  min-width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-edit-small {
+  background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
+}
+
+.btn-edit-small:hover {
+  background: linear-gradient(135deg, #ff8f00 0%, #ffc107 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 193, 7, 0.4);
+}
+
+.btn-delete-small {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+}
+
+.btn-delete-small:hover {
+  background: linear-gradient(135deg, #c82333 0%, #dc3545 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+/* Payment Table Actions Column */
+.payment-table th:last-child,
+.payment-table td:last-child {
+  text-align: center;
+  width: 100px;
+}
+
 @media (max-width: 768px) {
   .payment-form .form-row {
     grid-template-columns: 1fr;
@@ -1122,5 +1218,26 @@
   .payment-table th,
   .payment-table td {
     padding: 8px;
+  }
+
+  .payment-info-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .btn-whatsapp {
+    align-self: stretch;
+    min-width: auto;
+  }
+
+  .transaction-actions {
+    gap: 4px;
+  }
+
+  .action-btn {
+    font-size: 12px;
+    min-width: 28px;
+    height: 28px;
+    padding: 4px 6px;
   }
 }

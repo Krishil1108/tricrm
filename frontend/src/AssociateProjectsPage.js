@@ -12,7 +12,7 @@ const AssociateProjectsPage = () => {
   const navigate = useNavigate();
   const { canViewStats } = useAuth();
   const { showLoading, hideLoading } = useLoading();
-  const { showError } = useToast();
+  const { showError, showSuccess } = useToast();
   
   const [projects, setProjects] = useState([]);
   const [associateInfo] = useState({
@@ -38,7 +38,10 @@ const AssociateProjectsPage = () => {
   const [showPaymentHistoryModal, setShowPaymentHistoryModal] = useState(false);
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedAssociate, setSelectedAssociate] = useState(null);
   const [selectedAssociateData, setSelectedAssociateData] = useState(null);
+  const [editingTransactionIndex, setEditingTransactionIndex] = useState(null);
+  const [editingTransactionId, setEditingTransactionId] = useState(null);
   const [paymentFormData, setPaymentFormData] = useState({
     transactionDate: new Date().toISOString().split('T')[0],
     paymentMode: 'Cheque',
@@ -126,6 +129,7 @@ const AssociateProjectsPage = () => {
   // Payment handling functions
   const handleAddPayment = (project, associateData) => {
     setSelectedProject(project);
+    setSelectedAssociate(associateData);
     setSelectedAssociateData(associateData);
     
     // Calculate suggested amount based on percentage
@@ -142,6 +146,10 @@ const AssociateProjectsPage = () => {
       notes: ''
     });
     
+    // Reset editing state
+    setEditingTransactionIndex(null);
+    setEditingTransactionId(null);
+    
     setShowPaymentModal(true);
   };
 
@@ -149,7 +157,7 @@ const AssociateProjectsPage = () => {
     e.preventDefault();
     
     try {
-      showLoading();
+      showLoading(editingTransactionId ? 'Updating payment transaction...' : 'Adding payment transaction...');
       
       const paymentData = {
         projectId: selectedProject._id,
@@ -162,16 +170,34 @@ const AssociateProjectsPage = () => {
         notes: paymentFormData.notes
       };
       
-      // Call API to add payment transaction
-      await FinanceService.addAssociatePaymentTransaction(paymentData);
+      if (editingTransactionId) {
+        // Update existing transaction
+        await FinanceService.updateAssociatePaymentTransaction(
+          selectedProject._id,
+          associateId,
+          editingTransactionId,
+          paymentData
+        );
+        showSuccess('Payment transaction updated successfully!');
+      } else {
+        // Add new transaction
+        await FinanceService.addAssociatePaymentTransaction(paymentData);
+        showSuccess('Payment transaction added successfully!');
+      }
       
-      // Refresh the projects list
+      // Refresh the projects list and payment history
       await fetchAssociateProjects();
+      if (showPaymentHistoryModal) {
+        await handleViewPayments(selectedProject, selectedAssociate);
+      }
       
       // Close modal and reset form
       setShowPaymentModal(false);
       setSelectedProject(null);
+      setSelectedAssociate(null);
       setSelectedAssociateData(null);
+      setEditingTransactionIndex(null);
+      setEditingTransactionId(null);
       
     } catch (error) {
       console.error('Error adding payment:', error);
@@ -188,10 +214,96 @@ const AssociateProjectsPage = () => {
     }));
   };
 
+  // Edit transaction handler
+  const handleEditTransaction = (index, payment) => {
+    setSelectedProject(selectedProject);
+    setSelectedAssociate(selectedAssociate);
+    setPaymentFormData({
+      transactionDate: payment.transactionDate.split('T')[0],
+      paymentMode: payment.paymentMode,
+      amount: payment.amount,
+      percentageShare: payment.percentageShare,
+      chequeNeftNumber: payment.chequeNeftNumber || '',
+      notes: payment.notes || ''
+    });
+    setEditingTransactionIndex(index);
+    setEditingTransactionId(payment._id);
+    setShowPaymentModal(true);
+    setShowPaymentHistoryModal(false);
+  };
+
+  // Delete transaction handler
+  const handleDeleteTransaction = async (index, payment) => {
+    if (window.confirm('Are you sure you want to delete this payment transaction?')) {
+      try {
+        showLoading('Deleting payment transaction...');
+        const response = await FinanceService.deleteAssociatePaymentTransaction(
+          selectedProject._id, 
+          selectedAssociate._id, 
+          payment._id
+        );
+
+        if (response.success) {
+          // Remove the transaction from local state
+          const updatedHistory = paymentHistory.filter((_, i) => i !== index);
+          setPaymentHistory(updatedHistory);
+          
+          // Update the project data
+          fetchAssociateProjects();
+          
+          showSuccess('Payment transaction deleted successfully!');
+        }
+      } catch (error) {
+        console.error('Error deleting payment transaction:', error);
+        showError('Failed to delete payment transaction. Please try again.');
+      } finally {
+        hideLoading();
+      }
+    }
+  };
+
+  // WhatsApp share handler
+  const handleShareWhatsApp = () => {
+    if (!selectedProject || !selectedAssociate || !paymentHistory.length) {
+      alert('No payment data to share');
+      return;
+    }
+
+    const projectName = selectedProject.projectName;
+    const associateName = selectedAssociate.name;
+    const associateShare = selectedAssociate.percentage;
+    const totalPaid = formatCurrency(selectedAssociateData?.amountPaid || 0);
+    
+    let message = `*Payment Transaction Details*\n\n`;
+    message += `*Project:* ${projectName}\n`;
+    message += `*Associate:* ${associateName}\n`;
+    message += `*Share Percentage:* ${associateShare}%\n`;
+    message += `*Total Amount Paid:* ${totalPaid}\n\n`;
+    message += `*Transaction History:*\n`;
+    
+    paymentHistory.forEach((payment, index) => {
+      message += `${index + 1}. *Date:* ${formatDate(payment.transactionDate)}\n`;
+      message += `   *Mode:* ${payment.paymentMode}\n`;
+      if (payment.chequeNeftNumber) {
+        message += `   *Ref No:* ${payment.chequeNeftNumber}\n`;
+      }
+      message += `   *Amount:* ${formatCurrency(payment.amount)}\n`;
+      if (payment.notes) {
+        message += `   *Notes:* ${payment.notes}\n`;
+      }
+      message += '\n';
+    });
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const handleViewPayments = async (project, associateData) => {
     try {
       showLoading();
       setSelectedProject(project);
+      setSelectedAssociate(associateData);
       setSelectedAssociateData(associateData);
       
       // Fetch payment history for this associate in this project
@@ -548,7 +660,7 @@ const AssociateProjectsPage = () => {
         <div className="modal-overlay" onClick={() => setShowPaymentModal(false)}>
           <div className="modal-content payment-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Add Payment Transaction</h3>
+              <h3>{editingTransactionId ? 'Edit Payment Transaction' : 'Add Payment Transaction'}</h3>
               <button className="modal-close" onClick={() => setShowPaymentModal(false)}>×</button>
             </div>
             
@@ -654,10 +766,21 @@ const AssociateProjectsPage = () => {
             
             <div className="modal-body">
               <div className="payment-info">
-                <h4>{selectedProject?.projectName}</h4>
-                <p><strong>Project Number:</strong> {selectedProject?.projectNumber}</p>
-                <p><strong>Associate Share:</strong> {selectedAssociateData?.percentage}%</p>
-                <p><strong>Total Paid:</strong> {formatCurrency(selectedAssociateData?.amountPaid || 0)}</p>
+                <div className="payment-info-header">
+                  <div>
+                    <h4>{selectedProject?.projectName}</h4>
+                    <p><strong>Project Number:</strong> {selectedProject?.projectNumber}</p>
+                    <p><strong>Associate Share:</strong> {selectedAssociateData?.percentage}%</p>
+                    <p><strong>Total Paid:</strong> {formatCurrency(selectedAssociateData?.amountPaid || 0)}</p>
+                  </div>
+                  <button 
+                    className="btn-whatsapp"
+                    onClick={() => handleShareWhatsApp()}
+                    title="Share via WhatsApp"
+                  >
+                    📱 Share WhatsApp
+                  </button>
+                </div>
               </div>
               
               {paymentHistory.length > 0 ? (
@@ -670,6 +793,7 @@ const AssociateProjectsPage = () => {
                         <th>Cheque/Ref No.</th>
                         <th>Amount</th>
                         <th>Notes</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -684,6 +808,24 @@ const AssociateProjectsPage = () => {
                           <td>{payment.chequeNeftNumber || '-'}</td>
                           <td className="amount-cell">{formatCurrency(payment.amount)}</td>
                           <td>{payment.notes || '-'}</td>
+                          <td>
+                            <div className="transaction-actions">
+                              <button
+                                className="action-btn btn-edit-small"
+                                onClick={() => handleEditTransaction(index, payment)}
+                                title="Edit Transaction"
+                              >
+                                ✏️
+                              </button>
+                              <button
+                                className="action-btn btn-delete-small"
+                                onClick={() => handleDeleteTransaction(index, payment)}
+                                title="Delete Transaction"
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
