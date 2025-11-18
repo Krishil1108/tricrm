@@ -1537,8 +1537,6 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
             <th>Project Location</th>
             <th>Finalized Fees</th>
             <th>Received Fees</th>
-            <th>Expenses</th>
-            <th>Net Profit</th>
             <th>Status</th>
             <th style={{textAlign: 'center'}}>Actions</th>
           </tr>
@@ -1552,10 +1550,6 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
               <td>{project.projectLocation || '-'}</td>
               <td>{formatCurrency(project.finalizedFees)}</td>
               <td>{formatCurrency(project.totalReceivedFees)}</td>
-              <td>{formatCurrency(project.totalExpenses)}</td>
-              <td className={project.netProfit >= 0 ? 'amount-positive' : 'amount-negative'}>
-                {formatCurrency(project.netProfit)}
-              </td>
               <td>
                 <span className={`status-badge status-${project.status.toLowerCase().replace(' ', '')}`}>
                   {project.status}
