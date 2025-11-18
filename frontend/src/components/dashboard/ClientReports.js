@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   PieChart,
   Pie,
@@ -17,24 +17,59 @@ import {
   ComposedChart,
   Column
 } from 'recharts';
-import { format } from 'date-fns';
+import { format, startOfDay, startOfWeek, startOfMonth, startOfYear, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, eachYearOfInterval } from 'date-fns';
 
-const ClientReports = ({ data, graphType, dateRange }) => {
+const ClientReports = ({ data, graphType, dateRange, timeGrouping = 'month' }) => {
   
   // Color palette for charts
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#FF7C7C'];
 
-  // Prepare data for different chart types
-  const prepareTimelineData = () => {
-    if (!data?.timeline) return [];
+  // Prepare data based on time grouping
+  const prepareTimelineData = useMemo(() => {
+    if (!data?.timeline || !Array.isArray(data.timeline)) return [];
     
-    return data.timeline.map(item => ({
-      ...item,
-      year: new Date(item.date).getFullYear(),
-      month: format(new Date(item.date), 'MMM yyyy'),
-      clients: item.count || item.clients || 0
-    }));
-  };
+    const groupedData = {};
+    
+    data.timeline.forEach(item => {
+      const date = new Date(item.date);
+      let key;
+      let label;
+      
+      switch (timeGrouping) {
+        case 'day':
+          key = format(startOfDay(date), 'yyyy-MM-dd');
+          label = format(date, 'MMM dd, yyyy');
+          break;
+        case 'week':
+          key = format(startOfWeek(date), 'yyyy-ww');
+          label = format(startOfWeek(date), 'MMM dd, yyyy');
+          break;
+        case 'year':
+          key = format(startOfYear(date), 'yyyy');
+          label = format(date, 'yyyy');
+          break;
+        case 'month':
+        default:
+          key = format(startOfMonth(date), 'yyyy-MM');
+          label = format(date, 'MMM yyyy');
+          break;
+      }
+      
+      if (!groupedData[key]) {
+        groupedData[key] = {
+          key,
+          label,
+          clients: 0,
+          count: 0
+        };
+      }
+      
+      groupedData[key].clients += (item.count || item.clients || 0);
+      groupedData[key].count += (item.count || item.clients || 0);
+    });
+    
+    return Object.values(groupedData).sort((a, b) => a.key.localeCompare(b.key));
+  }, [data, timeGrouping]);
 
   const prepareTypeDistribution = () => {
     if (!data?.typeDistribution || !Array.isArray(data.typeDistribution)) {
@@ -95,22 +130,24 @@ const ClientReports = ({ data, graphType, dateRange }) => {
   };
 
   const renderBarChart = () => {
-    const barData = prepareTimelineData();
+    const barData = prepareTimelineData;
     
     return (
       <div className="chart-container">
-        <h3>Client Acquisition by Year</h3>
+        <h3>Client Acquisition Over Time</h3>
         <ResponsiveContainer width="100%" height={320}>
-          <BarChart data={barData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <BarChart data={barData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
-              dataKey="year" 
+              dataKey="label" 
               tick={{ fontSize: 12 }}
+              angle={-45}
+              textAnchor="end"
+              height={80}
             />
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip 
               formatter={(value) => [value, 'New Clients']}
-              labelFormatter={(label) => `Year: ${label}`}
             />
             <Legend />
             <Bar dataKey="clients" fill="#0088FE" name="New Clients" />
@@ -121,7 +158,7 @@ const ClientReports = ({ data, graphType, dateRange }) => {
   };
 
   const renderLineChart = () => {
-    const lineData = prepareTimelineData();
+    const lineData = prepareTimelineData;
     
     // Ensure we have meaningful data for the chart
     const hasData = lineData && lineData.length > 0;
@@ -130,7 +167,7 @@ const ClientReports = ({ data, graphType, dateRange }) => {
     
     return (
       <div className="chart-container">
-        <h3>Client Growth Trend (Last 10 Years)</h3>
+        <h3>Client Growth Trend</h3>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart 
             data={lineData} 
@@ -138,7 +175,7 @@ const ClientReports = ({ data, graphType, dateRange }) => {
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis 
-              dataKey="year"
+              dataKey="label"
               tick={{ fontSize: 12, fill: '#666' }}
               axisLine={{ stroke: '#ccc' }}
               tickLine={{ stroke: '#ccc' }}
