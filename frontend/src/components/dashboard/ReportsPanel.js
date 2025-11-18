@@ -1,6 +1,7 @@
 import React from 'react';
 import ClientReports from './ClientReports';
-// import InventoryReports from './InventoryReports'; // Removed inventory functionality
+import AssociateReports from './AssociateReports';
+import ProjectReports from './ProjectReports';
 
 const ReportsPanel = ({
   activeTab,
@@ -8,6 +9,8 @@ const ReportsPanel = ({
   graphType,
   clientData,
   inventoryData,
+  associateData,
+  projectData,
   dateRange,
   clientFilters,
   inventoryFilters,
@@ -16,8 +19,9 @@ const ReportsPanel = ({
 }) => {
   
   const tabs = [
-    { id: 'clients', label: 'Client Reports', icon: '👥' }
-    // Removed inventory tab
+    { id: 'clients', label: 'Client Reports', icon: '👥' },
+    { id: 'associates', label: 'Associate Reports', icon: '🤝' },
+    { id: 'projects', label: 'Project Reports', icon: '📋' }
   ];
 
   if (loading) {
@@ -82,36 +86,84 @@ const ReportsPanel = ({
 
       {/* Tab Content */}
       <div className="reports-content">
-        <ClientReports
-          data={clientData}
-          graphType={graphType}
-          dateRange={dateRange}
-        />
+        {activeTab === 'clients' && (
+          <ClientReports
+            data={clientData}
+            graphType={graphType}
+            dateRange={dateRange}
+          />
+        )}
+        {activeTab === 'associates' && (
+          <AssociateReports
+            data={associateData}
+            graphType={graphType}
+            dateRange={dateRange}
+          />
+        )}
+        {activeTab === 'projects' && (
+          <ProjectReports
+            data={projectData}
+            graphType={graphType}
+            dateRange={dateRange}
+          />
+        )}
       </div>
 
       {/* Reports Summary */}
       <div className="reports-summary">
         <div className="summary-stats">
-          <>
-            <div className="stat-item">
-              <span className="stat-value">{clientData?.totalClients || 0}</span>
-              <span className="stat-label">
-                {clientFilters?.status !== 'all' ? `${clientFilters.status.charAt(0).toUpperCase() + clientFilters.status.slice(1)} Clients` : 'Total Clients'}
-              </span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-value">{clientData?.activeClients || 0}</span>
-              <span className="stat-label">Active Clients</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-value">{clientData?.newClientsThisMonth || 0}</span>
-              <span className="stat-label">New This Month</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-value">{clientData?.growthRate || '0%'}</span>
-              <span className="stat-label">Growth Rate</span>
-            </div>
-          </>
+          {activeTab === 'clients' && (
+            <>
+              <div className="stat-item">
+                <span className="stat-value">{clientData?.totalClients || 0}</span>
+                <span className="stat-label">
+                  {clientFilters?.status !== 'all' ? `${clientFilters.status.charAt(0).toUpperCase() + clientFilters.status.slice(1)} Clients` : 'Total Clients'}
+                </span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">{clientData?.activeClients || 0}</span>
+                <span className="stat-label">Active Clients</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">{clientData?.newClientsThisMonth || 0}</span>
+                <span className="stat-label">New This Month</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">{clientData?.growthRate || '0%'}</span>
+                <span className="stat-label">Growth Rate</span>
+              </div>
+            </>
+          )}
+          {activeTab === 'associates' && (
+            <>
+              <div className="stat-item">
+                <span className="stat-value">{associateData?.totalAssociates || 0}</span>
+                <span className="stat-label">Total Associates</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">{associateData?.totalProjects || 0}</span>
+                <span className="stat-label">Total Projects</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">{associateData?.avgProjectsPerAssociate || 0}</span>
+                <span className="stat-label">Avg Projects/Associate</span>
+              </div>
+            </>
+          )}
+          {activeTab === 'projects' && (
+            <>
+              <div className="stat-item">
+                <span className="stat-value">{projectData?.totalProjects || 0}</span>
+                <span className="stat-label">Total Projects</span>
+              </div>
+              {projectData?.statusBreakdown && Object.entries(projectData.statusBreakdown).map(([status, count]) => (
+                <div className="stat-item" key={status}>
+                  <span className="stat-value">{count}</span>
+                  <span className="stat-label">{status}</span>
+                </div>
+              ))}
+            </>
+          )}
         </div>
       </div>
     </div>

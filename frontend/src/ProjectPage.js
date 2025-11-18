@@ -816,7 +816,7 @@ const ProjectPage = () => {
   return (
     <div className="project-page">
       <div className="page-header">
-        <h1>� Project Management</h1>
+        <h1>📋 Project Management</h1>
         <div className="project-actions">
           {canAddNewProject() && (
             <button className="project-btn project-btn-primary" onClick={handleAdd}>

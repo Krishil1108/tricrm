@@ -65,7 +65,6 @@ const ClientListPage = () => {
     <div className="page-container">
       <div className="page-header">
         <h1>Client List</h1>
-        <p>Manage and view all your clients</p>
       </div>
       
       <div className="page-content">

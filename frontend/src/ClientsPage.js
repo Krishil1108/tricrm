@@ -385,7 +385,6 @@ const ClientsPage = () => {
       <div className="page-header">
         <div className="header-content">
           <h1>Clients</h1>
-          <p>Manage and view all your clients</p>
         </div>
         <div className="header-actions">
           {canAddNewClient() && (

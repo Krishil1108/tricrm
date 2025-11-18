@@ -26,6 +26,8 @@ const DashboardPage = () => {
   // Data state
   const [clientData, setClientData] = useState([]);
   const [inventoryData, setInventoryData] = useState([]);
+  const [associateData, setAssociateData] = useState([]);
+  const [projectData, setProjectData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -39,13 +41,17 @@ const DashboardPage = () => {
     setError(null);
     
     try {
-      const [clients, inventory] = await Promise.all([
+      const [clients, inventory, associates, projects] = await Promise.all([
         DashboardService.getClientAnalytics(dateRange, clientFilters),
-        DashboardService.getInventoryAnalytics(dateRange, inventoryFilters)
+        DashboardService.getInventoryAnalytics(dateRange, inventoryFilters),
+        DashboardService.getAssociateAnalytics(dateRange, {}),
+        DashboardService.getProjectAnalytics(dateRange, {})
       ]);
       
       setClientData(clients);
       setInventoryData(inventory);
+      setAssociateData(associates);
+      setProjectData(projects);
     } catch (err) {
       setError('Failed to load dashboard data');
       console.error('Dashboard data loading error:', err);
@@ -99,7 +105,6 @@ const DashboardPage = () => {
       <div className="page-header">
         <div className="header-content">
           <h1>Dashboard & Analytics</h1>
-          <p>Comprehensive insights into your clients and inventory performance</p>
         </div>
       </div>
 
@@ -129,6 +134,8 @@ const DashboardPage = () => {
             graphType={graphType}
             clientData={clientData}
             inventoryData={inventoryData}
+            associateData={associateData}
+            projectData={projectData}
             dateRange={dateRange}
             clientFilters={clientFilters}
             inventoryFilters={inventoryFilters}

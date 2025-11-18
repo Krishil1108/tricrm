@@ -49,6 +49,92 @@ class DashboardService {
       valueDistribution: []
     };
   }
+
+  // Get associate analytics data
+  static async getAssociateAnalytics(dateRange, filters) {
+    try {
+      const response = await fetch('/api/associates', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch associates');
+      }
+
+      const result = await response.json();
+      const associates = result.data || [];
+
+      // Filter associates by date range
+      const filteredAssociates = associates.filter(associate => {
+        const associateDate = new Date(associate.createdAt || new Date());
+        return associateDate >= dateRange.startDate && associateDate <= dateRange.endDate;
+      });
+
+      // Calculate total projects
+      const totalProjects = filteredAssociates.reduce((sum, associate) => sum + (associate.projectCount || 0), 0);
+
+      return {
+        totalAssociates: filteredAssociates.length,
+        totalProjects: totalProjects,
+        associates: filteredAssociates,
+        avgProjectsPerAssociate: filteredAssociates.length > 0 ? (totalProjects / filteredAssociates.length).toFixed(1) : 0
+      };
+    } catch (error) {
+      console.error('Error fetching associate analytics:', error);
+      return {
+        totalAssociates: 0,
+        totalProjects: 0,
+        associates: [],
+        avgProjectsPerAssociate: 0
+      };
+    }
+  }
+
+  // Get project analytics data
+  static async getProjectAnalytics(dateRange, filters) {
+    try {
+      const response = await fetch('/api/finance/projects', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch projects');
+      }
+
+      const result = await response.json();
+      const projects = result.data || [];
+
+      // Filter projects by date range
+      const filteredProjects = projects.filter(project => {
+        const projectDate = new Date(project.createdAt || new Date());
+        return projectDate >= dateRange.startDate && projectDate <= dateRange.endDate;
+      });
+
+      // Calculate status breakdown
+      const statusBreakdown = filteredProjects.reduce((acc, project) => {
+        const status = project.status || 'Unknown';
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {});
+
+      return {
+        totalProjects: filteredProjects.length,
+        projects: filteredProjects,
+        statusBreakdown: statusBreakdown
+      };
+    } catch (error) {
+      console.error('Error fetching project analytics:', error);
+      return {
+        totalProjects: 0,
+        projects: [],
+        statusBreakdown: {}
+      };
+    }
+  }
   
   // Filter clients by date range and additional filters
   static filterClientsByDateAndFilters(clients, dateRange, filters) {
