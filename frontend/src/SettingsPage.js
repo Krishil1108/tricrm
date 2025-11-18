@@ -412,6 +412,10 @@ const SettingsPage = () => {
             </div>
           </div>
         </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label>Company Name</label>
             <input
               type="text"
               value={companySettings.name}

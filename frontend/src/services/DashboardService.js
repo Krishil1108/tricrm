@@ -66,20 +66,17 @@ class DashboardService {
       const result = await response.json();
       const associates = result.data || [];
 
-      // Filter associates by date range
-      const filteredAssociates = associates.filter(associate => {
-        const associateDate = new Date(associate.createdAt || new Date());
-        return associateDate >= dateRange.startDate && associateDate <= dateRange.endDate;
-      });
-
+      // Show all associates (date range filtering removed to show current state)
+      // Date range can be used for filtering associated transactions/activities in future
+      
       // Calculate total projects
-      const totalProjects = filteredAssociates.reduce((sum, associate) => sum + (associate.projectCount || 0), 0);
+      const totalProjects = associates.reduce((sum, associate) => sum + (associate.projectCount || 0), 0);
 
       return {
-        totalAssociates: filteredAssociates.length,
+        totalAssociates: associates.length,
         totalProjects: totalProjects,
-        associates: filteredAssociates,
-        avgProjectsPerAssociate: filteredAssociates.length > 0 ? (totalProjects / filteredAssociates.length).toFixed(1) : 0
+        associates: associates,
+        avgProjectsPerAssociate: associates.length > 0 ? (totalProjects / associates.length).toFixed(1) : 0
       };
     } catch (error) {
       console.error('Error fetching associate analytics:', error);
@@ -108,22 +105,19 @@ class DashboardService {
       const result = await response.json();
       const projects = result.data || [];
 
-      // Filter projects by date range
-      const filteredProjects = projects.filter(project => {
-        const projectDate = new Date(project.createdAt || new Date());
-        return projectDate >= dateRange.startDate && projectDate <= dateRange.endDate;
-      });
-
+      // Show all projects (date range filtering removed to show current state)
+      // Date range can be used for filtering project activities/milestones in future
+      
       // Calculate status breakdown
-      const statusBreakdown = filteredProjects.reduce((acc, project) => {
+      const statusBreakdown = projects.reduce((acc, project) => {
         const status = project.status || 'Unknown';
         acc[status] = (acc[status] || 0) + 1;
         return acc;
       }, {});
 
       return {
-        totalProjects: filteredProjects.length,
-        projects: filteredProjects,
+        totalProjects: projects.length,
+        projects: projects,
         statusBreakdown: statusBreakdown
       };
     } catch (error) {
