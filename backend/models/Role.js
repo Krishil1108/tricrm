@@ -57,6 +57,7 @@ const roleSchema = new mongoose.Schema({
       delete: { type: Boolean, default: false },
       import: { type: Boolean, default: false },
       export: { type: Boolean, default: false },
+      add_payment: { type: Boolean, default: false },
       viewStats: { type: Boolean, default: false },
       expense_distribution: { type: Boolean, default: false },
       associate_distribution: { type: Boolean, default: false },

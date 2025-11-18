@@ -144,6 +144,9 @@ router.put('/:id', [
 
     const { name, description, permissions } = req.body;
 
+    console.log('Updating role:', req.params.id);
+    console.log('Received permissions:', JSON.stringify(permissions, null, 2));
+
     // Check if new name conflicts with existing role
     if (name && name !== role.name) {
       const existingRole = await Role.findOne({ name: name.trim() });
@@ -157,7 +160,10 @@ router.put('/:id', [
     }
 
     if (description !== undefined) role.description = description;
-    if (permissions) role.permissions = permissions;
+    if (permissions) {
+      role.permissions = permissions;
+      console.log('Updated role permissions:', JSON.stringify(role.permissions, null, 2));
+    }
 
     await role.save();
 
