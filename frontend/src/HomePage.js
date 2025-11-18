@@ -204,7 +204,11 @@ const HomePage = () => {
       <div className="crm-header">
         <div className="company-header">
           <div className="company-logo">
-            {typeof companyInfo.logo === 'string' ? companyInfo.logo : companyInfo.logo}
+            {companyInfo.logoUrl ? (
+              <img src={companyInfo.logoUrl} alt={companyInfo.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            ) : (
+              typeof companyInfo.logo === 'string' ? companyInfo.logo : companyInfo.logo
+            )}
           </div>
           <div className="company-info">
             {isEditingCompany ? (

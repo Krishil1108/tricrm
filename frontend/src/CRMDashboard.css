@@ -25,16 +25,17 @@
 }
 
 .company-logo {
-  font-size: 2.5rem;
+  font-size: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 12px;
   color: white;
   text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  overflow: hidden;
 }
 
 .company-info {
