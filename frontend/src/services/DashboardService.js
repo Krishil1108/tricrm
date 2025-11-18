@@ -1,5 +1,6 @@
 import ClientService from './ClientService';
 import ReportsExportService from './ReportsExportService';
+import API_BASE_URL from '../config/api';
 
 class DashboardService {
   
@@ -53,7 +54,7 @@ class DashboardService {
   // Get associate analytics data
   static async getAssociateAnalytics(dateRange, filters) {
     try {
-      const response = await fetch('/api/associates', {
+      const response = await fetch(`${API_BASE_URL}/associates`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -92,7 +93,7 @@ class DashboardService {
   // Get project analytics data
   static async getProjectAnalytics(dateRange, filters) {
     try {
-      const response = await fetch('/api/finance/projects', {
+      const response = await fetch(`${API_BASE_URL}/finance/projects`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
