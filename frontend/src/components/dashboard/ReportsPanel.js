@@ -7,6 +7,7 @@ const ReportsPanel = ({
   activeTab,
   onTabChange,
   graphType,
+  timeGrouping,
   clientData,
   inventoryData,
   associateData,
@@ -90,6 +91,7 @@ const ReportsPanel = ({
           <ClientReports
             data={clientData}
             graphType={graphType}
+            timeGrouping={timeGrouping}
             dateRange={dateRange}
           />
         )}
@@ -97,6 +99,7 @@ const ReportsPanel = ({
           <AssociateReports
             data={associateData}
             graphType={graphType}
+            timeGrouping={timeGrouping}
             dateRange={dateRange}
           />
         )}
@@ -104,6 +107,7 @@ const ReportsPanel = ({
           <ProjectReports
             data={projectData}
             graphType={graphType}
+            timeGrouping={timeGrouping}
             dateRange={dateRange}
           />
         )}

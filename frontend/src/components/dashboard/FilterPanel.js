@@ -12,7 +12,9 @@ const FilterPanel = ({
   inventoryFilters,
   onInventoryFiltersChange,
   onExport,
-  loading
+  loading,
+  timeGrouping,
+  onTimeGroupingChange
 }) => {
   
   const graphTypes = [
@@ -21,6 +23,13 @@ const FilterPanel = ({
     { value: 'line', label: 'Line Chart' },
     { value: 'histogram', label: 'Histogram' },
     { value: 'column', label: 'Column Chart' }
+  ];
+
+  const timeGroupings = [
+    { value: 'day', label: 'Day' },
+    { value: 'week', label: 'Week' },
+    { value: 'month', label: 'Month' },
+    { value: 'year', label: 'Year' }
   ];
 
   const handleStartDateChange = (e) => {
@@ -93,6 +102,21 @@ const FilterPanel = ({
             {graphTypes.map(type => (
               <option key={type.value} value={type.value}>
                 {type.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        
+        <div className="filter-group">
+          <label>X-Axis Grouping</label>
+          <select
+            value={timeGrouping || 'month'}
+            onChange={(e) => onTimeGroupingChange(e.target.value)}
+            className="filter-select"
+          >
+            {timeGroupings.map(group => (
+              <option key={group.value} value={group.value}>
+                {group.label}
               </option>
             ))}
           </select>

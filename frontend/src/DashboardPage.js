@@ -13,6 +13,7 @@ const DashboardPage = () => {
     endDate: new Date()
   });
   const [graphType, setGraphType] = useState('line');
+  const [timeGrouping, setTimeGrouping] = useState('month');
   const [activeTab, setActiveTab] = useState('clients'); // 'clients' or 'inventory'
   const [clientFilters, setClientFilters] = useState({
     type: 'all',
@@ -68,6 +69,10 @@ const DashboardPage = () => {
     setGraphType(newGraphType);
   };
 
+  const handleTimeGroupingChange = (newTimeGrouping) => {
+    setTimeGrouping(newTimeGrouping);
+  };
+
   const handleClientFiltersChange = (newFilters) => {
     setClientFilters(newFilters);
   };
@@ -116,6 +121,8 @@ const DashboardPage = () => {
             onDateRangeChange={handleDateRangeChange}
             graphType={graphType}
             onGraphTypeChange={handleGraphTypeChange}
+            timeGrouping={timeGrouping}
+            onTimeGroupingChange={handleTimeGroupingChange}
             activeTab={activeTab}
             clientFilters={clientFilters}
             onClientFiltersChange={handleClientFiltersChange}
@@ -132,6 +139,7 @@ const DashboardPage = () => {
             activeTab={activeTab}
             onTabChange={handleTabChange}
             graphType={graphType}
+            timeGrouping={timeGrouping}
             clientData={clientData}
             inventoryData={inventoryData}
             associateData={associateData}
