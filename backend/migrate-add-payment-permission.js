@@ -20,17 +20,38 @@ async function migrateRoles() {
     for (const role of roles) {
       let updated = false;
 
-      // Check if add_payment permission exists in finance permissions
+      // Force refresh the permissions structure to match the schema
       if (!role.permissions.finance.hasOwnProperty('add_payment')) {
-        role.permissions.finance.add_payment = false;
+        console.log(`Role ${role.name} missing add_payment field`);
+        
+        // Rebuild the entire finance permissions object to match schema order
+        const currentFinance = role.permissions.finance;
+        role.permissions.finance = {
+          view: currentFinance.view || false,
+          create: currentFinance.create || false,
+          edit: currentFinance.edit || false,
+          delete: currentFinance.delete || false,
+          import: currentFinance.import || false,
+          export: currentFinance.export || false,
+          add_payment: currentFinance.add_payment || false,
+          viewStats: currentFinance.viewStats || false,
+          expense_distribution: currentFinance.expense_distribution || false,
+          associate_distribution: currentFinance.associate_distribution || false,
+          configure_percentages: currentFinance.configure_percentages || false
+        };
+        
         updated = true;
-        console.log(`Added add_payment permission to role: ${role.name}`);
+        console.log(`Rebuilt finance permissions for role: ${role.name}`);
       }
 
       // Save if updated
       if (updated) {
         await role.save();
         console.log(`Updated role: ${role.name}`);
+        
+        // Verify the update
+        const refreshed = await Role.findById(role._id);
+        console.log(`Verified ${role.name} add_payment:`, refreshed.permissions.finance.add_payment);
       }
     }
 

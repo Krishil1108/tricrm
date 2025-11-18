@@ -15,6 +15,10 @@ router.use(isAdmin);
 router.get('/', async (req, res) => {
   try {
     const roles = await Role.find().sort({ name: 1 });
+    console.log('Fetching roles - found:', roles.length);
+    roles.forEach(role => {
+      console.log(`Role: ${role.name}, add_payment: ${role.permissions.finance.add_payment}`);
+    });
     res.json({ 
       success: true, 
       roles 

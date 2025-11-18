@@ -118,6 +118,8 @@ const RoleManagementPage = () => {
       });
       const data = await response.json();
       if (data.success) {
+        console.log('Fetched roles:', data.roles);
+        console.log('First role finance permissions:', data.roles[0]?.permissions?.finance);
         setRoles(data.roles);
       }
     } catch (error) {
@@ -198,6 +200,7 @@ const RoleManagementPage = () => {
       };
 
       console.log('Initialized permissions:', initializedPermissions);
+      console.log('Original role finance permissions:', role.permissions?.finance);
       
       const newFormData = {
         name: role.name,
@@ -338,6 +341,8 @@ const RoleManagementPage = () => {
       const data = await response.json();
 
       if (data.success) {
+        console.log('Save response:', data);
+        console.log('Updated role permissions:', data.role?.permissions);
         showMessage('success', editingRole ? 'Role updated successfully' : 'Role created successfully');
         fetchRoles();
         setShowModal(false);
