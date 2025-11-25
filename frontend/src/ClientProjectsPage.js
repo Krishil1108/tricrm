@@ -8,6 +8,7 @@ import ExcelExportService from './services/ExcelExportService';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { FaWhatsapp } from 'react-icons/fa';
 import './ClientProjectsPage.css';
 
 const ClientProjectsPage = () => {
@@ -208,20 +209,37 @@ const ClientProjectsPage = () => {
       const doc = new jsPDF();
       
       // Add title
-      doc.setFontSize(18);
-      doc.text('Client Projects Report', 14, 20);
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Client Projects Report', 105, 20, { align: 'center' });
       
       // Add client info
-      doc.setFontSize(12);
-      doc.text(`Client: ${clientInfo.name}${clientInfo.company ? ' - ' + clientInfo.company : ''}`, 14, 30);
-      doc.text(`Date: ${new Date().toLocaleDateString('en-IN')}`, 14, 38);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Client: ${clientInfo.name}${clientInfo.company ? ' - ' + clientInfo.company : ''}`, 14, 32);
+      doc.text(`Date: ${new Date().toLocaleDateString('en-IN')}`, 14, 39);
       
-      // Add summary stats
-      doc.setFontSize(10);
-      doc.text(`Total Projects: ${stats.totalProjects}`, 14, 48);
-      doc.text(`Total Contract Value: ${formatCurrency(stats.totalContractValue)}`, 14, 54);
-      doc.text(`Total Received: ${formatCurrency(stats.totalReceived)}`, 14, 60);
-      doc.text(`Outstanding: ${formatCurrency(stats.outstandingAmount)}`, 14, 66);
+      // Add summary stats box
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Total Projects: ', 14, 49);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${stats.totalProjects}`, 45, 49);
+      
+      doc.setFont('helvetica', 'bold');
+      doc.text('Total Contract Value: ', 14, 55);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${formatCurrency(stats.totalContractValue)}`, 55, 55);
+      
+      doc.setFont('helvetica', 'bold');
+      doc.text('Total Received: ', 14, 61);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${formatCurrency(stats.totalReceived)}`, 45, 61);
+      
+      doc.setFont('helvetica', 'bold');
+      doc.text('Outstanding: ', 14, 67);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${formatCurrency(stats.outstandingAmount)}`, 40, 67);
       
       // Prepare table data
       const tableData = filteredProjects.map((project, index) => {
@@ -248,21 +266,36 @@ const ClientProjectsPage = () => {
       // Add table
       autoTable(doc, {
         startY: 75,
-        head: [['S.No', 'Project No', 'Project Name', 'Finalized Fees', 'Received', 'Pending', 'Payments', 'Status', 'Last Payment']],
+        head: [['S.N\no', 'Project No', 'Project Name', 'Finalized\nFees', 'Received', 'Pending', 'Paym\nents', 'Status', 'Last\nPayment']],
         body: tableData,
         theme: 'grid',
-        styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: [0, 123, 255] },
+        styles: { 
+          fontSize: 9,
+          cellPadding: 3,
+          font: 'helvetica',
+          lineColor: [200, 200, 200],
+          lineWidth: 0.1,
+          halign: 'left',
+          valign: 'middle'
+        },
+        headStyles: { 
+          fillColor: [0, 123, 255],
+          textColor: [255, 255, 255],
+          fontStyle: 'bold',
+          fontSize: 9,
+          halign: 'center',
+          valign: 'middle'
+        },
         columnStyles: {
-          0: { cellWidth: 10 },
-          1: { cellWidth: 18 },
-          2: { cellWidth: 35 },
-          3: { cellWidth: 22 },
-          4: { cellWidth: 22 },
-          5: { cellWidth: 22 },
-          6: { cellWidth: 12 },
-          7: { cellWidth: 15 },
-          8: { cellWidth: 20 }
+          0: { cellWidth: 12, halign: 'center' },
+          1: { cellWidth: 20, halign: 'left' },
+          2: { cellWidth: 38, halign: 'left' },
+          3: { cellWidth: 24, halign: 'right' },
+          4: { cellWidth: 24, halign: 'right' },
+          5: { cellWidth: 24, halign: 'right' },
+          6: { cellWidth: 14, halign: 'center' },
+          7: { cellWidth: 18, halign: 'center' },
+          8: { cellWidth: 22, halign: 'center' }
         }
       });
       
@@ -588,7 +621,7 @@ const ClientProjectsPage = () => {
                 onClick={handleShareDistributionWhatsApp}
                 title="Share distribution via WhatsApp"
               >
-                📱 Share WhatsApp
+                <FaWhatsapp /> Share WhatsApp
               </button>
               <button 
                 className="btn btn-primary"
