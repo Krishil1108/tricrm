@@ -340,8 +340,6 @@ const ClientProjectsPage = () => {
           7: { cellWidth: 15, halign: 'center' },
           8: { cellWidth: 19, halign: 'center' }
         },
-          8: { cellWidth: 22, halign: 'center' }
-        },
         margin: { left: 14, right: 14 },
         tableWidth: 'wrap',
         didDrawPage: function (data) {
