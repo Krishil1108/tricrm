@@ -6,8 +6,8 @@ import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
 import ExcelExportService from './services/ExcelExportService';
 import * as XLSX from 'xlsx';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import './ClientProjectsPage.css';
 
 const ClientProjectsPage = () => {
@@ -124,26 +124,22 @@ const ClientProjectsPage = () => {
     const pending = formatCurrency((selectedProject.finalizedFees || 0) - (selectedProject.totalReceivedFees || 0));
     
     let message = `*Payment Distribution Report*\n\n`;
-    message += `*Project:* ${projectName}\n`;
-    message += `*Project No:* ${projectNumber}\n`;
-    message += `*Total Contract:* ${totalContract}\n`;
-    message += `*Total Received:* ${totalReceived}\n`;
-    message += `*Pending Amount:* ${pending}\n\n`;
-    message += `*Payment History & Distribution:*\n\n`;
+    message += `*Project Details:*\n`;
+    message += `Project: ${projectName}\n`;
+    message += `Project No: ${projectNumber}\n`;
+    message += `Total Contract: ${totalContract}\n`;
+    message += `Total Received: ${totalReceived}\n`;
+    message += `Pending Amount: ${pending}\n\n`;
+    message += `*Payment History:*\n\n`;
     
     selectedProject.payments.forEach((payment, index) => {
-      const distribution = calculatePaymentDistribution(payment, selectedProject);
-      message += `*Payment #${index + 1}*\n`;
+      message += `Payment #${index + 1}\n`;
       message += `Date: ${new Date(payment.date).toLocaleDateString()}\n`;
       message += `Amount: ${formatCurrency(payment.amount)}\n`;
       message += `Mode: ${payment.mode}\n`;
       if (payment.chequeNeftNumber) {
         message += `Ref: ${payment.chequeNeftNumber}\n`;
       }
-      message += `\nDistribution Breakdown:\n`;
-      distribution.forEach(item => {
-        message += `• ${item.label}: ${item.percent}% - ${formatCurrency(item.amount)}\n`;
-      });
       message += '\n';
     });
 
@@ -155,19 +151,28 @@ const ClientProjectsPage = () => {
   // Export to Excel handler
   const handleExportToExcel = () => {
     try {
-      const exportData = filteredProjects.map((project, index) => ({
-        'S.No': index + 1,
-        'Project Number': project.projectNumber || '',
-        'Project Name': project.projectName || '',
-        'Client Name': clientInfo.name || '',
-        'Company': clientInfo.company || '',
-        'Finalized Fees': project.finalizedFees || 0,
-        'Received Fees': project.totalReceivedFees || 0,
-        'Pending Amount': (project.finalizedFees || 0) - (project.totalReceivedFees || 0),
-        'Total Payments': project.payments?.length || 0,
-        'Status': project.status || '',
-        'Created Date': project.createdAt ? new Date(project.createdAt).toLocaleDateString('en-IN') : ''
-      }));
+      const exportData = filteredProjects.map((project, index) => {
+        // Get last payment date if any payments exist
+        let lastPaymentDate = '-';
+        if (project.payments && project.payments.length > 0) {
+          const sortedPayments = [...project.payments].sort((a, b) => new Date(b.date) - new Date(a.date));
+          lastPaymentDate = new Date(sortedPayments[0].date).toLocaleDateString('en-IN');
+        }
+        
+        return {
+          'S.No': index + 1,
+          'Project Number': project.projectNumber || '',
+          'Project Name': project.projectName || '',
+          'Client Name': clientInfo.name || '',
+          'Company': clientInfo.company || '',
+          'Finalized Fees': project.finalizedFees || 0,
+          'Received Fees': project.totalReceivedFees || 0,
+          'Pending Amount': (project.finalizedFees || 0) - (project.totalReceivedFees || 0),
+          'Total Payments': project.payments?.length || 0,
+          'Status': project.status || '',
+          'Last Payment Date': lastPaymentDate
+        };
+      });
 
       const workbook = XLSX.utils.book_new();
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -183,7 +188,7 @@ const ClientProjectsPage = () => {
         { wch: 15 }, // Pending Amount
         { wch: 12 }, // Total Payments
         { wch: 12 }, // Status
-        { wch: 15 }  // Created Date
+        { wch: 18 }  // Last Payment Date
       ];
       worksheet['!cols'] = columnWidths;
 
@@ -219,34 +224,45 @@ const ClientProjectsPage = () => {
       doc.text(`Outstanding: ${formatCurrency(stats.outstandingAmount)}`, 14, 66);
       
       // Prepare table data
-      const tableData = filteredProjects.map((project, index) => [
-        index + 1,
-        project.projectNumber || '',
-        project.projectName || '',
-        formatCurrency(project.finalizedFees),
-        formatCurrency(project.totalReceivedFees),
-        formatCurrency((project.finalizedFees || 0) - (project.totalReceivedFees || 0)),
-        project.payments?.length || 0,
-        project.status || ''
-      ]);
+      const tableData = filteredProjects.map((project, index) => {
+        // Get last payment date if any payments exist
+        let lastPaymentDate = '-';
+        if (project.payments && project.payments.length > 0) {
+          const sortedPayments = [...project.payments].sort((a, b) => new Date(b.date) - new Date(a.date));
+          lastPaymentDate = new Date(sortedPayments[0].date).toLocaleDateString('en-IN');
+        }
+        
+        return [
+          index + 1,
+          project.projectNumber || '',
+          project.projectName || '',
+          formatCurrency(project.finalizedFees),
+          formatCurrency(project.totalReceivedFees),
+          formatCurrency((project.finalizedFees || 0) - (project.totalReceivedFees || 0)),
+          project.payments?.length || 0,
+          project.status || '',
+          lastPaymentDate
+        ];
+      });
       
       // Add table
-      doc.autoTable({
+      autoTable(doc, {
         startY: 75,
-        head: [['S.No', 'Project No', 'Project Name', 'Finalized Fees', 'Received', 'Pending', 'Payments', 'Status']],
+        head: [['S.No', 'Project No', 'Project Name', 'Finalized Fees', 'Received', 'Pending', 'Payments', 'Status', 'Last Payment']],
         body: tableData,
         theme: 'grid',
         styles: { fontSize: 8, cellPadding: 2 },
         headStyles: { fillColor: [0, 123, 255] },
         columnStyles: {
-          0: { cellWidth: 12 },
-          1: { cellWidth: 20 },
-          2: { cellWidth: 40 },
-          3: { cellWidth: 25 },
-          4: { cellWidth: 25 },
-          5: { cellWidth: 25 },
-          6: { cellWidth: 15 },
-          7: { cellWidth: 18 }
+          0: { cellWidth: 10 },
+          1: { cellWidth: 18 },
+          2: { cellWidth: 35 },
+          3: { cellWidth: 22 },
+          4: { cellWidth: 22 },
+          5: { cellWidth: 22 },
+          6: { cellWidth: 12 },
+          7: { cellWidth: 15 },
+          8: { cellWidth: 20 }
         }
       });
       
