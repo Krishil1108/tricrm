@@ -265,22 +265,22 @@ const ClientProjectsPage = () => {
       doc.setFont('helvetica', 'bold');
       doc.text('Total Projects:', 18, boxY + 6);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${stats.totalProjects}`, 48, boxY + 6);
+      doc.text(`${stats.totalProjects}`, 51, boxY + 6);
       
       doc.setFont('helvetica', 'bold');
       doc.text('Total Contract Value:', 18, boxY + 11);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${formatCurrencyForPDF(stats.totalContractValue)}`, 62, boxY + 11);
+      doc.text(`${formatCurrencyForPDF(stats.totalContractValue)}`, 67, boxY + 11);
       
       doc.setFont('helvetica', 'bold');
       doc.text('Total Received:', 105, boxY + 6);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${formatCurrencyForPDF(stats.totalReceived)}`, 140, boxY + 6);
+      doc.text(`${formatCurrencyForPDF(stats.totalReceived)}`, 146, boxY + 6);
       
       doc.setFont('helvetica', 'bold');
       doc.text('Outstanding:', 105, boxY + 11);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${formatCurrencyForPDF(stats.outstandingAmount)}`, 140, boxY + 11);
+      doc.text(`${formatCurrencyForPDF(stats.outstandingAmount)}`, 141, boxY + 11);
       
       // Prepare table data
       const tableData = filteredProjects.map((project, index) => {
