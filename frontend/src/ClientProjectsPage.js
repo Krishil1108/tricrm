@@ -207,39 +207,77 @@ const ClientProjectsPage = () => {
   const handleExportToPDF = () => {
     try {
       const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      
+      // Helper function to format currency for PDF (without rupee symbol)
+      const formatCurrencyForPDF = (amount) => {
+        return 'Rs ' + new Intl.NumberFormat('en-IN', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0
+        }).format(amount || 0);
+      };
+      
+      // Add company logo (SVG as path)
+      doc.setDrawColor(0, 123, 255);
+      doc.setFillColor(0, 123, 255);
+      // Simple building icon representation
+      doc.rect(14, 8, 12, 12, 'F');
+      doc.setFillColor(255, 255, 255);
+      doc.rect(15.5, 10, 2, 2, 'F');
+      doc.rect(18.5, 10, 2, 2, 'F');
+      doc.rect(21.5, 10, 2, 2, 'F');
+      doc.rect(15.5, 13, 2, 2, 'F');
+      doc.rect(18.5, 13, 2, 2, 'F');
+      doc.rect(21.5, 13, 2, 2, 'F');
+      doc.rect(15.5, 16, 2, 2, 'F');
+      doc.rect(18.5, 16, 2, 2, 'F');
+      doc.rect(21.5, 16, 2, 2, 'F');
+      
+      // Add company name next to logo
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(0, 123, 255);
+      doc.text('Trimity Consultant', 28, 15);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(100, 100, 100);
+      doc.text('Innovation, Precision, Excellence', 28, 19);
+      
+      // Reset text color
+      doc.setTextColor(0, 0, 0);
       
       // Add title
-      doc.setFontSize(20);
+      doc.setFontSize(18);
       doc.setFont('helvetica', 'bold');
-      doc.text('Client Projects Report', 105, 20, { align: 'center' });
+      doc.text('Client Projects Report', pageWidth / 2, 28, { align: 'center' });
       
       // Add client info
-      doc.setFontSize(11);
+      doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Client: ${clientInfo.name}${clientInfo.company ? ' - ' + clientInfo.company : ''}`, 14, 32);
-      doc.text(`Date: ${new Date().toLocaleDateString('en-IN')}`, 14, 39);
+      doc.text(`Client: ${clientInfo.name}${clientInfo.company ? ' - ' + clientInfo.company : ''}`, 14, 38);
+      doc.text(`Date: ${new Date().toLocaleDateString('en-IN')}`, 14, 44);
       
-      // Add summary stats box
+      // Add summary stats in a box
       doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
-      doc.text('Total Projects: ', 14, 49);
+      doc.text('Total Projects:', 14, 54);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${stats.totalProjects}`, 45, 49);
+      doc.text(`${stats.totalProjects}`, 50, 54);
       
       doc.setFont('helvetica', 'bold');
-      doc.text('Total Contract Value: ', 14, 55);
+      doc.text('Total Contract Value:', 14, 60);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${formatCurrency(stats.totalContractValue)}`, 55, 55);
+      doc.text(`${formatCurrencyForPDF(stats.totalContractValue)}`, 60, 60);
       
       doc.setFont('helvetica', 'bold');
-      doc.text('Total Received: ', 14, 61);
+      doc.text('Total Received:', 14, 66);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${formatCurrency(stats.totalReceived)}`, 45, 61);
+      doc.text(`${formatCurrencyForPDF(stats.totalReceived)}`, 50, 66);
       
       doc.setFont('helvetica', 'bold');
-      doc.text('Outstanding: ', 14, 67);
+      doc.text('Outstanding:', 14, 72);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${formatCurrency(stats.outstandingAmount)}`, 40, 67);
+      doc.text(`${formatCurrencyForPDF(stats.outstandingAmount)}`, 45, 72);
       
       // Prepare table data
       const tableData = filteredProjects.map((project, index) => {
@@ -254,48 +292,63 @@ const ClientProjectsPage = () => {
           index + 1,
           project.projectNumber || '',
           project.projectName || '',
-          formatCurrency(project.finalizedFees),
-          formatCurrency(project.totalReceivedFees),
-          formatCurrency((project.finalizedFees || 0) - (project.totalReceivedFees || 0)),
+          formatCurrencyForPDF(project.finalizedFees),
+          formatCurrencyForPDF(project.totalReceivedFees),
+          formatCurrencyForPDF((project.finalizedFees || 0) - (project.totalReceivedFees || 0)),
           project.payments?.length || 0,
           project.status || '',
           lastPaymentDate
         ];
       });
       
-      // Add table
+      // Add table with dynamic column widths
       autoTable(doc, {
-        startY: 75,
-        head: [['S.N\no', 'Project No', 'Project Name', 'Finalized\nFees', 'Received', 'Pending', 'Paym\nents', 'Status', 'Last\nPayment']],
+        startY: 80,
+        head: [['S.No', 'Project No', 'Project Name', 'Finalized Fees', 'Received', 'Pending', 'Pay', 'Status', 'Last Payment']],
         body: tableData,
-        theme: 'grid',
+        theme: 'striped',
         styles: { 
-          fontSize: 9,
-          cellPadding: 3,
+          fontSize: 8,
+          cellPadding: 2.5,
           font: 'helvetica',
-          lineColor: [200, 200, 200],
+          lineColor: [220, 220, 220],
           lineWidth: 0.1,
           halign: 'left',
-          valign: 'middle'
+          valign: 'middle',
+          overflow: 'linebreak'
         },
         headStyles: { 
           fillColor: [0, 123, 255],
           textColor: [255, 255, 255],
           fontStyle: 'bold',
-          fontSize: 9,
+          fontSize: 8,
           halign: 'center',
-          valign: 'middle'
+          valign: 'middle',
+          cellPadding: 2
         },
         columnStyles: {
-          0: { cellWidth: 12, halign: 'center' },
-          1: { cellWidth: 20, halign: 'left' },
-          2: { cellWidth: 38, halign: 'left' },
-          3: { cellWidth: 24, halign: 'right' },
-          4: { cellWidth: 24, halign: 'right' },
-          5: { cellWidth: 24, halign: 'right' },
-          6: { cellWidth: 14, halign: 'center' },
+          0: { cellWidth: 10, halign: 'center' },
+          1: { cellWidth: 22, halign: 'left' },
+          2: { cellWidth: 40, halign: 'left' },
+          3: { cellWidth: 28, halign: 'right' },
+          4: { cellWidth: 28, halign: 'right' },
+          5: { cellWidth: 28, halign: 'right' },
+          6: { cellWidth: 10, halign: 'center' },
           7: { cellWidth: 18, halign: 'center' },
           8: { cellWidth: 22, halign: 'center' }
+        },
+        margin: { left: 10, right: 10 },
+        tableWidth: 'auto',
+        didDrawPage: function (data) {
+          // Footer
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'italic');
+          doc.text(
+            `Page ${data.pageNumber}`,
+            pageWidth / 2,
+            doc.internal.pageSize.getHeight() - 10,
+            { align: 'center' }
+          );
         }
       });
       
