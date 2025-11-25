@@ -256,31 +256,31 @@ const ClientProjectsPage = () => {
       doc.text(`Client: ${clientInfo.name}${clientInfo.company ? ' - ' + clientInfo.company : ''}`, 14, 52);
       doc.text(`Date: ${new Date().toLocaleDateString('en-IN')}`, pageWidth - 14, 52, { align: 'right' });
       
-      // Add summary stats box
+      // Add summary stats box with better alignment
       const boxY = 58;
       doc.setFillColor(245, 247, 250);
-      doc.rect(14, boxY, pageWidth - 28, 18, 'F');
+      doc.rect(14, boxY, pageWidth - 28, 16, 'F');
       
       doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
       doc.text('Total Projects:', 18, boxY + 6);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${stats.totalProjects}`, 55, boxY + 6);
+      doc.text(`${stats.totalProjects}`, 48, boxY + 6);
       
       doc.setFont('helvetica', 'bold');
-      doc.text('Total Contract Value:', 18, boxY + 12);
+      doc.text('Total Contract Value:', 18, boxY + 11);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${formatCurrencyForPDF(stats.totalContractValue)}`, 70, boxY + 12);
+      doc.text(`${formatCurrencyForPDF(stats.totalContractValue)}`, 62, boxY + 11);
       
       doc.setFont('helvetica', 'bold');
-      doc.text('Total Received:', 110, boxY + 6);
+      doc.text('Total Received:', 105, boxY + 6);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${formatCurrencyForPDF(stats.totalReceived)}`, 150, boxY + 6);
+      doc.text(`${formatCurrencyForPDF(stats.totalReceived)}`, 140, boxY + 6);
       
       doc.setFont('helvetica', 'bold');
-      doc.text('Outstanding:', 110, boxY + 12);
+      doc.text('Outstanding:', 105, boxY + 11);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${formatCurrencyForPDF(stats.outstandingAmount)}`, 150, boxY + 12);
+      doc.text(`${formatCurrencyForPDF(stats.outstandingAmount)}`, 140, boxY + 11);
       
       // Prepare table data
       const tableData = filteredProjects.map((project, index) => {
@@ -304,15 +304,15 @@ const ClientProjectsPage = () => {
         ];
       });
       
-      // Add table with better column widths
+      // Add table with optimized column widths to fit all columns
       autoTable(doc, {
-        startY: 82,
+        startY: 79,
         head: [['S.No', 'Project No', 'Project Name', 'Finalized\nFees', 'Received', 'Pending', 'Pay', 'Status', 'Last\nPayment']],
         body: tableData,
         theme: 'grid',
         styles: { 
-          fontSize: 8,
-          cellPadding: 2,
+          fontSize: 7.5,
+          cellPadding: 1.8,
           font: 'helvetica',
           lineColor: [200, 200, 200],
           lineWidth: 0.5,
@@ -324,20 +324,22 @@ const ClientProjectsPage = () => {
           fillColor: [0, 123, 255],
           textColor: [255, 255, 255],
           fontStyle: 'bold',
-          fontSize: 8,
+          fontSize: 7.5,
           halign: 'center',
           valign: 'middle',
-          cellPadding: 3
+          cellPadding: 2.5
         },
         columnStyles: {
-          0: { cellWidth: 12, halign: 'center' },
-          1: { cellWidth: 24, halign: 'left' },
-          2: { cellWidth: 45, halign: 'left' },
-          3: { cellWidth: 26, halign: 'right' },
-          4: { cellWidth: 26, halign: 'right' },
-          5: { cellWidth: 26, halign: 'right' },
-          6: { cellWidth: 12, halign: 'center' },
-          7: { cellWidth: 16, halign: 'center' },
+          0: { cellWidth: 10, halign: 'center' },
+          1: { cellWidth: 22, halign: 'left' },
+          2: { cellWidth: 38, halign: 'left' },
+          3: { cellWidth: 24, halign: 'right' },
+          4: { cellWidth: 24, halign: 'right' },
+          5: { cellWidth: 24, halign: 'right' },
+          6: { cellWidth: 10, halign: 'center' },
+          7: { cellWidth: 15, halign: 'center' },
+          8: { cellWidth: 19, halign: 'center' }
+        },
           8: { cellWidth: 22, halign: 'center' }
         },
         margin: { left: 14, right: 14 },
