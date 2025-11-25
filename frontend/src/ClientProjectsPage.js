@@ -4,6 +4,10 @@ import { useAuth } from './contexts/AuthContext';
 import FinanceService from './services/FinanceService';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
+import ExcelExportService from './services/ExcelExportService';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import './ClientProjectsPage.css';
 
 const ClientProjectsPage = () => {
@@ -106,6 +110,154 @@ const ClientProjectsPage = () => {
     setSelectedProject(null);
   };
 
+  // WhatsApp share handler for distribution
+  const handleShareDistributionWhatsApp = () => {
+    if (!selectedProject || !selectedProject.payments || selectedProject.payments.length === 0) {
+      alert('No payment data to share');
+      return;
+    }
+
+    const projectName = selectedProject.projectName;
+    const projectNumber = selectedProject.projectNumber;
+    const totalContract = formatCurrency(selectedProject.finalizedFees);
+    const totalReceived = formatCurrency(selectedProject.totalReceivedFees);
+    const pending = formatCurrency((selectedProject.finalizedFees || 0) - (selectedProject.totalReceivedFees || 0));
+    
+    let message = `*Payment Distribution Report*\n\n`;
+    message += `*Project:* ${projectName}\n`;
+    message += `*Project No:* ${projectNumber}\n`;
+    message += `*Total Contract:* ${totalContract}\n`;
+    message += `*Total Received:* ${totalReceived}\n`;
+    message += `*Pending Amount:* ${pending}\n\n`;
+    message += `*Payment History & Distribution:*\n\n`;
+    
+    selectedProject.payments.forEach((payment, index) => {
+      const distribution = calculatePaymentDistribution(payment, selectedProject);
+      message += `*Payment #${index + 1}*\n`;
+      message += `Date: ${new Date(payment.date).toLocaleDateString()}\n`;
+      message += `Amount: ${formatCurrency(payment.amount)}\n`;
+      message += `Mode: ${payment.mode}\n`;
+      if (payment.chequeNeftNumber) {
+        message += `Ref: ${payment.chequeNeftNumber}\n`;
+      }
+      message += `\nDistribution Breakdown:\n`;
+      distribution.forEach(item => {
+        message += `• ${item.label}: ${item.percent}% - ${formatCurrency(item.amount)}\n`;
+      });
+      message += '\n';
+    });
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  // Export to Excel handler
+  const handleExportToExcel = () => {
+    try {
+      const exportData = filteredProjects.map((project, index) => ({
+        'S.No': index + 1,
+        'Project Number': project.projectNumber || '',
+        'Project Name': project.projectName || '',
+        'Client Name': clientInfo.name || '',
+        'Company': clientInfo.company || '',
+        'Finalized Fees': project.finalizedFees || 0,
+        'Received Fees': project.totalReceivedFees || 0,
+        'Pending Amount': (project.finalizedFees || 0) - (project.totalReceivedFees || 0),
+        'Total Payments': project.payments?.length || 0,
+        'Status': project.status || '',
+        'Created Date': project.createdAt ? new Date(project.createdAt).toLocaleDateString('en-IN') : ''
+      }));
+
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+      const columnWidths = [
+        { wch: 8 },  // S.No
+        { wch: 15 }, // Project Number
+        { wch: 30 }, // Project Name
+        { wch: 20 }, // Client Name
+        { wch: 20 }, // Company
+        { wch: 15 }, // Finalized Fees
+        { wch: 15 }, // Received Fees
+        { wch: 15 }, // Pending Amount
+        { wch: 12 }, // Total Payments
+        { wch: 12 }, // Status
+        { wch: 15 }  // Created Date
+      ];
+      worksheet['!cols'] = columnWidths;
+
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Projects');
+
+      const filename = `${clientInfo.name}_projects_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(workbook, filename);
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      showError('Failed to export to Excel');
+    }
+  };
+
+  // Export to PDF handler
+  const handleExportToPDF = () => {
+    try {
+      const doc = new jsPDF();
+      
+      // Add title
+      doc.setFontSize(18);
+      doc.text('Client Projects Report', 14, 20);
+      
+      // Add client info
+      doc.setFontSize(12);
+      doc.text(`Client: ${clientInfo.name}${clientInfo.company ? ' - ' + clientInfo.company : ''}`, 14, 30);
+      doc.text(`Date: ${new Date().toLocaleDateString('en-IN')}`, 14, 38);
+      
+      // Add summary stats
+      doc.setFontSize(10);
+      doc.text(`Total Projects: ${stats.totalProjects}`, 14, 48);
+      doc.text(`Total Contract Value: ${formatCurrency(stats.totalContractValue)}`, 14, 54);
+      doc.text(`Total Received: ${formatCurrency(stats.totalReceived)}`, 14, 60);
+      doc.text(`Outstanding: ${formatCurrency(stats.outstandingAmount)}`, 14, 66);
+      
+      // Prepare table data
+      const tableData = filteredProjects.map((project, index) => [
+        index + 1,
+        project.projectNumber || '',
+        project.projectName || '',
+        formatCurrency(project.finalizedFees),
+        formatCurrency(project.totalReceivedFees),
+        formatCurrency((project.finalizedFees || 0) - (project.totalReceivedFees || 0)),
+        project.payments?.length || 0,
+        project.status || ''
+      ]);
+      
+      // Add table
+      doc.autoTable({
+        startY: 75,
+        head: [['S.No', 'Project No', 'Project Name', 'Finalized Fees', 'Received', 'Pending', 'Payments', 'Status']],
+        body: tableData,
+        theme: 'grid',
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [0, 123, 255] },
+        columnStyles: {
+          0: { cellWidth: 12 },
+          1: { cellWidth: 20 },
+          2: { cellWidth: 40 },
+          3: { cellWidth: 25 },
+          4: { cellWidth: 25 },
+          5: { cellWidth: 25 },
+          6: { cellWidth: 15 },
+          7: { cellWidth: 18 }
+        }
+      });
+      
+      const filename = `${clientInfo.name}_projects_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(filename);
+    } catch (error) {
+      console.error('Error exporting to PDF:', error);
+      showError('Failed to export to PDF');
+    }
+  };
+
   const filteredProjects = projects.filter(project => {
     const matchesSearch = project.projectName?.toLowerCase().includes(filters.search.toLowerCase()) ||
                          project.projectNumber?.toLowerCase().includes(filters.search.toLowerCase());
@@ -148,6 +300,20 @@ const ClientProjectsPage = () => {
           </p>
         </div>
         <div className="header-actions">
+          <button 
+            className="project-btn project-btn-success"
+            onClick={handleExportToExcel}
+            title="Export projects to Excel spreadsheet"
+          >
+            📊 Export to Excel
+          </button>
+          <button 
+            className="project-btn project-btn-danger"
+            onClick={handleExportToPDF}
+            title="Export projects to PDF document"
+          >
+            📄 Export to PDF
+          </button>
           <button 
             className="project-btn project-btn-primary"
             onClick={() => navigate('/projects', { state: { clientId: clientId } })}
@@ -400,6 +566,13 @@ const ClientProjectsPage = () => {
             <div className="modal-footer">
               <button className="btn btn-secondary" onClick={handleCloseDistribution}>
                 Close
+              </button>
+              <button 
+                className="btn btn-whatsapp"
+                onClick={handleShareDistributionWhatsApp}
+                title="Share distribution via WhatsApp"
+              >
+                📱 Share WhatsApp
               </button>
               <button 
                 className="btn btn-primary"

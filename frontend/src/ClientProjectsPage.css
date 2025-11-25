@@ -111,6 +111,28 @@
   border-color: #545b62;
 }
 
+.project-btn-success {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
+}
+
+.project-btn-success:hover {
+  background-color: #218838;
+  border-color: #1e7e34;
+}
+
+.project-btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+.project-btn-danger:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
 /* Stats grid styling */
 .stats-grid {
   display: grid;
