@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
+import { useCompany } from './CompanyContext';
 import FinanceService from './services/FinanceService';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
@@ -16,6 +17,7 @@ const ClientProjectsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { canViewStats } = useAuth();
+  const { companyInfo } = useCompany();
   const { showLoading, hideLoading } = useLoading();
   const { showError } = useToast();
   
@@ -204,7 +206,7 @@ const ClientProjectsPage = () => {
   };
 
   // Export to PDF handler
-  const handleExportToPDF = () => {
+  const handleExportToPDF = async () => {
     try {
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
@@ -217,67 +219,68 @@ const ClientProjectsPage = () => {
         }).format(amount || 0);
       };
       
-      // Add company logo (SVG as path)
-      doc.setDrawColor(0, 123, 255);
-      doc.setFillColor(0, 123, 255);
-      // Simple building icon representation
-      doc.rect(14, 8, 12, 12, 'F');
-      doc.setFillColor(255, 255, 255);
-      doc.rect(15.5, 10, 2, 2, 'F');
-      doc.rect(18.5, 10, 2, 2, 'F');
-      doc.rect(21.5, 10, 2, 2, 'F');
-      doc.rect(15.5, 13, 2, 2, 'F');
-      doc.rect(18.5, 13, 2, 2, 'F');
-      doc.rect(21.5, 13, 2, 2, 'F');
-      doc.rect(15.5, 16, 2, 2, 'F');
-      doc.rect(18.5, 16, 2, 2, 'F');
-      doc.rect(21.5, 16, 2, 2, 'F');
+      // Add company logo if uploaded
+      if (companyInfo.logoUrl) {
+        try {
+          doc.addImage(companyInfo.logoUrl, 'PNG', 14, 8, 20, 20);
+        } catch (error) {
+          console.error('Error adding logo:', error);
+        }
+      }
       
-      // Add company name next to logo
-      doc.setFontSize(11);
+      // Add company name and tagline
+      doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(0, 123, 255);
-      doc.text('Trimity Consultant', 28, 15);
+      doc.text(companyInfo.name || 'Trimity Consultant', 38, 14);
       doc.setFontSize(8);
       doc.setFont('helvetica', 'italic');
       doc.setTextColor(100, 100, 100);
-      doc.text('Innovation, Precision, Excellence', 28, 19);
+      doc.text(companyInfo.tagline || 'Innovation, Precision, Excellence', 38, 20);
+      
+      // Add a horizontal line
+      doc.setDrawColor(200, 200, 200);
+      doc.line(14, 32, pageWidth - 14, 32);
       
       // Reset text color
       doc.setTextColor(0, 0, 0);
       
       // Add title
-      doc.setFontSize(18);
+      doc.setFontSize(16);
       doc.setFont('helvetica', 'bold');
-      doc.text('Client Projects Report', pageWidth / 2, 28, { align: 'center' });
+      doc.text('Client Projects Report', pageWidth / 2, 42, { align: 'center' });
       
       // Add client info
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Client: ${clientInfo.name}${clientInfo.company ? ' - ' + clientInfo.company : ''}`, 14, 38);
-      doc.text(`Date: ${new Date().toLocaleDateString('en-IN')}`, 14, 44);
+      doc.text(`Client: ${clientInfo.name}${clientInfo.company ? ' - ' + clientInfo.company : ''}`, 14, 52);
+      doc.text(`Date: ${new Date().toLocaleDateString('en-IN')}`, pageWidth - 14, 52, { align: 'right' });
       
-      // Add summary stats in a box
+      // Add summary stats box
+      const boxY = 58;
+      doc.setFillColor(245, 247, 250);
+      doc.rect(14, boxY, pageWidth - 28, 18, 'F');
+      
       doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
-      doc.text('Total Projects:', 14, 54);
+      doc.text('Total Projects:', 18, boxY + 6);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${stats.totalProjects}`, 50, 54);
+      doc.text(`${stats.totalProjects}`, 55, boxY + 6);
       
       doc.setFont('helvetica', 'bold');
-      doc.text('Total Contract Value:', 14, 60);
+      doc.text('Total Contract Value:', 18, boxY + 12);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${formatCurrencyForPDF(stats.totalContractValue)}`, 60, 60);
+      doc.text(`${formatCurrencyForPDF(stats.totalContractValue)}`, 70, boxY + 12);
       
       doc.setFont('helvetica', 'bold');
-      doc.text('Total Received:', 14, 66);
+      doc.text('Total Received:', 110, boxY + 6);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${formatCurrencyForPDF(stats.totalReceived)}`, 50, 66);
+      doc.text(`${formatCurrencyForPDF(stats.totalReceived)}`, 150, boxY + 6);
       
       doc.setFont('helvetica', 'bold');
-      doc.text('Outstanding:', 14, 72);
+      doc.text('Outstanding:', 110, boxY + 12);
       doc.setFont('helvetica', 'normal');
-      doc.text(`${formatCurrencyForPDF(stats.outstandingAmount)}`, 45, 72);
+      doc.text(`${formatCurrencyForPDF(stats.outstandingAmount)}`, 150, boxY + 12);
       
       // Prepare table data
       const tableData = filteredProjects.map((project, index) => {
@@ -301,18 +304,18 @@ const ClientProjectsPage = () => {
         ];
       });
       
-      // Add table with dynamic column widths
+      // Add table with better column widths
       autoTable(doc, {
-        startY: 80,
-        head: [['S.No', 'Project No', 'Project Name', 'Finalized Fees', 'Received', 'Pending', 'Pay', 'Status', 'Last Payment']],
+        startY: 82,
+        head: [['S.No', 'Project No', 'Project Name', 'Finalized\nFees', 'Received', 'Pending', 'Pay', 'Status', 'Last\nPayment']],
         body: tableData,
-        theme: 'striped',
+        theme: 'grid',
         styles: { 
           fontSize: 8,
-          cellPadding: 2.5,
+          cellPadding: 2,
           font: 'helvetica',
-          lineColor: [220, 220, 220],
-          lineWidth: 0.1,
+          lineColor: [200, 200, 200],
+          lineWidth: 0.5,
           halign: 'left',
           valign: 'middle',
           overflow: 'linebreak'
@@ -324,25 +327,26 @@ const ClientProjectsPage = () => {
           fontSize: 8,
           halign: 'center',
           valign: 'middle',
-          cellPadding: 2
+          cellPadding: 3
         },
         columnStyles: {
-          0: { cellWidth: 10, halign: 'center' },
-          1: { cellWidth: 22, halign: 'left' },
-          2: { cellWidth: 40, halign: 'left' },
-          3: { cellWidth: 28, halign: 'right' },
-          4: { cellWidth: 28, halign: 'right' },
-          5: { cellWidth: 28, halign: 'right' },
-          6: { cellWidth: 10, halign: 'center' },
-          7: { cellWidth: 18, halign: 'center' },
+          0: { cellWidth: 12, halign: 'center' },
+          1: { cellWidth: 24, halign: 'left' },
+          2: { cellWidth: 45, halign: 'left' },
+          3: { cellWidth: 26, halign: 'right' },
+          4: { cellWidth: 26, halign: 'right' },
+          5: { cellWidth: 26, halign: 'right' },
+          6: { cellWidth: 12, halign: 'center' },
+          7: { cellWidth: 16, halign: 'center' },
           8: { cellWidth: 22, halign: 'center' }
         },
-        margin: { left: 10, right: 10 },
-        tableWidth: 'auto',
+        margin: { left: 14, right: 14 },
+        tableWidth: 'wrap',
         didDrawPage: function (data) {
           // Footer
-          doc.setFontSize(8);
-          doc.setFont('helvetica', 'italic');
+          doc.setFontSize(7);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(150, 150, 150);
           doc.text(
             `Page ${data.pageNumber}`,
             pageWidth / 2,
