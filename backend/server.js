@@ -37,7 +37,8 @@ const corsOptions = {
     'https://trimity-crm.onrender.com',
     'https://tricrm-frontend.onrender.com',
     'https://tricrm-frontend.vercel.app',
-    'https://tricrm-frontend.netlify.app'
+    'https://tricrm-frontend.netlify.app',
+    'https://trido-pm78.onrender.com'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
