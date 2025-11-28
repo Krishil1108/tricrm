@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import './ProjectPage.css';
 import FinanceService from './services/FinanceService';
@@ -14,6 +14,7 @@ import Watermark from './components/Watermark';
 
 const ProjectPage = () => {
   const location = useLocation();
+  const processedEditId = useRef(null);
   const { 
     canViewProjectManagementPage,
     canAddNewProject,
@@ -102,6 +103,14 @@ const ProjectPage = () => {
   const { showLoading, hideLoading } = useLoading();
   const { showSuccess, showError } = useToast();
 
+  // Handle modal close and reset edit state
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingItem(null);
+    setFormData({});
+    processedEditId.current = null; // Reset the processed edit ID
+  };
+
   useEffect(() => {
     fetchData();
     fetchStats();
@@ -127,7 +136,11 @@ const ProjectPage = () => {
   // Handle editProjectId from location state
   useEffect(() => {
     const editProjectId = location.state?.editProjectId;
-    if (editProjectId) {
+    
+    // Only proceed if we have an editProjectId and haven't processed this ID before
+    if (editProjectId && processedEditId.current !== editProjectId && !showModal) {
+      processedEditId.current = editProjectId;
+      
       // Load the specific project for editing
       const loadProjectForEdit = async () => {
         try {
@@ -149,21 +162,22 @@ const ProjectPage = () => {
             // Set editing item and show modal
             setEditingItem(projectData);
             setShowModal(true);
+            
+            // Clear the state to prevent re-triggering
+            window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
           }
         } catch (error) {
           console.error('Error loading project for editing:', error);
           showError('Failed to load project for editing');
+          processedEditId.current = null; // Reset on error
         } finally {
           hideLoading();
         }
       };
 
       loadProjectForEdit();
-      
-      // Clear the state to prevent re-triggering
-      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
     }
-  }, [location.state, showLoading, hideLoading, showError]);
+  }, [location.state?.editProjectId]); // Remove showModal from dependencies to prevent loops
 
   // Helper function to convert ISO date to yyyy-MM-dd format for date inputs
   const formatDateForInput = (isoDate) => {
@@ -661,7 +675,7 @@ const ProjectPage = () => {
         await FinanceService.saveExpense(cleanFormData);
       }
       showSuccess('Saved successfully');
-      setShowModal(false);
+      handleCloseModal();
       fetchData();
       fetchStats();
     } catch (error) {
@@ -1052,7 +1066,7 @@ const ProjectPage = () => {
           formData={formData}
           setFormData={setFormData}
           onSave={handleSave}
-          onClose={() => setShowModal(false)}
+          onClose={handleCloseModal}
           isEditing={!!editingItem}
           clients={clients}
           associates={associates}
