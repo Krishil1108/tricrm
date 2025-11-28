@@ -105,10 +105,16 @@ const ProjectPage = () => {
 
   // Handle modal close and reset edit state
   const handleCloseModal = () => {
+    console.log('Closing modal, current editing item:', editingItem);
     setShowModal(false);
-    setEditingItem(null);
-    setFormData({});
-    processedEditId.current = null; // Reset the processed edit ID
+    
+    // Clear state after modal animation completes
+    setTimeout(() => {
+      setEditingItem(null);
+      setFormData({});
+      processedEditId.current = null; // Reset the processed edit ID
+      console.log('Modal state cleared');
+    }, 300);
   };
 
   useEffect(() => {
@@ -145,23 +151,50 @@ const ProjectPage = () => {
       const loadProjectForEdit = async () => {
         try {
           showLoading('Loading project for editing...');
-          const projectData = await FinanceService.getProject(editProjectId);
+          const response = await FinanceService.getProject(editProjectId);
+          
+          // Handle both direct data and nested response structure
+          const projectData = response.data || response;
           
           if (projectData) {
+            console.log('Loaded project data for editing:', projectData);
+            
             // Set the active tab to projects
             setActiveTab('projects');
             
-            // Set the form data with the project data
-            setFormData({
+            // Prepare form data with proper structure and date formatting
+            const formDataForEdit = {
               ...projectData,
+              // Ensure required fields exist
+              projectNumber: projectData.projectNumber || '',
+              projectName: projectData.projectName || '',
+              clientId: projectData.clientId || projectData.client?._id || '',
+              clientName: projectData.clientName || projectData.client?.name || '',
               // Convert dates to proper format for date inputs
               date: formatDateForInput(projectData.date),
-              completionDate: formatDateForInput(projectData.completionDate)
-            });
+              completionDate: formatDateForInput(projectData.completionDate),
+              // Ensure financial fields exist
+              finalizedFees: projectData.finalizedFees || 0,
+              totalReceivedFees: projectData.totalReceivedFees || 0,
+              // Preserve other fields
+              status: projectData.status || 'Active',
+              projectAssociates: projectData.projectAssociates || [],
+              payments: projectData.payments || []
+            };
             
-            // Set editing item and show modal
+            console.log('Setting form data:', formDataForEdit);
+            
+            // Set editing item first to prevent conflicts
             setEditingItem(projectData);
-            setShowModal(true);
+            
+            // Then set form data
+            setFormData(formDataForEdit);
+            
+            // Finally show modal after a small delay
+            setTimeout(() => {
+              setShowModal(true);
+              console.log('Modal opened with formData:', formDataForEdit);
+            }, 150); // Small delay to ensure state is set
             
             // Clear the state to prevent re-triggering
             window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
