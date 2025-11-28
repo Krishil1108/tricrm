@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import './ProjectPage.css';
 import FinanceService from './services/FinanceService';
 import ClientService from './services/ClientService';
@@ -12,6 +13,7 @@ import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import Watermark from './components/Watermark';
 
 const ProjectPage = () => {
+  const location = useLocation();
   const { 
     canViewProjectManagementPage,
     canAddNewProject,
@@ -121,6 +123,47 @@ const ProjectPage = () => {
       document.removeEventListener('click', handleClickOutside);
     };
   }, []);
+
+  // Handle editProjectId from location state
+  useEffect(() => {
+    const editProjectId = location.state?.editProjectId;
+    if (editProjectId) {
+      // Load the specific project for editing
+      const loadProjectForEdit = async () => {
+        try {
+          showLoading('Loading project for editing...');
+          const projectData = await FinanceService.getProject(editProjectId);
+          
+          if (projectData) {
+            // Set the active tab to projects
+            setActiveTab('projects');
+            
+            // Set the form data with the project data
+            setFormData({
+              ...projectData,
+              // Convert dates to proper format for date inputs
+              date: formatDateForInput(projectData.date),
+              completionDate: formatDateForInput(projectData.completionDate)
+            });
+            
+            // Set editing item and show modal
+            setEditingItem(projectData);
+            setShowModal(true);
+          }
+        } catch (error) {
+          console.error('Error loading project for editing:', error);
+          showError('Failed to load project for editing');
+        } finally {
+          hideLoading();
+        }
+      };
+
+      loadProjectForEdit();
+      
+      // Clear the state to prevent re-triggering
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+    }
+  }, [location.state, showLoading, hideLoading, showError]);
 
   // Helper function to convert ISO date to yyyy-MM-dd format for date inputs
   const formatDateForInput = (isoDate) => {

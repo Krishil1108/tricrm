@@ -106,6 +106,19 @@ const FinanceService = {
     }
   },
 
+  // Remove project from specific client
+  removeProjectFromClient: async (clientId, projectId) => {
+    try {
+      const response = await axios.delete(`${API_URL}/finance/clients/${clientId}/projects/${projectId}`, {
+        headers: getAuthHeader()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error removing project from client:', error);
+      throw error;
+    }
+  },
+
   // ==================== EXPENSE METHODS ====================
   
   // Get all expenses

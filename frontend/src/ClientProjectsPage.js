@@ -38,6 +38,8 @@ const ClientProjectsPage = () => {
   });
   const [showDistributionModal, setShowDistributionModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState(null);
 
   useEffect(() => {
     fetchClientProjects();
@@ -83,7 +85,7 @@ const ClientProjectsPage = () => {
   };
 
   const handleEditProject = (projectId) => {
-    navigate('/projects', { state: { editProjectId: projectId } });
+    navigate('/projects', { state: { editProjectId: projectId, clientId: clientId } });
   };
 
   const handleViewDistribution = (project) => {
@@ -111,6 +113,43 @@ const ClientProjectsPage = () => {
   const handleCloseDistribution = () => {
     setShowDistributionModal(false);
     setSelectedProject(null);
+  };
+
+  const handleDeleteProject = (project) => {
+    setProjectToDelete(project);
+    setShowDeleteModal(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setShowDeleteModal(false);
+    setProjectToDelete(null);
+  };
+
+  const handleConfirmDelete = async (deleteOption) => {
+    if (!projectToDelete) return;
+    
+    try {
+      showLoading();
+      
+      if (deleteOption === 'client') {
+        // Remove project from this client only
+        await FinanceService.removeProjectFromClient(clientId, projectToDelete._id);
+        showError('Project removed from this client successfully', 'success');
+      } else if (deleteOption === 'everywhere') {
+        // Delete project completely from all clients and projects
+        await FinanceService.deleteProject(projectToDelete._id);
+        showError('Project deleted completely from all clients and projects', 'success');
+      }
+      
+      // Refresh the projects list
+      await fetchClientProjects();
+      handleCloseDeleteModal();
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      showError('Failed to delete project');
+    } finally {
+      hideLoading();
+    }
   };
 
   // WhatsApp share handler for distribution
@@ -578,6 +617,13 @@ const ClientProjectsPage = () => {
                           >
                             ✏️ Edit
                           </button>
+                          <button
+                            className="action-btn btn-delete"
+                            onClick={() => handleDeleteProject(project)}
+                            title="Delete Project"
+                          >
+                            🗑️ Delete
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -685,6 +731,71 @@ const ClientProjectsPage = () => {
                 onClick={() => handleEditProject(selectedProject._id)}
               >
                 Edit Project
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && projectToDelete && (
+        <div className="modal-overlay" onClick={handleCloseDeleteModal}>
+          <div className="delete-confirmation-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>🗑️ Delete Project - {projectToDelete.projectName}</h3>
+              <button className="modal-close" onClick={handleCloseDeleteModal}>×</button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="delete-warning">
+                <div className="warning-icon">⚠️</div>
+                <p><strong>Warning:</strong> You are about to delete this project. Please choose an option:</p>
+              </div>
+              
+              <div className="delete-options">
+                <div className="delete-option">
+                  <h4>🔗 Remove from Client Only</h4>
+                  <p>Remove this project from <strong>{clientInfo.name}</strong> only. The project will still exist in the system and can be linked to other clients.</p>
+                  <button 
+                    className="btn btn-warning delete-option-btn"
+                    onClick={() => handleConfirmDelete('client')}
+                  >
+                    Remove from {clientInfo.name} Only
+                  </button>
+                </div>
+                
+                <div className="delete-option danger">
+                  <h4>🗑️ Delete Completely</h4>
+                  <p><strong>Danger:</strong> Delete this project completely from all clients and the entire system. This action cannot be undone!</p>
+                  <button 
+                    className="btn btn-danger delete-option-btn"
+                    onClick={() => handleConfirmDelete('everywhere')}
+                  >
+                    Delete Everywhere (Permanent)
+                  </button>
+                </div>
+              </div>
+              
+              <div className="project-details">
+                <h5>Project Details:</h5>
+                <div className="detail-row">
+                  <span>Project Number:</span>
+                  <strong>{projectToDelete.projectNumber}</strong>
+                </div>
+                <div className="detail-row">
+                  <span>Contract Value:</span>
+                  <strong>{formatCurrency(projectToDelete.finalizedFees)}</strong>
+                </div>
+                <div className="detail-row">
+                  <span>Payments Recorded:</span>
+                  <strong>{projectToDelete.payments?.length || 0}</strong>
+                </div>
+              </div>
+            </div>
+            
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={handleCloseDeleteModal}>
+                Cancel
               </button>
             </div>
           </div>
