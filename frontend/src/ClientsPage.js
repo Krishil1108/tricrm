@@ -161,15 +161,15 @@ const ClientsPage = () => {
       setLoading(true);
       setError('');
       
-      // Create full address from components
-      const fullAddress = `${clientData.address}, ${clientData.city}, ${clientData.state} ${clientData.zipCode}`.replace(/^,\s*|,\s*$/g, '');
-      
       const newClientData = {
         name: clientData.name,
         email: clientData.email,
         phone: clientData.phone,
         company: clientData.company,
-        address: fullAddress,
+        address: clientData.address,
+        city: clientData.city,
+        state: clientData.state,
+        zipCode: clientData.zipCode,
         notes: clientData.notes,
         status: 'Active'
       };
