@@ -139,7 +139,7 @@ label[for="password"] {
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.8);
+  color: #333333;
   font-size: 18px;
   transition: all 0.3s ease;
   z-index: 10;
@@ -148,7 +148,7 @@ label[for="password"] {
 }
 
 .password-toggle:hover {
-  color: #ffffff;
+  color: #000000;
   transform: translateY(-50%) scale(1.1);
 }
 
