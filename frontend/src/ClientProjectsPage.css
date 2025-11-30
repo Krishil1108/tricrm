@@ -1,4 +1,4 @@
-/* ClientProjectsPage.css - Professional Corporate Styling */
+﻿/* ClientProjectsPage.css - Professional Corporate Styling */
 
 .project-page {
   padding: 24px;
@@ -410,8 +410,27 @@
 /* Action buttons */
 .action-buttons {
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 4px;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: fit-content;
+}
+
+/* Optimized for 100% zoom - ensure buttons stay in one line */
+@media (min-width: 1366px) {
+  .action-buttons {
+    gap: 6px;
+    max-width: 180px;
+  }
+  
+  .action-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 6px 8px;
+    font-size: 16px;
+    white-space: nowrap;
+  }
 }
 
 /* Responsive Action Buttons */
@@ -540,11 +559,21 @@
 /* Actions column specific styling */
 .project-table th:last-child,
 .project-table td:last-child {
-  width: 160px;
-  min-width: 160px;
-  max-width: 160px;
+  width: 140px;
+  min-width: 140px;
+  max-width: 140px;
   text-align: center;
-  padding: 8px 4px;
+  padding: 8px 2px;
+}
+
+/* Clients table actions column */
+table th:last-child,
+table td:last-child {
+  width: 120px;
+  min-width: 120px;
+  max-width: 120px;
+  text-align: center;
+  padding: 8px 2px;
 }
 
 /* Responsive table adjustments */
@@ -1647,4 +1676,64 @@
     padding: 10px 16px;
     font-size: 13px;
   }
+}
+
+/* SVG icon styling for professional action buttons */
+.action-btn svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+  fill: currentColor;
+}
+
+.action-btn:hover svg {
+  transform: scale(1.1);
+}
+
+/* Dropdown item with icon styling */
+.dropdown-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.dropdown-item svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* Ensure action buttons display icons properly */
+.action-buttons-responsive .action-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Payment button specific styling */
+.action-btn.payment-btn svg {
+  color: #28a745;
+}
+
+.action-btn.payment-btn:hover {
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+/* Edit button specific styling */
+.action-btn.edit-btn svg {
+  color: #007bff;
+}
+
+.action-btn.edit-btn:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* More actions button styling */
+.action-btn.more-actions svg {
+  color: #6c757d;
+}
+
+.action-btn.more-actions:hover {
+  background-color: rgba(108, 117, 125, 0.1);
 }

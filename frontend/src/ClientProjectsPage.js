@@ -608,21 +608,21 @@ const ClientProjectsPage = () => {
                             onClick={() => handleViewDistribution(project)}
                             title="View Payment Distribution"
                           >
-                            📊 Distribution
+                            📊
                           </button>
                           <button
                             className="action-btn btn-edit"
                             onClick={() => handleEditProject(project._id)}
                             title="Edit Project"
                           >
-                            ✏️ Edit
+                            ✏️
                           </button>
                           <button
                             className="action-btn btn-delete"
                             onClick={() => handleDeleteProject(project)}
                             title="Delete Project"
                           >
-                            🗑️ Delete
+                            🗑️
                           </button>
                         </div>
                       </td>

@@ -559,25 +559,34 @@ const AssociateProjectsPage = () => {
                               title="Add Payment"
                               disabled={pendingAmount <= 0}
                             >
-                              💳
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20 4H4C2.89 4 2 4.89 2 6V18C2 19.11 2.89 20 4 20H20C21.11 20 22 19.11 22 18V6C22 4.89 21.11 4 20 4M20 18H4V12H20V18M20 8H4V6H20V8M14 16H16V14H14V16Z"/>
+                              </svg>
                             </button>
                             <button
                               className="action-btn btn-view-payments"
                               onClick={() => handleViewPayments(project, associateData)}
                               title="View Payment History"
                             >
-                              📋
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3M19 19H5V5H19V19M17 12H7V10H17V12M15 16H7V14H15V16M17 8H7V6H17V8Z"/>
+                              </svg>
                             </button>
                             <div className="dropdown-menu">
                               <button className="action-btn btn-more" title="More Actions">
-                                ⋮
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M12 8C13.1 8 14 7.1 14 6C14 4.9 13.1 4 12 4C10.9 4 10 4.9 10 6C10 7.1 10.9 8 12 8ZM12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10ZM12 16C10.9 16 10 16.9 10 18C10 19.1 10.9 20 12 20C13.1 20 14 19.1 14 18C14 16.9 13.1 16 12 16Z"/>
+                                </svg>
                               </button>
                               <div className="dropdown-content">
                                 <button
                                   className="dropdown-item"
                                   onClick={() => handleEditProject(project._id)}
                                 >
-                                  ✏️ Edit Project
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{marginRight: '8px'}}>
+                                    <path d="M20.71 7.04C21.1 6.65 21.1 6 20.71 5.63L18.37 3.29C18 2.9 17.35 2.9 16.96 3.29L15.12 5.12L18.87 8.87M3 17.25V21H6.75L17.81 9.93L14.06 6.18L3 17.25Z"/>
+                                  </svg>
+                                  Edit Project
                                 </button>
                               </div>
                             </div>
@@ -657,7 +666,9 @@ const AssociateProjectsPage = () => {
                               onClick={() => handleEditProject(project._id)}
                               title="Edit Project"
                             >
-                              ✏️
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20.71 7.04C21.1 6.65 21.1 6 20.71 5.63L18.37 3.29C18 2.9 17.35 2.9 16.96 3.29L15.12 5.12L18.87 8.87M3 17.25V21H6.75L17.81 9.93L14.06 6.18L3 17.25Z"/>
+                              </svg>
                             </button>
                           </div>
                         </td>
