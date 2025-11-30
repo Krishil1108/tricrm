@@ -5,7 +5,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -51,10 +51,10 @@
   width: 96px;
   height: 96px;
   margin: 12px;
-  border: 8px solid #fff;
+  border: 8px solid #e3e3e3;
   border-radius: 50%;
   animation: spinner-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-  border-color: #fff transparent transparent transparent;
+  border-color: #667eea transparent transparent transparent;
 }
 
 .spinner-ring div:nth-child(1) {
@@ -79,7 +79,7 @@
 }
 
 .loader-message {
-  color: white;
+  color: #333333;
   font-size: 18px;
   font-weight: 500;
   text-align: center;
@@ -113,7 +113,8 @@
     width: 64px;
     height: 64px;
     margin: 8px;
-    border: 6px solid #fff;
+    border: 6px solid #e3e3e3;
+    border-color: #667eea transparent transparent transparent;
   }
 
   .loader-message {
@@ -136,7 +137,8 @@
     width: 48px;
     height: 48px;
     margin: 6px;
-    border: 5px solid #fff;
+    border: 5px solid #e3e3e3;
+    border-color: #667eea transparent transparent transparent;
   }
 
   .loader-message {

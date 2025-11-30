@@ -163,14 +163,18 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
       <nav className="sidebar-nav">
         <ul>
           {allVisibleItems.map((item) => (
-            <li key={item.id}>
+            <li key={item.id} className="nav-item-container">
               <Link 
                 to={item.path}
                 className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
                 onClick={handleNavClick}
+                data-tooltip={item.name}
               >
                 <span className="nav-icon">{item.icon}</span>
                 <span className="nav-text">{item.name}</span>
+                {!isExpanded && (
+                  <div className="nav-tooltip">{item.name}</div>
+                )}
               </Link>
             </li>
           ))}
@@ -179,13 +183,16 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
 
       {/* Logout button */}
       <div className="sidebar-footer">
-        <button className="logout-btn" onClick={handleLogout}>
+        <button className="logout-btn" onClick={handleLogout} data-tooltip="Logout">
           <span className="nav-icon">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
               <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
             </svg>
           </span>
           <span className="nav-text">Logout</span>
+          {!isExpanded && (
+            <div className="nav-tooltip logout-tooltip">Logout</div>
+          )}
         </button>
       </div>
     </div>

@@ -92,6 +92,7 @@ label {
     margin-top: 30px;
     font-size: 16px;
     font-weight: 500;
+    color: #ffffff !important;
 }
 
 input {
@@ -109,6 +110,31 @@ input {
 
 input:focus {
     background-color: rgba(255, 255, 255, 0.1);
+}
+
+.password-container {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+.password-container input {
+    padding-right: 45px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 16px;
+    transition: color 0.3s ease;
+}
+
+.password-toggle:hover {
+    color: #ffffff;
 }
 
 ::placeholder {

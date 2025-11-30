@@ -552,29 +552,35 @@ const AssociateProjectsPage = () => {
                           </span>
                         </td>
                         <td>
-                          <div className="action-buttons">
+                          <div className="action-buttons-responsive">
                             <button
                               className="action-btn btn-payment"
                               onClick={() => handleAddPayment(project, associateData)}
                               title="Add Payment"
                               disabled={pendingAmount <= 0}
                             >
-                              💳 Add Payment
+                              💳
                             </button>
                             <button
                               className="action-btn btn-view-payments"
                               onClick={() => handleViewPayments(project, associateData)}
                               title="View Payment History"
                             >
-                              📋 Payments
+                              📋
                             </button>
-                            <button
-                              className="action-btn btn-edit"
-                              onClick={() => handleEditProject(project._id)}
-                              title="Edit Project"
-                            >
-                              ✏️ Edit
-                            </button>
+                            <div className="dropdown-menu">
+                              <button className="action-btn btn-more" title="More Actions">
+                                ⋮
+                              </button>
+                              <div className="dropdown-content">
+                                <button
+                                  className="dropdown-item"
+                                  onClick={() => handleEditProject(project._id)}
+                                >
+                                  ✏️ Edit Project
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </td>
                       </tr>
@@ -645,13 +651,13 @@ const AssociateProjectsPage = () => {
                           </span>
                         </td>
                         <td>
-                          <div className="action-buttons">
+                          <div className="action-buttons-responsive">
                             <button
                               className="action-btn btn-edit"
                               onClick={() => handleEditProject(project._id)}
                               title="Edit Project"
                             >
-                              ✏️ Edit
+                              ✏️
                             </button>
                           </div>
                         </td>
