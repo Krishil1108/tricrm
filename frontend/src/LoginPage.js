@@ -8,6 +8,7 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -63,17 +64,24 @@ function LoginPage() {
         />
         
         <label htmlFor="password">Password</label>
-        <input 
-          type="password" 
-          placeholder="Enter your password" 
-          id="password" 
-          name="password" 
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          disabled={loading}
-          autoComplete="current-password"
-        />
+        <div className="password-container">
+          <input 
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Enter your password" 
+            id="password" 
+            name="password" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={loading}
+            autoComplete="current-password"
+          />
+          <i 
+            className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'} password-toggle`}
+            onClick={() => setShowPassword(!showPassword)}
+            title={showPassword ? 'Hide password' : 'Show password'}
+          ></i>
+        </div>
         
         <button 
           type="submit" 

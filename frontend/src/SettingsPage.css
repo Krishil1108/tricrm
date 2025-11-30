@@ -1227,6 +1227,133 @@
   border-color: #f59e0b;
 }
 
+/* Data Management Specific Styles */
+.settings-page .data-info,
+.settings-page .maintenance-info,
+.settings-page .danger-warning {
+  margin-top: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+  border-left: 3px solid #667eea;
+}
+
+.settings-page .maintenance-info {
+  border-left-color: #10b981;
+}
+
+.settings-page .danger-warning {
+  background: #fef7f7;
+  border-left-color: #ef4444;
+}
+
+.settings-page .data-info small,
+.settings-page .maintenance-info small,
+.settings-page .danger-warning small {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #6b7280;
+}
+
+.settings-page .danger-warning small {
+  color: #7f1d1d;
+}
+
+/* Processing states */
+.settings-page .data-btn:disabled,
+.settings-page .cleanup-btn:disabled,
+.settings-page .danger-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.settings-page .data-btn:disabled:hover,
+.settings-page .cleanup-btn:disabled:hover,
+.settings-page .danger-btn:disabled:hover {
+  background: initial;
+  border-color: initial;
+  color: initial;
+}
+
+/* Loading animation for processing buttons */
+.settings-page .data-btn:disabled svg,
+.settings-page .cleanup-btn:disabled svg {
+  animation: spin 1s linear infinite;
+}
+
+/* File input styling */
+.settings-page input[type="file"] {
+  display: none;
+}
+
+/* Export button variants */
+.settings-page .data-actions .export-btn:first-child {
+  background: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.settings-page .data-actions .export-btn:first-child:hover {
+  background: #059669;
+  border-color: #059669;
+}
+
+.settings-page .data-actions .export-btn:nth-child(2) {
+  background: #059669;
+  color: white;
+  border-color: #059669;
+}
+
+.settings-page .data-actions .export-btn:nth-child(2):hover {
+  background: #047857;
+  border-color: #047857;
+}
+
+/* Dark mode adjustments for new elements */
+[data-theme="dark"] .settings-page .data-info,
+[data-theme="dark"] .settings-page .maintenance-info {
+  background: var(--surface-color);
+  border-left-color: #8b9aff;
+}
+
+[data-theme="dark"] .settings-page .danger-warning {
+  background: rgba(239, 68, 68, 0.05);
+  border-left-color: #ff6b6b;
+}
+
+[data-theme="dark"] .settings-page .data-info small,
+[data-theme="dark"] .settings-page .maintenance-info small {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .settings-page .danger-warning small {
+  color: #ffb3b3;
+}
+
+/* Enhanced button states for dark mode */
+[data-theme="dark"] .settings-page .data-actions .export-btn:first-child {
+  background: #10d97a;
+  color: #000;
+  border-color: #10d97a;
+}
+
+[data-theme="dark"] .settings-page .data-actions .export-btn:first-child:hover {
+  background: #0dd670;
+  border-color: #0dd670;
+}
+
+[data-theme="dark"] .settings-page .data-actions .export-btn:nth-child(2) {
+  background: #0dd670;
+  color: #000;
+  border-color: #0dd670;
+}
+
+[data-theme="dark"] .settings-page .data-actions .export-btn:nth-child(2):hover {
+  background: #0bc768;
+  border-color: #0bc768;
+}
+
 /* Responsive Design for New Sections */
 @media (max-width: 768px) {
   .settings-page .data-actions {
@@ -1239,5 +1366,12 @@
   
   .settings-page .danger-actions {
     flex-direction: column;
+  }
+  
+  .settings-page .data-info,
+  .settings-page .maintenance-info,
+  .settings-page .danger-warning {
+    margin-top: 8px;
+    padding: 8px;
   }
 }

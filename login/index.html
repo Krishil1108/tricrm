@@ -36,17 +36,30 @@
         <p class="contact-admin">Contact <a href="mailto:admin@company.com?subject=Account%20Access%20Request&body=Hello%20Administrator,%0D%0A%0D%0AI%20am%20requesting%20assistance%20with%20my%20CRM%20system%20account.%0D%0A%0D%0APlease%20help%20me%20with:%0D%0A%E2%98%90%20Forgot%20Password%0D%0A%E2%98%90%20Forgot%20Username%0D%0A%E2%98%90%20Account%20Access%20Issues%0D%0A%0D%0AThank%20you%20for%20your%20assistance.%0D%0A%0D%0ABest%20regards," class="admin-link">administrator</a> for account access</p>
     </form>
     <script>
-        const togglePassword = document.querySelector('#togglePassword');
-        const password = document.querySelector('#password');
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.querySelector('#togglePassword');
+            const password = document.querySelector('#password');
 
-        togglePassword.addEventListener('click', function (e) {
-            // Toggle the type attribute
-            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-            password.setAttribute('type', type);
-            
-            // Toggle the eye icon
-            this.classList.toggle('fa-eye');
-            this.classList.toggle('fa-eye-slash');
+            if (togglePassword && password) {
+                togglePassword.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    // Toggle the type attribute
+                    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                    password.setAttribute('type', type);
+                    
+                    // Toggle the eye icon
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                    
+                    // Add visual feedback
+                    this.style.color = type === 'password' ? 'rgba(255, 255, 255, 0.8)' : '#23a2f6';
+                });
+                
+                // Ensure the toggle is visible on page load
+                togglePassword.style.display = 'block';
+                togglePassword.style.visibility = 'visible';
+            }
         });
     </script>
 </body>

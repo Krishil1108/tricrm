@@ -918,6 +918,209 @@ const SettingsPage = () => {
     </div>
   );
 
+  // Data management functions
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [importFileRef] = useState(React.createRef());
+
+  const handleExportData = async (format = 'json') => {
+    try {
+      setIsProcessing(true);
+      const token = localStorage.getItem('token');
+      
+      const endpoint = format === 'excel' ? '/data/export/excel' : '/data/export/all';
+      const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Export failed');
+      }
+
+      // Get filename from response headers or generate one
+      const contentDisposition = response.headers.get('content-disposition');
+      let filename = `crm_export_${new Date().toISOString().split('T')[0]}`;
+      
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="([^"]+)"/);
+        if (match) filename = match[1];
+      } else {
+        filename += format === 'excel' ? '.xlsx' : '.json';
+      }
+
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      alert('Data exported successfully!');
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('Export failed: ' + error.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleImportData = async (file) => {
+    try {
+      setIsProcessing(true);
+      const token = localStorage.getItem('token');
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('updateExisting', 'true');
+
+      const response = await fetch(`${API_BASE_URL}/data/import/all`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Import failed');
+      }
+
+      alert(`Import completed successfully!\n\nSummary:\n- Created: ${result.results.summary?.created || 0}\n- Updated: ${result.results.summary?.updated || 0}\n- Errors: ${result.results.summary?.errors || 0}`);
+      
+      // Refresh system stats
+      loadSystemStats();
+    } catch (error) {
+      console.error('Import error:', error);
+      alert('Import failed: ' + error.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleCreateBackup = async () => {
+    try {
+      setIsProcessing(true);
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${API_BASE_URL}/data/backup/create`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Backup creation failed');
+      }
+
+      // Get filename from response headers
+      const contentDisposition = response.headers.get('content-disposition');
+      let filename = `crm_backup_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+      
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="([^"]+)"/);
+        if (match) filename = match[1];
+      }
+
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      alert('Backup created and downloaded successfully!');
+      
+      // Refresh system stats to update last backup time
+      loadSystemStats();
+    } catch (error) {
+      console.error('Backup error:', error);
+      alert('Backup creation failed: ' + error.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleCleanupActivities = async () => {
+    if (!window.confirm('Are you sure you want to delete all activities older than 1 year? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${API_BASE_URL}/data/cleanup/activities?days=365`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Cleanup failed');
+      }
+
+      alert(`Cleanup completed!\n\nDeleted ${result.deletedCount} old activities.`);
+      loadSystemStats();
+    } catch (error) {
+      console.error('Cleanup error:', error);
+      alert('Cleanup failed: ' + error.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleGenerateReport = async () => {
+    try {
+      setIsProcessing(true);
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${API_BASE_URL}/data/analytics/report`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Report generation failed');
+      }
+
+      const report = await response.json();
+      
+      // Create and download report as JSON
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `crm_analytics_report_${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      alert('Analytics report generated and downloaded successfully!');
+    } catch (error) {
+      console.error('Report generation error:', error);
+      alert('Report generation failed: ' + error.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const renderDataSection = () => (
     <div className="settings-section">
       <div className="section-header">
@@ -936,23 +1139,66 @@ const SettingsPage = () => {
         <div className="data-card">
           <h4>Import & Export</h4>
           <div className="data-actions">
-            <button className="data-btn export-btn">
+            <button 
+              className="data-btn export-btn"
+              onClick={() => handleExportData('json')}
+              disabled={isProcessing}
+            >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="7,10 12,15 17,10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
-              Export All Data
+              {isProcessing ? 'Processing...' : 'Export All Data (JSON)'}
             </button>
-            <button className="data-btn import-btn">
+            
+            <button 
+              className="data-btn export-btn"
+              onClick={() => handleExportData('excel')}
+              disabled={isProcessing}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+              {isProcessing ? 'Processing...' : 'Export as Excel'}
+            </button>
+            
+            <input
+              ref={importFileRef}
+              type="file"
+              accept=".json"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                if (e.target.files[0]) {
+                  if (window.confirm('Importing data will add/update records in your database. Continue?')) {
+                    handleImportData(e.target.files[0]);
+                  }
+                  e.target.value = ''; // Reset input
+                }
+              }}
+            />
+            
+            <button 
+              className="data-btn import-btn"
+              onClick={() => importFileRef.current?.click()}
+              disabled={isProcessing}
+            >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                 <polyline points="17,8 12,3 7,8"/>
                 <line x1="12" y1="3" x2="12" y2="15"/>
               </svg>
-              Import Data
+              {isProcessing ? 'Processing...' : 'Import Data (JSON)'}
             </button>
-            <button className="data-btn backup-btn">
+            
+            <button 
+              className="data-btn backup-btn"
+              onClick={handleCreateBackup}
+              disabled={isProcessing}
+            >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                 <polyline points="14,2 14,8 20,8"/>
@@ -960,39 +1206,56 @@ const SettingsPage = () => {
                 <line x1="16" y1="17" x2="8" y2="17"/>
                 <polyline points="10,9 9,9 8,9"/>
               </svg>
-              Create Backup
+              {isProcessing ? 'Creating...' : 'Create Backup'}
             </button>
           </div>
           <p className="data-note">
             Last backup: {systemStats.lastBackup}
           </p>
+          <div className="data-info">
+            <small>
+              • <strong>Export JSON:</strong> Complete data export with all relationships preserved<br/>
+              • <strong>Export Excel:</strong> Human-readable format for viewing and analysis<br/>
+              • <strong>Import:</strong> Supports JSON format with automatic conflict resolution<br/>
+              • <strong>Backup:</strong> Creates a complete snapshot of your database
+            </small>
+          </div>
         </div>
 
         <div className="data-card">
-          <h4>Database Cleanup</h4>
+          <h4>Database Cleanup & Maintenance</h4>
           <div className="cleanup-actions">
-            <button className="cleanup-btn">
+            <button 
+              className="cleanup-btn"
+              onClick={handleCleanupActivities}
+              disabled={isProcessing}
+            >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <polyline points="3,6 5,6 21,6"/>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                 <line x1="10" y1="11" x2="10" y2="17"/>
                 <line x1="14" y1="11" x2="14" y2="17"/>
               </svg>
-              Clean Old Activities ({'>'}1 year)
+              {isProcessing ? 'Processing...' : 'Clean Old Activities (>1 year)'}
             </button>
-            <button className="cleanup-btn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"/>
-              </svg>
-              Optimize Database
-            </button>
-            <button className="cleanup-btn">
+            
+            <button 
+              className="cleanup-btn"
+              onClick={handleGenerateReport}
+              disabled={isProcessing}
+            >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M3 3v18h18"/>
                 <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
               </svg>
-              Generate Analytics Report
+              {isProcessing ? 'Generating...' : 'Generate Analytics Report'}
             </button>
+          </div>
+          <div className="maintenance-info">
+            <small>
+              • <strong>Clean Activities:</strong> Removes activity logs older than 1 year to improve performance<br/>
+              • <strong>Analytics Report:</strong> Generates comprehensive statistics and insights
+            </small>
           </div>
         </div>
 
@@ -1005,14 +1268,17 @@ const SettingsPage = () => {
             </svg>
             Danger Zone
           </h4>
-          <p>These actions cannot be undone</p>
+          <p>These actions cannot be undone. Please create a backup first.</p>
           <div className="danger-actions">
-            <button className="danger-btn">
-              Reset All Settings
+            <button className="danger-btn" disabled>
+              Reset All Settings (Coming Soon)
             </button>
-            <button className="danger-btn">
-              Delete All Data
+            <button className="danger-btn" disabled>
+              Delete All Data (Coming Soon)
             </button>
+          </div>
+          <div className="danger-warning">
+            <small>⚠️ Destructive operations are currently disabled for safety. Contact administrator for data reset operations.</small>
           </div>
         </div>
       </div>

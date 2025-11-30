@@ -1,4 +1,4 @@
-/* Page Container */
+﻿/* Page Container */
 .page-container {
   width: 100%;
   height: 100%;
@@ -378,7 +378,7 @@
 }
 
 .service-card li::before {
-  content: "✓";
+  content: "âœ“";
   position: absolute;
   left: 0;
   color: #3b82f6;
@@ -1977,11 +1977,12 @@
 /* Action buttons container */
 .action-buttons {
   display: flex;
-  gap: 4px;
+  gap: 8px;
   align-items: center;
   justify-content: center;
   margin: 0 auto;
   width: fit-content;
+  flex-wrap: nowrap;
 }
 
 /* Common action button styles */
@@ -2518,25 +2519,83 @@ textarea::placeholder {
 /* Ensure consistent action button spacing */
 .action-buttons {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  min-width: fit-content;
 }
- 
- / *   A d d i t i o n a l   d r o p d o w n   s t y l e s   f o r   C l i e n t s P a g e   t h r e e - d o t   m e n u   * / 
- . b t n - m o r e   { 
-     b a c k g r o u n d - c o l o r :   # 6 c 7 5 7 d   ! i m p o r t a n t ; 
-     c o l o r :   w h i t e   ! i m p o r t a n t ; 
-     b o r d e r :   n o n e   ! i m p o r t a n t ; 
-     m i n - w i d t h :   3 2 p x   ! i m p o r t a n t ; 
-     h e i g h t :   3 2 p x   ! i m p o r t a n t ; 
-     b o r d e r - r a d i u s :   6 p x   ! i m p o r t a n t ; 
-     f o n t - s i z e :   1 8 p x   ! i m p o r t a n t ; 
-     f o n t - w e i g h t :   b o l d   ! i m p o r t a n t ; 
-     p a d d i n g :   4 p x   8 p x   ! i m p o r t a n t ; 
- } 
- 
- . b t n - m o r e : h o v e r   { 
-     b a c k g r o u n d - c o l o r :   # 5 4 5 b 6 2   ! i m p o r t a n t ; 
- }  
- 
+
+/* Additional dropdown styles for ClientsPage three-dot menu */
+.btn-more {
+  background-color: #6c757d !important;
+  color: white !important;
+  border: none !important;
+  min-width: 32px !important;
+  height: 32px !important;
+  border-radius: 6px !important;
+  font-size: 18px !important;
+  font-weight: bold !important;
+  padding: 4px 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.btn-more:hover {
+  background-color: #545b62 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3);
+}
+
+/* Dropdown menu positioning and styling */
+.dropdown-menu {
+  animation: fadeInScale 0.15s ease-out;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Dropdown item hover effects */
+.dropdown-item {
+  transition: background-color 0.15s ease;
+}
+
+.dropdown-item:first-child {
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.dropdown-item:last-child {
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+/* Responsive action buttons - ensure single line display */
+@media (max-width: 1200px) {
+  .action-buttons {
+    gap: 6px;
+  }
+  
+  .action-btn {
+    min-width: 32px;
+    padding: 6px;
+  }
+}
+
+@media (max-width: 992px) {
+  .action-buttons {
+    gap: 4px;
+  }
+  
+  .action-btn {
+    min-width: 28px;
+    padding: 5px;
+    font-size: 11px;
+  }
+}
