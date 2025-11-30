@@ -27,6 +27,7 @@ const AssociatesPage = () => {
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [editingAssociate, setEditingAssociate] = useState(null);
+  const [dropdownOpenId, setDropdownOpenId] = useState(null);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -57,6 +58,17 @@ const AssociatesPage = () => {
 
     // Cleanup subscription on unmount
     return unsubscribe;
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.dropdown-container')) {
+        setDropdownOpenId(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const loadAssociates = async () => {
@@ -592,6 +604,7 @@ const AssociatesPage = () => {
                     <td>{formatDate(associate.createdAt)}</td>
                     <td style={{ textAlign: 'center' }}>
                       <div className="action-buttons">
+                        {/* Primary Action - Projects Button */}
                         {canViewAssociatedProjects() && (
                           <button
                             className="view-projects-btn action-btn"
@@ -601,30 +614,153 @@ const AssociatesPage = () => {
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                               <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
                             </svg>
-                            Projects
                           </button>
                         )}
-                        {canEditAssociate() && (
-                          <button
-                            className="edit-btn action-btn"
-                            onClick={() => handleEdit(associate)}
-                            title="Edit Associate"
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                            </svg>
-                          </button>
-                        )}
-                        {canDeleteAssociate() && (
-                          <button
-                            className="delete-btn action-btn"
-                            onClick={() => handleDelete(associate._id)}
-                            title="Delete Associate"
-                          >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                            </svg>
-                          </button>
+                        
+                        {/* Three-dot Menu for Edit and Delete */}
+                        {(canEditAssociate() || canDeleteAssociate()) && (
+                          <div className="dropdown-container" style={{ position: 'relative', display: 'inline-block' }}>
+                            <button 
+                              className="action-btn btn-more"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDropdownOpenId(dropdownOpenId === associate._id ? null : associate._id);
+                              }}
+                              title="More Actions"
+                              style={{
+                                background: '#6c757d',
+                                color: 'white',
+                                border: 'none',
+                                padding: '8px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '16px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                minWidth: '32px',
+                                height: '32px',
+                                fontWeight: 'bold'
+                              }}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+                              </svg>
+                            </button>
+                            {dropdownOpenId === associate._id && (
+                              <div 
+                                className="dropdown-menu"
+                                style={{
+                                  position: 'fixed',
+                                  background: 'white',
+                                  border: '1px solid #dee2e6',
+                                  borderRadius: '8px',
+                                  boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+                                  zIndex: 9999,
+                                  minWidth: '180px',
+                                  padding: '4px 0'
+                                }}
+                                ref={(el) => {
+                                  if (el && dropdownOpenId === associate._id) {
+                                    setTimeout(() => {
+                                      const button = el.previousElementSibling;
+                                      if (button) {
+                                        const rect = button.getBoundingClientRect();
+                                        const dropdownRect = el.getBoundingClientRect();
+                                        const viewportHeight = window.innerHeight;
+                                        const viewportWidth = window.innerWidth;
+                                        
+                                        let top = rect.bottom + 4;
+                                        let left = rect.right - dropdownRect.width;
+                                        
+                                        const spaceBelow = viewportHeight - rect.bottom - 20;
+                                        const spaceAbove = rect.top - 20;
+                                        
+                                        if (spaceBelow < dropdownRect.height && spaceAbove > spaceBelow) {
+                                          top = rect.top - dropdownRect.height - 4;
+                                        }
+                                        
+                                        if (top < 5) top = 5;
+                                        else if (top + dropdownRect.height > viewportHeight - 5) {
+                                          top = Math.max(5, viewportHeight - dropdownRect.height - 5);
+                                        }
+                                        
+                                        if (left < 10) left = rect.left;
+                                        else if (left + dropdownRect.width > viewportWidth - 10) {
+                                          left = viewportWidth - dropdownRect.width - 10;
+                                        }
+                                        
+                                        el.style.top = `${top}px`;
+                                        el.style.left = `${left}px`;
+                                      }
+                                    }, 0);
+                                  }
+                                }}
+                              >
+                                {canEditAssociate() && (
+                                  <button 
+                                    className="dropdown-item"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleEdit(associate);
+                                      setDropdownOpenId(null);
+                                    }}
+                                    style={{
+                                      width: '100%',
+                                      padding: '10px 16px',
+                                      border: 'none',
+                                      background: 'transparent',
+                                      textAlign: 'left',
+                                      cursor: 'pointer',
+                                      fontSize: '14px',
+                                      color: '#495057',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '10px'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                                  >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                      <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                    </svg>
+                                    Edit Associate
+                                  </button>
+                                )}
+                                {canDeleteAssociate() && (
+                                  <button 
+                                    className="dropdown-item"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDelete(associate._id);
+                                      setDropdownOpenId(null);
+                                    }}
+                                    style={{
+                                      width: '100%',
+                                      padding: '10px 16px',
+                                      border: 'none',
+                                      background: 'transparent',
+                                      textAlign: 'left',
+                                      cursor: 'pointer',
+                                      fontSize: '14px',
+                                      color: '#dc3545',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '10px',
+                                      borderTop: canEditAssociate() ? '1px solid #f1f3f4' : 'none'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.backgroundColor = '#fff5f5'}
+                                    onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                                  >
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                    </svg>
+                                    Delete Associate
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         )}
                       </div>
                     </td>
