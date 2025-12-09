@@ -7,6 +7,7 @@ import ExcelImport from './components/ExcelImport';
 import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import Watermark from './components/Watermark';
 import './PageContent.css';
+import './styles/ClientsPageEnhanced.css';
 
 const ClientsPage = () => {
   const { 
@@ -34,7 +35,7 @@ const ClientsPage = () => {
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(50);
+  const [itemsPerPage] = useState(30);
   
   const [clientData, setClientData] = useState({
     name: '',
@@ -381,50 +382,63 @@ const ClientsPage = () => {
   };
 
   return (
-    <div className="page-container project-page">
-      <div className="page-header">
-        <div className="header-content">
-          <h1>Clients</h1>
-        </div>
-        <div className="header-actions">
-          {canAddNewClient() && (
-            <button 
-              className="add-client-btn"
-              onClick={() => setShowAddPopup(true)}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+    <div className="clients-page-enhanced">
+      <div className="modern-page-header">
+        <div className="header-content-enhanced">
+          <div className="header-title-section">
+            <div className="title-icon-wrapper">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" className="header-icon">
+                <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zM4 18v-6h3v6h2v-6h2l-2.65-7.13A2 2 0 0 0 6.47 4H3.53c-.97 0-1.8.64-2.08 1.55L0 12v6h4z"/>
               </svg>
-              Add New Client
-            </button>
-          )}
-          {canExportClients() && (
-            <button 
-              className="export-btn enhanced-export-btn"
-              onClick={handleExportToExcel}
-              title="Export client data to Excel spreadsheet"
-            >
-              <div className="btn-icon">
-                <i className="bi bi-download"></i>
-              </div>
-              <div className="btn-content">
-                <span className="btn-text">Export to Excel</span>
-                <span className="btn-count">({filteredClients.length} clients)</span>
-              </div>
-            </button>
-          )}
-          {canImportClients() && (
-            <button 
-              className="import-btn"
-              onClick={() => setShowImportModal(true)}
-              title="Import clients from Excel file"
-            >
-              <div className="btn-icon">
-                <i className="bi bi-upload"></i>
-              </div>
-              <span className="btn-text">Import from Excel</span>
-            </button>
-          )}
+              <h1 className="page-title-enhanced">Client Management</h1>
+            </div>
+          </div>
+          <div className="header-actions-enhanced">
+            {canAddNewClient() && (
+              <button 
+                className="btn-primary-modern add-client-enhanced"
+                onClick={() => setShowAddPopup(true)}
+              >
+                <div className="btn-icon-wrapper">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                  </svg>
+                </div>
+                <span className="btn-text">Add Client</span>
+              </button>
+            )}
+            {canExportClients() && (
+              <button 
+                className="btn-secondary-modern export-enhanced"
+                onClick={handleExportToExcel}
+                title="Export client data to Excel spreadsheet"
+              >
+                <div className="btn-icon-wrapper">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                  </svg>
+                </div>
+                <div className="btn-content">
+                  <span className="btn-text">Export</span>
+                  <span className="btn-count">({filteredClients.length})</span>
+                </div>
+              </button>
+            )}
+            {canImportClients() && (
+              <button 
+                className="btn-tertiary-modern import-enhanced"
+                onClick={() => setShowImportModal(true)}
+                title="Import clients from Excel file"
+              >
+                <div className="btn-icon-wrapper">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M12,19L8,15H10.5V12H13.5V15H16L12,19Z"/>
+                  </svg>
+                </div>
+                <span className="btn-text">Import</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
       
@@ -457,130 +471,229 @@ const ClientsPage = () => {
           </div>
         )}
 
-        {/* Client Statistics - Role-based visibility */}
+        {/* Client Statistics - Enhanced Modern Cards */}
         {canViewClientSummaryCards() && (
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-label">Total Clients</div>
-              <div className="stat-value">{Array.isArray(clients) ? clients.length : 0}</div>
+          <div className="stats-grid-enhanced">
+            <div className="stat-card-modern total">
+              <div className="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zM4 18v-6h3v6h2v-6h2l-2.65-7.13A2 2 0 0 0 6.47 4H3.53c-.97 0-1.8.64-2.08 1.55L0 12v6h4z"/>
+                </svg>
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">{Array.isArray(clients) ? clients.length : 0}</div>
+                <div className="stat-label">Total Clients</div>
+              </div>
             </div>
-            <div className="stat-card success">
-              <div className="stat-label">Active Clients</div>
-              <div className="stat-value">{Array.isArray(clients) ? clients.filter(c => c.status === 'Active').length : 0}</div>
+            <div className="stat-card-modern active">
+              <div className="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">{Array.isArray(clients) ? clients.filter(c => c.status === 'Active').length : 0}</div>
+                <div className="stat-label">Active Clients</div>
+              </div>
             </div>
-            <div className="stat-card warning">
-              <div className="stat-label">Pending</div>
-              <div className="stat-value">{Array.isArray(clients) ? clients.filter(c => c.status === 'Pending').length : 0}</div>
+            <div className="stat-card-modern pending">
+              <div className="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,17A1.5,1.5 0 0,1 10.5,15.5A1.5,1.5 0 0,1 12,14A1.5,1.5 0 0,1 13.5,15.5A1.5,1.5 0 0,1 12,17M12,13A1,1 0 0,1 11,12V8A1,1 0 0,1 12,7A1,1 0 0,1 13,8V12A1,1 0 0,1 12,13Z"/>
+                </svg>
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">{Array.isArray(clients) ? clients.filter(c => c.status === 'Pending').length : 0}</div>
+                <div className="stat-label">Pending</div>
+              </div>
             </div>
-            <div className="stat-card danger">
-              <div className="stat-label">Inactive Clients</div>
-              <div className="stat-value">{Array.isArray(clients) ? clients.filter(c => c.status === 'Inactive').length : 0}</div>
+            <div className="stat-card-modern inactive">
+              <div className="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12,2C17.53,2 22,6.47 22,12C22,17.53 17.53,22 12,22C6.47,22 2,17.53 2,12C2,6.47 6.47,2 12,2M15.59,7L12,10.59L8.41,7L7,8.41L10.59,12L7,15.59L8.41,17L12,13.41L15.59,17L17,15.59L13.41,12L17,8.41L15.59,7Z"/>
+                </svg>
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">{Array.isArray(clients) ? clients.filter(c => c.status === 'Inactive').length : 0}</div>
+                <div className="stat-label">Inactive</div>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Controls */}
-        <div className="finance-filters" style={{
-          display: 'flex',
-          flexDirection: 'row',
-          gap: '15px',
-          flexWrap: 'nowrap',
-          alignItems: 'flex-start',
-          padding: '20px',
-          background: 'white',
-          borderRadius: '12px',
-          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.08)',
-          marginBottom: '20px',
-          width: '100%',
-          boxSizing: 'border-box'
-        }}>
-          <div style={{
-            flex: '1',
-            maxWidth: '400px'
-          }}>
-            <input
-              type="text"
-              className="filter-input"
-              placeholder="Search clients by name, email, or company..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ 
-                width: '100%', 
-                padding: '12px 16px', 
-                border: '2px solid #e5e7eb', 
-                borderRadius: '8px',
-                fontSize: '14px',
-                boxSizing: 'border-box',
-                outline: 'none'
-              }}
-            />
+        {/* Enhanced Search and Filters Section */}
+        <div className="search-filter-section-enhanced">
+          <div className="search-container-modern">
+            <div className="search-input-wrapper-enhanced">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="search-icon-enhanced">
+                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+              </svg>
+              <input
+                type="text"
+                placeholder="Search clients by name, email, or company..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input-enhanced"
+              />
+              {searchTerm && (
+                <button 
+                  className="clear-search-btn"
+                  onClick={() => setSearchTerm('')}
+                  title="Clear search"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
           
-          <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-            <select
-              className="filter-select"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              style={{ 
-                padding: '12px 16px', 
-                border: '2px solid #e5e7eb', 
-                borderRadius: '8px',
-                fontSize: '14px',
-                background: 'white',
-                minWidth: '140px',
-                outline: 'none'
-              }}
-            >
-              <option value="name">Sort by Name</option>
-              <option value="email">Sort by Email</option>
-              <option value="company">Sort by Company</option>
-              <option value="date">Sort by Date Added</option>
-            </select>
+          <div className="filter-container-modern">
+            <div className="select-wrapper-enhanced">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="filter-icon">
+                <path d="M14,12V19.88C14.04,20.18 13.94,20.5 13.71,20.71C13.32,21.1 12.69,21.1 12.3,20.71L10.29,18.7C10.06,18.47 9.96,18.16 10,17.87V12H9.97L4.21,4.62C3.87,4.19 3.95,3.56 4.38,3.22C4.57,3.08 4.78,3 5,3V3H19V3C19.22,3 19.43,3.08 19.62,3.22C20.05,3.56 20.13,4.19 19.79,4.62L14.03,12H14Z"/>
+              </svg>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="status-filter-enhanced"
+              >
+                <option value="name">Sort by Name</option>
+                <option value="email">Sort by Email</option>
+                <option value="company">Sort by Company</option>
+                <option value="date">Sort by Date Added</option>
+              </select>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="select-arrow">
+                <path d="M7,10L12,15L17,10H7Z"/>
+              </svg>
+            </div>
+          </div>
 
-            <select
-              className="filter-select"
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              style={{ 
-                padding: '12px 16px', 
-                border: '2px solid #e5e7eb', 
-                borderRadius: '8px',
-                fontSize: '14px',
-                background: 'white',
-                minWidth: '140px',
-                outline: 'none'
-              }}
+          <div className="filter-container-modern">
+            <div className="select-wrapper-enhanced">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="filter-icon">
+                <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"/>
+              </svg>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="status-filter-enhanced"
+              >
+                <option value="all">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Pending">Pending</option>
+              </select>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="select-arrow">
+                <path d="M7,10L12,15L17,10H7Z"/>
+              </svg>
+            </div>
+          </div>
+
+          <div className="filter-actions-modern">
+            <div className="results-count">
+              <span className="count-text">
+                Showing {filteredClients.length} of {Array.isArray(clients) ? clients.length : 0} clients
+              </span>
+            </div>
+            <button 
+              className="btn-refresh-modern"
+              onClick={loadClients}
+              title="Refresh client data"
             >
-              <option value="all">All Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-              <option value="Pending">Pending</option>
-            </select>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z"/>
+              </svg>
+            </button>
           </div>
         </div>
 
-        {/* Client Table */}
-        <div className="client-table-container">
-          {filteredClients.length === 0 ? (
-            <div className="no-clients">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-              </svg>
-              <h3>No clients found</h3>
-              <p>Start by adding your first client using the "Add New Client" button.</p>
-            </div>
-          ) : (
-            <table className="client-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Company</th>
-                  <th>Phone</th>
-                  <th>Projects</th>
-                  <th>Status</th>
-                  <th>Added Date</th>
-                  <th style={{ textAlign: 'center' }}>Actions</th>
+        {/* Enhanced Clients Table */}
+        <div className="table-container-enhanced">
+          <div className="table-wrapper-modern">
+            {filteredClients.length === 0 ? (
+              <div className={searchTerm || filterStatus !== 'all' || sortBy !== 'name' ? 'no-search-results' : 'no-clients'}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                  <path d={searchTerm || filterStatus !== 'all' || sortBy !== 'name' ? 
+                    "M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" :
+                    "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"} />
+                </svg>
+                <h3>{searchTerm || filterStatus !== 'all' || sortBy !== 'name' ? 'No matching clients found' : 'No clients found'}</h3>
+                <p>{searchTerm || filterStatus !== 'all' || sortBy !== 'name' ? 
+                  'Try adjusting your search criteria or filters to find clients.' : 
+                  'Start by adding your first client using the "Add Client" button above.'}</p>
+              </div>
+            ) : (
+              <div className="filtered-results-container">
+                <div className="table-content-wrapper">
+              <table className="clients-table-enhanced">
+                <thead className="table-header-modern">
+                  <tr>
+                    <th className="th-name">
+                      <div className="th-content">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
+                          <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
+                        </svg>
+                        <span>Name</span>
+                      </div>
+                    </th>
+                    <th className="th-email">
+                      <div className="th-content">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
+                          <path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z"/>
+                        </svg>
+                        <span>Email</span>
+                      </div>
+                    </th>
+                    <th className="th-company">
+                      <div className="th-content">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
+                          <path d="M12,7V3H2V21H22V7H12M6,19H4V17H6V19M6,15H4V13H6V15M6,11H4V9H6V11M6,7H4V5H6V7M10,19H8V17H10V19M10,15H8V13H10V15M10,11H8V9H10V11M10,7H8V5H10V7M20,19H12V17H20V19M20,15H12V13H20V15M20,11H12V9H20V11Z"/>
+                        </svg>
+                        <span>Company</span>
+                      </div>
+                    </th>
+                    <th className="th-phone">
+                      <div className="th-content">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
+                          <path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z"/>
+                        </svg>
+                        <span>Phone</span>
+                      </div>
+                    </th>
+                    <th className="th-projects">
+                      <div className="th-content">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
+                          <path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M13,9H18V7H13V9M13,16H18V10H13V16M6,10H11V7H6V10M7,8H10V9H7V8M6,16H11V11H6V16M7,12H10V15H7V12Z"/>
+                        </svg>
+                        <span>Projects</span>
+                      </div>
+                    </th>
+                    <th className="th-status">
+                      <div className="th-content">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
+                          <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"/>
+                        </svg>
+                        <span>Status</span>
+                      </div>
+                    </th>
+                    <th className="th-date">
+                      <div className="th-content">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
+                          <path d="M19,19H5V8H19M16,1V3H8V1H6V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3H18V1M17,12H12V17H17V12Z"/>
+                        </svg>
+                        <span>Added Date</span>
+                      </div>
+                    </th>
+                    <th className="th-actions" style={{ textAlign: 'center' }}>
+                      <div className="th-content">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
+                          <path d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z"/>
+                        </svg>
+                        <span>Actions</span>
+                      </div>
+                    </th>
                 </tr>
               </thead>
               <tbody>
@@ -849,8 +962,14 @@ const ClientsPage = () => {
                   </tr>
                 ))}
               </tbody>
-            </table>
-          )}
+                  </table>
+                  {filteredClients.length < 5 && (
+                    <div className="table-spacer"></div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Pagination Controls */}
           {filteredClients.length > 0 && totalPages > 1 && (

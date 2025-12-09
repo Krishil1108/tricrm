@@ -31,7 +31,7 @@ const AssociatesPage = () => {
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(50);
+  const [itemsPerPage] = useState(30);
   
   const [associateData, setAssociateData] = useState({
     name: '',

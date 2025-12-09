@@ -70,6 +70,10 @@ const ProjectPage = () => {
   const [showAssociateDistributionModal, setShowAssociateDistributionModal] = useState(false);
   const [dropdownOpenId, setDropdownOpenId] = useState(null);
   
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(30);
+  
   // Client-related state
   const [clients, setClients] = useState([]);
   const [showClientModal, setShowClientModal] = useState(false);
@@ -903,6 +907,59 @@ const ProjectPage = () => {
     }
   };
 
+  // Pagination and filtering logic
+  // Filter and paginate projects
+  const getFilteredProjects = () => {
+    return projects.filter(project => {
+      const matchesSearch = !filters.search || 
+        project.projectName.toLowerCase().includes(filters.search.toLowerCase()) ||
+        project.projectNumber.toLowerCase().includes(filters.search.toLowerCase()) ||
+        (project.projectLocation && project.projectLocation.toLowerCase().includes(filters.search.toLowerCase()));
+      
+      const matchesStatus = filters.status === 'all' || project.status === filters.status;
+      
+      return matchesSearch && matchesStatus;
+    });
+  };
+
+  const getPaginatedProjects = () => {
+    const filtered = getFilteredProjects();
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filtered.slice(startIndex, startIndex + itemsPerPage);
+  };
+
+  // Filter and paginate expenses
+  const getFilteredExpenses = () => {
+    return expenses.filter(expense => {
+      const matchesSearch = !filters.search || 
+        expense.description?.toLowerCase().includes(filters.search.toLowerCase()) ||
+        expense.category?.toLowerCase().includes(filters.search.toLowerCase());
+      
+      return matchesSearch;
+    });
+  };
+
+  const getPaginatedExpenses = () => {
+    const filtered = getFilteredExpenses();
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filtered.slice(startIndex, startIndex + itemsPerPage);
+  };
+
+  // Pagination helpers
+  const getTotalPages = () => {
+    const filteredData = activeTab === 'projects' ? getFilteredProjects() : getFilteredExpenses();
+    return Math.ceil(filteredData.length / itemsPerPage);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters, activeTab]);
+
   return (
     <div className="project-page">
       <div className="page-header">
@@ -1070,7 +1127,8 @@ const ProjectPage = () => {
       {/* Table */}
       {activeTab === 'projects' ? (
         <ProjectsTable
-          projects={projects}
+          projects={getPaginatedProjects()}
+          totalProjects={getFilteredProjects().length}
           onEdit={handleEdit}
           onViewDistribution={handleViewDistribution}
           onViewAssociateDistribution={handleViewAssociateDistribution}
@@ -1085,10 +1143,22 @@ const ProjectPage = () => {
         />
       ) : (
         <ExpensesTable
-          expenses={expenses}
+          expenses={getPaginatedExpenses()}
+          totalExpenses={getFilteredExpenses().length}
           onEdit={handleEdit}
           onDelete={handleDelete}
           formatCurrency={formatCurrency}
+        />
+      )}
+
+      {/* Pagination */}
+      {getTotalPages() > 1 && (
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={getTotalPages()}
+          onPageChange={handlePageChange}
+          totalItems={activeTab === 'projects' ? getFilteredProjects().length : getFilteredExpenses().length}
+          itemsPerPage={itemsPerPage}
         />
       )}
 
@@ -3750,6 +3820,112 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
     {/* Watermark */}
     <Watermark />
     </>
+  );
+};
+
+// Pagination Controls Component
+const PaginationControls = ({ currentPage, totalPages, onPageChange, totalItems, itemsPerPage }) => {
+  const getVisiblePages = () => {
+    const delta = 2; // Number of pages to show around current page
+    const range = [];
+    const rangeWithDots = [];
+
+    for (let i = Math.max(2, currentPage - delta);
+         i <= Math.min(totalPages - 1, currentPage + delta);
+         i++) {
+      range.push(i);
+    }
+
+    if (currentPage - delta > 2) {
+      rangeWithDots.push(1, '...');
+    } else {
+      rangeWithDots.push(1);
+    }
+
+    rangeWithDots.push(...range);
+
+    if (currentPage + delta < totalPages - 1) {
+      rangeWithDots.push('...', totalPages);
+    } else {
+      if (totalPages > 1) rangeWithDots.push(totalPages);
+    }
+
+    return rangeWithDots;
+  };
+
+  const startItem = (currentPage - 1) * itemsPerPage + 1;
+  const endItem = Math.min(currentPage * itemsPerPage, totalItems);
+
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: '20px 0',
+      borderTop: '1px solid #e5e7eb',
+      marginTop: '20px'
+    }}>
+      <div style={{ fontSize: '14px', color: '#6b7280' }}>
+        Showing {startItem} to {endItem} of {totalItems} results
+      </div>
+      
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <button
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          style={{
+            padding: '8px 12px',
+            border: '1px solid #d1d5db',
+            background: currentPage === 1 ? '#f9fafb' : 'white',
+            color: currentPage === 1 ? '#9ca3af' : '#374151',
+            borderRadius: '6px',
+            cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+            fontSize: '14px'
+          }}
+        >
+          Previous
+        </button>
+        
+        {getVisiblePages().map((page, index) => (
+          page === '...' ? (
+            <span key={index} style={{ padding: '8px 4px', color: '#9ca3af' }}>...</span>
+          ) : (
+            <button
+              key={index}
+              onClick={() => onPageChange(page)}
+              style={{
+                padding: '8px 12px',
+                border: '1px solid #d1d5db',
+                background: currentPage === page ? '#3b82f6' : 'white',
+                color: currentPage === page ? 'white' : '#374151',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                minWidth: '40px'
+              }}
+            >
+              {page}
+            </button>
+          )
+        ))}
+        
+        <button
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          style={{
+            padding: '8px 12px',
+            border: '1px solid #d1d5db',
+            background: currentPage === totalPages ? '#f9fafb' : 'white',
+            color: currentPage === totalPages ? '#9ca3af' : '#374151',
+            borderRadius: '6px',
+            cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+            fontSize: '14px'
+          }}
+        >
+          Next
+        </button>
+      </div>
+    </div>
   );
 };
 
