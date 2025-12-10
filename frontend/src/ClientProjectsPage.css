@@ -1,5 +1,13 @@
 ﻿/* ClientProjectsPage.css - Professional Corporate Styling */
 
+/* Global table wrapper for responsive scrolling */
+.project-page,
+.project-content,
+.table-container-enhanced,
+.project-table-container {
+  position: relative;
+}
+
 .project-page {
   padding: 24px;
   background-color: #f8f9fa;
@@ -245,21 +253,103 @@
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
+/* Animated Tabs with Glider Effect */
+.animated-tabs {
+  display: flex;
+  position: relative;
+  background-color: #ffffff;
+  box-shadow: 0 0 1px 0 rgba(24, 94, 224, 0.15), 0 6px 12px 0 rgba(24, 94, 224, 0.15);
+  padding: 0.5rem;
+  border-radius: 99px;
+  margin-bottom: 15px;
+}
+
+.animated-tabs * {
+  z-index: 2;
+}
+
+.animated-tabs input[type="radio"] {
+  display: none;
+}
+
+.animated-tabs .tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  width: 180px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: color 0.15s ease-in;
+  color: #6c757d;
+  margin: 0;
+}
+
+.animated-tabs input[type="radio"]:checked + label {
+  color: #185ee0;
+}
+
+.animated-tabs input[id="owner-tab"]:checked ~ .glider {
+  transform: translateX(0);
+}
+
+.animated-tabs input[id="associate-tab"]:checked ~ .glider {
+  transform: translateX(100%);
+}
+
+.animated-tabs .glider {
+  position: absolute;
+  display: flex;
+  height: 42px;
+  width: 180px;
+  background-color: #e6eef9;
+  z-index: 1;
+  border-radius: 99px;
+  transition: 0.25s ease-out;
+}
+
+@media (max-width: 768px) {
+  .animated-tabs .tab {
+    width: 140px;
+    font-size: 0.85rem;
+    height: 38px;
+  }
+  
+  .animated-tabs .glider {
+    width: 140px;
+    height: 38px;
+  }
+  
+  .animated-tabs {
+    padding: 0.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .animated-tabs {
+    transform: scale(0.9);
+  }
+}
+
 /* Table styling */
 .project-table-container {
   background-color: #ffffff;
   border-radius: 4px;
-  overflow: hidden;
+  overflow-x: auto !important;
+  overflow-y: visible;
   border: 1px solid #dee2e6;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
 }
 
 .project-table {
-  width: 100%;
+  width: auto;
   border-collapse: collapse;
   font-size: 14px;
-  table-layout: fixed;
-  min-width: 1200px;
+  table-layout: auto;
+  min-width: 1300px !important;
 }
 
 /* Column width specifications for better alignment */
@@ -565,7 +655,7 @@
   min-width: 180px;
   max-width: 180px;
   text-align: center;
-  padding: 8px 4px;
+  padding: 8px 2px;
 }
 
 /* Clients table actions column */
@@ -575,7 +665,7 @@ table td:last-child {
   min-width: 180px;
   max-width: 180px;
   text-align: center;
-  padding: 8px 4px;
+  padding: 8px 2px;
 }
 
 /* Responsive table adjustments */
@@ -1729,6 +1819,29 @@ table td:last-child {
 
 .action-btn.edit-btn:hover {
   background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Smooth scrollbar styling for all table containers */
+.project-table-container::-webkit-scrollbar,
+.table-wrapper-modern::-webkit-scrollbar {
+  height: 8px;
+}
+
+.project-table-container::-webkit-scrollbar-track,
+.table-wrapper-modern::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.project-table-container::-webkit-scrollbar-thumb,
+.table-wrapper-modern::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.project-table-container::-webkit-scrollbar-thumb:hover,
+.table-wrapper-modern::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 /* More actions button styling */

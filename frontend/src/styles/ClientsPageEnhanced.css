@@ -534,6 +534,7 @@
 
 .table-wrapper-modern {
   overflow-x: auto;
+  overflow-y: visible;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -543,7 +544,7 @@
 
 .clients-table-enhanced {
   width: 100%;
-  min-width: 100%;
+  min-width: 1100px;
   border-collapse: collapse;
   font-size: 0.95rem;
   height: 100%;
@@ -1169,4 +1170,33 @@
 .project-count-badge:hover {
   transform: scale(1.05);
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+/* Smooth scrollbar styling for table containers */
+.table-wrapper-modern::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-wrapper-modern::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-wrapper-modern::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.table-wrapper-modern::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Ensure proper width and overflow handling */
+.table-container-enhanced {
+  position: relative;
+  width: 100%;
+}
+
+.clients-table-enhanced {
+  display: table;
 }

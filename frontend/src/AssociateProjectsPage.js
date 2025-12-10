@@ -4,6 +4,7 @@ import { useAuth } from './contexts/AuthContext';
 import FinanceService from './services/FinanceService';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
+import { FaMoneyBillWave, FaEdit, FaHistory, FaChartBar, FaUser } from 'react-icons/fa';
 import './ClientProjectsPage.css';
 
 const AssociateProjectsPage = () => {
@@ -463,21 +464,30 @@ const AssociateProjectsPage = () => {
 
       {/* View Toggle Buttons */}
       <div className="project-controls">
-        <div className="view-toggle" style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-          <button 
-            className={`project-btn ${activeView === 'owner' ? 'project-btn-primary' : 'project-btn-secondary'}`}
-            onClick={() => setActiveView('owner')}
-            style={{ flex: 1 }}
-          >
-            📊 Owner View
-          </button>
-          <button 
-            className={`project-btn ${activeView === 'associate' ? 'project-btn-primary' : 'project-btn-secondary'}`}
-            onClick={() => setActiveView('associate')}
-            style={{ flex: 1 }}
-          >
-            👤 Associate Details
-          </button>
+        <div className="animated-tabs">
+          <input 
+            type="radio" 
+            id="owner-tab" 
+            name="view-tabs" 
+            checked={activeView === 'owner'}
+            onChange={() => setActiveView('owner')}
+          />
+          <label className="tab" htmlFor="owner-tab">
+            <FaChartBar style={{ marginRight: '8px' }} /> Owner View
+          </label>
+          
+          <input 
+            type="radio" 
+            id="associate-tab" 
+            name="view-tabs" 
+            checked={activeView === 'associate'}
+            onChange={() => setActiveView('associate')}
+          />
+          <label className="tab" htmlFor="associate-tab">
+            <FaUser style={{ marginRight: '8px' }} /> Associate Details
+          </label>
+          
+          <span className="glider"></span>
         </div>
         <div className="search-controls">
           <div className="search-box">
@@ -532,7 +542,6 @@ const AssociateProjectsPage = () => {
               <table className="project-table">
                 <thead>
                   <tr>
-                    <th>Sr. No.</th>
                     <th>Project Number</th>
                     <th>Project Name</th>
                     <th>Finalized Fees</th>
@@ -540,7 +549,6 @@ const AssociateProjectsPage = () => {
                     <th>Associate Amount</th>
                     <th>Amount Paid to Associate</th>
                     <th>Pending to Associate</th>
-                    <th>Payment Given Date</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -555,11 +563,9 @@ const AssociateProjectsPage = () => {
                     const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
                     const amountPaid = associateDataFromProject?.amountPaid || 0;
                     const pendingAmount = associateAmount - amountPaid;
-                    const paymentDate = associateDataFromProject?.paymentGivenDate;
                     
                     return (
                       <tr key={project._id}>
-                        <td>{project.srNo || index + 1}</td>
                         <td>{project.projectNumber}</td>
                         <td>
                           <div className="project-name">
@@ -580,49 +586,38 @@ const AssociateProjectsPage = () => {
                           {formatCurrency(pendingAmount)}
                         </td>
                         <td>
-                          <span className={paymentDate ? 'payment-date' : 'no-payment-date'}>
-                            {formatDate(paymentDate)}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="action-buttons-responsive">
+                          <div className="flex items-center gap-2" style={{ display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center' }}>
                             <button
-                              className="action-btn btn-payment"
                               onClick={() => handleAddPayment(project, associateDataFromProject)}
+                              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                              style={{ padding: '5px', color: '#16a34a', backgroundColor: 'transparent', border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'all 0.2s ease' }}
                               title="Add Payment"
                               disabled={pendingAmount <= 0}
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             >
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M20 4H4C2.89 4 2 4.89 2 6V18C2 19.11 2.89 20 4 20H20C21.11 20 22 19.11 22 18V6C22 4.89 21.11 4 20 4M20 18H4V12H20V18M20 8H4V6H20V8M14 16H16V14H14V16Z"/>
-                              </svg>
+                              <FaMoneyBillWave className="w-5 h-5" style={{ width: '16px', height: '16px' }} />
                             </button>
                             <button
-                              className="action-btn btn-view-payments"
                               onClick={() => handleViewPayments(project, associateDataFromProject)}
+                              className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                              style={{ padding: '5px', color: '#9333ea', backgroundColor: 'transparent', border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'all 0.2s ease' }}
                               title="View Payment History"
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#faf5ff'}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             >
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3M19 19H5V5H19V19M17 12H7V10H17V12M15 16H7V14H15V16M17 8H7V6H17V8Z"/>
-                              </svg>
+                              <FaHistory className="w-5 h-5" style={{ width: '16px', height: '16px' }} />
                             </button>
-                            <div className="dropdown-menu">
-                              <button className="action-btn btn-more" title="More Actions">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                  <path d="M12 8C13.1 8 14 7.1 14 6C14 4.9 13.1 4 12 4C10.9 4 10 4.9 10 6C10 7.1 10.9 8 12 8ZM12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10ZM12 16C10.9 16 10 16.9 10 18C10 19.1 10.9 20 12 20C13.1 20 14 19.1 14 18C14 16.9 13.1 16 12 16Z"/>
-                                </svg>
-                              </button>
-                              <div className="dropdown-content">
-                                <button
-                                  className="dropdown-item"
-                                  onClick={() => handleEditProject(project._id)}
-                                >
-                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{marginRight: '8px'}}>
-                                    <path d="M20.71 7.04C21.1 6.65 21.1 6 20.71 5.63L18.37 3.29C18 2.9 17.35 2.9 16.96 3.29L15.12 5.12L18.87 8.87M3 17.25V21H6.75L17.81 9.93L14.06 6.18L3 17.25Z"/>
-                                  </svg>
-                                  Edit Project
-                                </button>
-                              </div>
-                            </div>
+                            <button
+                              onClick={() => handleEditProject(project._id)}
+                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              style={{ padding: '5px', color: '#2563eb', backgroundColor: 'transparent', border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                              title="Edit Project"
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#eff6ff'}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                            >
+                              <FaEdit className="w-5 h-5" style={{ width: '16px', height: '16px' }} />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -635,7 +630,6 @@ const AssociateProjectsPage = () => {
               <table className="project-table">
                 <thead>
                   <tr>
-                    <th>Sr. No.</th>
                     <th>Project Number</th>
                     <th>Project Name</th>
                     <th>Associate Share %</th>
@@ -643,7 +637,6 @@ const AssociateProjectsPage = () => {
                     <th>Payment Status</th>
                     <th>Paid Amount</th>
                     <th>Pending Amount</th>
-                    <th>Payment Date</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -658,12 +651,10 @@ const AssociateProjectsPage = () => {
                     const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
                     const amountPaid = associateData?.amountPaid || 0;
                     const pendingAmount = associateAmount - amountPaid;
-                    const paymentDate = associateData?.paymentGivenDate;
                     const paymentStatus = pendingAmount === 0 ? 'Completed' : amountPaid > 0 ? 'Partial' : 'Pending';
                     
                     return (
                       <tr key={project._id}>
-                        <td>{project.srNo || index + 1}</td>
                         <td>{project.projectNumber}</td>
                         <td>
                           <div className="project-name">
@@ -688,20 +679,16 @@ const AssociateProjectsPage = () => {
                           {formatCurrency(pendingAmount)}
                         </td>
                         <td>
-                          <span className={paymentDate ? 'payment-date' : 'no-payment-date'}>
-                            {formatDate(paymentDate)}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="action-buttons-responsive">
+                          <div className="flex items-center gap-2" style={{ display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'center' }}>
                             <button
-                              className="action-btn btn-edit"
                               onClick={() => handleEditProject(project._id)}
+                              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              style={{ padding: '5px', color: '#2563eb', backgroundColor: 'transparent', border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'all 0.2s ease' }}
                               title="Edit Project"
+                              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#eff6ff'}
+                              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             >
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M20.71 7.04C21.1 6.65 21.1 6 20.71 5.63L18.37 3.29C18 2.9 17.35 2.9 16.96 3.29L15.12 5.12L18.87 8.87M3 17.25V21H6.75L17.81 9.93L14.06 6.18L3 17.25Z"/>
-                              </svg>
+                              <FaEdit className="w-5 h-5" style={{ width: '16px', height: '16px' }} />
                             </button>
                           </div>
                         </td>

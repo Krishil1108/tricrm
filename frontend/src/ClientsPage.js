@@ -390,7 +390,7 @@ const ClientsPage = () => {
           <div className="header-title-section">
             <div className="title-icon-wrapper">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" className="header-icon">
-                <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zM4 18v-6h3v6h2v-6h2l-2.65-7.13A2 2 0 0 0 6.47 4H3.53c-.97 0-1.8.64-2.08 1.55L0 12v6h4z"/>
+                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
               </svg>
               <h1 className="page-title-enhanced">Client Management</h1>
             </div>
