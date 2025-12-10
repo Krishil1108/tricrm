@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import './ProjectPage.css';
+import './styles/ClientsPageEnhanced.css';
 import FinanceService from './services/FinanceService';
 import ClientService from './services/ClientService';
 import AssociateService from './services/AssociateService';
@@ -971,69 +972,131 @@ const ProjectPage = () => {
 
   return (
     <div className="project-page">
-      <div className="page-header">
-        <h1>📋 Project Management</h1>
-        <div className="project-actions">
-          {canAddNewProject() && (
-            <button className="project-btn project-btn-primary" onClick={handleAdd}>
-              <i className="bi bi-plus-lg"></i> Add New
-            </button>
-          )}
-          {activeTab === 'projects' && canConfigurePercentagesGranular() && (
-            <button className="project-btn project-btn-info" onClick={() => setShowPercentageConfig(true)}>
-              <i className="bi bi-gear-fill"></i> Configure Percentages
-            </button>
-          )}
-          {activeTab === 'projects' && canImportExcel() && (
-            <>
-              <input
-                type="file"
-                accept=".xlsx,.xls"
-                onChange={handleImportExcel}
-                className="file-upload"
-                id="excel-upload"
-              />
-              <label 
-                htmlFor="excel-upload" 
-                className="project-btn project-btn-success"
-                tabIndex="0"
-                role="button"
-                aria-label="Import Excel file"
-                onKeyDown={handleKeyDown}
-              >
-                <i className="bi bi-upload"></i> Import Excel
-              </label>
-            </>
-          )}
-          {canExportExcel() && (
-            <button className="project-btn project-btn-secondary" onClick={handleExport}>
-              <i className="bi bi-download"></i> Export Excel
-            </button>
-          )}
+      <div className="modern-page-header">
+        <div className="header-content-enhanced">
+          <div className="header-title-section">
+            <div className="title-icon-wrapper">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" className="header-icon">
+                <path d="M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3Z"/>
+              </svg>
+              <h1 className="page-title-enhanced">Project Management</h1>
+            </div>
+          </div>
+          <div className="header-actions-enhanced">
+            {canAddNewProject() && (
+              <button className="btn-primary-modern add-client-enhanced" onClick={handleAdd}>
+                <div className="btn-icon-wrapper">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                  </svg>
+                </div>
+                <span className="btn-text">Add Project</span>
+              </button>
+            )}
+            {activeTab === 'projects' && canConfigurePercentagesGranular() && (
+              <button className="btn-secondary-modern export-enhanced" onClick={() => setShowPercentageConfig(true)}>
+                <div className="btn-icon-wrapper">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"/>
+                  </svg>
+                </div>
+                <span className="btn-text">Configure</span>
+              </button>
+            )}
+            {activeTab === 'projects' && canImportExcel() && (
+              <>
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={handleImportExcel}
+                  className="file-upload"
+                  id="excel-upload"
+                />
+                <label 
+                  htmlFor="excel-upload" 
+                  className="btn-tertiary-modern import-enhanced"
+                  tabIndex="0"
+                  role="button"
+                  aria-label="Import Excel file"
+                  onKeyDown={handleKeyDown}
+                >
+                  <div className="btn-icon-wrapper">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M12,19L8,15H10.5V12H13.5V15H16L12,19Z"/>
+                    </svg>
+                  </div>
+                  <span className="btn-text">Import</span>
+                </label>
+              </>
+            )}
+            {canExportExcel() && (
+              <button className="btn-secondary-modern export-enhanced" onClick={handleExport}>
+                <div className="btn-icon-wrapper">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                  </svg>
+                </div>
+                <div className="btn-content">
+                  <span className="btn-text">Export</span>
+                  <span className="btn-count">({activeTab === 'projects' ? getFilteredProjects().length : getFilteredExpenses().length})</span>
+                </div>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Statistics - Role-based visibility */}
-      {stats && canViewProjectSummaryCards() && (
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-label">Total Projects</div>
-            <div className="stat-value">{stats.projects?.total || 0}</div>
+      <div className="page-content">
+
+        {/* Statistics - Role-based visibility */}
+        {stats && canViewProjectSummaryCards() && (
+          <div className="stats-grid-enhanced">
+            <div className="stat-card-modern total">
+              <div className="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19,3H14.82C14.4,1.84 13.3,1 12,1C10.7,1 9.6,1.84 9.18,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3Z"/>
+                </svg>
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">{stats.projects?.total || 0}</div>
+                <div className="stat-label">Total Projects</div>
+              </div>
+            </div>
+            <div className="stat-card-modern active">
+              <div className="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M11,6H13V13.25L17.28,15.54L16.5,17L11.5,14.25V6Z"/>
+                </svg>
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">{formatCurrency(stats.revenue?.totalReceivedFees)}</div>
+                <div className="stat-label">Total Revenue</div>
+              </div>
+            </div>
+            <div className="stat-card-modern pending">
+              <div className="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7,15H9C9,16.08 10.37,17 12,17C13.63,17 15,16.08 15,15C15,13.9 13.96,13.5 11.76,12.97C9.64,12.44 7,11.78 7,9C7,7.21 8.47,5.69 10.5,5.18V3H13.5V5.18C15.53,5.69 17,7.21 17,9H15C15,7.92 13.63,7 12,7C10.37,7 9,7.92 9,9C9,10.1 10.04,10.5 12.24,11.03C14.36,11.56 17,12.22 17,15C17,16.79 15.53,18.31 13.5,18.82V21H10.5V18.82C8.47,18.31 7,16.79 7,15Z"/>
+                </svg>
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">{formatCurrency(stats.revenue?.totalExpenses)}</div>
+                <div className="stat-label">Total Expenses</div>
+              </div>
+            </div>
+            <div className={`stat-card-modern ${stats.revenue?.netProfit >= 0 ? 'active' : 'inactive'}`}>
+              <div className="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M7,15H9C9,16.08 10.37,17 12,17C13.63,17 15,16.08 15,15C15,13.9 13.96,13.5 11.76,12.97C9.64,12.44 7,11.78 7,9C7,7.21 8.47,5.69 10.5,5.18V3H13.5V5.18C15.53,5.69 17,7.21 17,9H15C15,7.92 13.63,7 12,7C10.37,7 9,7.92 9,9C9,10.1 10.04,10.5 12.24,11.03C14.36,11.56 17,12.22 17,15C17,16.79 15.53,18.31 13.5,18.82V21H10.5V18.82C8.47,18.31 7,16.79 7,15Z"/>
+                </svg>
+              </div>
+              <div className="stat-content">
+                <div className="stat-value">{formatCurrency(stats.revenue?.netProfit)}</div>
+                <div className="stat-label">Net Profit</div>
+              </div>
+            </div>
           </div>
-          <div className="stat-card success">
-            <div className="stat-label">Total Revenue</div>
-            <div className="stat-value">{formatCurrency(stats.revenue?.totalReceivedFees)}</div>
-          </div>
-          <div className="stat-card warning">
-            <div className="stat-label">Total Expenses</div>
-            <div className="stat-value">{formatCurrency(stats.revenue?.totalExpenses)}</div>
-          </div>
-          <div className={`stat-card ${stats.revenue?.netProfit >= 0 ? 'success' : 'danger'}`}>
-            <div className="stat-label">Net Profit</div>
-            <div className="stat-value">{formatCurrency(stats.revenue?.netProfit)}</div>
-          </div>
-        </div>
-      )}
+        )}
 
       {/* Tabs */}
       <div className="finance-tabs">
@@ -3927,6 +3990,7 @@ const PaginationControls = ({ currentPage, totalPages, onPageChange, totalItems,
         >
           Next
         </button>
+      </div>
       </div>
     </div>
   );
