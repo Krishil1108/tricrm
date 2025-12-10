@@ -66,18 +66,22 @@
 }
 
 .loading-spinner {
-  width: 24px;
-  height: 24px;
-  border: 2px solid #e0e0e0;
-  border-top: 2px solid #2196f3;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+  width: fit-content;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 16px;
+  color: #3b82f6;
+  clip-path: inset(0 100% 0 0);
+  animation: loader-reveal-medium 2s steps(11) infinite;
   margin-bottom: 8px;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.loading-spinner:before {
+  content: "Loading...";
+}
+
+@keyframes loader-reveal-medium {
+  to { clip-path: inset(0 -1ch 0 0); }
 }
 
 .activity-error {
@@ -353,8 +357,7 @@
 }
 
 [data-theme="dark"] .loading-spinner {
-  border-color: var(--border-color);
-  border-top-color: var(--accent-color);
+  color: var(--accent-color);
 }
 
 [data-theme="dark"] .filter-buttons {

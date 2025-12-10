@@ -17,7 +17,6 @@ const roleSchema = new mongoose.Schema({
       home: { type: Boolean, default: true },
       clients: { type: Boolean, default: false },
       associates: { type: Boolean, default: false },
-      dashboard: { type: Boolean, default: false },
       finance: { type: Boolean, default: false },
       settings: { type: Boolean, default: false },
       admin: { type: Boolean, default: false }
@@ -62,14 +61,6 @@ const roleSchema = new mongoose.Schema({
       expense_distribution: { type: Boolean, default: false },
       associate_distribution: { type: Boolean, default: false },
       configure_percentages: { type: Boolean, default: false }
-    },
-    
-    // Dashboard permissions
-    dashboard: {
-      view: { type: Boolean, default: false },
-      viewAnalytics: { type: Boolean, default: false },
-      viewReports: { type: Boolean, default: false },
-      exportReports: { type: Boolean, default: false }
     },
     
     // Settings permissions

@@ -622,17 +622,21 @@
 }
 
 .loading-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid #cbd5e0;
-  border-top: 2px solid #4a5568;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+  width: fit-content;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 14px;
+  color: #4a5568;
+  clip-path: inset(0 100% 0 0);
+  animation: loader-reveal-small 2s steps(11) infinite;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.loading-spinner:before {
+  content: "Loading...";
+}
+
+@keyframes loader-reveal-small {
+  to { clip-path: inset(0 -1ch 0 0); }
 }
 
 /* Company Preview Styles */

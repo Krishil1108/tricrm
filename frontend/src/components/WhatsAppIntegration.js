@@ -265,7 +265,7 @@ const WhatsAppIntegration = ({ client, quotation, onClose }) => {
             >
               {isLoading ? (
                 <>
-                  <span className="loading-spinner"></span>
+                  <span className="loading-spinner" aria-hidden="true"></span>
                   Sending...
                 </>
               ) : !client.phone ? (

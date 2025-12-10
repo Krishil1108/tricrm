@@ -19,7 +19,6 @@ import ClientsPage from './ClientsPage';
 import ClientProjectsPage from './ClientProjectsPage';
 import AssociatesPage from './AssociatesPage';
 import AssociateProjectsPage from './AssociateProjectsPage';
-import DashboardPage from './DashboardPage';
 import SettingsPage from './SettingsPage';
 import ProjectPage from './ProjectPage';
 import UserManagementPage from './UserManagementPage';
@@ -115,15 +114,6 @@ function App() {
                               element={
                                 <ProtectedRoute requireModule="associates">
                                   <AssociateProjectsPage />
-                                </ProtectedRoute>
-                              } 
-                            />
-                            
-                            <Route 
-                              path="/dashboard" 
-                              element={
-                                <ProtectedRoute requireModule="dashboard">
-                                  <DashboardPage />
                                 </ProtectedRoute>
                               } 
                             />

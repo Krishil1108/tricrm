@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { FaEdit, FaTrash, FaChartPie, FaUsers } from 'react-icons/fa';
 import './ProjectPage.css';
 import './styles/ClientsPageEnhanced.css';
+import './styles/ActionButtons.css';
 import FinanceService from './services/FinanceService';
 import ClientService from './services/ClientService';
 import AssociateService from './services/AssociateService';
@@ -75,6 +77,9 @@ const ProjectPage = () => {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(30);
+  
+  // Loading state
+  const [loading, setLoading] = useState(false);
   
   // Client-related state
   const [clients, setClients] = useState([]);
@@ -156,7 +161,7 @@ const ProjectPage = () => {
       // Load the specific project for editing
       const loadProjectForEdit = async () => {
         try {
-          showLoading('Loading project for editing...');
+          setLoading(true);
           const response = await FinanceService.getProject(editProjectId);
           
           // Handle both direct data and nested response structure
@@ -210,7 +215,7 @@ const ProjectPage = () => {
           showError('Failed to load project for editing');
           processedEditId.current = null; // Reset on error
         } finally {
-          hideLoading();
+          setLoading(false);
         }
       };
 
@@ -395,7 +400,7 @@ const ProjectPage = () => {
 
   const fetchData = async () => {
     try {
-      showLoading('Loading data...');
+      setLoading(true);
       const apiFilters = { 
         status: filterStatus,
         year: filters.year 
@@ -411,7 +416,7 @@ const ProjectPage = () => {
       showError('Error loading data');
       console.error(error);
     } finally {
-      hideLoading();
+      setLoading(false);
     }
   };
 
@@ -972,6 +977,12 @@ const ProjectPage = () => {
 
   return (
     <div className="project-page">
+      {loading && (
+        <div className="loading-message">
+          <div className="loading-spinner" aria-hidden="true"></div>
+        </div>
+      )}
+      
       <div className="modern-page-header">
         <div className="header-content-enhanced">
           <div className="header-title-section">
@@ -1098,21 +1109,33 @@ const ProjectPage = () => {
           </div>
         )}
 
-        {/* Tabs */}
-        <div className="finance-tabs">
-        <button
-          className={`finance-tab ${activeTab === 'projects' ? 'active' : ''}`}
-          onClick={() => setActiveTab('projects')}
-        >
-          📊 Projects
-        </button>
-        <button
-          className={`finance-tab ${activeTab === 'expenses' ? 'active' : ''}`}
-          onClick={() => setActiveTab('expenses')}
-        >
-          💳 Bank Expenses
-        </button>
-      </div>
+        {/* Modern Tab Switcher */}
+        <div className="modern-tab-container">
+          <div className="modern-tabs">
+            <button
+              className={`modern-tab ${activeTab === 'projects' ? 'active' : ''}`}
+              onClick={() => setActiveTab('projects')}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px' }}>
+                <rect x="3" y="3" width="7" height="7"/>
+                <rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/>
+              </svg>
+              Projects
+            </button>
+            <button
+              className={`modern-tab ${activeTab === 'expenses' ? 'active' : ''}`}
+              onClick={() => setActiveTab('expenses')}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '8px' }}>
+                <rect x="2" y="5" width="20" height="14" rx="2"/>
+                <line x1="2" y1="10" x2="22" y2="10"/>
+              </svg>
+              Bank Expenses
+            </button>
+          </div>
+        </div>
 
       {/* Filters */}
       <div className="finance-filters" style={{
@@ -1787,37 +1810,55 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
                 </span>
               </td>
               <td>
-                <div className="table-actions" style={{ position: 'relative' }}>
+                <div className="flex items-center gap-2" style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', position: 'relative' }}>
                   {canEdit() && (
-                    <button className="action-btn btn-edit" onClick={() => onEdit(project)}>
-                      <i className="bi bi-pencil-fill"></i> Edit
+                    <button
+                      onClick={() => onEdit(project)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      style={{ padding: '8px', color: '#2563eb', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                      title="Edit Project"
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#eff6ff'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      <FaEdit className="w-5 h-5" style={{ width: '20px', height: '20px' }} />
                     </button>
                   )}
                   {canDelete() && (
-                    <button className="action-btn btn-delete" onClick={() => onDelete(project._id)}>
-                      <i className="bi bi-trash-fill"></i> Delete
+                    <button
+                      onClick={() => onDelete(project._id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      style={{ padding: '8px', color: '#dc2626', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                      title="Delete Project"
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      <FaTrash className="w-5 h-5" style={{ width: '20px', height: '20px' }} />
                     </button>
                   )}
                   {(canExpenseDistribution() || canAssociateDistribution()) && (
                     <div className="dropdown-container" style={{ position: 'relative', display: 'inline-block' }}>
                       <button 
-                        className="action-btn btn-more"
+                        className="p-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
                         onClick={(e) => {
                           e.stopPropagation();
                           setDropdownOpenId(dropdownOpenId === project._id ? null : project._id);
                         }}
                         style={{
-                          background: 'transparent',
-                          color: '#000',
+                          padding: '8px',
+                          color: '#475569',
+                          backgroundColor: 'transparent',
                           border: 'none',
-                          padding: '6px 10px',
-                          borderRadius: '4px',
+                          borderRadius: '8px',
                           cursor: 'pointer',
-                          fontSize: '16px',
+                          fontSize: '18px',
                           display: 'flex',
                           alignItems: 'center',
-                          justifyContent: 'center'
+                          justifyContent: 'center',
+                          transition: 'all 0.2s ease'
                         }}
+                        title="More Actions"
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                       >
                         ⋮
                       </button>
@@ -1903,7 +1944,7 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
                             onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
                             onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                           >
-                            <i className="bi bi-box-arrow-up-right" style={{ color: '#17a2b8' }}></i>
+                            <FaChartPie style={{ color: '#17a2b8', fontSize: '16px' }} />
                             Expense Distribution
                           </button>
                         )}
@@ -1932,7 +1973,7 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
                             onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
                             onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                           >
-                            <i className="bi bi-people-fill" style={{ color: '#28a745' }}></i>
+                            <FaUsers style={{ color: '#28a745', fontSize: '16px' }} />
                             Associate Distribution
                           </button>
                         )}
@@ -1990,12 +2031,26 @@ const ExpensesTable = ({ expenses, onEdit, onDelete, formatCurrency }) => {
               <td>{formatCurrency(expense.officeManagement)}</td>
               <td className="amount-negative">{formatCurrency(expense.total)}</td>
               <td>
-                <div className="table-actions">
-                  <button className="action-btn btn-edit" onClick={() => onEdit(expense)}>
-                    <i className="bi bi-pencil-fill"></i> Edit
+                <div className="flex items-center gap-2" style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                  <button
+                    onClick={() => onEdit(expense)}
+                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    style={{ padding: '8px', color: '#2563eb', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                    title="Edit Expense"
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#eff6ff'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    <FaEdit className="w-5 h-5" style={{ width: '20px', height: '20px' }} />
                   </button>
-                  <button className="action-btn btn-delete" onClick={() => onDelete(expense._id)}>
-                    <i className="bi bi-trash-fill"></i> Delete
+                  <button
+                    onClick={() => onDelete(expense._id)}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    style={{ padding: '8px', color: '#dc2626', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                    title="Delete Expense"
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    <FaTrash className="w-5 h-5" style={{ width: '20px', height: '20px' }} />
                   </button>
                 </div>
               </td>

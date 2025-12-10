@@ -78,7 +78,7 @@ const ActivitySection = () => {
           </button>
         </div>
         <div className="activity-loading">
-          <div className="loading-spinner"></div>
+          <div className="loading-spinner" aria-hidden="true"></div>
           <p>Loading activities...</p>
         </div>
       </div>

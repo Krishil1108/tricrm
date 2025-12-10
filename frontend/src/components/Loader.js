@@ -5,14 +5,7 @@ const Loader = ({ message = "Loading..." }) => {
   return (
     <div className="loader-overlay">
       <div className="loader-container">
-        <div className="modern-loader">
-          <div className="spinner-ring">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-          </div>
-        </div>
+        <div className="modern-loader" aria-hidden="true"></div>
         <div className="loader-message">
           {message}
         </div>

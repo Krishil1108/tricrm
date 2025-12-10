@@ -490,8 +490,7 @@
 }
 
 [data-theme="dark"] .loading-spinner {
-  border-color: var(--border-color);
-  border-top-color: var(--accent-color);
+  color: var(--accent-color);
 }
 
 [data-theme="dark"] .loading-text {

@@ -29,7 +29,6 @@ async function seedAdminData() {
           modules: {
             home: true,
             clients: true,
-            dashboard: true,
             finance: true,
             settings: true
           },
@@ -53,12 +52,6 @@ async function seedAdminData() {
             create: true,
             edit: true,
             delete: true
-          },
-          dashboard: {
-            view: true,
-            viewAnalytics: true,
-            viewReports: true,
-            exportReports: true
           },
           settings: {
             view: true,
@@ -127,7 +120,6 @@ async function seedAdminData() {
           modules: {
             home: true,
             clients: true,
-            dashboard: false,
             finance: false,
             settings: false
           },
@@ -151,12 +143,6 @@ async function seedAdminData() {
             create: true,
             edit: true,
             delete: false
-          },
-          dashboard: {
-            view: false,
-            viewAnalytics: false,
-            viewReports: false,
-            exportReports: false
           },
           settings: {
             view: false,

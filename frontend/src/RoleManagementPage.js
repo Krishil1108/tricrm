@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
+import { FaHome, FaUsers, FaHandshake, FaBriefcase, FaCog, FaUserShield, FaEye, FaPlus, FaEdit, FaTrash, FaFolderOpen, FaFileExport, FaFileImport, FaChartBar, FaKey, FaBuilding, FaShieldAlt } from 'react-icons/fa';
 import Watermark from './components/Watermark';
 import './RoleManagementPage.css';
+import './styles/ActionButtons.css';
 import API_BASE_URL from './config/api';
 
 const RoleManagementPage = () => {
@@ -17,6 +19,37 @@ const RoleManagementPage = () => {
     permissions: {}
   });
 
+  // Icon mapping function
+  const getPermissionIcon = (iconKey) => {
+    const iconMap = {
+      'home': <FaHome />,
+      'clients': <FaUsers />,
+      'associates': <FaHandshake />,
+      'finance': <FaBriefcase />,
+      'settings': <FaCog />,
+      'admin': <FaUserShield />,
+      'view': <FaEye />,
+      'create': <FaPlus />,
+      'edit': <FaEdit />,
+      'delete': <FaTrash />,
+      'view_details': <FaEye />,
+      'view_projects': <FaFolderOpen />,
+      'export': <FaFileExport />,
+      'import': <FaFileImport />,
+      'stats_cards': <FaChartBar />,
+      'configure_percentages': <FaCog />,
+      'add_payment': <FaPlus />,
+      'expense_distribution': <FaBriefcase />,
+      'associate_distribution': <FaHandshake />,
+      'viewStats': <FaChartBar />,
+      'viewCompanySettings': <FaBuilding />,
+      'editCompanySettings': <FaEdit />,
+      'manageUsers': <FaUsers />,
+      'manageRoles': <FaShieldAlt />
+    };
+    return iconMap[iconKey] || <FaKey />;
+  };
+
   // Permission groups mapped to original nested structure
   const permissionGroups = [
     {
@@ -24,13 +57,12 @@ const RoleManagementPage = () => {
       key: 'modules',
       description: 'Control access to main application modules',
       permissions: [
-        { key: 'home', label: 'Home Page', description: 'Access to home page', icon: '🏠' },
-        { key: 'clients', label: 'Clients Module', description: 'Access to clients management', icon: '👥' },
-        { key: 'associates', label: 'Associates Module', description: 'Access to associates management', icon: '🤝' },
-        { key: 'finance', label: 'Project Management', description: 'Access to project and finance management', icon: '💰' },
-        { key: 'dashboard', label: 'Dashboard', description: 'Access to dashboard and analytics', icon: '📊' },
-        { key: 'settings', label: 'Settings', description: 'Access to settings page', icon: '⚙️' },
-        { key: 'admin', label: 'Admin Panel', description: 'Access to user and role management', icon: '👨‍💼' }
+        { key: 'home', label: 'Home Page', description: 'Access to home page', iconKey: 'home' },
+        { key: 'clients', label: 'Clients Module', description: 'Access to clients management', iconKey: 'clients' },
+        { key: 'associates', label: 'Associates Module', description: 'Access to associates management', iconKey: 'associates' },
+        { key: 'finance', label: 'Project Management', description: 'Access to project and finance management', iconKey: 'finance' },
+        { key: 'settings', label: 'Settings', description: 'Access to settings page', iconKey: 'settings' },
+        { key: 'admin', label: 'Admin Panel', description: 'Access to user and role management', iconKey: 'admin' }
       ]
     },
     {
@@ -38,15 +70,15 @@ const RoleManagementPage = () => {
       key: 'clients',
       description: 'Client management permissions',
       permissions: [
-        { key: 'view', label: 'View Clients', description: 'View client list and details', icon: '👁️' },
-        { key: 'create', label: 'Add New Client', description: 'Create new clients', icon: '➕' },
-        { key: 'edit', label: 'Edit Client', description: 'Edit existing clients', icon: '✏️' },
-        { key: 'delete', label: 'Delete Client', description: 'Delete clients', icon: '🗑️' },
-        { key: 'view_details', label: 'View Client Details', description: 'Access client details popup/modal', icon: '🔍' },
-        { key: 'view_projects', label: 'View Client Projects', description: 'Navigate to client project pages', icon: '📂' },
-        { key: 'export', label: 'Export to Excel', description: 'Export client data to Excel', icon: '📤' },
-        { key: 'import', label: 'Import from Excel', description: 'Import clients from Excel', icon: '📥' },
-        { key: 'stats_cards', label: 'View Summary Cards', description: 'View client statistics cards', icon: '📊' }
+        { key: 'view', label: 'View Clients', description: 'View client list and details', iconKey: 'view' },
+        { key: 'create', label: 'Add New Client', description: 'Create new clients', iconKey: 'create' },
+        { key: 'edit', label: 'Edit Client', description: 'Edit existing clients', iconKey: 'edit' },
+        { key: 'delete', label: 'Delete Client', description: 'Delete clients', iconKey: 'delete' },
+        { key: 'view_details', label: 'View Client Details', description: 'Access client details popup/modal', iconKey: 'view_details' },
+        { key: 'view_projects', label: 'View Client Projects', description: 'Navigate to client project pages', iconKey: 'view_projects' },
+        { key: 'export', label: 'Export to Excel', description: 'Export client data to Excel', iconKey: 'export' },
+        { key: 'import', label: 'Import from Excel', description: 'Import clients from Excel', iconKey: 'import' },
+        { key: 'stats_cards', label: 'View Summary Cards', description: 'View client statistics cards', iconKey: 'stats_cards' }
       ]
     },
     {
@@ -54,14 +86,14 @@ const RoleManagementPage = () => {
       key: 'associates',
       description: 'Associate management permissions',
       permissions: [
-        { key: 'view', label: 'View Associates', description: 'View associate list and details', icon: '👁️' },
-        { key: 'create', label: 'Add New Associate', description: 'Create new associates', icon: '➕' },
-        { key: 'edit', label: 'Edit Associate', description: 'Edit existing associates', icon: '✏️' },
-        { key: 'delete', label: 'Delete Associate', description: 'Delete associates', icon: '🗑️' },
-        { key: 'export', label: 'Export to Excel', description: 'Export associate data to Excel', icon: '📤' },
-        { key: 'import', label: 'Import from Excel', description: 'Import associates from Excel', icon: '📥' },
-        { key: 'view_projects', label: 'View Associated Projects', description: 'Navigate to associate projects page', icon: '📂' },
-        { key: 'stats_cards', label: 'View Summary Cards', description: 'View associate statistics cards', icon: '📊' }
+        { key: 'view', label: 'View Associates', description: 'View associate list and details', iconKey: 'view' },
+        { key: 'create', label: 'Add New Associate', description: 'Create new associates', iconKey: 'create' },
+        { key: 'edit', label: 'Edit Associate', description: 'Edit existing associates', iconKey: 'edit' },
+        { key: 'delete', label: 'Delete Associate', description: 'Delete associates', iconKey: 'delete' },
+        { key: 'export', label: 'Export to Excel', description: 'Export associate data to Excel', iconKey: 'export' },
+        { key: 'import', label: 'Import from Excel', description: 'Import associates from Excel', iconKey: 'import' },
+        { key: 'view_projects', label: 'View Associated Projects', description: 'Navigate to associate projects page', iconKey: 'view_projects' },
+        { key: 'stats_cards', label: 'View Summary Cards', description: 'View associate statistics cards', iconKey: 'stats_cards' }
       ]
     },
     {
@@ -69,28 +101,17 @@ const RoleManagementPage = () => {
       key: 'finance',
       description: 'Project and financial management permissions',
       permissions: [
-        { key: 'view', label: 'View Projects', description: 'View project list and details', icon: '👁️' },
-        { key: 'create', label: 'Add New Project', description: 'Create new projects', icon: '➕' },
-        { key: 'edit', label: 'Edit Project', description: 'Edit existing projects', icon: '✏️' },
-        { key: 'delete', label: 'Delete Project', description: 'Delete projects', icon: '🗑️' },
-        { key: 'configure_percentages', label: 'Configure Percentages', description: 'Access percentage configuration settings', icon: '⚙️' },
-        { key: 'import', label: 'Import Excel', description: 'Import projects from Excel files', icon: '📥' },
-        { key: 'export', label: 'Export Excel', description: 'Export project data to Excel', icon: '📤' },
-        { key: 'add_payment', label: 'Add Payment', description: 'Add payment details in project form', icon: '💳' },
-        { key: 'expense_distribution', label: 'Expense Distribution', description: 'View and manage expense distributions', icon: '💰' },
-        { key: 'associate_distribution', label: 'Associate Distribution', description: 'View and manage associate distributions', icon: '🤝' },
-        { key: 'viewStats', label: 'View Summary Cards', description: 'View project statistics cards', icon: '📊' }
-      ]
-    },
-    {
-      title: 'Dashboard & Analytics',
-      key: 'dashboard',
-      description: 'Dashboard and analytics permissions',
-      permissions: [
-        { key: 'view', label: 'View Dashboard', description: 'Access main dashboard', icon: '👁️' },
-        { key: 'viewAnalytics', label: 'View Analytics', description: 'Access analytics data', icon: '📈' },
-        { key: 'viewReports', label: 'View Reports', description: 'Access reports section', icon: '📋' },
-        { key: 'exportReports', label: 'Export Reports', description: 'Export dashboard reports', icon: '📤' }
+        { key: 'view', label: 'View Projects', description: 'View project list and details', iconKey: 'view' },
+        { key: 'create', label: 'Add New Project', description: 'Create new projects', iconKey: 'create' },
+        { key: 'edit', label: 'Edit Project', description: 'Edit existing projects', iconKey: 'edit' },
+        { key: 'delete', label: 'Delete Project', description: 'Delete projects', iconKey: 'delete' },
+        { key: 'configure_percentages', label: 'Configure Percentages', description: 'Access percentage configuration settings', iconKey: 'configure_percentages' },
+        { key: 'import', label: 'Import Excel', description: 'Import projects from Excel files', iconKey: 'import' },
+        { key: 'export', label: 'Export Excel', description: 'Export project data to Excel', iconKey: 'export' },
+        { key: 'add_payment', label: 'Add Payment', description: 'Add payment details in project form', iconKey: 'add_payment' },
+        { key: 'expense_distribution', label: 'Expense Distribution', description: 'View and manage expense distributions', iconKey: 'expense_distribution' },
+        { key: 'associate_distribution', label: 'Associate Distribution', description: 'View and manage associate distributions', iconKey: 'associate_distribution' },
+        { key: 'viewStats', label: 'View Summary Cards', description: 'View project statistics cards', iconKey: 'stats_cards' }
       ]
     },
     {
@@ -98,11 +119,11 @@ const RoleManagementPage = () => {
       key: 'settings',
       description: 'System settings and configuration permissions',
       permissions: [
-        { key: 'view', label: 'View Settings', description: 'Access settings page', icon: '👁️' },
-        { key: 'viewCompanySettings', label: 'View Company Info', description: 'View company settings', icon: '🏢' },
-        { key: 'editCompanySettings', label: 'Edit Company Info', description: 'Edit company settings', icon: '✏️' },
-        { key: 'manageUsers', label: 'Manage Users', description: 'Access user management', icon: '👥' },
-        { key: 'manageRoles', label: 'Manage Roles', description: 'Access role management', icon: '🛡️' }
+        { key: 'view', label: 'View Settings', description: 'Access settings page', iconKey: 'view' },
+        { key: 'viewCompanySettings', label: 'View Company Info', description: 'View company settings', iconKey: 'viewCompanySettings' },
+        { key: 'editCompanySettings', label: 'Edit Company Info', description: 'Edit company settings', iconKey: 'editCompanySettings' },
+        { key: 'manageUsers', label: 'Manage Users', description: 'Access user management', iconKey: 'manageUsers' },
+        { key: 'manageRoles', label: 'Manage Roles', description: 'Access role management', iconKey: 'manageRoles' }
       ]
     }
   ];
@@ -146,7 +167,6 @@ const RoleManagementPage = () => {
           clients: role.permissions?.modules?.clients || false,
           associates: role.permissions?.modules?.associates || false,
           finance: role.permissions?.modules?.finance || false,
-          dashboard: role.permissions?.modules?.dashboard || false,
           settings: role.permissions?.modules?.settings || false,
           admin: role.permissions?.modules?.admin || false
         },
@@ -184,12 +204,6 @@ const RoleManagementPage = () => {
           associate_distribution: role.permissions?.finance?.associate_distribution || false,
           viewStats: role.permissions?.finance?.viewStats || false
         },
-        dashboard: {
-          view: role.permissions?.dashboard?.view || false,
-          viewAnalytics: role.permissions?.dashboard?.viewAnalytics || false,
-          viewReports: role.permissions?.dashboard?.viewReports || false,
-          exportReports: role.permissions?.dashboard?.exportReports || false
-        },
         settings: {
           view: role.permissions?.settings?.view || false,
           viewCompanySettings: role.permissions?.settings?.viewCompanySettings || false,
@@ -219,7 +233,6 @@ const RoleManagementPage = () => {
           clients: false,
           associates: false,
           finance: false,
-          dashboard: false,
           settings: false,
           admin: false
         },
@@ -256,12 +269,6 @@ const RoleManagementPage = () => {
           expense_distribution: false,
           associate_distribution: false,
           viewStats: false
-        },
-        dashboard: {
-          view: false,
-          viewAnalytics: false,
-          viewReports: false,
-          exportReports: false
         },
         settings: {
           view: false,
@@ -379,7 +386,13 @@ const RoleManagementPage = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <div className="role-management-page">
+        <div className="loading-message">
+          <div className="loading-spinner" aria-hidden="true"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -387,9 +400,26 @@ const RoleManagementPage = () => {
       <Watermark />
       
       <div className="page-header">
-        <h1>Role Management</h1>
-        <button className="btn-primary" onClick={() => handleOpenModal()}>
-          ADD NEW ROLE
+        <div className="header-content">
+          <div className="header-icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" fill="url(#shield-gradient)"/>
+              <defs>
+                <linearGradient id="shield-gradient" x1="2" y1="2" x2="22" y2="22">
+                  <stop offset="0%" stopColor="#3b82f6"/>
+                  <stop offset="100%" stopColor="#9333ea"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div className="header-text">
+            <h1>Role Management</h1>
+            <p className="header-subtitle">Define and manage user roles and permissions</p>
+          </div>
+        </div>
+        <button className="add-role-btn" onClick={() => handleOpenModal()}>
+          <FaUserShield style={{ marginRight: '8px' }} />
+          Add New Role
         </button>
       </div>
 
@@ -408,12 +438,36 @@ const RoleManagementPage = () => {
             </div>
             <p className="role-description">{role.description}</p>
             <div className="role-actions">
-              <button className="btn-edit" onClick={() => handleOpenModal(role)}>
-                EDIT
+              <button 
+                className="action-btn edit-btn" 
+                onClick={() => handleOpenModal(role)}
+                style={{ 
+                  display: 'inline-flex', 
+                  alignItems: 'center', 
+                  gap: '6px',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                <FaEdit size={14} />
+                Edit
               </button>
               {role.name !== 'Admin' && (
-                <button className="btn-delete" onClick={() => handleDelete(role._id)}>
-                  DELETE
+                <button 
+                  className="action-btn delete-btn" 
+                  onClick={() => handleDelete(role._id)}
+                  style={{ 
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    gap: '6px',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                >
+                  <FaTrash size={14} />
+                  Delete
                 </button>
               )}
             </div>
@@ -426,7 +480,7 @@ const RoleManagementPage = () => {
           <div className="modal-content large-modal">
             <div className="modal-header">
               <h2>{editingRole ? 'Edit Role' : 'Add New Role'}</h2>
-              <button className="btn-close" onClick={() => setShowModal(false)}>×</button>
+              <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
             </div>
             
             <div className="modal-body">
@@ -474,7 +528,7 @@ const RoleManagementPage = () => {
                             checked={getPermissionValue(group.key, perm.key)}
                             onChange={(e) => handlePermissionToggle(group.key, perm.key, e.target.checked)}
                           />
-                          <span className="permission-icon">{perm.icon}</span>
+                          <span className="permission-icon">{getPermissionIcon(perm.iconKey)}</span>
                           <div className="permission-details">
                             <span className="permission-text">{perm.label}</span>
                             <span className="permission-description">{perm.description}</span>
@@ -488,10 +542,10 @@ const RoleManagementPage = () => {
             </div>
             
             <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setShowModal(false)}>
+              <button className="btn-cancel" onClick={() => setShowModal(false)}>
                 Cancel
               </button>
-              <button className="btn-primary" onClick={handleSave}>
+              <button className="btn-submit" onClick={handleSave}>
                 {editingRole ? 'Update Role' : 'Create Role'}
               </button>
             </div>

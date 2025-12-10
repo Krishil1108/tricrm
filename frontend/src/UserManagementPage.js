@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
+import { FaEdit, FaTrash, FaKey, FaUserPlus, FaCheckCircle, FaTimesCircle, FaToggleOn, FaToggleOff } from 'react-icons/fa';
 import Watermark from './components/Watermark';
 import './UserManagementPage.css';
+import './styles/ActionButtons.css';
 import API_BASE_URL from './config/api';
 
 function UserManagementPage() {
@@ -303,16 +305,32 @@ function UserManagementPage() {
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <div className="user-management-page">
+        <div className="loading-message">
+          <div className="loading-spinner" aria-hidden="true"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="user-management-page">
       <div className="page-header">
-        <h1>User Management</h1>
+        <div className="header-content">
+          <div className="header-title">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '12px', color: '#3b82f6' }}>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <h1>User Management</h1>
+          </div>
+          <p className="header-subtitle">Manage system users and their access</p>
+        </div>
         {canAddNewUser() && (
-          <button className="btn-primary" onClick={() => handleOpenModal()}>
-            + Add New User
+          <button className="btn-add-modern" onClick={() => handleOpenModal()}>
+            <FaUserPlus style={{ marginRight: '8px' }} />
+            Add New User
           </button>
         )}
       </div>
@@ -345,20 +363,67 @@ function UserManagementPage() {
                 <td><span className="role-badge">{user.role?.name}</span></td>
                 <td>
                   <span className={`status-badge ${user.isActive ? 'active' : 'inactive'}`}>
-                    {user.isActive ? 'Active' : 'Inactive'}
+                    {user.isActive ? (
+                      <>
+                        <FaCheckCircle style={{ marginRight: '6px', fontSize: '12px' }} />
+                        Active
+                      </>
+                    ) : (
+                      <>
+                        <FaTimesCircle style={{ marginRight: '6px', fontSize: '12px' }} />
+                        Inactive
+                      </>
+                    )}
                   </span>
                 </td>
                 <td>{user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}</td>
-                <td className="actions">
-                  {canEditUser() && <button className="btn-edit" onClick={() => handleOpenModal(user)}>Edit</button>}
-                  <button className="btn-warning" onClick={() => handleOpenPasswordModal(user)}>Reset Password</button>
-                  <button 
-                    className={user.isActive ? 'btn-warning' : 'btn-success'} 
-                    onClick={() => handleToggleStatus(user._id)}
-                  >
-                    {user.isActive ? 'Deactivate' : 'Activate'}
-                  </button>
-                  {canDeleteUser() && <button className="btn-danger" onClick={() => handleDelete(user._id)}>Delete</button>}
+                <td>
+                  <div className="flex items-center gap-2" style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                    {canEditUser() && (
+                      <button
+                        onClick={() => handleOpenModal(user)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        style={{ padding: '8px', color: '#2563eb', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                        title="Edit User"
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#eff6ff'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                      >
+                        <FaEdit className="w-5 h-5" style={{ width: '18px', height: '18px' }} />
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleOpenPasswordModal(user)}
+                      className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                      style={{ padding: '8px', color: '#9333ea', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                      title="Reset Password"
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#faf5ff'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      <FaKey className="w-5 h-5" style={{ width: '18px', height: '18px' }} />
+                    </button>
+                    <button
+                      onClick={() => handleToggleStatus(user._id)}
+                      className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                      style={{ padding: '8px', color: '#f59e0b', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                      title={user.isActive ? 'Deactivate User' : 'Activate User'}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fffbeb'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                    >
+                      {user.isActive ? <FaToggleOn className="w-5 h-5" style={{ width: '18px', height: '18px' }} /> : <FaToggleOff className="w-5 h-5" style={{ width: '18px', height: '18px' }} />}
+                    </button>
+                    {canDeleteUser() && (
+                      <button
+                        onClick={() => handleDelete(user._id)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        style={{ padding: '8px', color: '#dc2626', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                        title="Delete User"
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                      >
+                        <FaTrash className="w-5 h-5" style={{ width: '18px', height: '18px' }} />
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

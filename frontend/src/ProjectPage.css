@@ -92,34 +92,78 @@
   gap: 10px;
 }
 
-.finance-tabs {
+/* Modern Tab Switcher */
+.modern-tab-container {
   display: flex;
-  gap: 10px;
-  border-bottom: 2px solid #e0e0e0;
+  justify-content: flex-start;
   margin-bottom: 25px;
 }
 
-.finance-tab {
-  padding: 12px 24px;
-  background: none;
+.modern-tabs {
+  display: inline-flex;
+  background: #f5f7fa;
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.modern-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  background: transparent;
   border: none;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 16px;
-  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+}
+
+.modern-tab svg {
   transition: all 0.3s ease;
-  border-bottom: 3px solid transparent;
-  margin-bottom: -2px;
 }
 
-.finance-tab:hover {
-  color: #4a90e2;
-  background: #f8f9fa;
+.modern-tab:hover:not(.active) {
+  color: #475569;
+  background: rgba(255, 255, 255, 0.5);
 }
 
-.finance-tab.active {
-  color: #4a90e2;
-  border-bottom-color: #4a90e2;
+.modern-tab.active {
+  background: #ffffff;
+  color: #3b82f6;
   font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.modern-tab.active svg {
+  stroke: #3b82f6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .modern-tabs {
+    width: 100%;
+    justify-content: stretch;
+  }
+  
+  .modern-tab {
+    flex: 1;
+    font-size: 13px;
+    padding: 10px 16px;
+  }
+  
+  .modern-tab svg {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+  }
 }
 
 .finance-actions {
@@ -671,10 +715,31 @@
   background: #f9fafb;
 }
 
-.loading-spinner {
+.loading-message {
   text-align: center;
   padding: 40px;
-  color: #666;
+  color: #6b7280;
+  font-size: 1.1rem;
+  margin: 20px 0;
+}
+
+.loading-spinner {
+  width: fit-content;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 20px;
+  color: #3b82f6;
+  clip-path: inset(0 100% 0 0);
+  animation: loader-reveal 2s steps(11) infinite;
+  margin: 0 auto 16px;
+}
+
+.loading-spinner:before {
+  content: "Loading...";
+}
+
+@keyframes loader-reveal {
+  to { clip-path: inset(0 -1ch 0 0); }
 }
 
 .error-message {

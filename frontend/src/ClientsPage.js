@@ -468,8 +468,7 @@ const ClientsPage = () => {
         {/* Loading State */}
         {loading && (
           <div className="loading-message">
-            <div className="loading-spinner"></div>
-            Loading clients...
+            <div className="loading-spinner" aria-hidden="true"></div>
           </div>
         )}
 

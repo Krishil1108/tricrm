@@ -1084,43 +1084,6 @@ const SettingsPage = () => {
     }
   };
 
-  const handleGenerateReport = async () => {
-    try {
-      setIsProcessing(true);
-      const token = localStorage.getItem('token');
-      
-      const response = await fetch(`${API_BASE_URL}/data/analytics/report`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Report generation failed');
-      }
-
-      const report = await response.json();
-      
-      // Create and download report as JSON
-      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `crm_analytics_report_${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-
-      alert('Analytics report generated and downloaded successfully!');
-    } catch (error) {
-      console.error('Report generation error:', error);
-      alert('Report generation failed: ' + error.message);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   const renderDataSection = () => (
     <div className="settings-section">
       <div className="section-header">
@@ -1238,23 +1201,10 @@ const SettingsPage = () => {
               </svg>
               {isProcessing ? 'Processing...' : 'Clean Old Activities (>1 year)'}
             </button>
-            
-            <button 
-              className="cleanup-btn"
-              onClick={handleGenerateReport}
-              disabled={isProcessing}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 3v18h18"/>
-                <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
-              </svg>
-              {isProcessing ? 'Generating...' : 'Generate Analytics Report'}
-            </button>
           </div>
           <div className="maintenance-info">
             <small>
-              • <strong>Clean Activities:</strong> Removes activity logs older than 1 year to improve performance<br/>
-              • <strong>Analytics Report:</strong> Generates comprehensive statistics and insights
+              • <strong>Clean Activities:</strong> Removes activity logs older than 1 year to improve performance
             </small>
           </div>
         </div>

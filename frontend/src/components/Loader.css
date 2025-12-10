@@ -32,50 +32,21 @@
 }
 
 .modern-loader {
-  position: relative;
-  width: 120px;
-  height: 120px;
+  width: fit-content;
+  font-weight: bold;
+  font-family: monospace;
+  font-size: 30px;
+  color: #3b82f6;
+  clip-path: inset(0 100% 0 0);
+  animation: loader-reveal-large 2s steps(11) infinite;
 }
 
-.spinner-ring {
-  display: inline-block;
-  position: relative;
-  width: 120px;
-  height: 120px;
+.modern-loader:before {
+  content: "Loading...";
 }
 
-.spinner-ring div {
-  box-sizing: border-box;
-  display: block;
-  position: absolute;
-  width: 96px;
-  height: 96px;
-  margin: 12px;
-  border: 8px solid #e3e3e3;
-  border-radius: 50%;
-  animation: spinner-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-  border-color: #667eea transparent transparent transparent;
-}
-
-.spinner-ring div:nth-child(1) {
-  animation-delay: -0.45s;
-}
-
-.spinner-ring div:nth-child(2) {
-  animation-delay: -0.3s;
-}
-
-.spinner-ring div:nth-child(3) {
-  animation-delay: -0.15s;
-}
-
-@keyframes spinner-ring {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+@keyframes loader-reveal-large {
+  to { clip-path: inset(0 -1ch 0 0); }
 }
 
 .loader-message {
@@ -100,21 +71,7 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .modern-loader {
-    width: 80px;
-    height: 80px;
-  }
-
-  .spinner-ring {
-    width: 80px;
-    height: 80px;
-  }
-
-  .spinner-ring div {
-    width: 64px;
-    height: 64px;
-    margin: 8px;
-    border: 6px solid #e3e3e3;
-    border-color: #667eea transparent transparent transparent;
+    font-size: 24px;
   }
 
   .loader-message {
@@ -124,21 +81,7 @@
 
 @media (max-width: 480px) {
   .modern-loader {
-    width: 60px;
-    height: 60px;
-  }
-
-  .spinner-ring {
-    width: 60px;
-    height: 60px;
-  }
-
-  .spinner-ring div {
-    width: 48px;
-    height: 48px;
-    margin: 6px;
-    border: 5px solid #e3e3e3;
-    border-color: #667eea transparent transparent transparent;
+    font-size: 18px;
   }
 
   .loader-message {
