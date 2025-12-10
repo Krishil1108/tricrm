@@ -1098,8 +1098,8 @@ const ProjectPage = () => {
           </div>
         )}
 
-      {/* Tabs */}
-      <div className="finance-tabs">
+        {/* Tabs */}
+        <div className="finance-tabs">
         <button
           className={`finance-tab ${activeTab === 'projects' ? 'active' : ''}`}
           onClick={() => setActiveTab('projects')}
@@ -1742,6 +1742,7 @@ const ProjectPage = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };
@@ -3990,7 +3991,6 @@ const PaginationControls = ({ currentPage, totalPages, onPageChange, totalItems,
         >
           Next
         </button>
-      </div>
       </div>
     </div>
   );

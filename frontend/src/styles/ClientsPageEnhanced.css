@@ -83,10 +83,11 @@
 
 .header-actions-enhanced {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
   flex-wrap: nowrap;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* Modern Button Styles */
@@ -164,13 +165,15 @@
   font-weight: 500;
   font-size: 0.85rem;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(139, 92, 246, 0.2);
   white-space: nowrap;
   height: 34px;
+  vertical-align: middle;
+  margin: 0;
 }
 
 .btn-tertiary-modern:hover {
