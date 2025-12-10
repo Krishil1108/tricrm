@@ -9,8 +9,9 @@ import ExcelExportService from './services/ExcelExportService';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { FaWhatsapp } from 'react-icons/fa';
+import { FaWhatsapp, FaChartBar, FaEdit, FaTrash } from 'react-icons/fa';
 import './ClientProjectsPage.css';
+import './styles/ActionButtons.css';
 
 const ClientProjectsPage = () => {
   const { clientId } = useParams();
@@ -40,6 +41,10 @@ const ClientProjectsPage = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [projectToDelete, setProjectToDelete] = useState(null);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(20);
 
   useEffect(() => {
     fetchClientProjects();
@@ -202,7 +207,6 @@ const ClientProjectsPage = () => {
         }
         
         return {
-          'S.No': index + 1,
           'Project Number': project.projectNumber || '',
           'Project Name': project.projectName || '',
           'Client Name': clientInfo.name || '',
@@ -220,7 +224,6 @@ const ClientProjectsPage = () => {
       const worksheet = XLSX.utils.json_to_sheet(exportData);
 
       const columnWidths = [
-        { wch: 8 },  // S.No
         { wch: 15 }, // Project Number
         { wch: 30 }, // Project Name
         { wch: 20 }, // Client Name
@@ -331,7 +334,6 @@ const ClientProjectsPage = () => {
         }
         
         return [
-          index + 1,
           project.projectNumber || '',
           project.projectName || '',
           formatCurrencyForPDF(project.finalizedFees),
@@ -346,7 +348,7 @@ const ClientProjectsPage = () => {
       // Add table with optimized column widths to fit all columns
       autoTable(doc, {
         startY: 79,
-        head: [['S.No', 'Project No', 'Project Name', 'Finalized\nFees', 'Received', 'Pending', 'Pay', 'Status', 'Last\nPayment']],
+        head: [['Project No', 'Project Name', 'Finalized\nFees', 'Received', 'Pending', 'Pay', 'Status', 'Last\nPayment']],
         body: tableData,
         theme: 'grid',
         styles: { 
@@ -409,6 +411,35 @@ const ClientProjectsPage = () => {
     const matchesStatus = filters.status === 'all' || project.status === filters.status;
     return matchesSearch && matchesStatus;
   });
+
+  // Pagination calculations
+  const totalItems = filteredProjects.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentProjects = filteredProjects.slice(startIndex, endIndex);
+
+  // Pagination handlers
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters.search, filters.status]);
 
   return (
     <div className="project-page">
@@ -561,7 +592,6 @@ const ClientProjectsPage = () => {
             <table className="project-table">
               <thead>
                 <tr>
-                  <th>Sr. No.</th>
                   <th>Project Number</th>
                   <th>Project Name</th>
                   <th>Finalized Fees</th>
@@ -573,11 +603,10 @@ const ClientProjectsPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredProjects.map((project, index) => {
+                {currentProjects.map((project, index) => {
                   const pendingAmount = (project.finalizedFees || 0) - (project.totalReceivedFees || 0);
                   return (
                     <tr key={project._id}>
-                      <td>{project.srNo || index + 1}</td>
                       <td>{project.projectNumber}</td>
                       <td>
                         <div className="project-name">
@@ -602,33 +631,36 @@ const ClientProjectsPage = () => {
                         </span>
                       </td>
                       <td>
-                        <div className="action-buttons">
+                        <div className="flex items-center gap-2" style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
                           <button
-                            className="action-btn btn-view"
                             onClick={() => handleViewDistribution(project)}
+                            className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                            style={{ padding: '8px', color: '#9333ea', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
                             title="View Payment Distribution"
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#faf5ff'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                           >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-                            </svg>
+                            <FaChartBar className="w-5 h-5" style={{ width: '20px', height: '20px' }} />
                           </button>
                           <button
-                            className="action-btn btn-edit"
                             onClick={() => handleEditProject(project._id)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            style={{ padding: '8px', color: '#2563eb', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
                             title="Edit Project"
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#eff6ff'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                           >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                            </svg>
+                            <FaEdit className="w-5 h-5" style={{ width: '20px', height: '20px' }} />
                           </button>
                           <button
-                            className="action-btn btn-delete"
                             onClick={() => handleDeleteProject(project)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            style={{ padding: '8px', color: '#dc2626', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
                             title="Delete Project"
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                           >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                            </svg>
+                            <FaTrash className="w-5 h-5" style={{ width: '20px', height: '20px' }} />
                           </button>
                         </div>
                       </td>
@@ -637,6 +669,58 @@ const ClientProjectsPage = () => {
                 })}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {filteredProjects.length > 0 && totalPages > 1 && (
+          <div className="pagination-container">
+            <div className="pagination-info">
+              Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of {totalItems} projects
+            </div>
+            <div className="pagination-controls">
+              <button 
+                className="pagination-btn"
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </button>
+              
+              <div className="pagination-numbers">
+                {(() => {
+                  const pages = [];
+                  const maxVisiblePages = 5;
+                  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                  
+                  if (endPage - startPage < maxVisiblePages - 1) {
+                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                  }
+                  
+                  for (let i = startPage; i <= endPage; i++) {
+                    pages.push(
+                      <button
+                        key={i}
+                        className={`pagination-number ${currentPage === i ? 'active' : ''}`}
+                        onClick={() => handlePageChange(i)}
+                      >
+                        {i}
+                      </button>
+                    );
+                  }
+                  return pages;
+                })()}
+              </div>
+              
+              <button 
+                className="pagination-btn"
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>

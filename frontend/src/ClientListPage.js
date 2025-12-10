@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { FaTrash } from 'react-icons/fa';
 import './PageContent.css';
+import './styles/ActionButtons.css';
 
 const ClientListPage = () => {
   const [clients, setClients] = useState([]);
@@ -190,15 +192,16 @@ const ClientListPage = () => {
                     </td>
                     <td>{formatDate(client.createdAt)}</td>
                     <td>
-                      <div className="action-buttons">
+                      <div className="flex items-center gap-2" style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
                         <button
-                          className="delete-btn"
                           onClick={() => handleDelete(client.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          style={{ padding: '8px', color: '#dc2626', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
                           title="Delete Client"
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                         >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                          </svg>
+                          <FaTrash className="w-5 h-5" style={{ width: '20px', height: '20px' }} />
                         </button>
                       </div>
                     </td>

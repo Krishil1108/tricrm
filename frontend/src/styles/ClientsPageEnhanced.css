@@ -580,6 +580,12 @@
   letter-spacing: 0.025em;
 }
 
+/* Actions Column - Ensure enough width for all buttons */
+.th-actions {
+  min-width: 180px;
+  width: 180px;
+}
+
 .clients-table-enhanced tbody tr {
   transition: all 0.2s ease;
   border-bottom: 1px solid #f3f4f6;
@@ -1073,4 +1079,94 @@
   align-items: center;
   gap: 12px;
   font-weight: 500;
+}
+
+/* Additional Table Enhancements */
+.client-table thead tr {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.client-table th {
+  font-weight: 600;
+  color: #1e293b;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 14px 16px !important;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.client-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.client-table tbody tr:hover {
+  background-color: #f8fafc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.client-table td {
+  padding: 14px 16px;
+  color: #334155;
+  font-size: 0.875rem;
+}
+
+/* Status Select Enhanced Styling */
+.status-select {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-width: 90px;
+}
+
+.status-select.active {
+  background: #f0fdf4;
+  color: #15803d;
+  border-color: #bbf7d0;
+}
+
+.status-select.inactive {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.status-select.pending {
+  background: #fffbeb;
+  color: #d97706;
+  border-color: #fed7aa;
+}
+
+.status-select:hover {
+  filter: brightness(0.95);
+}
+
+.status-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Project Count Badge Enhanced */
+.project-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 24px;
+  padding: 0 8px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: white;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.project-count-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 }

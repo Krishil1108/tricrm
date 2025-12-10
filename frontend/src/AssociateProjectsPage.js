@@ -33,6 +33,10 @@ const AssociateProjectsPage = () => {
   });
   const [activeView, setActiveView] = useState('owner'); // 'owner' or 'associate'
   
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(20);
+  
   // Payment modal states
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showPaymentHistoryModal, setShowPaymentHistoryModal] = useState(false);
@@ -337,6 +341,35 @@ const AssociateProjectsPage = () => {
     return matchesSearch && matchesStatus;
   });
 
+  // Pagination calculations
+  const totalItems = filteredProjects.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentProjects = filteredProjects.slice(startIndex, endIndex);
+
+  // Pagination handlers
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters.search, filters.status]);
+
   return (
     <div className="project-page">
       {/* Breadcrumb Navigation */}
@@ -512,17 +545,17 @@ const AssociateProjectsPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredProjects.map((project, index) => {
+                  {currentProjects.map((project, index) => {
                     // Find this specific associate's data from projectAssociates array
-                    const associateData = project.projectAssociates?.find(
+                    const associateDataFromProject = project.projectAssociates?.find(
                       assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
                     );
                     
-                    const associatePercentage = associateData?.percentage || 0;
+                    const associatePercentage = associateDataFromProject?.percentage || 0;
                     const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
-                    const amountPaid = associateData?.amountPaid || 0;
+                    const amountPaid = associateDataFromProject?.amountPaid || 0;
                     const pendingAmount = associateAmount - amountPaid;
-                    const paymentDate = associateData?.paymentGivenDate;
+                    const paymentDate = associateDataFromProject?.paymentGivenDate;
                     
                     return (
                       <tr key={project._id}>
@@ -555,7 +588,7 @@ const AssociateProjectsPage = () => {
                           <div className="action-buttons-responsive">
                             <button
                               className="action-btn btn-payment"
-                              onClick={() => handleAddPayment(project, associateData)}
+                              onClick={() => handleAddPayment(project, associateDataFromProject)}
                               title="Add Payment"
                               disabled={pendingAmount <= 0}
                             >
@@ -565,7 +598,7 @@ const AssociateProjectsPage = () => {
                             </button>
                             <button
                               className="action-btn btn-view-payments"
-                              onClick={() => handleViewPayments(project, associateData)}
+                              onClick={() => handleViewPayments(project, associateDataFromProject)}
                               title="View Payment History"
                             >
                               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -615,7 +648,7 @@ const AssociateProjectsPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredProjects.map((project, index) => {
+                  {currentProjects.map((project, index) => {
                     // Find this specific associate's data from projectAssociates array
                     const associateData = project.projectAssociates?.find(
                       assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
@@ -677,6 +710,57 @@ const AssociateProjectsPage = () => {
                   })}
                 </tbody>
               </table>
+            )}
+
+            {/* Pagination */}
+            {filteredProjects.length > 0 && totalPages > 1 && (
+              <div className="pagination-container">
+                <div className="pagination-info">
+                  Showing {startIndex + 1} to {Math.min(endIndex, filteredProjects.length)} of {filteredProjects.length} projects
+                </div>
+                <div className="pagination-controls">
+                  <button
+                    onClick={handlePrevPage}
+                    disabled={currentPage === 1}
+                    className="pagination-button"
+                  >
+                    Previous
+                  </button>
+                  
+                  <div className="pagination-pages">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNumber;
+                      if (totalPages <= 5) {
+                        pageNumber = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNumber = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNumber = totalPages - 4 + i;
+                      } else {
+                        pageNumber = currentPage - 2 + i;
+                      }
+                      
+                      return (
+                        <button
+                          key={pageNumber}
+                          onClick={() => handlePageChange(pageNumber)}
+                          className={`pagination-page ${currentPage === pageNumber ? 'active' : ''}`}
+                        >
+                          {pageNumber}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages}
+                    className="pagination-button"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         )}

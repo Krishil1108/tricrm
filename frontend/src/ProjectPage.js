@@ -1691,7 +1691,6 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
       <table className="project-table">
         <thead>
           <tr>
-            <th>Sr. No.</th>
             <th>Project Number</th>
             <th>Project Name</th>
             <th>Project Location</th>
@@ -1704,7 +1703,6 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
         <tbody>
           {projects.map((project) => (
             <tr key={project._id}>
-              <td>{project.srNo}</td>
               <td>{project.projectNumber}</td>
               <td>{project.projectName}</td>
               <td>{project.projectLocation || '-'}</td>
@@ -2122,10 +2120,6 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
   return (
     <>
       <div className="form-row">
-        <div className="form-group">
-          <label>Sr. No.</label>
-          <input type="number" name="srNo" className="form-input" value={formData.srNo || ''} onChange={handleChange} />
-        </div>
         <div className="form-group">
           <label>Project Number *</label>
           <input type="text" name="projectNumber" className="form-input" value={formData.projectNumber || ''} onChange={handleChange} required />

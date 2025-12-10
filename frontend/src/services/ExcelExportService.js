@@ -11,7 +11,6 @@ class ExcelExportService {
     try {
       // Prepare the data for export
       const exportData = clients.map((client, index) => ({
-        'S.No': index + 1,
         'Name': client.name || '',
         'Email': client.email || '',
         'Phone': client.phone || '',
@@ -28,7 +27,6 @@ class ExcelExportService {
 
       // Set column widths
       const columnWidths = [
-        { wch: 8 },  // S.No
         { wch: 20 }, // Name
         { wch: 25 }, // Email
         { wch: 15 }, // Phone
@@ -93,7 +91,6 @@ class ExcelExportService {
 
       // Prepare the data for export
       const exportData = inventory.map((item, index) => ({
-        'S.No': index + 1,
         'Item Name': item.name || '',
         'Category': item.category || '',
         'SKU': item.sku || '',
@@ -116,7 +113,6 @@ class ExcelExportService {
 
       // Set column widths
       const columnWidths = [
-        { wch: 8 },  // S.No
         { wch: 25 }, // Item Name
         { wch: 15 }, // Category
         { wch: 15 }, // SKU

@@ -6,8 +6,10 @@ import ExcelExportService from './services/ExcelExportService';
 import ExcelImport from './components/ExcelImport';
 import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import Watermark from './components/Watermark';
+import { FaEye, FaEdit, FaTrash, FaFolder, FaEllipsisV } from 'react-icons/fa';
 import './PageContent.css';
 import './styles/ClientsPageEnhanced.css';
+import './styles/ActionButtons.css';
 
 const ClientsPage = () => {
   const { 
@@ -630,56 +632,56 @@ const ClientsPage = () => {
               <table className="clients-table-enhanced">
                 <thead className="table-header-modern">
                   <tr>
-                    <th className="th-name">
-                      <div className="th-content">
+                    <th className="th-name" style={{ textAlign: 'center' }}>
+                      <div className="th-content" style={{ justifyContent: 'center' }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
                           <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
                         </svg>
                         <span>Name</span>
                       </div>
                     </th>
-                    <th className="th-email">
-                      <div className="th-content">
+                    <th className="th-email" style={{ textAlign: 'center' }}>
+                      <div className="th-content" style={{ justifyContent: 'center' }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
                           <path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z"/>
                         </svg>
                         <span>Email</span>
                       </div>
                     </th>
-                    <th className="th-company">
-                      <div className="th-content">
+                    <th className="th-company" style={{ textAlign: 'center' }}>
+                      <div className="th-content" style={{ justifyContent: 'center' }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
                           <path d="M12,7V3H2V21H22V7H12M6,19H4V17H6V19M6,15H4V13H6V15M6,11H4V9H6V11M6,7H4V5H6V7M10,19H8V17H10V19M10,15H8V13H10V15M10,11H8V9H10V11M10,7H8V5H10V7M20,19H12V17H20V19M20,15H12V13H20V15M20,11H12V9H20V11Z"/>
                         </svg>
                         <span>Company</span>
                       </div>
                     </th>
-                    <th className="th-phone">
-                      <div className="th-content">
+                    <th className="th-phone" style={{ textAlign: 'center' }}>
+                      <div className="th-content" style={{ justifyContent: 'center' }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
                           <path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z"/>
                         </svg>
                         <span>Phone</span>
                       </div>
                     </th>
-                    <th className="th-projects">
-                      <div className="th-content">
+                    <th className="th-projects" style={{ textAlign: 'center' }}>
+                      <div className="th-content" style={{ justifyContent: 'center' }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
                           <path d="M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M13,9H18V7H13V9M13,16H18V10H13V16M6,10H11V7H6V10M7,8H10V9H7V8M6,16H11V11H6V16M7,12H10V15H7V12Z"/>
                         </svg>
                         <span>Projects</span>
                       </div>
                     </th>
-                    <th className="th-status">
-                      <div className="th-content">
+                    <th className="th-status" style={{ textAlign: 'center' }}>
+                      <div className="th-content" style={{ justifyContent: 'center' }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
                           <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"/>
                         </svg>
                         <span>Status</span>
                       </div>
                     </th>
-                    <th className="th-date">
-                      <div className="th-content">
+                    <th className="th-date" style={{ textAlign: 'center' }}>
+                      <div className="th-content" style={{ justifyContent: 'center' }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
                           <path d="M19,19H5V8H19M16,1V3H8V1H6V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3H18V1M17,12H12V17H17V12Z"/>
                         </svg>
@@ -687,7 +689,7 @@ const ClientsPage = () => {
                       </div>
                     </th>
                     <th className="th-actions" style={{ textAlign: 'center' }}>
-                      <div className="th-content">
+                      <div className="th-content" style={{ justifyContent: 'center' }}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
                           <path d="M12,16A2,2 0 0,1 14,18A2,2 0 0,1 12,20A2,2 0 0,1 10,18A2,2 0 0,1 12,16M12,10A2,2 0 0,1 14,12A2,2 0 0,1 12,14A2,2 0 0,1 10,12A2,2 0 0,1 12,10M12,4A2,2 0 0,1 14,6A2,2 0 0,1 12,8A2,2 0 0,1 10,6A2,2 0 0,1 12,4Z"/>
                         </svg>
@@ -710,7 +712,7 @@ const ClientsPage = () => {
                     <td>{client.email}</td>
                     <td>{client.company || '-'}</td>
                     <td>{client.phone || '-'}</td>
-                    <td>
+                    <td style={{ textAlign: 'center' }}>
                       <span className="project-count-badge" title={`${client.projectCount || 0} project(s)`}>
                         {client.projectCount || 0}
                       </span>
@@ -728,235 +730,62 @@ const ClientsPage = () => {
                     </td>
                     <td>{formatDate(client.createdAt)}</td>
                     <td style={{ textAlign: 'center' }}>
-                      <div className="action-buttons">
-                        {/* Primary Action Button - Always visible */}
+                      <div className="flex items-center gap-2" style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                        {/* View Details */}
+                        {canViewClientDetails() && (
+                          <button
+                            onClick={() => handleView(client)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            style={{ padding: '8px', color: '#2563eb', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                            title="View Details"
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#eff6ff'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                          >
+                            <FaEye className="w-5 h-5" style={{ width: '20px', height: '20px' }} />
+                          </button>
+                        )}
+                        
+                        {/* Edit Client */}
                         {canEditClient() && (
                           <button
-                            className="edit-btn action-btn"
                             onClick={() => handleEdit(client)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            style={{ padding: '8px', color: '#2563eb', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
                             title="Edit Client"
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#eff6ff'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                           >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                            </svg>
+                            <FaEdit className="w-5 h-5" style={{ width: '20px', height: '20px' }} />
                           </button>
                         )}
 
-                        {/* Three-dot Menu for All Actions */}
-                        <div className="dropdown-container" style={{ position: 'relative', display: 'inline-block' }}>
-                          <button 
-                            className="action-btn btn-more"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDropdownOpenId(dropdownOpenId === client._id ? null : client._id);
-                            }}
-                            title="More Actions"
-                            style={{
-                              background: '#6c757d',
-                              color: 'white',
-                              border: 'none',
-                              padding: '8px',
-                              borderRadius: '4px',
-                              cursor: 'pointer',
-                              fontSize: '16px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              minWidth: '32px',
-                              height: '32px',
-                              fontWeight: 'bold'
-                            }}
+                        {/* View Projects */}
+                        {canViewClientProjects() && (
+                          <button
+                            onClick={() => handleViewProjects(client)}
+                            className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                            style={{ padding: '8px', color: '#9333ea', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                            title="View Projects"
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#faf5ff'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                           >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-                            </svg>
+                            <FaFolder className="w-5 h-5" style={{ width: '20px', height: '20px' }} />
                           </button>
-                          {dropdownOpenId === client._id && (
-                            <div 
-                              className="dropdown-menu"
-                              style={{
-                                position: 'fixed',
-                                background: 'white',
-                                border: '1px solid #dee2e6',
-                                borderRadius: '8px',
-                                boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
-                                zIndex: 9999,
-                                minWidth: '180px',
-                                padding: '4px 0'
-                              }}
-                              ref={(el) => {
-                                if (el && dropdownOpenId === client._id) {
-                                  setTimeout(() => {
-                                    const button = el.previousElementSibling;
-                                    if (button) {
-                                      const rect = button.getBoundingClientRect();
-                                      const dropdownRect = el.getBoundingClientRect();
-                                      const viewportHeight = window.innerHeight;
-                                      const viewportWidth = window.innerWidth;
-                                      
-                                      let top = rect.bottom + 4;
-                                      let left = rect.right - dropdownRect.width;
-                                      
-                                      // Calculate available space
-                                      const spaceBelow = viewportHeight - rect.bottom - 20;
-                                      const spaceAbove = rect.top - 20;
-                                      
-                                      // Position above if not enough space below
-                                      if (spaceBelow < dropdownRect.height && spaceAbove > spaceBelow) {
-                                        top = rect.top - dropdownRect.height - 4;
-                                      }
-                                      
-                                      // Ensure within viewport bounds
-                                      if (top < 5) top = 5;
-                                      else if (top + dropdownRect.height > viewportHeight - 5) {
-                                        top = Math.max(5, viewportHeight - dropdownRect.height - 5);
-                                      }
-                                      
-                                      if (left < 10) left = rect.left;
-                                      else if (left + dropdownRect.width > viewportWidth - 10) {
-                                        left = viewportWidth - dropdownRect.width - 10;
-                                      }
-                                      
-                                      el.style.top = `${top}px`;
-                                      el.style.left = `${left}px`;
-                                    }
-                                  }, 0);
-                                }
-                              }}
-                            >
-                              {/* Edit Action (duplicate for consistency) */}
-                              {canEditClient() && (
-                                <button 
-                                  className="dropdown-item"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleEdit(client);
-                                    setDropdownOpenId(null);
-                                  }}
-                                  style={{
-                                    width: '100%',
-                                    padding: '10px 16px',
-                                    border: 'none',
-                                    background: 'transparent',
-                                    textAlign: 'left',
-                                    cursor: 'pointer',
-                                    fontSize: '14px',
-                                    color: '#495057',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '10px'
-                                  }}
-                                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
-                                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                                >
-                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                                  </svg>
-                                  Edit Client
-                                </button>
-                              )}
-
-                              {/* Delete Action */}
-                              {canDeleteClient() && (
-                                <button 
-                                  className="dropdown-item"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDelete(client._id);
-                                    setDropdownOpenId(null);
-                                  }}
-                                  style={{
-                                    width: '100%',
-                                    padding: '10px 16px',
-                                    border: 'none',
-                                    background: 'transparent',
-                                    textAlign: 'left',
-                                    cursor: 'pointer',
-                                    fontSize: '14px',
-                                    color: '#dc3545',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '10px',
-                                    borderTop: canEditClient() ? '1px solid #f1f3f4' : 'none'
-                                  }}
-                                  onMouseEnter={(e) => e.target.style.backgroundColor = '#fff5f5'}
-                                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                                >
-                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                                  </svg>
-                                  Delete Client
-                                </button>
-                              )}
-
-                              {/* View Details Action */}
-                              {canViewClientDetails() && (
-                                <button 
-                                  className="dropdown-item"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleView(client);
-                                    setDropdownOpenId(null);
-                                  }}
-                                  style={{
-                                    width: '100%',
-                                    padding: '10px 16px',
-                                    border: 'none',
-                                    background: 'transparent',
-                                    textAlign: 'left',
-                                    cursor: 'pointer',
-                                    fontSize: '14px',
-                                    color: '#495057',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '10px',
-                                    borderTop: (canEditClient() || canDeleteClient()) ? '1px solid #f1f3f4' : 'none'
-                                  }}
-                                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
-                                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                                >
-                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-                                  </svg>
-                                  View Details
-                                </button>
-                              )}
-
-                              {/* View Projects Action */}
-                              {canViewClientProjects() && (
-                                <button 
-                                  className="dropdown-item"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleViewProjects(client);
-                                    setDropdownOpenId(null);
-                                  }}
-                                  style={{
-                                    width: '100%',
-                                    padding: '10px 16px',
-                                    border: 'none',
-                                    background: 'transparent',
-                                    textAlign: 'left',
-                                    cursor: 'pointer',
-                                    fontSize: '14px',
-                                    color: '#495057',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '10px',
-                                    borderTop: (canEditClient() || canDeleteClient() || canViewClientDetails()) ? '1px solid #f1f3f4' : 'none'
-                                  }}
-                                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f8f9fa'}
-                                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                                >
-                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-                                  </svg>
-                                  View Projects
-                                </button>
-                              )}
-                            </div>
-                          )}
-                        </div>
+                        )}
+                        
+                        {/* Delete Client */}
+                        {canDeleteClient() && (
+                          <button
+                            onClick={() => handleDelete(client._id)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            style={{ padding: '8px', color: '#dc2626', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                            title="Delete Client"
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                          >
+                            <FaTrash className="w-5 h-5" style={{ width: '20px', height: '20px' }} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

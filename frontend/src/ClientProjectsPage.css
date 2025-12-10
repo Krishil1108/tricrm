@@ -263,58 +263,60 @@
 }
 
 /* Column width specifications for better alignment */
+/* Project Number */
 .project-table th:nth-child(1),
 .project-table td:nth-child(1) {
-  width: 60px;
-  min-width: 60px;
+  width: 140px;
+  min-width: 140px;
 }
 
+/* Project Name */
 .project-table th:nth-child(2),
 .project-table td:nth-child(2) {
-  width: 100px;
-  min-width: 100px;
+  width: 250px;
+  min-width: 250px;
 }
 
+/* Finalized Fees */
 .project-table th:nth-child(3),
 .project-table td:nth-child(3) {
-  width: 200px;
-  min-width: 200px;
+  width: 140px;
+  min-width: 140px;
 }
 
+/* Received Fees */
 .project-table th:nth-child(4),
 .project-table td:nth-child(4) {
-  width: 120px;
-  min-width: 120px;
+  width: 140px;
+  min-width: 140px;
 }
 
+/* Pending Amount */
 .project-table th:nth-child(5),
 .project-table td:nth-child(5) {
-  width: 100px;
-  min-width: 100px;
+  width: 140px;
+  min-width: 140px;
 }
 
+/* Payments */
 .project-table th:nth-child(6),
 .project-table td:nth-child(6) {
   width: 120px;
   min-width: 120px;
 }
 
+/* Status */
 .project-table th:nth-child(7),
 .project-table td:nth-child(7) {
   width: 120px;
   min-width: 120px;
 }
 
+/* Actions */
 .project-table th:nth-child(8),
 .project-table td:nth-child(8) {
-  width: 120px;
-  min-width: 120px;
-}
-
-.project-table th:nth-child(9),
-.project-table td:nth-child(9) {
-  width: 120px;
-  min-width: 120px;
+  width: 180px;
+  min-width: 180px;
 }
 
 .project-table th {
@@ -559,21 +561,21 @@
 /* Actions column specific styling */
 .project-table th:last-child,
 .project-table td:last-child {
-  width: 140px;
-  min-width: 140px;
-  max-width: 140px;
+  width: 180px;
+  min-width: 180px;
+  max-width: 180px;
   text-align: center;
-  padding: 8px 2px;
+  padding: 8px 4px;
 }
 
 /* Clients table actions column */
 table th:last-child,
 table td:last-child {
-  width: 120px;
-  min-width: 120px;
-  max-width: 120px;
+  width: 180px;
+  min-width: 180px;
+  max-width: 180px;
   text-align: center;
-  padding: 8px 2px;
+  padding: 8px 4px;
 }
 
 /* Responsive table adjustments */
