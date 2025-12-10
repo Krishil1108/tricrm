@@ -34,8 +34,9 @@ const ProjectPage = () => {
   const [stats, setStats] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
   const [filters, setFilters] = useState({
-    search: '',
     status: 'all',
     year: new Date().getFullYear().toString()
   });
@@ -127,7 +128,7 @@ const ProjectPage = () => {
     loadPercentageConfig();
     loadClients();
     loadAssociates();
-  }, [activeTab, filters]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeTab, filterStatus, filters.year]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -394,11 +395,15 @@ const ProjectPage = () => {
   const fetchData = async () => {
     try {
       showLoading('Loading data...');
+      const apiFilters = { 
+        status: filterStatus,
+        year: filters.year 
+      };
       if (activeTab === 'projects') {
-        const response = await FinanceService.getAllProjects(filters);
+        const response = await FinanceService.getAllProjects(apiFilters);
         setProjects(response.data || []);
       } else {
-        const response = await FinanceService.getAllExpenses(filters);
+        const response = await FinanceService.getAllExpenses(apiFilters);
         setExpenses(response.data || []);
       }
     } catch (error) {
@@ -439,10 +444,14 @@ const ProjectPage = () => {
   const handleExport = async () => {
     try {
       showLoading('Exporting to Excel...');
+      const apiFilters = { 
+        status: filterStatus,
+        year: filters.year 
+      };
       if (activeTab === 'projects') {
         await FinanceService.exportProjects();
       } else {
-        await FinanceService.exportExpenses(filters);
+        await FinanceService.exportExpenses(apiFilters);
       }
       showSuccess('Export successful');
     } catch (error) {
@@ -911,12 +920,12 @@ const ProjectPage = () => {
   // Filter and paginate projects
   const getFilteredProjects = () => {
     return projects.filter(project => {
-      const matchesSearch = !filters.search || 
-        project.projectName.toLowerCase().includes(filters.search.toLowerCase()) ||
-        project.projectNumber.toLowerCase().includes(filters.search.toLowerCase()) ||
-        (project.projectLocation && project.projectLocation.toLowerCase().includes(filters.search.toLowerCase()));
+      const matchesSearch = project.projectName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           project.projectNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           (project.projectLocation && project.projectLocation.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                           (project.clientName && project.clientName.toLowerCase().includes(searchTerm.toLowerCase()));
       
-      const matchesStatus = filters.status === 'all' || project.status === filters.status;
+      const matchesStatus = filterStatus === 'all' || project.status === filterStatus;
       
       return matchesSearch && matchesStatus;
     });
@@ -931,9 +940,9 @@ const ProjectPage = () => {
   // Filter and paginate expenses
   const getFilteredExpenses = () => {
     return expenses.filter(expense => {
-      const matchesSearch = !filters.search || 
-        expense.description?.toLowerCase().includes(filters.search.toLowerCase()) ||
-        expense.category?.toLowerCase().includes(filters.search.toLowerCase());
+      const matchesSearch = expense.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           expense.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           (expense.projectName && expense.projectName.toLowerCase().includes(searchTerm.toLowerCase()));
       
       return matchesSearch;
     });
@@ -1064,9 +1073,9 @@ const ProjectPage = () => {
           <input
             type="text"
             className="filter-input"
-            placeholder="Search clients by name, email, or company..."
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            placeholder="Search projects by name, number, location, or client..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             style={{ 
               width: '100%', 
               padding: '12px 16px', 
@@ -1083,8 +1092,8 @@ const ProjectPage = () => {
           {activeTab === 'projects' && (
             <select
               className="filter-select"
-              value={filters.status}
-              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
               style={{ 
                 padding: '12px 16px', 
                 border: '2px solid #e5e7eb', 
