@@ -1,23 +1,33 @@
 const analyticsService = require('../services/analyticsService');
 
+console.log('📊 [ANALYTICS CONTROLLER] Loading analytics controller...');
+
 class AnalyticsController {
   
   // Get filter options for dropdowns
   async getClientOptions(req, res) {
+    console.log('📊 [ANALYTICS CONTROLLER] getClientOptions called');
     try {
       const clients = await analyticsService.getClientOptions();
+      console.log(`📊 [ANALYTICS CONTROLLER] Retrieved ${clients.length} clients`);
       res.json(clients);
     } catch (error) {
-      console.error('Error fetching client options:', error);
-      res.status(500).json({ error: 'Failed to fetch client options' });
+      console.error('❌ [ANALYTICS CONTROLLER] Error fetching client options:', error);
+      res.status(500).json({ error: 'Failed to fetch client options', details: error.message });
     }
   }
 
   async getProjectOptions(req, res) {
+    console.log('📊 [ANALYTICS CONTROLLER] getProjectOptions called');
     try {
       const projects = await analyticsService.getProjectOptions();
+      console.log(`📊 [ANALYTICS CONTROLLER] Retrieved ${projects.length} projects`);
       res.json(projects);
     } catch (error) {
+      console.error('❌ [ANALYTICS CONTROLLER] Error fetching project options:', error);
+      res.status(500).json({ error: 'Failed to fetch project options', details: error.message });
+    }
+  }
       console.error('Error fetching project options:', error);
       res.status(500).json({ error: 'Failed to fetch project options' });
     }

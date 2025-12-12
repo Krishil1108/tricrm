@@ -188,7 +188,25 @@ app.use('/api/activities', authenticate, activityRoutes);
 app.use('/api/configuration-versions', authenticate, configurationVersionRoutes);
 app.use('/api/finance', authenticate, financeRoutes);
 app.use('/api/data', authenticate, dataManagementRoutes);
-app.use('/api/analytics', analyticsRoutes);
+
+// Analytics routes with debugging
+console.log('📊 [SERVER] Registering analytics routes at /api/analytics...');
+try {
+  app.use('/api/analytics', analyticsRoutes);
+  console.log('✅ [SERVER] Analytics routes registered successfully');
+} catch (error) {
+  console.error('❌ [SERVER] Failed to register analytics routes:', error);
+}
+
+// List all registered routes for debugging
+console.log('🔍 [SERVER] All registered routes:');
+app._router.stack.forEach((middleware, index) => {
+  if (middleware.route) {
+    console.log(`   ${Object.keys(middleware.route.methods)[0].toUpperCase()} ${middleware.route.path}`);
+  } else if (middleware.name === 'router') {
+    console.log(`   ROUTER ${middleware.regexp.source.replace('\\/?(?=\\/|$)', '')}`);
+  }
+});
 
 // Basic route
 app.get('/api/test', (req, res) => {
