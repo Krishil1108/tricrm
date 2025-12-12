@@ -1,0 +1,16 @@
+[2025-12-12T04:37:22.511Z] [INFO] {
+  "timestamp": "2025-12-12T04:37:22.511Z",
+  "method": "GET",
+  "url": "/api/analytics/dashboard?dateRange=month&status=all",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+[2025-12-12T04:37:22.578Z] [INFO] {
+  "timestamp": "2025-12-12T04:37:22.577Z",
+  "method": "GET",
+  "url": "/api/analytics/dashboard?dateRange=month&status=all",
+  "statusCode": 500,
+  "responseTime": "66ms",
+  "userId": "6918b3fc2bd7add82b94c2f4"
+}

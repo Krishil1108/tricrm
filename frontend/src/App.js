@@ -23,6 +23,7 @@ import SettingsPage from './SettingsPage';
 import ProjectPage from './ProjectPage';
 import UserManagementPage from './UserManagementPage';
 import RoleManagementPage from './RoleManagementPage';
+import AnalyticsDashboard from './AnalyticsDashboard';
 
 function App() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
@@ -123,6 +124,15 @@ function App() {
                               element={
                                 <ProtectedRoute requireModule="finance">
                                   <ProjectPage />
+                                </ProtectedRoute>
+                              } 
+                            />
+                            
+                            <Route 
+                              path="/analytics" 
+                              element={
+                                <ProtectedRoute requireModule="finance">
+                                  <AnalyticsDashboard />
                                 </ProtectedRoute>
                               } 
                             />

@@ -172,6 +172,7 @@ const activityRoutes = require('./routes/activities');
 const financeRoutes = require('./routes/finance');
 const configurationVersionRoutes = require('./routes/configurationVersions');
 const dataManagementRoutes = require('./routes/dataManagement');
+const analyticsRoutes = require('./routes/analytics');
 
 // Public routes (no authentication required)
 app.use('/api/auth', authRoutes);
@@ -187,6 +188,7 @@ app.use('/api/activities', authenticate, activityRoutes);
 app.use('/api/configuration-versions', authenticate, configurationVersionRoutes);
 app.use('/api/finance', authenticate, financeRoutes);
 app.use('/api/data', authenticate, dataManagementRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Basic route
 app.get('/api/test', (req, res) => {

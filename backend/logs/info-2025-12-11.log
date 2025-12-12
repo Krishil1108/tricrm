@@ -1,0 +1,32 @@
+[2025-12-11T12:52:39.333Z] [INFO] {
+  "timestamp": "2025-12-11T12:52:39.333Z",
+  "method": "GET",
+  "url": "/api/analytics/dashboard?dateRange=month&status=all",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+[2025-12-11T12:52:39.379Z] [INFO] {
+  "timestamp": "2025-12-11T12:52:39.378Z",
+  "method": "GET",
+  "url": "/api/analytics/dashboard?dateRange=month&status=all",
+  "statusCode": 500,
+  "responseTime": "45ms",
+  "userId": "6918b3fc2bd7add82b94c2f4"
+}
+[2025-12-11T12:52:43.909Z] [INFO] {
+  "timestamp": "2025-12-11T12:52:43.909Z",
+  "method": "GET",
+  "url": "/api/analytics/dashboard?dateRange=month&status=all",
+  "ip": "127.0.0.1",
+  "userId": "anonymous",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+[2025-12-11T12:52:43.943Z] [INFO] {
+  "timestamp": "2025-12-11T12:52:43.943Z",
+  "method": "GET",
+  "url": "/api/analytics/dashboard?dateRange=month&status=all",
+  "statusCode": 500,
+  "responseTime": "34ms",
+  "userId": "6918b3fc2bd7add82b94c2f4"
+}
