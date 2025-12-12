@@ -28,10 +28,6 @@ class AnalyticsController {
       res.status(500).json({ error: 'Failed to fetch project options', details: error.message });
     }
   }
-      console.error('Error fetching project options:', error);
-      res.status(500).json({ error: 'Failed to fetch project options' });
-    }
-  }
 
   async getAssociateOptions(req, res) {
     try {
