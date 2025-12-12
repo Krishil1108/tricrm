@@ -133,18 +133,32 @@ class AnalyticsService {
   // Summary Data
   async getSummaryData(filters) {
     try {
-      // Get counts from actual MongoDB Atlas collections
+      console.log('🔍 [ANALYTICS SERVICE] Fetching summary data...');
+      
+      // Get counts from actual MongoDB Atlas collections with flexible isActive handling
+      let totalClients = await Client.countDocuments({ isActive: true });
+      let totalAssociates = await Associate.countDocuments({ isActive: true });
+      
+      // Fallback to all records if no active records found
+      if (totalClients === 0) {
+        totalClients = await Client.countDocuments({});
+        console.log('🔍 [ANALYTICS SERVICE] Using all clients as fallback:', totalClients);
+      }
+      
+      if (totalAssociates === 0) {
+        totalAssociates = await Associate.countDocuments({});
+        console.log('🔍 [ANALYTICS SERVICE] Using all associates as fallback:', totalAssociates);
+      }
+      
       const [
-        totalClients,
-        totalAssociates, 
         totalProjects,
         financeProjects
       ] = await Promise.all([
-        Client.countDocuments({ isActive: true }),
-        Associate.countDocuments({ isActive: true }),
         FinanceProject.countDocuments({}),
         FinanceProject.find({}).lean()
       ]);
+      
+      console.log('🔍 [ANALYTICS SERVICE] Summary counts:', { totalClients, totalAssociates, totalProjects });
 
       // Calculate financial metrics from FinanceProject data
       let totalRevenue = 0;

@@ -126,9 +126,19 @@ const DashboardFilters = ({ filters, onFilterChange, options, loading }) => {
                 checked={filters[field]?.includes(option._id || option.id) || false}
                 onChange={() => {}}
               />
-              <span>{option.name || option.title}</span>
+              <span className="option-text">
+                {option.name || option.title || option.projectName || 'Unnamed'}
+                {option.clientName && (
+                  <span className="client-info"> ({option.clientName})</span>
+                )}
+              </span>
             </div>
           ))}
+          {options.length === 0 && (
+            <div className="multi-select-option disabled">
+              <span className="option-text">No data available</span>
+            </div>
+          )}
         </div>
       )}
     </div>

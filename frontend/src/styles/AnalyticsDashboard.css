@@ -179,6 +179,29 @@
   cursor: pointer;
 }
 
+.option-text {
+  font-weight: 500;
+  color: #2c3e50;
+  line-height: 1.4;
+}
+
+.client-info {
+  font-weight: 400;
+  color: #6c757d;
+  font-size: 0.9em;
+}
+
+.multi-select-option.disabled {
+  cursor: not-allowed;
+  color: #6c757d;
+  background: #f8f9fa;
+}
+
+.multi-select-option.disabled .option-text {
+  color: #6c757d;
+  font-style: italic;
+}
+
 /* Summary Cards */
 .summary-cards {
   display: grid;
