@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import { useToast } from './context/ToastContext';
-import { API_BASE_URL } from './config/api';
+import API_BASE_URL from './config/api';
 import './styles/AnalyticsDashboard.css';
 import DashboardFilters from './components/analytics/DashboardFilters';
 import SummaryCards from './components/analytics/SummaryCards';
