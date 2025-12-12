@@ -1,29 +1,33 @@
 /* Enhanced Analytics Dashboard with Streamlined Interface */
 .interactive-chart-builder {
   width: 100%;
-  background: #f8f9fa;
+  background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 .chart-builder-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: white;
+  color: #333;
   padding: 2rem;
   text-align: center;
+  border-bottom: 2px solid #f8f9fa;
 }
 
 .chart-builder-header h2 {
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
   font-weight: 600;
+  color: #333;
 }
 
 .chart-builder-header p {
   margin: 0;
   font-size: 1.1rem;
-  opacity: 0.9;
+  color: #666;
 }
 
 /* Tab Navigation */
@@ -126,13 +130,15 @@
 
 /* Chart Display Area */
 .chart-display-area {
-  margin: 2rem;
+  margin: 1.5rem;
   min-height: 400px;
-  background: white;
+  background: #f8f9fa;
   border-radius: 12px;
+  border: 1px solid #e9ecef;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .chart-container,
@@ -386,26 +392,30 @@
   }
 }
 
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-  .interactive-chart-builder {
-    background: #2d3748;
-    color: white;
-  }
-  
-  .quick-chart-card,
-  .control-group {
-    background: #4a5568;
-    border-color: #718096;
-  }
-  
-  .chart-display-area {
-    background: #4a5568;
-  }
-  
-  .control-select {
-    background: #2d3748;
-    color: white;
-    border-color: #718096;
-  }
+/* Ensure consistent light theme */
+.interactive-chart-builder * {
+  box-sizing: border-box;
+}
+
+.interactive-chart-builder {
+  clear: both;
+  margin-top: 1rem;
+}
+
+/* Prevent any dark theme interference */
+.quick-chart-card,
+.control-group {
+  background: white !important;
+  color: #333 !important;
+  border-color: #e9ecef !important;
+}
+
+.chart-display-area {
+  background: #f8f9fa !important;
+}
+
+.control-select {
+  background: white !important;
+  color: #333 !important;
+  border-color: #e9ecef !important;
 }
