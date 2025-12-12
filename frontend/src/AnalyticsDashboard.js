@@ -65,7 +65,19 @@ const AnalyticsDashboard = () => {
   }, [filters]);
 
   const fetchFilterOptions = async () => {
+    console.log('📊 [ANALYTICS DASHBOARD] Starting fetchFilterOptions');
+    console.log('📊 [ANALYTICS DASHBOARD] Token:', token ? 'Present' : 'Missing');
+    console.log('📊 [ANALYTICS DASHBOARD] API_BASE_URL:', API_BASE_URL);
+    
+    if (!token) {
+      console.error('❌ [ANALYTICS DASHBOARD] No token available for API calls');
+      setError('Authentication required. Please log in.');
+      return;
+    }
+    
     try {
+      console.log('📊 [ANALYTICS DASHBOARD] Making API calls to filter options...');
+      
       const [clientsRes, projectsRes, associatesRes] = await Promise.all([
         fetch(`${API_BASE_URL}/analytics/filter-options/clients`, {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -78,20 +90,62 @@ const AnalyticsDashboard = () => {
         })
       ]);
 
+      console.log('📊 [ANALYTICS DASHBOARD] API Response status:');
+      console.log('   - Clients:', clientsRes.status, clientsRes.statusText);
+      console.log('   - Projects:', projectsRes.status, projectsRes.statusText);
+      console.log('   - Associates:', associatesRes.status, associatesRes.statusText);
+
+      // Check for authentication errors
+      if (clientsRes.status === 401 || projectsRes.status === 401 || associatesRes.status === 401) {
+        console.error('❌ [ANALYTICS DASHBOARD] Authentication failed (401)');
+        showError('Authentication failed. Please log in again.');
+        return;
+      }
+
+      // Check for other errors
+      if (!clientsRes.ok || !projectsRes.ok || !associatesRes.ok) {
+        console.error('❌ [ANALYTICS DASHBOARD] API calls failed:');
+        console.error('   - Clients:', !clientsRes.ok ? `${clientsRes.status} ${clientsRes.statusText}` : 'OK');
+        console.error('   - Projects:', !projectsRes.ok ? `${projectsRes.status} ${projectsRes.statusText}` : 'OK');
+        console.error('   - Associates:', !associatesRes.ok ? `${associatesRes.status} ${associatesRes.statusText}` : 'OK');
+        throw new Error('Failed to fetch filter options');
+      }
+
       const [clients, projects, associates] = await Promise.all([
         clientsRes.json(),
         projectsRes.json(),
         associatesRes.json()
       ]);
+      
+      console.log('📊 [ANALYTICS DASHBOARD] Filter data received:');
+      console.log('   - Clients:', Array.isArray(clients) ? clients.length : 'Invalid data', clients);
+      console.log('   - Projects:', Array.isArray(projects) ? projects.length : 'Invalid data', projects);
+      console.log('   - Associates:', Array.isArray(associates) ? associates.length : 'Invalid data', associates);
 
-      setFilterOptions({ clients, projects, associates });
+      setFilterOptions({ 
+        clients: Array.isArray(clients) ? clients : [], 
+        projects: Array.isArray(projects) ? projects : [], 
+        associates: Array.isArray(associates) ? associates : [] 
+      });
+      
+      console.log('✅ [ANALYTICS DASHBOARD] Filter options loaded successfully');
     } catch (error) {
-      console.error('Error fetching filter options:', error);
+      console.error('❌ [ANALYTICS DASHBOARD] Error in fetchFilterOptions:', error);
+      console.error('❌ [ANALYTICS DASHBOARD] Error stack:', error.stack);
       showError('Failed to load filter options');
     }
   };
 
   const fetchDashboardData = async () => {
+    console.log('📊 [ANALYTICS DASHBOARD] Starting fetchDashboardData with filters:', filters);
+    console.log('📊 [ANALYTICS DASHBOARD] Token available:', !!token);
+    
+    if (!token) {
+      console.error('❌ [ANALYTICS DASHBOARD] No token for dashboard data fetch');
+      setError('Authentication required');
+      return;
+    }
+    
     setLoading(true);
     try {
       const queryParams = new URLSearchParams();
@@ -107,21 +161,34 @@ const AnalyticsDashboard = () => {
         }
       });
 
-      const response = await fetch(`${API_BASE_URL}/analytics/dashboard?${queryParams}`, {
+      const dashboardUrl = `${API_BASE_URL}/analytics/dashboard?${queryParams}`;
+      console.log('📊 [ANALYTICS DASHBOARD] Fetching dashboard data from:', dashboardUrl);
+
+      const response = await fetch(dashboardUrl, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
+      console.log('📊 [ANALYTICS DASHBOARD] Dashboard response status:', response.status, response.statusText);
+
       if (!response.ok) {
-        throw new Error('Failed to fetch dashboard data');
+        if (response.status === 401) {
+          console.error('❌ [ANALYTICS DASHBOARD] Dashboard authentication failed (401)');
+          setError('Authentication failed. Please log in again.');
+          return;
+        }
+        const errorText = await response.text();
+        console.error('❌ [ANALYTICS DASHBOARD] Dashboard API error:', errorText);
+        throw new Error(`Failed to fetch dashboard data: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('📊 [ANALYTICS DASHBOARD] Dashboard data received:', data);
       setDashboardData(data);
       setError(null);
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      console.error('❌ [ANALYTICS DASHBOARD] Error fetching dashboard data:', error);
       setError(error.message);
-      showError('Failed to load dashboard data');
+      showError('Failed to load dashboard data: ' + error.message);
     } finally {
       setLoading(false);
     }
