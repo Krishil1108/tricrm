@@ -168,6 +168,21 @@ class AnalyticsController {
     }
   }
 
+  // Interactive chart generation
+  async getInteractiveChart(req, res) {
+    console.log('📊 [ANALYTICS CONTROLLER] getInteractiveChart called with:', req.query);
+    try {
+      const interactiveChartService = require('../services/interactiveChartService');
+      await interactiveChartService.generateInteractiveChart(req, res);
+    } catch (error) {
+      console.error('❌ [ANALYTICS CONTROLLER] Error generating interactive chart:', error);
+      res.status(500).json({ 
+        error: 'Failed to generate interactive chart', 
+        details: error.message 
+      });
+    }
+  }
+
   // Helper method to extract and validate filters
   extractFilters(query) {
     const {

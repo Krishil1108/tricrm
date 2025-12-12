@@ -76,6 +76,12 @@ router.get('/dashboard', (req, res, next) => {
   analyticsController.getDashboardData(req, res, next);
 });
 
+// Interactive chart endpoint
+router.get('/interactive-chart', (req, res, next) => {
+  console.log('📊 [ANALYTICS] Interactive chart requested with config:', req.query);
+  analyticsController.getInteractiveChart(req, res, next);
+});
+
 // Individual analytics sections
 router.get('/summary', analyticsController.getSummaryData);
 router.get('/clients', analyticsController.getClientAnalytics);

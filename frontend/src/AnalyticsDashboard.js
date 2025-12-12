@@ -3,17 +3,12 @@ import { useAuth } from './contexts/AuthContext';
 import { useToast } from './context/ToastContext';
 import API_BASE_URL from './config/api';
 import './styles/AnalyticsDashboard.css';
+import './styles/InteractiveChartBuilder.css';
 import './PageContent.css';
 import './styles/ClientsPageEnhanced.css';
 import DashboardFilters from './components/analytics/DashboardFilters';
 import SummaryCards from './components/analytics/SummaryCards';
-import ClientGraphs from './components/analytics/ClientGraphs';
-import AssociateGraphs from './components/analytics/AssociateGraphs';
-import PercentageConfigGraphs from './components/analytics/PercentageConfigGraphs';
-import ProfitMarginGraphs from './components/analytics/ProfitMarginGraphs';
-import ProjectGraphs from './components/analytics/ProjectGraphs';
-import PaymentGraphs from './components/analytics/PaymentGraphs';
-import CrossComparisonGraphs from './components/analytics/CrossComparisonGraphs';
+import InteractiveChartBuilder from './components/analytics/InteractiveChartBuilder';
 import LoadingSkeleton from './components/analytics/LoadingSkeleton';
 import ExportModal from './components/analytics/ExportModal';
 import { FaDownload, FaExpand, FaCompress } from 'react-icons/fa';
@@ -295,70 +290,11 @@ const AnalyticsDashboard = () => {
         <>
           <SummaryCards data={dashboardData.summary} />
           
-          <div className="dashboard-grid">
-            <section className="dashboard-section">
-              <h2>Client Analytics</h2>
-              <ClientGraphs 
-                data={dashboardData.clients} 
-                onExport={handleExportChart}
-                onDrillDown={handleDrillDown}
-              />
-            </section>
-
-            <section className="dashboard-section">
-              <h2>Associate Analytics</h2>
-              <AssociateGraphs 
-                data={dashboardData.associates} 
-                onExport={handleExportChart}
-                onDrillDown={handleDrillDown}
-              />
-            </section>
-
-            <section className="dashboard-section">
-              <h2>Percentage Configuration</h2>
-              <PercentageConfigGraphs 
-                data={dashboardData.percentageConfig} 
-                onExport={handleExportChart}
-                onDrillDown={handleDrillDown}
-              />
-            </section>
-
-            <section className="dashboard-section">
-              <h2>Profit Margin Analysis</h2>
-              <ProfitMarginGraphs 
-                data={dashboardData.profitMargins} 
-                onExport={handleExportChart}
-                onDrillDown={handleDrillDown}
-              />
-            </section>
-
-            <section className="dashboard-section">
-              <h2>Project Analytics</h2>
-              <ProjectGraphs 
-                data={dashboardData.projects} 
-                onExport={handleExportChart}
-                onDrillDown={handleDrillDown}
-              />
-            </section>
-
-            <section className="dashboard-section">
-              <h2>Payment Analytics</h2>
-              <PaymentGraphs 
-                data={dashboardData.payments} 
-                onExport={handleExportChart}
-                onDrillDown={handleDrillDown}
-              />
-            </section>
-
-            <section className="dashboard-section">
-              <h2>Cross Comparisons</h2>
-              <CrossComparisonGraphs 
-                data={dashboardData.crossComparisons} 
-                onExport={handleExportChart}
-                onDrillDown={handleDrillDown}
-              />
-            </section>
-          </div>
+          <InteractiveChartBuilder 
+            dashboardData={dashboardData}
+            token={token}
+            apiBaseUrl={API_BASE_URL}
+          />
         </>
       )}
 
