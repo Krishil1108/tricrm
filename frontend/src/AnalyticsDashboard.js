@@ -3,6 +3,8 @@ import { useAuth } from './contexts/AuthContext';
 import { useToast } from './context/ToastContext';
 import API_BASE_URL from './config/api';
 import './styles/AnalyticsDashboard.css';
+import './PageContent.css';
+import './styles/ClientsPageEnhanced.css';
 import DashboardFilters from './components/analytics/DashboardFilters';
 import SummaryCards from './components/analytics/SummaryCards';
 import ClientGraphs from './components/analytics/ClientGraphs';
@@ -236,25 +238,49 @@ const AnalyticsDashboard = () => {
   }
 
   return (
-    <div className={`analytics-dashboard ${fullScreen ? 'fullscreen' : ''}`}>
-      <div className="analytics-header">
-        <h1>Analytics Dashboard</h1>
-        <div className="analytics-actions">
-          <button
-            className="btn btn-secondary"
-            onClick={() => setFullScreen(!fullScreen)}
-            title={fullScreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
-          >
-            {fullScreen ? <FaCompress /> : <FaExpand />}
-          </button>
-          <button
-            className="btn btn-primary"
-            onClick={() => setShowExportModal(true)}
-          >
-            <FaDownload /> Export
-          </button>
+    <div className="analytics-dashboard-enhanced">
+      <div className="modern-page-header">
+        <div className="header-content-enhanced">
+          <div className="header-title-section">
+            <div className="title-icon-wrapper">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" className="header-icon">
+                <path d="M3 13h8V3H9v6H5V3H3v10zm0 8h8v-6H9v2H5v-2H3v6zm10 0h8V11h-2v6h-4v-6h-2v10zm0-18v6h8V3h-8z"/>
+              </svg>
+              <h1 className="page-title-enhanced">Analytics Dashboard</h1>
+            </div>
+          </div>
+          <div className="header-actions-enhanced">
+            <button
+              className="btn-secondary-modern fullscreen-btn"
+              onClick={() => setFullScreen(!fullScreen)}
+              title={fullScreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+            >
+              <div className="btn-icon-wrapper">
+                {fullScreen ? <FaCompress /> : <FaExpand />}
+              </div>
+            </button>
+            <button
+              className="btn-primary-modern export-enhanced"
+              onClick={() => setShowExportModal(true)}
+            >
+              <div className="btn-icon-wrapper">
+                <FaDownload />
+              </div>
+              <span className="btn-text">Export</span>
+            </button>
+          </div>
         </div>
       </div>
+
+      <div className={`page-content${fullScreen ? ' fullscreen-content' : ''}`}>
+        {error && (
+          <div className="error-message">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{marginRight: '8px'}}>
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+            {error}
+          </div>
+        )}
 
       <DashboardFilters
         filters={filters}
@@ -343,6 +369,7 @@ const AnalyticsDashboard = () => {
           onClose={() => setShowExportModal(false)}
         />
       )}
+      </div>
     </div>
   );
 };
