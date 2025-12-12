@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import { useToast } from './context/ToastContext';
+import { API_BASE_URL } from './config/api';
 import './styles/AnalyticsDashboard.css';
 import DashboardFilters from './components/analytics/DashboardFilters';
 import SummaryCards from './components/analytics/SummaryCards';
@@ -66,13 +67,13 @@ const AnalyticsDashboard = () => {
   const fetchFilterOptions = async () => {
     try {
       const [clientsRes, projectsRes, associatesRes] = await Promise.all([
-        fetch('/api/analytics/filter-options/clients', {
+        fetch(`${API_BASE_URL}/analytics/filter-options/clients`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('/api/analytics/filter-options/projects', {
+        fetch(`${API_BASE_URL}/analytics/filter-options/projects`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('/api/analytics/filter-options/associates', {
+        fetch(`${API_BASE_URL}/analytics/filter-options/associates`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);
@@ -106,7 +107,7 @@ const AnalyticsDashboard = () => {
         }
       });
 
-      const response = await fetch(`/api/analytics/dashboard?${queryParams}`, {
+      const response = await fetch(`${API_BASE_URL}/analytics/dashboard?${queryParams}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
