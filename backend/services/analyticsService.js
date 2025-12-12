@@ -11,9 +11,29 @@ class AnalyticsService {
   // Filter Options
   async getClientOptions() {
     try {
-      const clients = await Client.find({ isActive: true }, '_id name')
+      console.log('🔍 [ANALYTICS SERVICE] Fetching client options...');
+      
+      // Count total clients first
+      const totalClients = await Client.countDocuments();
+      const activeClients = await Client.countDocuments({ isActive: true });
+      console.log(`🔍 [ANALYTICS SERVICE] Total clients in DB: ${totalClients}, Active clients: ${activeClients}`);
+      
+      // Try with isActive: true first, then fallback to all clients if none found
+      let clients = await Client.find({ isActive: true }, '_id name')
         .sort({ name: 1 })
         .lean();
+      
+      console.log(`🔍 [ANALYTICS SERVICE] Found ${clients.length} active clients`);
+      
+      // If no active clients found, get all clients
+      if (clients.length === 0) {
+        console.log('🔍 [ANALYTICS SERVICE] No active clients found, fetching all clients...');
+        clients = await Client.find({}, '_id name')
+          .sort({ name: 1 })
+          .lean();
+        console.log(`🔍 [ANALYTICS SERVICE] Found ${clients.length} total clients`);
+      }
+      
       return clients;
     } catch (error) {
       console.error('Error fetching client options:', error);
@@ -41,9 +61,29 @@ class AnalyticsService {
 
   async getAssociateOptions() {
     try {
-      const associates = await Associate.find({ isActive: true }, '_id name')
+      console.log('🔍 [ANALYTICS SERVICE] Fetching associate options...');
+      
+      // Count total associates first
+      const totalAssociates = await Associate.countDocuments();
+      const activeAssociates = await Associate.countDocuments({ isActive: true });
+      console.log(`🔍 [ANALYTICS SERVICE] Total associates in DB: ${totalAssociates}, Active associates: ${activeAssociates}`);
+      
+      // Try with isActive: true first, then fallback to all associates if none found
+      let associates = await Associate.find({ isActive: true }, '_id name')
         .sort({ name: 1 })
         .lean();
+      
+      console.log(`🔍 [ANALYTICS SERVICE] Found ${associates.length} active associates`);
+      
+      // If no active associates found, get all associates
+      if (associates.length === 0) {
+        console.log('🔍 [ANALYTICS SERVICE] No active associates found, fetching all associates...');
+        associates = await Associate.find({}, '_id name')
+          .sort({ name: 1 })
+          .lean();
+        console.log(`🔍 [ANALYTICS SERVICE] Found ${associates.length} total associates`);
+      }
+      
       return associates;
     } catch (error) {
       console.error('Error fetching associate options:', error);
