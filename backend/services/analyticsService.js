@@ -23,15 +23,15 @@ class AnalyticsService {
 
   async getProjectOptions() {
     try {
-      const projects = await FinanceProject.find({}, '_id projectName')
-        .populate('client', 'name')
+      const projects = await FinanceProject.find({}, '_id projectName clientId')
+        .populate('clientId', 'name')
         .sort({ projectName: 1 })
         .lean();
       
       return projects.map(project => ({
         _id: project._id,
         name: project.projectName,
-        clientName: project.client?.name || 'Unknown Client'
+        clientName: project.clientId?.name || 'Unknown Client'
       }));
     } catch (error) {
       console.error('Error fetching project options:', error);
@@ -117,8 +117,8 @@ class AnalyticsService {
         }
         
         // Sum up associate allocations as expenses
-        if (project.associates && Array.isArray(project.associates)) {
-          project.associates.forEach(associate => {
+        if (project.projectAssociates && Array.isArray(project.projectAssociates)) {
+          project.projectAssociates.forEach(associate => {
             if (associate.percentage && project.projectValue) {
               const allocation = (parseFloat(associate.percentage) / 100) * parseFloat(project.projectValue);
               totalExpenses += allocation || 0;
@@ -156,7 +156,7 @@ class AnalyticsService {
   async getClientAnalytics(filters) {
     try {
       const clients = await Client.find({ isActive: true }).lean();
-      const projects = await FinanceProject.find({}).populate('client', 'name').lean();
+      const projects = await FinanceProject.find({}).populate('clientId', 'name').lean();
       
       // Group projects by client for analysis
       const clientMetrics = {};
@@ -171,17 +171,17 @@ class AnalyticsService {
       });
 
       projects.forEach(project => {
-        if (project.client && clientMetrics[project.client._id]) {
+        if (project.clientId && clientMetrics[project.clientId._id]) {
           const revenue = parseFloat(project.projectValue) || 0;
-          clientMetrics[project.client._id].revenue += revenue;
-          clientMetrics[project.client._id].projectCount += 1;
+          clientMetrics[project.clientId._id].revenue += revenue;
+          clientMetrics[project.clientId._id].projectCount += 1;
           
           // Calculate expenses from associate allocations
           if (project.associates && Array.isArray(project.associates)) {
             project.associates.forEach(associate => {
               if (associate.percentage) {
                 const allocation = (parseFloat(associate.percentage) / 100) * revenue;
-                clientMetrics[project.client._id].expenses += allocation || 0;
+                clientMetrics[project.clientId._id].expenses += allocation || 0;
               }
             });
           }
