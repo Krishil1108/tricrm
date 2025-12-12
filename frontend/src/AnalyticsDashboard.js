@@ -78,61 +78,75 @@ const AnalyticsDashboard = () => {
     try {
       console.log('📊 [ANALYTICS DASHBOARD] Making API calls to filter options...');
       
-      const [clientsRes, projectsRes, associatesRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/analytics/filter-options/clients`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch(`${API_BASE_URL}/analytics/filter-options/projects`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch(`${API_BASE_URL}/analytics/filter-options/associates`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
-      ]);
+      // Make individual API calls with error handling for each
+      const fetchClient = async () => {
+        try {
+          const response = await fetch(`${API_BASE_URL}/analytics/filter-options/clients`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          console.log('📊 [ANALYTICS DASHBOARD] Clients response:', response.status, response.statusText);
+          if (response.ok) {
+            const data = await response.json();
+            console.log('📊 [ANALYTICS DASHBOARD] Clients data:', Array.isArray(data) ? data.length : 'Invalid', data);
+            return Array.isArray(data) ? data : [];
+          }
+          return [];
+        } catch (error) {
+          console.error('❌ [ANALYTICS DASHBOARD] Clients API error:', error);
+          return [];
+        }
+      };
 
-      console.log('📊 [ANALYTICS DASHBOARD] API Response status:');
-      console.log('   - Clients:', clientsRes.status, clientsRes.statusText);
-      console.log('   - Projects:', projectsRes.status, projectsRes.statusText);
-      console.log('   - Associates:', associatesRes.status, associatesRes.statusText);
+      const fetchProjects = async () => {
+        try {
+          const response = await fetch(`${API_BASE_URL}/analytics/filter-options/projects`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          console.log('📊 [ANALYTICS DASHBOARD] Projects response:', response.status, response.statusText);
+          if (response.ok) {
+            const data = await response.json();
+            console.log('📊 [ANALYTICS DASHBOARD] Projects data:', Array.isArray(data) ? data.length : 'Invalid', data);
+            return Array.isArray(data) ? data : [];
+          }
+          return [];
+        } catch (error) {
+          console.error('❌ [ANALYTICS DASHBOARD] Projects API error:', error);
+          return [];
+        }
+      };
 
-      // Check for authentication errors
-      if (clientsRes.status === 401 || projectsRes.status === 401 || associatesRes.status === 401) {
-        console.error('❌ [ANALYTICS DASHBOARD] Authentication failed (401)');
-        showError('Authentication failed. Please log in again.');
-        return;
-      }
+      const fetchAssociates = async () => {
+        try {
+          const response = await fetch(`${API_BASE_URL}/analytics/filter-options/associates`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          console.log('📊 [ANALYTICS DASHBOARD] Associates response:', response.status, response.statusText);
+          if (response.ok) {
+            const data = await response.json();
+            console.log('📊 [ANALYTICS DASHBOARD] Associates data:', Array.isArray(data) ? data.length : 'Invalid', data);
+            return Array.isArray(data) ? data : [];
+          }
+          return [];
+        } catch (error) {
+          console.error('❌ [ANALYTICS DASHBOARD] Associates API error:', error);
+          return [];
+        }
+      };
 
-      // Check for other errors
-      if (!clientsRes.ok || !projectsRes.ok || !associatesRes.ok) {
-        console.error('❌ [ANALYTICS DASHBOARD] API calls failed:');
-        console.error('   - Clients:', !clientsRes.ok ? `${clientsRes.status} ${clientsRes.statusText}` : 'OK');
-        console.error('   - Projects:', !projectsRes.ok ? `${projectsRes.status} ${projectsRes.statusText}` : 'OK');
-        console.error('   - Associates:', !associatesRes.ok ? `${associatesRes.status} ${associatesRes.statusText}` : 'OK');
-        throw new Error('Failed to fetch filter options');
-      }
-
+      // Fetch all data concurrently
       const [clients, projects, associates] = await Promise.all([
-        clientsRes.json(),
-        projectsRes.json(),
-        associatesRes.json()
+        fetchClient(),
+        fetchProjects(),
+        fetchAssociates()
       ]);
-      
-      console.log('📊 [ANALYTICS DASHBOARD] Filter data received:');
-      console.log('   - Clients:', Array.isArray(clients) ? clients.length : 'Invalid data', clients);
-      console.log('   - Projects:', Array.isArray(projects) ? projects.length : 'Invalid data', projects);
-      console.log('   - Associates:', Array.isArray(associates) ? associates.length : 'Invalid data', associates);
 
-      setFilterOptions({ 
-        clients: Array.isArray(clients) ? clients : [], 
-        projects: Array.isArray(projects) ? projects : [], 
-        associates: Array.isArray(associates) ? associates : [] 
-      });
+      setFilterOptions({ clients, projects, associates });
+      console.log('✅ [ANALYTICS DASHBOARD] Filter options loaded - Clients:', clients.length, 'Projects:', projects.length, 'Associates:', associates.length);
       
-      console.log('✅ [ANALYTICS DASHBOARD] Filter options loaded successfully');
     } catch (error) {
       console.error('❌ [ANALYTICS DASHBOARD] Error in fetchFilterOptions:', error);
       console.error('❌ [ANALYTICS DASHBOARD] Error stack:', error.stack);
-      showError('Failed to load filter options');
+      showError('Failed to load filter options: ' + error.message);
     }
   };
 
