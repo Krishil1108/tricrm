@@ -1,0 +1,411 @@
+/* Enhanced Analytics Dashboard with Streamlined Interface */
+.interactive-chart-builder {
+  width: 100%;
+  background: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.chart-builder-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  text-align: center;
+}
+
+.chart-builder-header h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.chart-builder-header p {
+  margin: 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+/* Tab Navigation */
+.analytics-tabs {
+  display: flex;
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 1rem 1.5rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+}
+
+.tab-button:hover {
+  background: #f8f9fa;
+}
+
+.tab-button.active {
+  background: white;
+  color: #667eea;
+  border-bottom-color: #667eea;
+  font-weight: 600;
+}
+
+/* Quick Charts Section */
+.quick-charts-section {
+  padding: 2rem;
+}
+
+.quick-charts-section h3 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 1.5rem;
+}
+
+.quick-charts-section p {
+  margin: 0 0 2rem 0;
+  color: #666;
+  font-size: 1rem;
+}
+
+.quick-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.quick-chart-card {
+  background: white;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.quick-chart-card:hover {
+  border-color: #667eea;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+  transform: translateY(-2px);
+}
+
+.quick-chart-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.quick-chart-card h4 {
+  margin: 0 0 0.5rem 0;
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.quick-chart-card p {
+  margin: 0 0 1rem 0;
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.chart-config-preview {
+  background: #f8f9fa;
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #667eea;
+  font-weight: 500;
+  font-family: 'Courier New', monospace;
+}
+
+/* Chart Display Area */
+.chart-display-area {
+  margin: 2rem;
+  min-height: 400px;
+  background: white;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-container,
+.python-chart-container {
+  width: 100%;
+  padding: 2rem;
+}
+
+.python-chart-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.chart-info {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.generation-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.generation-badge.python {
+  background: #4CAF50;
+  color: white;
+}
+
+.generation-badge.javascript {
+  background: #61DAFB;
+  color: #333;
+}
+
+.chart-placeholder {
+  width: 100%;
+  padding: 3rem;
+  text-align: center;
+  color: #666;
+}
+
+.placeholder-content {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.placeholder-content svg {
+  color: #ccc;
+  margin-bottom: 1rem;
+}
+
+.placeholder-content h3 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.placeholder-content p {
+  margin: 0 0 1.5rem 0;
+  line-height: 1.6;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0 2rem 2rem 2rem;
+}
+
+.generate-btn,
+.export-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.generate-btn.primary {
+  background: #667eea;
+  color: white;
+}
+
+.generate-btn.primary:hover {
+  background: #5a6fd8;
+}
+
+.generate-btn.advanced {
+  background: #4CAF50;
+  color: white;
+}
+
+.generate-btn.advanced:hover {
+  background: #45a049;
+}
+
+.export-btn {
+  background: #6c757d;
+  color: white;
+}
+
+.export-btn:hover {
+  background: #5a6268;
+}
+
+.generate-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Chart Controls */
+.chart-controls {
+  padding: 0 2rem 2rem 2rem;
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.control-group {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.control-label {
+  display: block;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.control-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.3s ease;
+}
+
+.control-select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.control-desc {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #666;
+  font-style: italic;
+}
+
+.chart-type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+
+.chart-type-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.8rem;
+}
+
+.chart-type-btn:hover {
+  border-color: #667eea;
+}
+
+.chart-type-btn.active {
+  border-color: #667eea;
+  background: #f8f9fa;
+  color: #667eea;
+}
+
+.chart-type-btn svg {
+  font-size: 1.2rem;
+}
+
+/* Error Display */
+.chart-error {
+  margin: 1rem 2rem;
+  padding: 1rem;
+  background: #fee;
+  border: 1px solid #fcc;
+  border-radius: 6px;
+  color: #c33;
+}
+
+/* Spinning Animation */
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .analytics-tabs {
+    flex-direction: column;
+  }
+  
+  .tab-button {
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .tab-button.active {
+    border-bottom-color: #667eea;
+  }
+  
+  .quick-charts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .controls-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .chart-type-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .interactive-chart-builder {
+    background: #2d3748;
+    color: white;
+  }
+  
+  .quick-chart-card,
+  .control-group {
+    background: #4a5568;
+    border-color: #718096;
+  }
+  
+  .chart-display-area {
+    background: #4a5568;
+  }
+  
+  .control-select {
+    background: #2d3748;
+    color: white;
+    border-color: #718096;
+  }
+}

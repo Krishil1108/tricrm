@@ -82,6 +82,12 @@ router.get('/interactive-chart', (req, res, next) => {
   analyticsController.getInteractiveChart(req, res, next);
 });
 
+// Advanced chart endpoint with Python support
+router.get('/advanced-chart', (req, res, next) => {
+  console.log('📊 [ANALYTICS] Advanced chart requested with config:', req.query);
+  analyticsController.getAdvancedChart(req, res, next);
+});
+
 // Individual analytics sections
 router.get('/summary', analyticsController.getSummaryData);
 router.get('/clients', analyticsController.getClientAnalytics);

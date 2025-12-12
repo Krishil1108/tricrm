@@ -1,6 +1,8 @@
 const Client = require('../models/Client');
 const Associate = require('../models/Associate');
 const FinanceProject = require('../models/FinanceProject');
+const { spawn } = require('child_process');
+const path = require('path');
 
 const generateInteractiveChart = async (req, res) => {
   try {
@@ -31,17 +33,8 @@ const generateInteractiveChart = async (req, res) => {
       case 'month':
         ({ labels, values } = await generateMonthChart(yAxis, aggregation, timeFilter));
         break;
-      case 'quarter':
-        ({ labels, values } = await generateQuarterChart(yAxis, aggregation, timeFilter));
-        break;
-      case 'year':
-        ({ labels, values } = await generateYearChart(yAxis, aggregation, timeFilter));
-        break;
       case 'status':
         ({ labels, values } = await generateStatusChart(yAxis, aggregation, timeFilter));
-        break;
-      case 'category':
-        ({ labels, values } = await generateCategoryChart(yAxis, aggregation, timeFilter));
         break;
       default:
         return res.status(400).json({ error: 'Invalid xAxis value' });
@@ -70,17 +63,13 @@ const generateTimeFilter = (timeRange) => {
   const filter = {};
 
   switch (timeRange) {
-    case 'week':
-      const weekStart = new Date(now.setDate(now.getDate() - now.getDay()));
-      filter.createdAt = { $gte: weekStart };
-      break;
     case 'month':
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
       filter.createdAt = { $gte: monthStart };
       break;
     case 'quarter':
-      const quarterStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
-      filter.createdAt = { $gte: quarterStart };
+      const threeMonthsAgo = new Date(now.setMonth(now.getMonth() - 3));
+      filter.createdAt = { $gte: threeMonthsAgo };
       break;
     case 'year':
       const yearStart = new Date(now.getFullYear(), 0, 1);
@@ -96,76 +85,140 @@ const generateTimeFilter = (timeRange) => {
 };
 
 const generateClientChart = async (yAxis, aggregation, timeFilter) => {
-  const clients = await Client.find({}).select('name company');
-  const labels = clients.map(client => client.company || client.name);
-  let values = [];
+  try {
+    let labels = [];
+    let values = [];
 
-  switch (yAxis) {
-    case 'revenue':
-      const revenueData = await FinanceProject.aggregate([
-        { $match: timeFilter },
-        { $lookup: { from: 'clients', localField: 'client', foreignField: '_id', as: 'clientData' } },
-        { $unwind: '$clientData' },
-        { $group: {
-          _id: '$client',
-          clientName: { $first: { $ifNull: ['$clientData.company', '$clientData.name'] } },
-          total: { $sum: '$totalAmount' }
-        }},
-        { $sort: { total: -1 } }
-      ]);
-      values = revenueData.map(item => item.total);
-      break;
+    switch (yAxis) {
+      case 'revenue':
+        const revenueData = await FinanceProject.aggregate([
+          { $match: timeFilter },
+          { $lookup: { from: 'clients', localField: 'client', foreignField: '_id', as: 'clientData' } },
+          { $unwind: { path: '$clientData', preserveNullAndEmptyArrays: true } },
+          { $group: {
+            _id: '$client',
+            clientName: { $first: { $ifNull: ['$clientData.company', '$clientData.name'] } },
+            total: { $sum: '$totalAmount' }
+          }},
+          { $match: { total: { $gt: 0 } } },
+          { $sort: { total: -1 } },
+          { $limit: 10 }
+        ]);
+        labels = revenueData.map(item => item.clientName || 'Unknown Client');
+        values = revenueData.map(item => item.total || 0);
+        break;
 
-    case 'project_count':
-      const projectCounts = await FinanceProject.aggregate([
-        { $match: timeFilter },
-        { $lookup: { from: 'clients', localField: 'client', foreignField: '_id', as: 'clientData' } },
-        { $unwind: '$clientData' },
-        { $group: {
-          _id: '$client',
-          clientName: { $first: { $ifNull: ['$clientData.company', '$clientData.name'] } },
-          count: { $sum: 1 }
-        }},
-        { $sort: { count: -1 } }
-      ]);
-      values = projectCounts.map(item => item.count);
-      break;
+      case 'project_count':
+        const projectCounts = await FinanceProject.aggregate([
+          { $match: timeFilter },
+          { $lookup: { from: 'clients', localField: 'client', foreignField: '_id', as: 'clientData' } },
+          { $unwind: { path: '$clientData', preserveNullAndEmptyArrays: true } },
+          { $group: {
+            _id: '$client',
+            clientName: { $first: { $ifNull: ['$clientData.company', '$clientData.name'] } },
+            count: { $sum: 1 }
+          }},
+          { $sort: { count: -1 } },
+          { $limit: 10 }
+        ]);
+        labels = projectCounts.map(item => item.clientName || 'Unknown Client');
+        values = projectCounts.map(item => item.count || 0);
+        break;
 
-    case 'paid_amount':
-      const paidData = await FinanceProject.aggregate([
-        { $match: timeFilter },
-        { $lookup: { from: 'clients', localField: 'client', foreignField: '_id', as: 'clientData' } },
-        { $unwind: '$clientData' },
-        { $group: {
-          _id: '$client',
-          clientName: { $first: { $ifNull: ['$clientData.company', '$clientData.name'] } },
-          total: { $sum: '$paidAmount' }
-        }},
-        { $sort: { total: -1 } }
-      ]);
-      values = paidData.map(item => item.total);
-      break;
+      case 'paid_amount':
+        const paidData = await FinanceProject.aggregate([
+          { $match: timeFilter },
+          { $lookup: { from: 'clients', localField: 'client', foreignField: '_id', as: 'clientData' } },
+          { $unwind: { path: '$clientData', preserveNullAndEmptyArrays: true } },
+          { $group: {
+            _id: '$client',
+            clientName: { $first: { $ifNull: ['$clientData.company', '$clientData.name'] } },
+            total: { $sum: '$paidAmount' }
+          }},
+          { $match: { total: { $gt: 0 } } },
+          { $sort: { total: -1 } },
+          { $limit: 10 }
+        ]);
+        labels = paidData.map(item => item.clientName || 'Unknown Client');
+        values = paidData.map(item => item.total || 0);
+        break;
 
-    case 'pending_amount':
-      const pendingData = await FinanceProject.aggregate([
-        { $match: timeFilter },
-        { $lookup: { from: 'clients', localField: 'client', foreignField: '_id', as: 'clientData' } },
-        { $unwind: '$clientData' },
-        { $group: {
-          _id: '$client',
-          clientName: { $first: { $ifNull: ['$clientData.company', '$clientData.name'] } },
-          total: { $sum: { $subtract: ['$totalAmount', '$paidAmount'] } }
-        }},
-        { $sort: { total: -1 } }
-      ]);
-      values = pendingData.map(item => item.total);
-      break;
+      case 'pending_amount':
+        const pendingData = await FinanceProject.aggregate([
+          { $match: timeFilter },
+          { $lookup: { from: 'clients', localField: 'client', foreignField: '_id', as: 'clientData' } },
+          { $unwind: { path: '$clientData', preserveNullAndEmptyArrays: true } },
+          { $addFields: {
+            pendingAmount: { $subtract: [{ $ifNull: ['$totalAmount', 0] }, { $ifNull: ['$paidAmount', 0] }] }
+          }},
+          { $group: {
+            _id: '$client',
+            clientName: { $first: { $ifNull: ['$clientData.company', '$clientData.name'] } },
+            total: { $sum: '$pendingAmount' }
+          }},
+          { $match: { total: { $gt: 0 } } },
+          { $sort: { total: -1 } },
+          { $limit: 10 }
+        ]);
+        labels = pendingData.map(item => item.clientName || 'Unknown Client');
+        values = pendingData.map(item => item.total || 0);
+        break;
 
-    default:
-      values = new Array(labels.length).fill(0);
+      case 'completion_rate':
+        const completionData = await FinanceProject.aggregate([
+          { $match: timeFilter },
+          { $lookup: { from: 'clients', localField: 'client', foreignField: '_id', as: 'clientData' } },
+          { $unwind: { path: '$clientData', preserveNullAndEmptyArrays: true } },
+          { $addFields: {
+            completionRate: {
+              $cond: [
+                { $eq: [{ $ifNull: ['$totalAmount', 0] }, 0] },
+                0,
+                { $multiply: [{ $divide: [{ $ifNull: ['$paidAmount', 0] }, { $ifNull: ['$totalAmount', 1] }] }, 100] }
+              ]
+            }
+          }},
+          { $group: {
+            _id: '$client',
+            clientName: { $first: { $ifNull: ['$clientData.company', '$clientData.name'] } },
+            avgCompletion: { $avg: '$completionRate' }
+          }},
+          { $sort: { avgCompletion: -1 } },
+          { $limit: 10 }
+        ]);
+        labels = completionData.map(item => item.clientName || 'Unknown Client');
+        values = completionData.map(item => Math.round(item.avgCompletion || 0));
+        break;
+
+      default:
+        // Fallback to project count
+        const fallbackData = await FinanceProject.aggregate([
+          { $match: timeFilter },
+          { $lookup: { from: 'clients', localField: 'client', foreignField: '_id', as: 'clientData' } },
+          { $unwind: { path: '$clientData', preserveNullAndEmptyArrays: true } },
+          { $group: {
+            _id: '$client',
+            clientName: { $first: { $ifNull: ['$clientData.company', '$clientData.name'] } },
+            count: { $sum: 1 }
+          }},
+          { $sort: { count: -1 } },
+          { $limit: 10 }
+        ]);
+        labels = fallbackData.map(item => item.clientName || 'Unknown Client');
+        values = fallbackData.map(item => item.count || 0);
+    }
+
+    // Ensure we have data
+    if (labels.length === 0) {
+      labels = ['No Data'];
+      values = [0];
+    }
+
+    return { labels, values };
+  } catch (error) {
+    console.error('Error generating client chart:', error);
+    return { labels: ['No Data'], values: [0] };
   }
-
-  return { labels: labels.slice(0, 10), values: values.slice(0, 10) }; // Limit to top 10
 };
 
 const generateAssociateChart = async (yAxis, aggregation, timeFilter) => {
@@ -302,182 +355,205 @@ const generateMonthChart = async (yAxis, aggregation, timeFilter) => {
   return { labels, values };
 };
 
-const generateQuarterChart = async (yAxis, aggregation, timeFilter) => {
-  const labels = ['Q1', 'Q2', 'Q3', 'Q4'];
-  const currentYear = new Date().getFullYear();
-  let values = new Array(4).fill(0);
-
-  switch (yAxis) {
-    case 'revenue':
-      const quarterlyRevenue = await FinanceProject.aggregate([
-        { $match: { 
-          createdAt: { 
-            $gte: new Date(currentYear, 0, 1),
-            $lte: new Date(currentYear, 11, 31)
-          }
-        }},
-        { $group: {
-          _id: { 
-            quarter: { 
-              $ceil: { $divide: [{ $month: '$createdAt' }, 3] }
-            }
-          },
-          total: { $sum: '$totalAmount' }
-        }}
-      ]);
-      
-      quarterlyRevenue.forEach(item => {
-        values[item._id.quarter - 1] = item.total;
-      });
-      break;
-
-    case 'project_count':
-      const quarterlyProjects = await FinanceProject.aggregate([
-        { $match: { 
-          createdAt: { 
-            $gte: new Date(currentYear, 0, 1),
-            $lte: new Date(currentYear, 11, 31)
-          }
-        }},
-        { $group: {
-          _id: { 
-            quarter: { 
-              $ceil: { $divide: [{ $month: '$createdAt' }, 3] }
-            }
-          },
-          count: { $sum: 1 }
-        }}
-      ]);
-      
-      quarterlyProjects.forEach(item => {
-        values[item._id.quarter - 1] = item.count;
-      });
-      break;
-
-    default:
-      values = new Array(4).fill(0);
-  }
-
-  return { labels, values };
-};
-
-const generateYearChart = async (yAxis, aggregation, timeFilter) => {
-  const currentYear = new Date().getFullYear();
-  const years = [currentYear - 2, currentYear - 1, currentYear];
-  const labels = years.map(year => year.toString());
-  let values = new Array(3).fill(0);
-
-  switch (yAxis) {
-    case 'revenue':
-      const yearlyRevenue = await FinanceProject.aggregate([
-        { $group: {
-          _id: { $year: '$createdAt' },
-          total: { $sum: '$totalAmount' }
-        }}
-      ]);
-      
-      yearlyRevenue.forEach(item => {
-        const index = years.indexOf(item._id);
-        if (index !== -1) {
-          values[index] = item.total;
-        }
-      });
-      break;
-
-    case 'project_count':
-      const yearlyProjects = await FinanceProject.aggregate([
-        { $group: {
-          _id: { $year: '$createdAt' },
-          count: { $sum: 1 }
-        }}
-      ]);
-      
-      yearlyProjects.forEach(item => {
-        const index = years.indexOf(item._id);
-        if (index !== -1) {
-          values[index] = item.count;
-        }
-      });
-      break;
-
-    default:
-      values = new Array(3).fill(0);
-  }
-
-  return { labels, values };
-};
-
 const generateStatusChart = async (yAxis, aggregation, timeFilter) => {
-  const labels = ['Active', 'Completed', 'Pending', 'Cancelled'];
-  let values = new Array(4).fill(0);
+  try {
+    const labels = ['Active', 'Completed', 'Pending', 'On Hold'];
+    let values = new Array(4).fill(0);
 
-  switch (yAxis) {
-    case 'project_count':
-      const statusCounts = await FinanceProject.aggregate([
-        { $match: timeFilter },
-        { $group: {
-          _id: '$status',
-          count: { $sum: 1 }
-        }}
-      ]);
-      
-      statusCounts.forEach(item => {
-        const index = labels.indexOf(item._id);
-        if (index !== -1) {
-          values[index] = item.count;
-        }
-      });
-      break;
+    switch (yAxis) {
+      case 'project_count':
+        const statusCounts = await FinanceProject.aggregate([
+          { $match: timeFilter },
+          { $group: {
+            _id: { $ifNull: ['$status', 'Unknown'] },
+            count: { $sum: 1 }
+          }}
+        ]);
+        
+        statusCounts.forEach(item => {
+          const index = labels.findIndex(label => 
+            label.toLowerCase() === (item._id || '').toLowerCase()
+          );
+          if (index !== -1) {
+            values[index] = item.count;
+          }
+        });
+        break;
 
-    case 'revenue':
-      const statusRevenue = await FinanceProject.aggregate([
-        { $match: timeFilter },
-        { $group: {
-          _id: '$status',
-          total: { $sum: '$totalAmount' }
-        }}
-      ]);
-      
-      statusRevenue.forEach(item => {
-        const index = labels.indexOf(item._id);
-        if (index !== -1) {
-          values[index] = item.total;
-        }
-      });
-      break;
+      case 'revenue':
+        const statusRevenue = await FinanceProject.aggregate([
+          { $match: timeFilter },
+          { $group: {
+            _id: { $ifNull: ['$status', 'Unknown'] },
+            total: { $sum: { $ifNull: ['$totalAmount', 0] } }
+          }}
+        ]);
+        
+        statusRevenue.forEach(item => {
+          const index = labels.findIndex(label => 
+            label.toLowerCase() === (item._id || '').toLowerCase()
+          );
+          if (index !== -1) {
+            values[index] = item.total;
+          }
+        });
+        break;
 
-    default:
-      values = new Array(4).fill(0);
+      default:
+        // Fallback to project count
+        const fallbackCounts = await FinanceProject.aggregate([
+          { $match: timeFilter },
+          { $group: {
+            _id: { $ifNull: ['$status', 'Unknown'] },
+            count: { $sum: 1 }
+          }}
+        ]);
+        
+        fallbackCounts.forEach(item => {
+          const index = labels.findIndex(label => 
+            label.toLowerCase() === (item._id || '').toLowerCase()
+          );
+          if (index !== -1) {
+            values[index] = item.count;
+          }
+        });
+    }
+
+    return { labels, values };
+  } catch (error) {
+    console.error('Error generating status chart:', error);
+    return { labels: ['No Data'], values: [0] };
   }
-
-  return { labels, values };
 };
 
-const generateCategoryChart = async (yAxis, aggregation, timeFilter) => {
-  const labels = ['Web Development', 'Mobile App', 'Design', 'Consulting', 'Other'];
-  let values = new Array(5).fill(0);
+// Python Chart Generation Service
+const generatePythonChart = async (chartConfig) => {
+  return new Promise((resolve, reject) => {
+    try {
+      const pythonScriptPath = path.join(__dirname, '..', 'scripts', 'chart_generator.py');
+      const python = spawn('python', [pythonScriptPath]);
+      
+      let stdoutData = '';
+      let stderrData = '';
+      
+      python.stdout.on('data', (data) => {
+        stdoutData += data.toString();
+      });
+      
+      python.stderr.on('data', (data) => {
+        stderrData += data.toString();
+      });
+      
+      python.on('close', (code) => {
+        if (code === 0) {
+          try {
+            const result = JSON.parse(stdoutData);
+            resolve(result);
+          } catch (parseError) {
+            reject(new Error(`Failed to parse Python output: ${parseError.message}`));
+          }
+        } else {
+          reject(new Error(`Python script failed with code ${code}: ${stderrData}`));
+        }
+      });
+      
+      // Send data to Python script
+      python.stdin.write(JSON.stringify(chartConfig));
+      python.stdin.end();
+      
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 
-  // This is a placeholder - you can enhance this based on actual project categories
-  switch (yAxis) {
-    case 'project_count':
-      // For now, distribute projects randomly across categories
-      const totalProjects = await FinanceProject.countDocuments(timeFilter);
-      values = [
-        Math.floor(totalProjects * 0.4), // Web Development
-        Math.floor(totalProjects * 0.25), // Mobile App
-        Math.floor(totalProjects * 0.15), // Design
-        Math.floor(totalProjects * 0.1), // Consulting
-        Math.floor(totalProjects * 0.1)  // Other
-      ];
-      break;
+// Enhanced Interactive Chart with Python fallback
+const generateAdvancedChart = async (req, res) => {
+  try {
+    const { xAxis, yAxis, aggregation = 'sum', timeRange = 'month', chartType = 'bar', usePython = false } = req.query;
 
-    default:
-      values = new Array(5).fill(0);
+    if (!xAxis || !yAxis) {
+      return res.status(400).json({ error: 'Both xAxis and yAxis are required' });
+    }
+
+    console.log('📊 [ADVANCED CHART] Generating chart:', { xAxis, yAxis, aggregation, timeRange, chartType, usePython });
+
+    // Get data using existing logic
+    let labels = [];
+    let values = [];
+    const timeFilter = generateTimeFilter(timeRange);
+
+    switch (xAxis) {
+      case 'client':
+        ({ labels, values } = await generateClientChart(yAxis, aggregation, timeFilter));
+        break;
+      case 'associate':
+        ({ labels, values } = await generateAssociateChart(yAxis, aggregation, timeFilter));
+        break;
+      case 'project':
+        ({ labels, values } = await generateProjectChart(yAxis, aggregation, timeFilter));
+        break;
+      case 'month':
+        ({ labels, values } = await generateMonthChart(yAxis, aggregation, timeFilter));
+        break;
+      case 'status':
+        ({ labels, values } = await generateStatusChart(yAxis, aggregation, timeFilter));
+        break;
+      default:
+        return res.status(400).json({ error: 'Invalid xAxis value' });
+    }
+
+    // If Python generation is requested
+    if (usePython === 'true' || usePython === true) {
+      try {
+        const chartConfig = {
+          operation: 'chart',
+          labels,
+          values,
+          chartType,
+          title: `${yAxis.replace('_', ' ')} by ${xAxis}`,
+          xLabel: xAxis.charAt(0).toUpperCase() + xAxis.slice(1),
+          yLabel: yAxis.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+        };
+
+        const pythonResult = await generatePythonChart(chartConfig);
+        
+        if (pythonResult.success) {
+          return res.json({
+            success: true,
+            labels,
+            values,
+            image: pythonResult.image,
+            config: { xAxis, yAxis, aggregation, timeRange, chartType },
+            generatedWith: 'python'
+          });
+        } else {
+          console.warn('Python chart generation failed, falling back to JavaScript');
+        }
+      } catch (pythonError) {
+        console.warn('Python chart generation error:', pythonError.message);
+      }
+    }
+
+    // Default JavaScript response
+    res.json({
+      success: true,
+      labels,
+      values,
+      config: { xAxis, yAxis, aggregation, timeRange, chartType },
+      generatedWith: 'javascript'
+    });
+
+  } catch (error) {
+    console.error('Error generating advanced chart:', error);
+    res.status(500).json({ 
+      error: 'Failed to generate chart', 
+      message: error.message 
+    });
   }
-
-  return { labels, values };
 };
 
 module.exports = {
-  generateInteractiveChart
+  generateInteractiveChart,
+  generateAdvancedChart
 };

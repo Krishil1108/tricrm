@@ -183,6 +183,21 @@ class AnalyticsController {
     }
   }
 
+  // Advanced chart generation with Python support
+  async getAdvancedChart(req, res) {
+    console.log('📊 [ANALYTICS CONTROLLER] getAdvancedChart called with:', req.query);
+    try {
+      const interactiveChartService = require('../services/interactiveChartService');
+      await interactiveChartService.generateAdvancedChart(req, res);
+    } catch (error) {
+      console.error('❌ [ANALYTICS CONTROLLER] Error generating advanced chart:', error);
+      res.status(500).json({ 
+        error: 'Failed to generate advanced chart', 
+        details: error.message 
+      });
+    }
+  }
+
   // Helper method to extract and validate filters
   extractFilters(query) {
     const {
