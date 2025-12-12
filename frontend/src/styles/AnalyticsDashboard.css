@@ -112,29 +112,31 @@
 
 .filters-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
   align-items: end;
 }
 
 .filter-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .filter-group label {
   font-weight: 600;
   color: #2c3e50;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  margin-bottom: 0;
 }
 
 .filter-input, .filter-select {
-  padding: 10px 12px;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
-  font-size: 14px;
+  padding: 8px 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 13px;
   transition: border-color 0.3s ease;
+  height: 36px;
 }
 
 .filter-input:focus, .filter-select:focus {
@@ -174,22 +176,23 @@
   left: 0;
   right: 0;
   background: white;
-  border: 2px solid #e0e0e0;
+  border: 1px solid #e0e0e0;
   border-top: none;
-  border-radius: 0 0 6px 6px;
-  max-height: 200px;
+  border-radius: 0 0 4px 4px;
+  max-height: 150px;
   overflow-y: auto;
   z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 .multi-select-option {
-  padding: 10px 12px;
+  padding: 6px 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   transition: background-color 0.2s ease;
+  min-height: 32px;
 }
 
 .multi-select-option:hover {
@@ -209,13 +212,14 @@
 .option-text {
   font-weight: 500;
   color: #2c3e50;
-  line-height: 1.4;
+  line-height: 1.2;
+  font-size: 13px;
 }
 
 .client-info {
   font-weight: 400;
   color: #6c757d;
-  font-size: 0.9em;
+  font-size: 0.85em;
 }
 
 .multi-select-option.disabled {

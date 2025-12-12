@@ -220,13 +220,24 @@ const InteractiveChartBuilder = ({ dashboardData, token, apiBaseUrl }) => {
 
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top',
+        labels: {
+          boxWidth: 12,
+          padding: 8,
+          font: {
+            size: 11
+          }
+        }
       },
       title: {
         display: true,
         text: `${yAxisOptions.find(opt => opt.value === chartConfig.yAxis)?.label || chartConfig.yAxis} by ${xAxisOptions.find(opt => opt.value === chartConfig.xAxis)?.label || chartConfig.xAxis}`,
+        font: {
+          size: 14
+        }
       },
     },
     scales: chartConfig.chartType !== 'pie' && chartConfig.chartType !== 'doughnut' ? {
@@ -234,6 +245,12 @@ const InteractiveChartBuilder = ({ dashboardData, token, apiBaseUrl }) => {
         beginAtZero: true,
       },
     } : {},
+    // Specific sizing for pie/doughnut charts
+    ...(chartConfig.chartType === 'pie' || chartConfig.chartType === 'doughnut' ? {
+      layout: {
+        padding: 10
+      }
+    } : {})
   };
 
   const SelectedChartComponent = chartTypes.find(type => type.value === chartConfig.chartType)?.component || Bar;
@@ -325,7 +342,7 @@ const InteractiveChartBuilder = ({ dashboardData, token, apiBaseUrl }) => {
             </div>
           </div>
         ) : chartData ? (
-          <div className="chart-container">
+          <div className={`chart-container ${chartConfig.chartType === 'pie' || chartConfig.chartType === 'doughnut' ? 'pie-chart-container' : ''}`}>
             <SelectedChartComponent ref={chartRef} data={chartData} options={chartOptions} />
             <div className="chart-info">
               <span className="generation-badge javascript">⚛️ Interactive Chart.js</span>
