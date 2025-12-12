@@ -238,7 +238,7 @@ const AnalyticsDashboard = () => {
   }
 
   return (
-    <div className="analytics-dashboard-enhanced">
+    <div className={`analytics-page-enhanced${fullScreen ? ' fullscreen' : ''}`}>
       <div className="modern-page-header">
         <div className="header-content-enhanced">
           <div className="header-title-section">
@@ -272,7 +272,7 @@ const AnalyticsDashboard = () => {
         </div>
       </div>
 
-      <div className={`page-content${fullScreen ? ' fullscreen-content' : ''}`}>
+      <div className={`analytics-content-wrapper${fullScreen ? ' fullscreen-content' : ''}`}>
         {error && (
           <div className="error-message">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{marginRight: '8px'}}>
