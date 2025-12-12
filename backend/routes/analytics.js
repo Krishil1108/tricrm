@@ -3,7 +3,16 @@ const router = express.Router();
 const { authenticate } = require('../middleware/auth');
 const analyticsController = require('../controllers/analyticsController');
 
-// Middleware to authenticate all analytics routes
+// Health check endpoint (no auth required for testing)
+router.get('/health', (req, res) => {
+  res.json({ 
+    status: 'Analytics routes are working',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Middleware to authenticate all other analytics routes
 router.use(authenticate);
 
 // Filter options endpoints
