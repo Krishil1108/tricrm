@@ -24,3 +24,26 @@ services:
     
     # Auto-deploy on every push to main branch
     autoDeploy: true
+
+  - type: web
+    name: tricrm-frontend
+    env: static
+    region: oregon
+    plan: starter
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: frontend/build
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-XSS-Protection
+        value: 1; mode=block
+    autoDeploy: true
