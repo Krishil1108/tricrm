@@ -90,9 +90,9 @@ const AnalyticsChart = ({
           description: 'Analyze projects by status, client, or timeline',
           dataLabel: 'Projects',
           showGroupBy: true,
-          allowedVisuals: ['bar', 'pie', 'doughnut'],
+          allowedVisuals: ['bar', 'line', 'pie', 'doughnut'],
           defaultVisual: 'bar',
-          groupByOptions: ['status', 'client', 'month', 'quarter', 'year']
+          groupByOptions: ['status', 'client', 'day', 'week', 'month', 'quarter', 'year']
         };
       case 'revenue':
         return {
