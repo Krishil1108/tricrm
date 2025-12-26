@@ -158,7 +158,6 @@ const AnalyticsChart = ({
       });
       
       if (!res.ok) {
-        const errorText = await res.text();
         throw new Error(`Failed to load analytics (${res.status})`);
       }
       
@@ -168,7 +167,7 @@ const AnalyticsChart = ({
         throw new Error('Invalid data structure received from server');
       }
 
-      const labels = chartType === 'clients' || chartType === 'revenue' || chartType === 'projects' && groupBy !== 'status' && groupBy !== 'client'
+      const labels = (chartType === 'clients' || chartType === 'revenue' || (chartType === 'projects' && groupBy !== 'status' && groupBy !== 'client'))
         ? (data.labels || []).map(l => formatLabel(l, groupBy))
         : (data.labels || []);
 
@@ -215,6 +214,7 @@ const AnalyticsChart = ({
       fetchData();
     }, refreshMs);
     return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [live, refreshMs, from, to, groupBy, chartType]);
 
   const chartOptions = useMemo(() => ({
