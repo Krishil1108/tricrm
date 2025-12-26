@@ -586,6 +586,151 @@ class AnalyticsService {
       currency: 'USD'
     }).format(amount || 0);
   }
+
+  // Clients grouped by creation date with flexible date range and grouping
+  async getClientsMonthly({ from, to, groupBy = 'month' }) {
+    try {
+      console.log('📊 [ANALYTICS SERVICE] getClientsMonthly called with:', { from, to, groupBy });
+      
+      // First check total clients and what date fields exist
+      const totalClients = await Client.countDocuments();
+      console.log('📊 [ANALYTICS SERVICE] Total clients in database:', totalClients);
+      
+      if (totalClients === 0) {
+        console.log('⚠️ [ANALYTICS SERVICE] No clients found in database');
+        return { labels: [], values: [], total: 0, groupBy, from: from || null, to: to || null };
+      }
+
+      // Sample a client to see what date fields are available
+      const sampleClient = await Client.findOne().lean();
+      console.log('📊 [ANALYTICS SERVICE] Sample client date fields:', {
+        hasCreatedAt: !!sampleClient?.createdAt,
+        hasDateAdded: !!sampleClient?.dateAdded,
+        createdAt: sampleClient?.createdAt,
+        dateAdded: sampleClient?.dateAdded
+      });
+
+      // Use createdAt if available, otherwise fall back to dateAdded
+      const dateField = sampleClient?.createdAt ? 'createdAt' : 'dateAdded';
+      console.log('📊 [ANALYTICS SERVICE] Using date field:', dateField);
+
+      const match = {};
+      if (from || to) {
+        match[dateField] = {};
+        if (from) match[dateField].$gte = new Date(from);
+        if (to) match[dateField].$lte = new Date(to);
+      }
+
+      console.log('📊 [ANALYTICS SERVICE] Match condition:', JSON.stringify(match));
+
+      const pipeline = [
+        { $match: match },
+        { $addFields: { bucket: { $dateTrunc: { date: `$${dateField}`, unit: groupBy } } } },
+        { $group: { _id: '$bucket', value: { $sum: 1 } } },
+        { $sort: { _id: 1 } }
+      ];
+
+      console.log('📊 [ANALYTICS SERVICE] Running aggregation pipeline...');
+      const rows = await Client.aggregate(pipeline);
+      console.log('📊 [ANALYTICS SERVICE] Aggregation returned', rows.length, 'buckets:', rows);
+
+      const labels = rows.map(r => (r._id instanceof Date ? r._id.toISOString() : r._id));
+      const values = rows.map(r => r.value);
+      const total = values.reduce((a, b) => a + b, 0);
+
+      const result = {
+        labels,
+        values,
+        total,
+        groupBy,
+        from: from || null,
+        to: to || null
+      };
+
+      console.log('📊 [ANALYTICS SERVICE] Returning result:', result);
+      return result;
+    } catch (error) {
+      console.error('❌ [ANALYTICS SERVICE] Error fetching clients monthly:', error);
+      console.error('❌ [ANALYTICS SERVICE] Error stack:', error.stack);
+      throw error;
+    }
+  }
+
+  // Monthly Client Growth Analysis
+  async getMonthlyClientGrowth(timeRange = 'all') {
+    try {
+      console.log(`📊 [ANALYTICS SERVICE] Fetching monthly client growth for timeRange: ${timeRange}`);
+      
+      // Determine date range based on timeRange
+      const now = new Date();
+      let startDate;
+      
+      switch (timeRange) {
+        case 'month':
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+          break;
+        case 'quarter':
+          startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+          break;
+        case 'year':
+          startDate = new Date(now.getFullYear(), 0, 1);
+          break;
+        default: // 'all'
+          // Since software started in November 2025
+          startDate = new Date(2025, 10, 1); // November 1, 2025
+      }
+
+      console.log(`📊 [ANALYTICS SERVICE] Analyzing client growth from ${startDate.toISOString()} to ${now.toISOString()}`);
+
+      // Fetch all clients with their creation dates
+      const clients = await Client.find({
+        createdAt: { $gte: startDate, $lte: now }
+      }, 'createdAt')
+      .sort({ createdAt: 1 })
+      .lean();
+
+      console.log(`📊 [ANALYTICS SERVICE] Found ${clients.length} clients created in the specified period`);
+
+      // Group clients by month
+      const monthlyData = {};
+      
+      clients.forEach(client => {
+        const date = new Date(client.createdAt);
+        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        const monthLabel = date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+        
+        if (!monthlyData[monthKey]) {
+          monthlyData[monthKey] = {
+            label: monthLabel,
+            count: 0,
+            date: new Date(date.getFullYear(), date.getMonth(), 1)
+          };
+        }
+        monthlyData[monthKey].count++;
+      });
+
+      // Convert to arrays sorted by date
+      const sortedData = Object.values(monthlyData)
+        .sort((a, b) => a.date - b.date);
+
+      const labels = sortedData.map(item => item.label);
+      const values = sortedData.map(item => item.count);
+
+      console.log(`📊 [ANALYTICS SERVICE] Monthly client growth data:`, { labels, values });
+
+      return {
+        labels,
+        values,
+        totalClients: clients.length,
+        periodStart: startDate.toISOString(),
+        periodEnd: now.toISOString()
+      };
+
+    } catch (error) {
+      console.error('❌ [ANALYTICS SERVICE] Error fetching monthly client growth:', error);
+      throw error;
+    }
+  }
 }
 
 module.exports = new AnalyticsService();

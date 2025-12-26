@@ -29,7 +29,9 @@ router.get('/health', (req, res) => {
       '/api/analytics/filter-options/clients',
       '/api/analytics/filter-options/projects',
       '/api/analytics/filter-options/associates',
-      '/api/analytics/dashboard'
+      '/api/analytics/dashboard',
+      '/api/analytics/monthly-client-growth',
+      '/api/analytics/test-monthly-client-growth'
     ]
   });
 });
@@ -82,10 +84,35 @@ router.get('/interactive-chart', (req, res, next) => {
   analyticsController.getInteractiveChart(req, res, next);
 });
 
+// Clients by creation date (flexible grouping)
+router.get('/clients/monthly', (req, res, next) => {
+  console.log('📊 [ANALYTICS] Clients monthly requested with params:', req.query);
+  analyticsController.getClientsMonthly(req, res, next);
+});
+
 // Advanced chart endpoint with Python support
 router.get('/advanced-chart', (req, res, next) => {
   console.log('📊 [ANALYTICS] Advanced chart requested with config:', req.query);
   analyticsController.getAdvancedChart(req, res, next);
+});
+
+// Monthly client growth endpoint
+router.get('/monthly-client-growth', authenticate, (req, res, next) => {
+  console.log('📊 [ANALYTICS] Monthly client growth requested with timeRange:', req.query.timeRange);
+  console.log('📊 [ANALYTICS] User:', req.user ? req.user.id : 'No user found');
+  analyticsController.getMonthlyClientGrowth(req, res, next);
+});
+
+// Test endpoint for monthly client growth (no auth for debugging)
+router.get('/test-monthly-client-growth', (req, res) => {
+  console.log('📊 [ANALYTICS] Test monthly client growth endpoint accessed');
+  res.json({ 
+    message: 'Monthly client growth endpoint is working',
+    timestamp: new Date().toISOString(),
+    labels: ['Nov 2025', 'Dec 2025'],
+    values: [2, 3],
+    totalClients: 5
+  });
 });
 
 // Individual analytics sections

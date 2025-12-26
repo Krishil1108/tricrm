@@ -1,496 +1,274 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './InteractiveChartBuilder.css';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  PointElement,
-  LineElement,
   BarElement,
   Title,
   Tooltip,
-  Legend,
-  ArcElement,
+  Legend
 } from 'chart.js';
-import { Line, Bar, Pie, Doughnut } from 'react-chartjs-2';
-import { FaChartBar, FaChartLine, FaChartPie, FaSync, FaDownload, FaImage, FaCog } from 'react-icons/fa';
+import { Bar } from 'react-chartjs-2';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const InteractiveChartBuilder = ({ dashboardData, token, apiBaseUrl }) => {
-  const [chartConfig, setChartConfig] = useState({
-    xAxis: '',
-    yAxis: '',
-    chartType: 'bar',
-    aggregation: 'sum',
-    timeRange: 'month',
-    usePython: false
+const colorPalette = [
+  'rgba(255, 99, 132, 0.8)',
+  'rgba(54, 162, 235, 0.8)',
+  'rgba(255, 205, 86, 0.8)',
+  'rgba(75, 192, 192, 0.8)'
+];
+
+const formatInputDate = (d) => d.toISOString().slice(0, 10);
+const formatLabel = (iso) => {
+  const date = new Date(iso);
+  return date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+};
+
+const InteractiveChartBuilder = ({ token, apiBaseUrl }) => {
+  const [from, setFrom] = useState(() => {
+    const dt = new Date();
+    dt.setMonth(dt.getMonth() - 11); // default to last 12 months for richer data
+    return formatInputDate(dt);
   });
-  
+  const [to, setTo] = useState(() => formatInputDate(new Date()));
+  const [groupBy, setGroupBy] = useState('month');
   const [chartData, setChartData] = useState(null);
-  const [pythonImage, setPythonImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('quick');
+  const [live, setLive] = useState(true);
+  const [refreshMs, setRefreshMs] = useState(30000);
+  const [preset, setPreset] = useState('12m');
+  const [meta, setMeta] = useState({ total: 0, groupBy: 'month' });
   const chartRef = useRef(null);
 
-  // Streamlined Essential Options Only
-  const xAxisOptions = [
-    { value: 'client', label: 'Clients', icon: '👥', desc: 'Analysis by client' },
-    { value: 'associate', label: 'Associates', icon: '👤', desc: 'Associate performance' },
-    { value: 'project', label: 'Projects', icon: '📁', desc: 'Project metrics' },
-    { value: 'month', label: 'Monthly Trend', icon: '📅', desc: 'Time series analysis' },
-    { value: 'status', label: 'Status', icon: '🔄', desc: 'Status distribution' }
-  ];
-
-  const yAxisOptions = [
-    { value: 'revenue', label: 'Revenue', icon: '💰', desc: 'Total revenue generated' },
-    { value: 'project_count', label: 'Project Count', icon: '📁', desc: 'Number of projects' },
-    { value: 'paid_amount', label: 'Amount Paid', icon: '✅', desc: 'Payments received' },
-    { value: 'pending_amount', label: 'Amount Pending', icon: '⏳', desc: 'Outstanding payments' },
-    { value: 'completion_rate', label: 'Completion Rate', icon: '📊', desc: 'Project completion %' }
-  ];
-
-  const chartTypes = [
-    { value: 'bar', label: 'Bar Chart', icon: <FaChartBar />, component: Bar, desc: 'Compare categories' },
-    { value: 'line', label: 'Line Chart', icon: <FaChartLine />, component: Line, desc: 'Track trends over time' },
-    { value: 'pie', label: 'Pie Chart', icon: <FaChartPie />, component: Pie, desc: 'Show proportions' },
-    { value: 'doughnut', label: 'Doughnut Chart', icon: <FaChartPie />, component: Doughnut, desc: 'Modern pie chart' }
-  ];
-
-  const aggregationOptions = [
-    { value: 'sum', label: 'Total', desc: 'Sum all values' },
-    { value: 'avg', label: 'Average', desc: 'Calculate mean' },
-    { value: 'count', label: 'Count', desc: 'Count items' }
-  ];
-
-  const timeRangeOptions = [
-    { value: 'month', label: 'This Month' },
-    { value: 'quarter', label: 'Last 3 Months' },
-    { value: 'year', label: 'This Year' },
-    { value: 'all', label: 'All Time' }
-  ];
-
-  // Quick Chart Presets for Common Analytics
-  const quickChartPresets = [
-    {
-      name: 'Revenue by Client',
-      icon: '💰',
-      config: { xAxis: 'client', yAxis: 'revenue', chartType: 'bar', aggregation: 'sum' },
-      description: 'See which clients generate the most revenue'
-    },
-    {
-      name: 'Monthly Revenue Trend',
-      icon: '📈',
-      config: { xAxis: 'month', yAxis: 'revenue', chartType: 'line', aggregation: 'sum' },
-      description: 'Track revenue growth over time'
-    },
-    {
-      name: 'Project Status Distribution',
-      icon: '📊',
-      config: { xAxis: 'status', yAxis: 'project_count', chartType: 'pie', aggregation: 'count' },
-      description: 'Visual breakdown of project statuses'
-    },
-    {
-      name: 'Associate Performance',
-      icon: '👤',
-      config: { xAxis: 'associate', yAxis: 'project_count', chartType: 'bar', aggregation: 'count' },
-      description: 'Compare associate productivity'
-    },
-    {
-      name: 'Payment Status Overview',
-      icon: '💳',
-      config: { xAxis: 'status', yAxis: 'paid_amount', chartType: 'doughnut', aggregation: 'sum' },
-      description: 'Track payment collection status'
-    }
-  ];
-
-  const generateChart = async (useAdvanced = false) => {
-    if (!chartConfig.xAxis || !chartConfig.yAxis) {
-      setError('Please select both X-axis and Y-axis options');
-      return;
-    }
-
+  const fetchData = async () => {
+    console.log('📊 [CHART] Fetching analytics data...');
+    console.log('📊 [CHART] Parameters:', { from, to, groupBy });
+    console.log('📊 [CHART] API Base URL:', apiBaseUrl);
+    console.log('📊 [CHART] Token available:', !!token);
+    
     setLoading(true);
     setError('');
-    setPythonImage(null);
-
     try {
-      const queryParams = new URLSearchParams({
-        xAxis: chartConfig.xAxis,
-        yAxis: chartConfig.yAxis,
-        aggregation: chartConfig.aggregation,
-        timeRange: chartConfig.timeRange,
-        chartType: chartConfig.chartType
+      const params = new URLSearchParams({ groupBy });
+      if (from) params.append('from', from);
+      if (to) params.append('to', to);
+
+      const url = `${apiBaseUrl}/analytics/clients/monthly?${params.toString()}`;
+      console.log('📊 [CHART] Fetching from URL:', url);
+
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
       });
-
-      if (useAdvanced) {
-        queryParams.append('usePython', 'true');
-      }
-
-      const endpoint = useAdvanced ? 'advanced-chart' : 'interactive-chart';
-      const response = await fetch(`${apiBaseUrl}/analytics/${endpoint}?${queryParams}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to generate chart: ${response.status}`);
-      }
-
-      const data = await response.json();
       
-      // Handle Python-generated image
-      if (data.image && data.generatedWith === 'python') {
-        setPythonImage(data.image);
-        setChartData(null);
-      } else {
-        // Handle JavaScript Chart.js data
-        const colors = generateColors(data.labels.length);
-        
-        const formattedData = {
-          labels: data.labels,
-          datasets: [{
-            label: `${yAxisOptions.find(opt => opt.value === chartConfig.yAxis)?.label || chartConfig.yAxis}`,
-            data: data.values,
-            backgroundColor: chartConfig.chartType === 'line' ? 'rgba(75, 192, 192, 0.2)' : colors.background,
-            borderColor: chartConfig.chartType === 'line' ? 'rgba(75, 192, 192, 1)' : colors.border,
-            borderWidth: 2,
-            fill: chartConfig.chartType === 'line'
-          }]
-        };
-
-        setChartData(formattedData);
-        setPythonImage(null);
+      console.log('📊 [CHART] Response status:', res.status, res.statusText);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('❌ [CHART] API error response:', errorText);
+        throw new Error(`Failed to load analytics (${res.status})`);
       }
-    } catch (err) {
-      setError(err.message);
+      
+      const data = await res.json();
+      console.log('📊 [CHART] Received data:', data);
+      console.log('📊 [CHART] Full response JSON:', JSON.stringify(data, null, 2));
+      console.log('📊 [CHART] Labels count:', data.labels?.length || 0);
+      console.log('📊 [CHART] Values:', data.values);
+      console.log('📊 [CHART] Total:', data.total);
+      
+      // Check if response has unexpected structure
+      if (!data.labels && !data.values && !data.total) {
+        console.error('❌ [CHART] Backend returned empty/invalid data structure');
+        throw new Error('No analytics data available. Backend returned empty response.');
+      }
+
+      const labels = (data.labels || []).map(formatLabel);
+      const colors = labels.map((_, idx) => colorPalette[idx % colorPalette.length]);
+
+      console.log('📊 [CHART] Formatted labels:', labels);
+
+      setChartData({
+        labels,
+        datasets: [
+          {
+            label: 'New Clients',
+            data: data.values || [],
+            backgroundColor: colors,
+            borderColor: colors.map((c) => c.replace('0.8', '1')),
+            borderWidth: 1
+          }
+        ]
+      });
+      setMeta({
+        total: data.total || 0,
+        groupBy: data.groupBy || groupBy,
+        from: data.from || from,
+        to: data.to || to
+      });
+      
+      console.log('✅ [CHART] Chart data updated successfully');
+    } catch (e) {
+      console.error('❌ [CHART] Error fetching data:', e);
+      console.error('❌ [CHART] Error stack:', e.stack);
+      setError(e.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Quick Chart Preset Handler
-  const applyQuickChart = (preset) => {
-    setChartConfig(prevConfig => ({
-      ...prevConfig,
-      ...preset.config
-    }));
-    // Auto-generate chart after applying preset
-    setTimeout(() => {
-      const newConfig = { ...chartConfig, ...preset.config };
-      generateChart();
-    }, 100);
-  };
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [from, to, groupBy]);
 
-  const generateColors = (count) => {
-    const colorPalette = [
-      'rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 205, 86, 0.8)',
-      'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)', 'rgba(255, 159, 64, 0.8)',
-      'rgba(199, 199, 199, 0.8)', 'rgba(83, 102, 255, 0.8)', 'rgba(255, 99, 255, 0.8)',
-      'rgba(99, 255, 132, 0.8)'
-    ];
-    
-    const borderColors = colorPalette.map(color => color.replace('0.8', '1'));
-    
-    return {
-      background: colorPalette.slice(0, count),
-      border: borderColors.slice(0, count)
-    };
-  };
+  // Lightweight live polling (no socket dependency available)
+  useEffect(() => {
+    if (!live) return undefined;
+    const id = setInterval(() => {
+      fetchData();
+    }, refreshMs);
+    return () => clearInterval(id);
+  }, [live, refreshMs, from, to, groupBy]);
 
-  const exportChart = () => {
-    if (chartRef.current) {
-      const url = chartRef.current.toBase64Image();
-      const link = document.createElement('a');
-      link.download = `chart-${chartConfig.xAxis}-vs-${chartConfig.yAxis}.png`;
-      link.href = url;
-      link.click();
-    }
-  };
-
-  const chartOptions = {
+  const chartOptions = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {
-        position: 'top',
-        labels: {
-          boxWidth: 12,
-          padding: 8,
-          font: {
-            size: 11
-          }
-        }
-      },
-      title: {
-        display: true,
-        text: `${yAxisOptions.find(opt => opt.value === chartConfig.yAxis)?.label || chartConfig.yAxis} by ${xAxisOptions.find(opt => opt.value === chartConfig.xAxis)?.label || chartConfig.xAxis}`,
-        font: {
-          size: 14
-        }
-      },
+      legend: { position: 'top' },
+      title: { display: true, text: 'Monthly Trend by Clients' }
     },
-    scales: chartConfig.chartType !== 'pie' && chartConfig.chartType !== 'doughnut' ? {
-      y: {
-        beginAtZero: true,
-      },
-    } : {},
-    // Specific sizing for pie/doughnut charts
-    ...(chartConfig.chartType === 'pie' || chartConfig.chartType === 'doughnut' ? {
-      layout: {
-        padding: 10
-      }
-    } : {})
-  };
+    scales: { y: { beginAtZero: true } }
+  }), []);
 
-  const SelectedChartComponent = chartTypes.find(type => type.value === chartConfig.chartType)?.component || Bar;
+  const applyPreset = (value) => {
+    const now = new Date();
+    let nextFrom = '';
+    const nextTo = formatInputDate(now);
+
+    switch (value) {
+      case '3m': {
+        const d = new Date();
+        d.setMonth(d.getMonth() - 3);
+        nextFrom = formatInputDate(d);
+        break;
+      }
+      case '6m': {
+        const d = new Date();
+        d.setMonth(d.getMonth() - 6);
+        nextFrom = formatInputDate(d);
+        break;
+      }
+      case '12m': {
+        const d = new Date();
+        d.setMonth(d.getMonth() - 11);
+        nextFrom = formatInputDate(d);
+        break;
+      }
+      case 'ytd': {
+        const d = new Date(now.getFullYear(), 0, 1);
+        nextFrom = formatInputDate(d);
+        break;
+      }
+      case 'all':
+      default:
+        nextFrom = '';
+    }
+
+    setPreset(value);
+    setFrom(nextFrom);
+    setTo(nextTo);
+  };
 
   return (
     <div className="interactive-chart-builder">
       <div className="chart-builder-header">
-        <h2>📊 Essential Analytics Dashboard</h2>
-        <p>Streamlined analytics with only the essential charts you need for business insights.</p>
+        <h2>📈 Analytics</h2>
+        <p>Real client growth by creation date with flexible grouping.</p>
       </div>
-
-      {/* Tab Navigation */}
-      <div className="analytics-tabs">
-        <button 
-          className={`tab-button ${activeTab === 'quick' ? 'active' : ''}`}
-          onClick={() => setActiveTab('quick')}
-        >
-          ⚡ Quick Charts
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'custom' ? 'active' : ''}`}
-          onClick={() => setActiveTab('custom')}
-        >
-          🛠️ Custom Builder
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'advanced' ? 'active' : ''}`}
-          onClick={() => setActiveTab('advanced')}
-        >
-          🔬 Advanced (Python)
-        </button>
-      </div>
-
-      {/* Quick Charts Section */}
-      {activeTab === 'quick' && (
-        <div className="quick-charts-section">
-          <h3>⚡ Quick Analytics</h3>
-          <p>Pre-configured charts for common business analytics. Click any card to generate instantly.</p>
-          <div className="quick-charts-grid">
-            {quickChartPresets.map((preset, index) => (
-              <div 
-                key={index} 
-                className="quick-chart-card"
-                onClick={() => applyQuickChart(preset)}
-              >
-                <div className="quick-chart-icon">{preset.icon}</div>
-                <h4>{preset.name}</h4>
-                <p>{preset.description}</p>
-                <div className="chart-config-preview">
-                  {preset.config.xAxis} → {preset.config.yAxis} ({preset.config.chartType})
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Custom Builder Section */}
-      {activeTab === 'custom' && (
-        <div className="custom-builder-section">
-          <h3>🛠️ Custom Chart Builder</h3>
-          <div className="controls-grid">{/* Custom builder controls go here */}</div>
-        </div>
-      )}
-
-      {/* Advanced Python Section */}
-      {activeTab === 'advanced' && (
-        <div className="advanced-section">
-          <h3>🔬 Advanced Python Charts</h3>
-          <p>High-quality chart generation with advanced styling and statistical insights.</p>
-          <div className="controls-grid">{/* Advanced controls go here */}</div>
-        </div>
-      )}
 
       <div className="chart-controls">
-        <div className="control-section">
-          <h3>📐 Chart Configuration</h3>
-          <div className="controls-grid">{/* Rest of controls go here */}</div>
+        <div className="controls-grid">
+          <div className="control-group">
+            <label className="control-label">Quick Range</label>
+            <select
+              value={preset}
+              onChange={(e) => applyPreset(e.target.value)}
+              className="control-select"
+            >
+              <option value="3m">Last 3 months</option>
+              <option value="6m">Last 6 months</option>
+              <option value="12m">Last 12 months</option>
+              <option value="ytd">Year to date</option>
+              <option value="all">All time</option>
+            </select>
+          </div>
+          <div className="control-group">
+            <label className="control-label">From</label>
+            <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="control-select" />
+          </div>
+          <div className="control-group">
+            <label className="control-label">To</label>
+            <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="control-select" />
+          </div>
+          <div className="control-group">
+            <label className="control-label">Group By</label>
+            <select value={groupBy} onChange={(e) => setGroupBy(e.target.value)} className="control-select">
+              <option value="day">Day</option>
+              <option value="week">Week</option>
+              <option value="month">Month</option>
+              <option value="quarter">Quarter</option>
+              <option value="year">Year</option>
+            </select>
+          </div>
+          <div className="control-group">
+            <label className="control-label">Actions</label>
+            <button className="generate-btn primary" onClick={fetchData} disabled={loading}>
+              {loading ? 'Loading…' : 'Refresh'}
+            </button>
+            <div className="live-toggle">
+              <label>
+                <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} /> Live
+              </label>
+              <select
+                className="control-select"
+                value={refreshMs}
+                onChange={(e) => setRefreshMs(Number(e.target.value))}
+                disabled={!live}
+              >
+                <option value={15000}>15s</option>
+                <option value={30000}>30s</option>
+                <option value={60000}>60s</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Chart Display Area */}
-      <div className="chart-display-area">
-        {pythonImage ? (
-          <div className="python-chart-container">
-            <img src={pythonImage} alt="Python Generated Chart" className="python-chart-image" />
-            <div className="chart-info">
-              <span className="generation-badge python">🐍 Generated with Python</span>
-            </div>
-          </div>
-        ) : chartData ? (
-          <div className={`chart-container ${chartConfig.chartType === 'pie' || chartConfig.chartType === 'doughnut' ? 'pie-chart-container' : ''}`}>
-            <SelectedChartComponent ref={chartRef} data={chartData} options={chartOptions} />
-            <div className="chart-info">
-              <span className="generation-badge javascript">⚛️ Interactive Chart.js</span>
-            </div>
-          </div>
-        ) : (
-          <div className="chart-placeholder">
-            <div className="placeholder-content">
-              <FaChartBar size={48} />
-              <h3>Ready to Generate Charts</h3>
-              <p>
-                {activeTab === 'quick' 
-                  ? 'Click any Quick Chart above to generate instantly'
-                  : 'Configure your chart settings and click Generate Chart'
-                }
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Error Display */}
       {error && (
         <div className="chart-error">
           <p>❌ {error}</p>
         </div>
       )}
 
-      {/* Action Buttons */}
-      <div className="action-buttons">
-        <button
-          onClick={() => generateChart(false)}
-          disabled={loading || !chartConfig.xAxis || !chartConfig.yAxis}
-          className="generate-btn primary"
-        >
-          <FaSync className={loading ? 'spinning' : ''} />
-          {loading ? 'Generating...' : 'Generate Chart'}
-        </button>
-        
-        <button
-          onClick={() => generateChart(true)}
-          disabled={loading || !chartConfig.xAxis || !chartConfig.yAxis}
-          className="generate-btn advanced"
-        >
-          <FaImage />
-          Generate with Python
-        </button>
-
-        {(chartData || pythonImage) && (
-          <button onClick={exportChart} className="export-btn">
-            <FaDownload /> Export Chart
-          </button>
-        )}
-      </div>
-
-      {/* Controls Grid - Show for custom and advanced tabs */}
-      {(activeTab === 'custom' || activeTab === 'advanced') && (
-        <div className="chart-controls">
-          <div className="controls-grid">
-            {/* X-Axis Selection */}
-            <div className="control-group">
-              <label className="control-label">📊 X-Axis (Categories)</label>
-              <select
-                value={chartConfig.xAxis}
-                onChange={(e) => setChartConfig(prev => ({ ...prev, xAxis: e.target.value }))}
-                className="control-select"
-              >
-                <option value="">Select X-Axis...</option>
-                {xAxisOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.icon} {option.label}
-                  </option>
-                ))}
-              </select>
-              <span className="control-desc">{xAxisOptions.find(opt => opt.value === chartConfig.xAxis)?.desc}</span>
-            </div>
-
-            {/* Y-Axis Selection */}
-            <div className="control-group">
-              <label className="control-label">📈 Y-Axis (Values)</label>
-              <select
-                value={chartConfig.yAxis}
-                onChange={(e) => setChartConfig(prev => ({ ...prev, yAxis: e.target.value }))}
-                className="control-select"
-              >
-                <option value="">Select Y-Axis...</option>
-                {yAxisOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.icon} {option.label}
-                  </option>
-                ))}
-              </select>
-              <span className="control-desc">{yAxisOptions.find(opt => opt.value === chartConfig.yAxis)?.desc}</span>
-            </div>
-
-            {/* Chart Type Selection */}
-            <div className="control-group">
-              <label className="control-label">📋 Chart Type</label>
-              <div className="chart-type-grid">
-                {chartTypes.map(type => (
-                  <button
-                    key={type.value}
-                    onClick={() => setChartConfig(prev => ({ ...prev, chartType: type.value }))}
-                    className={`chart-type-btn ${chartConfig.chartType === type.value ? 'active' : ''}`}
-                  >
-                    {type.icon}
-                    <span>{type.label}</span>
-                  </button>
-                ))}
-              </div>
-              <span className="control-desc">{chartTypes.find(type => type.value === chartConfig.chartType)?.desc}</span>
-            </div>
-
-            {/* Aggregation Method */}
-            <div className="control-group">
-              <label className="control-label">🔢 Aggregation</label>
-              <select
-                value={chartConfig.aggregation}
-                onChange={(e) => setChartConfig(prev => ({ ...prev, aggregation: e.target.value }))}
-                className="control-select"
-              >
-                {aggregationOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <span className="control-desc">{aggregationOptions.find(opt => opt.value === chartConfig.aggregation)?.desc}</span>
-            </div>
-
-            {/* Time Range */}
-            <div className="control-group">
-              <label className="control-label">📅 Time Range</label>
-              <select
-                value={chartConfig.timeRange}
-                onChange={(e) => setChartConfig(prev => ({ ...prev, timeRange: e.target.value }))}
-                className="control-select"
-              >
-                {timeRangeOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+      <div className="chart-display-area">
+        <div className="chart-meta">
+          <span>New clients: {meta.total}</span>
+          <span>Grouping: {meta.groupBy}</span>
+        </div>
+        {chartData && !error ? (
+          <div className="chart-container">
+            <Bar ref={chartRef} data={chartData} options={chartOptions} />
+          </div>
+        ) : (
+          <div className="chart-placeholder">
+            <div className="placeholder-content">
+              <p>{loading ? 'Loading analytics…' : 'No data yet'}</p>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

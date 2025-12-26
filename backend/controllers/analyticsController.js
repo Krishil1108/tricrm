@@ -257,6 +257,39 @@ class AnalyticsController {
       status: status === 'all' ? null : status
     };
   }
+
+  // Monthly client growth data
+  async getMonthlyClientGrowth(req, res) {
+    try {
+      console.log('📊 [ANALYTICS CONTROLLER] getMonthlyClientGrowth called with query:', req.query);
+      const { timeRange = 'all' } = req.query;
+      const monthlyGrowth = await analyticsService.getMonthlyClientGrowth(timeRange);
+      console.log('📊 [ANALYTICS CONTROLLER] Monthly growth data:', monthlyGrowth);
+      res.json(monthlyGrowth);
+    } catch (error) {
+      console.error('❌ [ANALYTICS CONTROLLER] Error fetching monthly client growth:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch monthly client growth data',
+        details: error.message 
+      });
+    }
+  }
+
+  // Flexible clients-by-month endpoint
+  async getClientsMonthly(req, res) {  
+    console.log('📊 [ANALYTICS CONTROLLER] getClientsMonthly called');
+    console.log('📊 [ANALYTICS CONTROLLER] Query params:', req.query);
+    try {
+      const { from, to, groupBy = 'month' } = req.query;
+      const data = await analyticsService.getClientsMonthly({ from, to, groupBy });
+      console.log('📊 [ANALYTICS CONTROLLER] Returning data:', data);
+      res.json(data); // Don't wrap, return direct structure
+    } catch (error) {
+      console.error('❌ [ANALYTICS CONTROLLER] Error fetching clients monthly:', error);
+      console.error('❌ [ANALYTICS CONTROLLER] Error stack:', error.stack);
+      res.status(500).json({ error: 'Failed to fetch clients monthly', details: error.message });
+    }
+  }
 }
 
 module.exports = new AnalyticsController();
