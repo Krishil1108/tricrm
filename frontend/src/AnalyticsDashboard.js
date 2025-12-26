@@ -3,12 +3,12 @@ import { useAuth } from './contexts/AuthContext';
 import { useToast } from './context/ToastContext';
 import API_BASE_URL from './config/api';
 import './styles/AnalyticsDashboard.css';
-import './styles/InteractiveChartBuilder.css';
+import './styles/AnalyticsChartsGrid.css';
 import './PageContent.css';
 import './styles/ClientsPageEnhanced.css';
 import DashboardFilters from './components/analytics/DashboardFilters';
 import SummaryCards from './components/analytics/SummaryCards';
-import InteractiveChartBuilder from './components/analytics/InteractiveChartBuilder';
+import AnalyticsChart from './components/analytics/AnalyticsChart';
 import LoadingSkeleton from './components/analytics/LoadingSkeleton';
 import ExportModal from './components/analytics/ExportModal';
 import { FaDownload, FaExpand, FaCompress } from 'react-icons/fa';
@@ -290,11 +290,37 @@ const AnalyticsDashboard = () => {
         <>
           <SummaryCards data={dashboardData.summary} />
           
-          <InteractiveChartBuilder 
-            dashboardData={dashboardData}
-            token={token}
-            apiBaseUrl={API_BASE_URL}
-          />
+          <div className="analytics-charts-grid">
+            <AnalyticsChart 
+              chartType="clients"
+              token={token}
+              apiBaseUrl={API_BASE_URL}
+            />
+            
+            <AnalyticsChart 
+              chartType="projects"
+              token={token}
+              apiBaseUrl={API_BASE_URL}
+            />
+            
+            <AnalyticsChart 
+              chartType="revenue"
+              token={token}
+              apiBaseUrl={API_BASE_URL}
+            />
+            
+            <AnalyticsChart 
+              chartType="associates"
+              token={token}
+              apiBaseUrl={API_BASE_URL}
+            />
+            
+            <AnalyticsChart 
+              chartType="payments"
+              token={token}
+              apiBaseUrl={API_BASE_URL}
+            />
+          </div>
         </>
       )}
 

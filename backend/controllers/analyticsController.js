@@ -1,4 +1,5 @@
 const analyticsService = require('../services/analyticsService');
+const analyticsEnhancedService = require('../services/analyticsEnhancedService');
 
 console.log('📊 [ANALYTICS CONTROLLER] Loading analytics controller...');
 
@@ -288,6 +289,55 @@ class AnalyticsController {
       console.error('❌ [ANALYTICS CONTROLLER] Error fetching clients monthly:', error);
       console.error('❌ [ANALYTICS CONTROLLER] Error stack:', error.stack);
       res.status(500).json({ error: 'Failed to fetch clients monthly', details: error.message });
+    }
+  }
+
+  // Enhanced analytics endpoints
+  async getProjectsAnalytics(req, res) {
+    console.log('📊 [ANALYTICS CONTROLLER] getProjectsAnalytics called');
+    try {
+      const { from, to, groupBy = 'status' } = req.query;
+      const data = await analyticsEnhancedService.getProjectsAnalytics({ from, to, groupBy });
+      res.json(data);
+    } catch (error) {
+      console.error('❌ [ANALYTICS CONTROLLER] Error in getProjectsAnalytics:', error);
+      res.status(500).json({ error: 'Failed to fetch projects analytics', details: error.message });
+    }
+  }
+
+  async getRevenueAnalytics(req, res) {
+    console.log('📊 [ANALYTICS CONTROLLER] getRevenueAnalytics called');
+    try {
+      const { from, to, groupBy = 'month' } = req.query;
+      const data = await analyticsEnhancedService.getRevenueAnalytics({ from, to, groupBy });
+      res.json(data);
+    } catch (error) {
+      console.error('❌ [ANALYTICS CONTROLLER] Error in getRevenueAnalytics:', error);
+      res.status(500).json({ error: 'Failed to fetch revenue analytics', details: error.message });
+    }
+  }
+
+  async getAssociatePerformance(req, res) {
+    console.log('📊 [ANALYTICS CONTROLLER] getAssociatePerformance called');
+    try {
+      const { from, to } = req.query;
+      const data = await analyticsEnhancedService.getAssociatePerformance({ from, to });
+      res.json(data);
+    } catch (error) {
+      console.error('❌ [ANALYTICS CONTROLLER] Error in getAssociatePerformance:', error);
+      res.status(500).json({ error: 'Failed to fetch associate performance', details: error.message });
+    }
+  }
+
+  async getPaymentAnalytics(req, res) {
+    console.log('📊 [ANALYTICS CONTROLLER] getPaymentAnalytics called');
+    try {
+      const { from, to } = req.query;
+      const data = await analyticsEnhancedService.getPaymentAnalytics({ from, to });
+      res.json(data);
+    } catch (error) {
+      console.error('❌ [ANALYTICS CONTROLLER] Error in getPaymentAnalytics:', error);
+      res.status(500).json({ error: 'Failed to fetch payment analytics', details: error.message });
     }
   }
 }

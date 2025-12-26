@@ -90,6 +90,27 @@ router.get('/clients/monthly', (req, res, next) => {
   analyticsController.getClientsMonthly(req, res, next);
 });
 
+// Enhanced analytics endpoints
+router.get('/projects/analytics', (req, res, next) => {
+  console.log('📊 [ANALYTICS] Projects analytics requested');
+  analyticsController.getProjectsAnalytics(req, res, next);
+});
+
+router.get('/revenue/analytics', (req, res, next) => {
+  console.log('📊 [ANALYTICS] Revenue analytics requested');
+  analyticsController.getRevenueAnalytics(req, res, next);
+});
+
+router.get('/associates/performance', (req, res, next) => {
+  console.log('📊 [ANALYTICS] Associate performance requested');
+  analyticsController.getAssociatePerformance(req, res, next);
+});
+
+router.get('/payments/analytics', (req, res, next) => {
+  console.log('📊 [ANALYTICS] Payment analytics requested');
+  analyticsController.getPaymentAnalytics(req, res, next);
+});
+
 // Advanced chart endpoint with Python support
 router.get('/advanced-chart', (req, res, next) => {
   console.log('📊 [ANALYTICS] Advanced chart requested with config:', req.query);
