@@ -136,6 +136,11 @@ const AssociateProjectsPage = () => {
       console.log('Starting Excel export...');
       console.log('Filtered projects count:', filteredProjects.length);
       
+      if (filteredProjects.length === 0) {
+        showError('No projects to export');
+        return;
+      }
+      
       const exportData = filteredProjects.map(project => {
         const associateDataFromProject = project.projectAssociates?.find(
           assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
@@ -194,12 +199,18 @@ const AssociateProjectsPage = () => {
       const filename = `${associateInfo.name.replace(/\s+/g, '_')}_Statement_${new Date().toISOString().split('T')[0]}.xlsx`;
       
       console.log('Writing file:', filename);
-      XLSX.writeFile(workbook, filename);
+      
+      // Use writeFileXLSX for better browser compatibility
+      XLSX.writeFileXLSX(workbook, filename, {
+        compression: true,
+        bookType: 'xlsx'
+      });
+      
       console.log('File write completed');
-
       showSuccess(`Statement exported successfully as ${filename}`);
     } catch (error) {
       console.error('Error exporting to Excel:', error);
+      console.error('Error stack:', error.stack);
       showError(`Failed to export statement to Excel: ${error.message}`);
     }
   };
@@ -207,6 +218,13 @@ const AssociateProjectsPage = () => {
   // Export to PDF
   const exportToPDF = () => {
     try {
+      console.log('Starting PDF export...');
+      
+      if (filteredProjects.length === 0) {
+        showError('No projects to export');
+        return;
+      }
+      
       const doc = new jsPDF('landscape');
       
       // Add header
@@ -232,6 +250,8 @@ const AssociateProjectsPage = () => {
       doc.text(`Amount Paid: ₹${stats.totalAssociatePaid.toLocaleString('en-IN')}`, 160, summaryY);
       doc.text(`Pending Amount: ₹${stats.totalAssociatePending.toLocaleString('en-IN')}`, 220, summaryY);
       
+      console.log('Preparing table data...');
+      
       // Prepare table data
       const tableData = filteredProjects.map(project => {
         const associateDataFromProject = project.projectAssociates?.find(
@@ -255,6 +275,8 @@ const AssociateProjectsPage = () => {
         ];
       });
       
+      console.log('Table data prepared, rows:', tableData.length);
+      
       // Add table
       autoTable(doc, {
         startY: summaryY + 8,
@@ -275,13 +297,17 @@ const AssociateProjectsPage = () => {
         margin: { left: 14, right: 14 }
       });
       
+      console.log('Table added, saving PDF...');
+      
       const filename = `${associateInfo.name.replace(/\s+/g, '_')}_Statement_${new Date().toISOString().split('T')[0]}.pdf`;
       doc.save(filename);
-
+      
+      console.log('PDF saved:', filename);
       showSuccess(`Statement exported successfully as ${filename}`);
     } catch (error) {
       console.error('Error exporting to PDF:', error);
-      showError('Failed to export statement to PDF');
+      console.error('Error stack:', error.stack);
+      showError(`Failed to export statement to PDF: ${error.message}`);
     }
   };
 

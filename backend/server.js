@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
+const path = require('path');
 require('dotenv').config();
 
 // Import error handling
@@ -300,10 +301,27 @@ function getTimeAgo(date) {
   return `${days} day${days !== 1 ? 's' : ''} ago`;
 }
 
-// Catch all handler
-app.get('*', (req, res) => {
-  res.json({ message: 'API endpoint not found' });
-});
+// Serve React app static files in production
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files from React build
+  app.use(express.static(path.join(__dirname, '../frontend/build')));
+  
+  // Catch-all route for React Router - handles all non-API routes
+  app.get('*', (req, res) => {
+    // Skip API routes - they should return 404 if not found
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({ message: 'API endpoint not found' });
+    }
+    
+    // Serve index.html for all other routes
+    res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+  });
+} else {
+  // In development, just handle unknown API routes
+  app.get('/api/*', (req, res) => {
+    res.status(404).json({ message: 'API endpoint not found' });
+  });
+}
 
 // Global Error Handler Middleware (MUST be last)
 app.use(globalErrorHandler);
