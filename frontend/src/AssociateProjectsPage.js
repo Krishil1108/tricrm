@@ -96,11 +96,12 @@ const AssociateProjectsPage = () => {
         );
         
         if (associateData) {
-          // Calculate this associate's share of the project
-          const associateShare = Math.round((project.totalReceivedFees * (associateData.percentage || 0)) / 100);
+          // Calculate this associate's share of the project (based on finalized fees)
+          const associateShare = Math.round((project.finalizedFees * (associateData.percentage || 0)) / 100);
+          const receivedBasedShare = Math.round((project.totalReceivedFees * (associateData.percentage || 0)) / 100);
           stats.totalAssociateAllocation += associateShare;
           stats.totalAssociatePaid += (associateData.amountPaid || 0);
-          stats.totalAssociatePending += (associateShare - (associateData.amountPaid || 0));
+          stats.totalAssociatePending += (receivedBasedShare - (associateData.amountPaid || 0));
         }
       }
     });
@@ -138,9 +139,10 @@ const AssociateProjectsPage = () => {
         );
         
         const associatePercentage = associateDataFromProject?.percentage || 0;
-        const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
+        const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
+        const receivedBasedAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
         const amountPaid = associateDataFromProject?.amountPaid || 0;
-        const pendingAmount = associateAmount - amountPaid;
+        const pendingAmount = receivedBasedAmount - amountPaid;
         
         return {
           'Project Number': project.projectNumber || '',
@@ -229,9 +231,10 @@ const AssociateProjectsPage = () => {
         );
         
         const associatePercentage = associateDataFromProject?.percentage || 0;
-        const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
+        const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
+        const receivedBasedAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
         const amountPaid = associateDataFromProject?.amountPaid || 0;
-        const pendingAmount = associateAmount - amountPaid;
+        const pendingAmount = receivedBasedAmount - amountPaid;
         
         return [
           project.projectNumber || '',
@@ -752,9 +755,10 @@ const AssociateProjectsPage = () => {
                     );
                     
                     const associatePercentage = associateDataFromProject?.percentage || 0;
-                    const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
+                    const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
+                    const receivedBasedAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
                     const amountPaid = associateDataFromProject?.amountPaid || 0;
-                    const pendingAmount = associateAmount - amountPaid;
+                    const pendingAmount = receivedBasedAmount - amountPaid;
                     
                     return (
                       <tr key={project._id}>
