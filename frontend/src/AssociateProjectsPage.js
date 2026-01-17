@@ -6,7 +6,7 @@ import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
 import { FaMoneyBillWave, FaEdit, FaHistory, FaChartBar, FaUser, FaFileExcel, FaFilePdf, FaDownload } from 'react-icons/fa';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import './ClientProjectsPage.css';
 
@@ -133,6 +133,9 @@ const AssociateProjectsPage = () => {
   // Export to Excel
   const exportToExcel = () => {
     try {
+      console.log('Starting Excel export...');
+      console.log('Filtered projects count:', filteredProjects.length);
+      
       const exportData = filteredProjects.map(project => {
         const associateDataFromProject = project.projectAssociates?.find(
           assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
@@ -154,6 +157,8 @@ const AssociateProjectsPage = () => {
           'Status': project.status || ''
         };
       });
+
+      console.log('Export data prepared:', exportData.length, 'rows');
 
       const workbook = XLSX.utils.book_new();
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -187,12 +192,15 @@ const AssociateProjectsPage = () => {
       XLSX.utils.book_append_sheet(workbook, summaryWorksheet, 'Summary');
 
       const filename = `${associateInfo.name.replace(/\s+/g, '_')}_Statement_${new Date().toISOString().split('T')[0]}.xlsx`;
+      
+      console.log('Writing file:', filename);
       XLSX.writeFile(workbook, filename);
+      console.log('File write completed');
 
       showSuccess(`Statement exported successfully as ${filename}`);
     } catch (error) {
       console.error('Error exporting to Excel:', error);
-      showError('Failed to export statement to Excel');
+      showError(`Failed to export statement to Excel: ${error.message}`);
     }
   };
 
@@ -248,7 +256,7 @@ const AssociateProjectsPage = () => {
       });
       
       // Add table
-      doc.autoTable({
+      autoTable(doc, {
         startY: summaryY + 8,
         head: [['Project No.', 'Project Name', 'Location', 'Associate Amount', 'Amount Paid', 'Pending Amount', 'Status']],
         body: tableData,
