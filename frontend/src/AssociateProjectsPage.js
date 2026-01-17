@@ -4,7 +4,10 @@ import { useAuth } from './contexts/AuthContext';
 import FinanceService from './services/FinanceService';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
-import { FaMoneyBillWave, FaEdit, FaHistory, FaChartBar, FaUser } from 'react-icons/fa';
+import { FaMoneyBillWave, FaEdit, FaHistory, FaChartBar, FaUser, FaFileExcel, FaFilePdf, FaDownload } from 'react-icons/fa';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 import './ClientProjectsPage.css';
 
 const AssociateProjectsPage = () => {
@@ -124,6 +127,151 @@ const AssociateProjectsPage = () => {
 
   const handleBackToAssociates = () => {
     navigate('/associates');
+  };
+
+  // Export to Excel
+  const exportToExcel = () => {
+    try {
+      const exportData = filteredProjects.map(project => {
+        const associateDataFromProject = project.projectAssociates?.find(
+          assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+        );
+        
+        const associatePercentage = associateDataFromProject?.percentage || 0;
+        const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
+        const amountPaid = associateDataFromProject?.amountPaid || 0;
+        const pendingAmount = associateAmount - amountPaid;
+        
+        return {
+          'Project Number': project.projectNumber || '',
+          'Project Name': project.projectName || '',
+          'Project Location': project.projectLocation || '',
+          'Associate Amount (₹)': associateAmount,
+          'Amount Paid (₹)': amountPaid,
+          'Pending Amount (₹)': pendingAmount,
+          'Status': project.status || ''
+        };
+      });
+
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+      // Set column widths
+      const columnWidths = [
+        { wch: 15 }, // Project Number
+        { wch: 30 }, // Project Name
+        { wch: 25 }, // Project Location
+        { wch: 18 }, // Associate Amount
+        { wch: 18 }, // Amount Paid
+        { wch: 18 }, // Pending Amount
+        { wch: 12 }  // Status
+      ];
+      worksheet['!cols'] = columnWidths;
+
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Associate Projects');
+
+      // Add summary sheet
+      const summary = [
+        { 'Field': 'Associate Name', 'Value': associateInfo.name },
+        { 'Field': 'Company', 'Value': associateInfo.company || '-' },
+        { 'Field': 'Export Date', 'Value': new Date().toLocaleString('en-IN') },
+        { 'Field': 'Total Projects', 'Value': stats.totalProjects },
+        { 'Field': 'Total Associate Allocation', 'Value': `₹${stats.totalAssociateAllocation.toLocaleString('en-IN')}` },
+        { 'Field': 'Amount Paid to Associate', 'Value': `₹${stats.totalAssociatePaid.toLocaleString('en-IN')}` },
+        { 'Field': 'Pending to Associate', 'Value': `₹${stats.totalAssociatePending.toLocaleString('en-IN')}` }
+      ];
+      
+      const summaryWorksheet = XLSX.utils.json_to_sheet(summary);
+      XLSX.utils.book_append_sheet(workbook, summaryWorksheet, 'Summary');
+
+      const filename = `${associateInfo.name.replace(/\s+/g, '_')}_Statement_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(workbook, filename);
+
+      showSuccess(`Statement exported successfully as ${filename}`);
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      showError('Failed to export statement to Excel');
+    }
+  };
+
+  // Export to PDF
+  const exportToPDF = () => {
+    try {
+      const doc = new jsPDF('landscape');
+      
+      // Add header
+      doc.setFontSize(18);
+      doc.text('Associate Project Statement', 14, 15);
+      
+      doc.setFontSize(11);
+      doc.text(`Associate: ${associateInfo.name}`, 14, 23);
+      if (associateInfo.company) {
+        doc.text(`Company: ${associateInfo.company}`, 14, 29);
+      }
+      doc.text(`Date: ${new Date().toLocaleDateString('en-IN')}`, 14, associateInfo.company ? 35 : 29);
+      
+      // Add summary section
+      const startY = associateInfo.company ? 43 : 37;
+      doc.setFontSize(12);
+      doc.text('Summary:', 14, startY);
+      
+      doc.setFontSize(10);
+      const summaryY = startY + 6;
+      doc.text(`Total Projects: ${stats.totalProjects}`, 14, summaryY);
+      doc.text(`Total Associate Allocation: ₹${stats.totalAssociateAllocation.toLocaleString('en-IN')}`, 80, summaryY);
+      doc.text(`Amount Paid: ₹${stats.totalAssociatePaid.toLocaleString('en-IN')}`, 160, summaryY);
+      doc.text(`Pending Amount: ₹${stats.totalAssociatePending.toLocaleString('en-IN')}`, 220, summaryY);
+      
+      // Prepare table data
+      const tableData = filteredProjects.map(project => {
+        const associateDataFromProject = project.projectAssociates?.find(
+          assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+        );
+        
+        const associatePercentage = associateDataFromProject?.percentage || 0;
+        const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
+        const amountPaid = associateDataFromProject?.amountPaid || 0;
+        const pendingAmount = associateAmount - amountPaid;
+        
+        return [
+          project.projectNumber || '',
+          project.projectName || '',
+          project.projectLocation || '',
+          `₹${associateAmount.toLocaleString('en-IN')}`,
+          `₹${amountPaid.toLocaleString('en-IN')}`,
+          `₹${pendingAmount.toLocaleString('en-IN')}`,
+          project.status || ''
+        ];
+      });
+      
+      // Add table
+      doc.autoTable({
+        startY: summaryY + 8,
+        head: [['Project No.', 'Project Name', 'Location', 'Associate Amount', 'Amount Paid', 'Pending Amount', 'Status']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: { fillColor: [66, 139, 202], textColor: 255, fontSize: 9 },
+        bodyStyles: { fontSize: 8 },
+        columnStyles: {
+          0: { cellWidth: 25 },
+          1: { cellWidth: 60 },
+          2: { cellWidth: 45 },
+          3: { cellWidth: 35, halign: 'right' },
+          4: { cellWidth: 35, halign: 'right' },
+          5: { cellWidth: 35, halign: 'right' },
+          6: { cellWidth: 20, halign: 'center' }
+        },
+        margin: { left: 14, right: 14 }
+      });
+      
+      const filename = `${associateInfo.name.replace(/\s+/g, '_')}_Statement_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(filename);
+
+      showSuccess(`Statement exported successfully as ${filename}`);
+    } catch (error) {
+      console.error('Error exporting to PDF:', error);
+      showError('Failed to export statement to PDF');
+    }
   };
 
   const handleEditProject = (projectId) => {
@@ -406,6 +554,50 @@ const AssociateProjectsPage = () => {
           </p>
         </div>
         <div className="header-actions">
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '4px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
+              <button 
+                className="project-btn"
+                onClick={exportToExcel}
+                style={{ 
+                  padding: '8px 12px',
+                  backgroundColor: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+                title="Download Excel"
+              >
+                <FaFileExcel /> Excel
+              </button>
+              <button 
+                className="project-btn"
+                onClick={exportToPDF}
+                style={{ 
+                  padding: '8px 12px',
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+                title="Download PDF"
+              >
+                <FaFilePdf /> PDF
+              </button>
+            </div>
+          </div>
           <button 
             className="project-btn project-btn-primary"
             onClick={() => navigate('/projects', { state: { associateId: associateId } })}
