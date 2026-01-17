@@ -146,6 +146,9 @@
 
 .live-toggle-sm input[type="checkbox"] {
   cursor: pointer;
+  width: 16px;
+  height: 16px;
+  margin: 0;
 }
 
 .chart-error-sm {

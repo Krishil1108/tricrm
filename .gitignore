@@ -17,6 +17,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+backend/logs/*.log
 
 # IDE
 .vscode/
@@ -38,3 +39,7 @@ Quotation_*.pdf
 **/quotations/*.pdf
 **/quotations/*.xlsx
 **/quotations/*.xls
+
+# Sample/test files
+docs/sample-files/*
+!docs/sample-files/.gitkeep
