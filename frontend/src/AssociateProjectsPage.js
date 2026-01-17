@@ -560,7 +560,7 @@ const AssociateProjectsPage = () => {
                     );
                     
                     const associatePercentage = associateDataFromProject?.percentage || 0;
-                    const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
+                    const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
                     const amountPaid = associateDataFromProject?.amountPaid || 0;
                     const pendingAmount = associateAmount - amountPaid;
                     
