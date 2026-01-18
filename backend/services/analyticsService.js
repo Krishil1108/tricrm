@@ -160,42 +160,53 @@ class AnalyticsService {
       
       console.log('🔍 [ANALYTICS SERVICE] Summary counts:', { totalClients, totalAssociates, totalProjects });
 
-      // Calculate financial metrics from FinanceProject data
+      // Calculate financial metrics from FinanceProject data using the same logic as ProjectPage
       let totalRevenue = 0;
+      let totalPaid = 0;
+      let totalPending = 0;
       let totalExpenses = 0;
       let completedProjects = 0;
 
       financeProjects.forEach(project => {
-        if (project.projectValue) {
-          totalRevenue += parseFloat(project.projectValue) || 0;
-        }
+        // Use totalReceivedFees (same as ProjectPage) instead of projectValue
+        const receivedFees = parseFloat(project.totalReceivedFees) || 0;
+        const finalizedFees = parseFloat(project.finalizedFees) || 0;
         
-        // Sum up associate allocations as expenses
-        if (project.projectAssociates && Array.isArray(project.projectAssociates)) {
-          project.projectAssociates.forEach(associate => {
-            if (associate.percentage && project.projectValue) {
-              const allocation = (parseFloat(associate.percentage) / 100) * parseFloat(project.projectValue);
-              totalExpenses += allocation || 0;
-            }
-          });
-        }
+        totalRevenue += receivedFees;
+        totalPaid += receivedFees; // totalReceivedFees represents what's already paid
+        totalPending += Math.max(0, finalizedFees - receivedFees); // pending is the difference
+        
+        // Calculate expenses from expense categories (same as ProjectPage)
+        const drawing = parseFloat(project.drawing) || 0;
+        const documents = parseFloat(project.documents) || 0;
+        const siteVisit = parseFloat(project.siteVisit) || 0;
+        const marketingAndMisc = parseFloat(project.marketingAndMisc) || 0;
+        const officeManagement = parseFloat(project.officeManagement) || 0;
+        
+        totalExpenses += drawing + documents + siteVisit + marketingAndMisc + officeManagement;
 
-        // Count completed projects (you may need to adjust this based on your status field)
-        if (project.status === 'completed' || project.status === 'Completed') {
+        // Count completed projects - case insensitive check
+        if (project.status && project.status.toLowerCase() === 'completed') {
           completedProjects++;
         }
       });
 
       const totalProfit = totalRevenue - totalExpenses;
       const projectCompletion = totalProjects > 0 ? (completedProjects / totalProjects) * 100 : 0;
+      
+      console.log('🔍 [ANALYTICS SERVICE] Project completion:', { 
+        completedProjects, 
+        totalProjects, 
+        projectCompletion: `${projectCompletion.toFixed(1)}%` 
+      });
 
       return {
-        totalClients: { current: totalClients, change: 0 }, // Change calculation would need historical data
+        totalClients: { current: totalClients, change: 0 },
         totalAssociates: { current: totalAssociates, change: 0 },
         totalProjects: { current: totalProjects, change: 0 },
         totalRevenue: { current: Math.round(totalRevenue), change: 0 },
-        totalPaid: { current: Math.round(totalRevenue * 0.8), change: 0 }, // Assuming 80% paid
-        totalPending: { current: Math.round(totalRevenue * 0.2), change: 0 }, // Assuming 20% pending
+        totalPaid: { current: Math.round(totalPaid), change: 0 },
+        totalPending: { current: Math.round(totalPending), change: 0 },
         totalExpenses: { current: Math.round(totalExpenses), change: 0 },
         totalProfit: { current: Math.round(totalProfit), change: 0 },
         projectCompletion: { current: Math.round(projectCompletion * 10) / 10, change: 0 }
