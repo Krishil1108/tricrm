@@ -414,7 +414,6 @@ const RoleManagementPage = () => {
           </div>
           <div className="header-text">
             <h1>Role Management</h1>
-            <p className="header-subtitle">Define and manage user roles and permissions</p>
           </div>
         </div>
         <button className="add-role-btn" onClick={() => handleOpenModal()}>

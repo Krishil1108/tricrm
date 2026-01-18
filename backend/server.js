@@ -313,11 +313,17 @@ if (process.env.NODE_ENV === 'production') {
       return res.status(404).json({ message: 'API endpoint not found' });
     }
     
-    // Serve index.html for all other routes
-    res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+    // Serve index.html for all other routes (SPA fallback)
+    res.sendFile(path.join(__dirname, '../frontend/build/index.html'), (err) => {
+      if (err) {
+        console.error('Error serving index.html:', err);
+        res.status(500).send('Error loading application');
+      }
+    });
   });
 } else {
-  // In development, just handle unknown API routes
+  // In development, proxy handles frontend routing
+  // Just handle unknown API routes
   app.get('/api/*', (req, res) => {
     res.status(404).json({ message: 'API endpoint not found' });
   });

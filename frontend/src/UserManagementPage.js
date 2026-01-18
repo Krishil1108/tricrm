@@ -325,7 +325,6 @@ function UserManagementPage() {
             </svg>
             <h1>User Management</h1>
           </div>
-          <p className="header-subtitle">Manage system users and their access</p>
         </div>
         {canAddNewUser() && (
           <button className="btn-add-modern" onClick={() => handleOpenModal()}>

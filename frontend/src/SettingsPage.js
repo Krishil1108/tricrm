@@ -257,7 +257,6 @@ const SettingsPage = () => {
           </svg>
           User Profile
         </h2>
-        <p>Manage your personal information and account settings</p>
       </div>
       
       <form onSubmit={(e) => {
@@ -745,7 +744,6 @@ const SettingsPage = () => {
           </svg>
           Notifications
         </h2>
-        <p>Manage how and when you receive notifications</p>
       </div>
       
       <form onSubmit={(e) => {
@@ -842,7 +840,6 @@ const SettingsPage = () => {
           </svg>
           Security & Privacy
         </h2>
-        <p>Manage your account security and privacy settings</p>
       </div>
       
       <div className="settings-form">
