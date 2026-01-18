@@ -1,6 +1,6 @@
 {
   "name": "mern-app",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A MERN stack application with blank white landing page",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,10 @@
     "client": "cd frontend && npm start",
     "install-server": "cd backend && npm install",
     "install-client": "cd frontend && npm install",
-    "install-all": "npm run install-server && npm run install-client"
+    "install-all": "npm run install-server && npm run install-client",
+    "build": "cd frontend && npm install && npm run build",
+    "start": "cd backend && npm start",
+    "heroku-postbuild": "cd frontend && npm install && npm run build"
   },
   "keywords": ["mern", "mongodb", "express", "react", "nodejs"],
   "author": "",

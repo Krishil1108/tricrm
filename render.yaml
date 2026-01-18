@@ -2,12 +2,15 @@
 # This file helps Render understand how to deploy your application
 
 services:
+  # Backend service that also serves the frontend in production
   - type: web
     name: tricrm-backend
     env: node
     region: oregon
     plan: starter  # Free tier: starter, Paid: standard/pro
-    buildCommand: cd backend && npm ci --production --silent
+    buildCommand: |
+      cd frontend && npm ci && npm run build
+      cd ../backend && npm ci --production --silent
     startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV
@@ -25,25 +28,26 @@ services:
     # Auto-deploy on every push to main branch
     autoDeploy: true
 
-  - type: web
-    name: tricrm-frontend
-    env: static
-    region: oregon
-    plan: starter
-    buildCommand: cd frontend && npm ci && npm run build
-    staticPublishPath: frontend/build
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    headers:
-      - path: /*
-        name: X-Content-Type-Options
-        value: nosniff
-      - path: /*
-        name: X-Frame-Options
-        value: DENY
-      - path: /*
-        name: X-XSS-Protection
-        value: 1; mode=block
-    autoDeploy: true
+  # Optional: Separate frontend service (comment out if using unified backend)
+  # - type: web
+  #   name: tricrm-frontend
+  #   env: static
+  #   region: oregon
+  #   plan: starter
+  #   buildCommand: cd frontend && npm ci && npm run build
+  #   staticPublishPath: frontend/build
+  #   routes:
+  #     - type: rewrite
+  #       source: /*
+  #       destination: /index.html
+  #   headers:
+  #     - path: /*
+  #       name: X-Content-Type-Options
+  #       value: nosniff
+  #     - path: /*
+  #       name: X-Frame-Options
+  #       value: DENY
+  #     - path: /*
+  #       name: X-XSS-Protection
+  #       value: 1; mode=block
+  #   autoDeploy: true
