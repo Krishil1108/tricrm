@@ -162,7 +162,6 @@ class AnalyticsService {
 
       // Calculate financial metrics from FinanceProject data using the same logic as ProjectPage
       let totalRevenue = 0;
-      let totalPaid = 0;
       let totalPending = 0;
       let totalExpenses = 0;
       let completedProjects = 0;
@@ -173,8 +172,6 @@ class AnalyticsService {
         const finalizedFees = parseFloat(project.finalizedFees) || 0;
         
         totalRevenue += receivedFees;
-        totalPaid += receivedFees; // totalReceivedFees represents what's already paid
-        totalPending += Math.max(0, finalizedFees - receivedFees); // pending is the difference
         
         // Calculate expenses from expense categories (same as ProjectPage)
         const drawing = parseFloat(project.drawing) || 0;
@@ -183,7 +180,23 @@ class AnalyticsService {
         const marketingAndMisc = parseFloat(project.marketingAndMisc) || 0;
         const officeManagement = parseFloat(project.officeManagement) || 0;
         
-        totalExpenses += drawing + documents + siteVisit + marketingAndMisc + officeManagement;
+        const projectExpenses = drawing + documents + siteVisit + marketingAndMisc + officeManagement;
+        totalExpenses += projectExpenses;
+        
+        // Calculate associate shares for this project
+        let associateShares = 0;
+        if (project.projectAssociates && Array.isArray(project.projectAssociates)) {
+          project.projectAssociates.forEach(associate => {
+            if (associate.percentage && finalizedFees) {
+              const share = (parseFloat(associate.percentage) / 100) * finalizedFees;
+              associateShares += share || 0;
+            }
+          });
+        }
+        
+        // Amount Pending = Finalized Fees - (Expenses + Associate Shares)
+        const projectPending = Math.max(0, finalizedFees - projectExpenses - associateShares);
+        totalPending += projectPending;
 
         // Count completed projects - case insensitive check
         if (project.status && project.status.toLowerCase() === 'completed') {
@@ -205,7 +218,7 @@ class AnalyticsService {
         totalAssociates: { current: totalAssociates, change: 0 },
         totalProjects: { current: totalProjects, change: 0 },
         totalRevenue: { current: Math.round(totalRevenue), change: 0 },
-        totalPaid: { current: Math.round(totalPaid), change: 0 },
+        totalPaid: { current: 0, change: 0 }, // Set to 0 as per user request
         totalPending: { current: Math.round(totalPending), change: 0 },
         totalExpenses: { current: Math.round(totalExpenses), change: 0 },
         totalProfit: { current: Math.round(totalProfit), change: 0 },
