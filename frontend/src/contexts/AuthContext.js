@@ -169,6 +169,9 @@ export const AuthProvider = ({ children }) => {
       return false;
     }
     if (user?.role?.name === 'Admin') {
+      return true;
+    }
+    
     // Map granular permission keys to original nested structure
     const permissionMap = {
       // Client Management permissions
