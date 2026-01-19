@@ -7,9 +7,7 @@ class ActivityService {
 
   async getRecentActivities(limit = 3) {
     try {
-      console.log('Fetching recent activities from:', `${this.baseUrl}/recent?limit=${limit}`);
       const response = await axios.get(`${this.baseUrl}/recent?limit=${limit}`);
-      console.log('Activity API response:', response.data);
       
       // Ensure we return an array, even if the API returns something else
       const data = response.data;
@@ -19,7 +17,6 @@ class ActivityService {
       
       // If backend is not running, return sample data for demo purposes
       if (error.code === 'ERR_NETWORK' || error.response?.status === 404) {
-        console.log('Backend not available, showing sample activities');
         return this.getSampleActivities();
       }
       
