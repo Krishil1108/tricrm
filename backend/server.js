@@ -33,21 +33,39 @@ app.set('trust proxy', 1);
 
 // CORS Configuration
 const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'https://trimity-crm.onrender.com',
-    'https://tricrm-frontend.onrender.com',
-    'https://tricrm-frontend.vercel.app',
-    'https://tricrm-frontend.netlify.app',
-    'https://trido-pm78.onrender.com'
-  ],
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'https://trimity-crm.onrender.com',
+      'https://tricrm-frontend.onrender.com',
+      'https://tricrm-frontend.vercel.app',
+      'https://tricrm-frontend.netlify.app',
+      'https://trido-pm78.onrender.com'
+    ];
+    
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  optionsSuccessStatus: 200,
+  preflightContinue: false
 };
 
 // Middleware
 app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly
+app.options('*', cors(corsOptions));
 app.use(express.json());
 
 // Response compression middleware (use early for better performance)
