@@ -310,12 +310,24 @@ const FinanceService = {
   // Apply default expense percentages to projects without configuration
   applyDefaultPercentages: async () => {
     try {
+      console.log('🔧 Applying default percentages...');
+      console.log('API URL:', `${API_URL}/finance/projects/apply-default-percentages`);
+      console.log('Headers:', getAuthHeader());
+      
       const response = await axios.post(`${API_URL}/finance/projects/apply-default-percentages`, {}, {
         headers: getAuthHeader()
       });
+      
+      console.log('✅ Response received:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Error applying default percentages:', error);
+      console.error('❌ Error applying default percentages:', error);
+      console.error('Error message:', error.message);
+      console.error('Error response:', error.response);
+      console.error('Error response data:', error.response?.data);
+      console.error('Error response status:', error.response?.status);
+      console.error('Error request:', error.request);
+      console.error('Error config:', error.config);
       throw error;
     }
   }

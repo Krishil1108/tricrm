@@ -473,11 +473,16 @@ const ProjectPage = () => {
     }
 
     try {
+      console.log('🚀 Starting apply default percentages...');
       showLoading('Applying default percentages...');
+      
       const response = await FinanceService.applyDefaultPercentages();
+      console.log('📊 Full response:', response);
       
       if (response.success) {
         const updatedCount = response.data?.updated || 0;
+        console.log('✅ Updated count:', updatedCount);
+        
         if (updatedCount > 0) {
           showSuccess(`Successfully applied default percentages to ${updatedCount} project(s)`);
           fetchData(); // Refresh the project list
@@ -486,13 +491,35 @@ const ProjectPage = () => {
           showSuccess('All projects already have expense distribution configured');
         }
       } else {
+        console.error('❌ Response success was false:', response);
         showError('Failed to apply default percentages');
       }
     } catch (error) {
-      console.error('Error applying default percentages:', error);
-      showError(error.response?.data?.message || 'Failed to apply default percentages');
+      console.error('💥 Caught error in handleApplyDefaultPercentages:', error);
+      console.error('Error type:', error.constructor.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      
+      let errorMessage = 'Failed to apply default percentages';
+      
+      if (error.response) {
+        // Server responded with error
+        console.error('Server error response:', error.response);
+        errorMessage = error.response.data?.message || `Server error: ${error.response.status}`;
+      } else if (error.request) {
+        // Request made but no response
+        console.error('No response received:', error.request);
+        errorMessage = 'No response from server. Please check your connection.';
+      } else {
+        // Something else happened
+        console.error('Request setup error:', error.message);
+        errorMessage = error.message || errorMessage;
+      }
+      
+      showError(errorMessage);
     } finally {
       hideLoading();
+      console.log('🏁 Apply default percentages completed');
     }
   };
 
