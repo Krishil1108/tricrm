@@ -14,20 +14,29 @@ const DEFAULT_PERCENTAGES = {
 /**
  * Apply default expense distribution percentages to projects that don't have them configured
  * This script identifies projects where all percentage fields are 0 (not configured)
- * and applies the default percentages
+ * and applies the default percentages. Also creates payment entries if missing.
  */
 async function applyDefaultPercentages() {
   try {
     console.log('🔍 Finding projects without expense distribution configured...');
     
     // Find projects where all percentage fields are 0 (not configured)
+    // OR where they don't have totalReceivedFees despite having data
     const projectsWithoutConfig = await FinanceProject.find({
-      profitMarginPercent: 0,
-      drawingPercent: 0,
-      documentsPercent: 0,
-      siteVisitPercent: 0,
-      marketingAndMiscPercent: 0,
-      officeManagementPercent: 0
+      $or: [
+        {
+          profitMarginPercent: 0,
+          drawingPercent: 0,
+          documentsPercent: 0,
+          siteVisitPercent: 0,
+          marketingAndMiscPercent: 0,
+          officeManagementPercent: 0
+        },
+        {
+          profitMarginPercent: { $exists: false },
+          drawingPercent: { $exists: false }
+        }
+      ]
     });
     
     console.log(`\n📊 Found ${projectsWithoutConfig.length} projects without expense distribution`);
@@ -51,16 +60,33 @@ async function applyDefaultPercentages() {
     // Update each project
     for (const project of projectsWithoutConfig) {
       try {
+        // Prepare update data
+        const updateData = {
+          ...DEFAULT_PERCENTAGES
+        };
+        
+        // If project has totalReceivedFees but no payments array, create one
+        if (project.totalReceivedFees > 0 && (!project.payments || project.payments.length === 0)) {
+          console.log(`   📄 Creating payment entry for ${project.projectName}`);
+          updateData.payments = [{
+            date: new Date(),
+            mode: 'Cash',
+            chequeNeftNumber: '',
+            amount: project.totalReceivedFees
+          }];
+        }
+        
         // Update the project with default percentages
         const updatedProject = await FinanceProject.findByIdAndUpdate(
           project._id,
           {
-            $set: {
-              ...DEFAULT_PERCENTAGES
-            }
+            $set: updateData
           },
           { new: true, runValidators: true }
         );
+        
+        // Trigger recalculation by saving again (to execute pre-save hooks)
+        await updatedProject.save();
         
         // Calculate the amounts based on received fees
         const receivedFees = updatedProject.totalReceivedFees || 0;
@@ -68,21 +94,25 @@ async function applyDefaultPercentages() {
         const amountForExpenses = receivedFees - associateAmount;
         
         console.log(`✅ Updated: ${updatedProject.projectName} (${updatedProject.projectNumber})`);
+        console.log(`   Finalized Fees: ₹${(updatedProject.finalizedFees || 0).toLocaleString('en-IN')}`);
         console.log(`   Total Received: ₹${receivedFees.toLocaleString('en-IN')}`);
+        console.log(`   Remaining: ₹${((updatedProject.finalizedFees || 0) - receivedFees).toLocaleString('en-IN')}`);
         console.log(`   Associate Share: ₹${associateAmount.toLocaleString('en-IN')}`);
         console.log(`   Amount for Expenses: ₹${amountForExpenses.toLocaleString('en-IN')}`);
         console.log(`   Calculated Amounts:`);
-        console.log(`     - Profit Margin: ₹${updatedProject.profitMargin?.toLocaleString('en-IN') || 0}`);
-        console.log(`     - Drawing: ₹${updatedProject.drawing?.toLocaleString('en-IN') || 0}`);
-        console.log(`     - Documents: ₹${updatedProject.documents?.toLocaleString('en-IN') || 0}`);
-        console.log(`     - Site Visit: ₹${updatedProject.siteVisit?.toLocaleString('en-IN') || 0}`);
-        console.log(`     - Marketing & Misc: ₹${updatedProject.marketingAndMisc?.toLocaleString('en-IN') || 0}`);
-        console.log(`     - Office Management: ₹${updatedProject.officeManagement?.toLocaleString('en-IN') || 0}\n`);
+        console.log(`     - Profit Margin (${DEFAULT_PERCENTAGES.profitMarginPercent}%): ₹${(updatedProject.profitMargin || 0).toLocaleString('en-IN')}`);
+        console.log(`     - Drawing (${DEFAULT_PERCENTAGES.drawingPercent}%): ₹${(updatedProject.drawing || 0).toLocaleString('en-IN')}`);
+        console.log(`     - Documents (${DEFAULT_PERCENTAGES.documentsPercent}%): ₹${(updatedProject.documents || 0).toLocaleString('en-IN')}`);
+        console.log(`     - Site Visit (${DEFAULT_PERCENTAGES.siteVisitPercent}%): ₹${(updatedProject.siteVisit || 0).toLocaleString('en-IN')}`);
+        console.log(`     - Marketing & Misc (${DEFAULT_PERCENTAGES.marketingAndMiscPercent}%): ₹${(updatedProject.marketingAndMisc || 0).toLocaleString('en-IN')}`);
+        console.log(`     - Office Management (${DEFAULT_PERCENTAGES.officeManagementPercent}%): ₹${(updatedProject.officeManagement || 0).toLocaleString('en-IN')}\n`);
         
         updatedProjects.push({
           projectNumber: updatedProject.projectNumber,
           projectName: updatedProject.projectName,
+          finalizedFees: updatedProject.finalizedFees || 0,
           totalReceivedFees: receivedFees,
+          remaining: (updatedProject.finalizedFees || 0) - receivedFees,
           amountForExpenses: amountForExpenses
         });
         

@@ -479,7 +479,7 @@ const ProjectPage = () => {
       const response = await FinanceService.applyDefaultPercentages();
       console.log('📊 Full response:', response);
       
-      if (response.success) {
+      if (response.status === 'success' || response.success) {
         const updatedCount = response.data?.updated || 0;
         console.log('✅ Updated count:', updatedCount);
         
@@ -491,7 +491,7 @@ const ProjectPage = () => {
           showSuccess('All projects already have expense distribution configured');
         }
       } else {
-        console.error('❌ Response success was false:', response);
+        console.error('❌ Response status was not success:', response);
         showError('Failed to apply default percentages');
       }
     } catch (error) {
