@@ -60,33 +60,35 @@ async function applyDefaultPercentages() {
     // Update each project
     for (const project of projectsWithoutConfig) {
       try {
-        // Prepare update data
-        const updateData = {
-          ...DEFAULT_PERCENTAGES
-        };
+        // Load the full project document
+        const projectDoc = await FinanceProject.findById(project._id);
+        
+        if (!projectDoc) {
+          console.log(`⚠️  Project ${project.projectNumber} not found, skipping...`);
+          continue;
+        }
+        
+        // Apply default percentages
+        projectDoc.profitMarginPercent = DEFAULT_PERCENTAGES.profitMarginPercent;
+        projectDoc.drawingPercent = DEFAULT_PERCENTAGES.drawingPercent;
+        projectDoc.documentsPercent = DEFAULT_PERCENTAGES.documentsPercent;
+        projectDoc.siteVisitPercent = DEFAULT_PERCENTAGES.siteVisitPercent;
+        projectDoc.marketingAndMiscPercent = DEFAULT_PERCENTAGES.marketingAndMiscPercent;
+        projectDoc.officeManagementPercent = DEFAULT_PERCENTAGES.officeManagementPercent;
         
         // If project has totalReceivedFees but no payments array, create one
-        if (project.totalReceivedFees > 0 && (!project.payments || project.payments.length === 0)) {
-          console.log(`   📄 Creating payment entry for ${project.projectName}`);
-          updateData.payments = [{
+        if (projectDoc.totalReceivedFees > 0 && (!projectDoc.payments || projectDoc.payments.length === 0)) {
+          console.log(`   📄 Creating payment entry for ${projectDoc.projectName} (₹${projectDoc.totalReceivedFees.toLocaleString('en-IN')})`);
+          projectDoc.payments = [{
             date: new Date(),
             mode: 'Cash',
             chequeNeftNumber: '',
-            amount: project.totalReceivedFees
+            amount: projectDoc.totalReceivedFees
           }];
         }
         
-        // Update the project with default percentages
-        const updatedProject = await FinanceProject.findByIdAndUpdate(
-          project._id,
-          {
-            $set: updateData
-          },
-          { new: true, runValidators: true }
-        );
-        
-        // Trigger recalculation by saving again (to execute pre-save hooks)
-        await updatedProject.save();
+        // Save the project - this will trigger pre-save hooks to calculate amounts
+        const updatedProject = await projectDoc.save();
         
         // Calculate the amounts based on received fees
         const receivedFees = updatedProject.totalReceivedFees || 0;
@@ -118,6 +120,7 @@ async function applyDefaultPercentages() {
         
       } catch (error) {
         console.error(`❌ Error updating project ${project.projectNumber}:`, error.message);
+        console.error(error.stack);
       }
     }
     
