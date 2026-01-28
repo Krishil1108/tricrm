@@ -467,6 +467,35 @@ const ProjectPage = () => {
     }
   };
 
+  const handleApplyDefaultPercentages = async () => {
+    if (!window.confirm('This will apply default expense distribution percentages (Profit Margin: 40%, Drawing: 30%, Documents: 2%, Site Visit: 10%, Marketing & Misc: 3%, Office Management: 15%) to all projects that don\'t have percentages configured. Continue?')) {
+      return;
+    }
+
+    try {
+      showLoading('Applying default percentages...');
+      const response = await FinanceService.applyDefaultPercentages();
+      
+      if (response.success) {
+        const updatedCount = response.data?.updated || 0;
+        if (updatedCount > 0) {
+          showSuccess(`Successfully applied default percentages to ${updatedCount} project(s)`);
+          fetchData(); // Refresh the project list
+          fetchStats(); // Refresh statistics
+        } else {
+          showSuccess('All projects already have expense distribution configured');
+        }
+      } else {
+        showError('Failed to apply default percentages');
+      }
+    } catch (error) {
+      console.error('Error applying default percentages:', error);
+      showError(error.response?.data?.message || 'Failed to apply default percentages');
+    } finally {
+      hideLoading();
+    }
+  };
+
   const handleAdd = () => {
     setEditingItem(null);
     if (activeTab === 'projects') {
@@ -1012,6 +1041,16 @@ const ProjectPage = () => {
                   </svg>
                 </div>
                 <span className="btn-text">Configure</span>
+              </button>
+            )}
+            {activeTab === 'projects' && canConfigurePercentagesGranular() && (
+              <button className="btn-secondary-modern export-enhanced" onClick={handleApplyDefaultPercentages}>
+                <div className="btn-icon-wrapper">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M9,10H7V12H9V10M13,10H11V12H13V10M17,10H15V12H17V10M19,3H18V1H16V3H8V1H6V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M19,19H5V8H19V19Z"/>
+                  </svg>
+                </div>
+                <span className="btn-text">Apply Defaults</span>
               </button>
             )}
             {activeTab === 'projects' && canImportExcel() && (

@@ -4,6 +4,7 @@ const FinanceProject = require('../models/FinanceProject');
 const BankExpense = require('../models/BankExpense');
 const { authenticate } = require('../middleware/auth');
 const ConfigurationVersionService = require('../services/ConfigurationVersionService');
+const { applyDefaultPercentages, DEFAULT_PERCENTAGES } = require('../scripts/applyDefaultPercentages');
 const multer = require('multer');
 const XLSX = require('xlsx');
 
@@ -233,6 +234,22 @@ router.delete('/projects/:id', authenticate, async (req, res) => {
     res.sendSuccess(null, 'Project deleted successfully');
   } catch (error) {
     console.error('Error deleting project:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Apply default expense percentages to projects without configuration
+router.post('/projects/apply-default-percentages', authenticate, async (req, res) => {
+  try {
+    const result = await applyDefaultPercentages();
+    
+    res.sendSuccess({
+      updated: result.updated,
+      projects: result.projects,
+      defaultPercentages: DEFAULT_PERCENTAGES
+    }, `Successfully applied default percentages to ${result.updated} project(s)`);
+  } catch (error) {
+    console.error('Error applying default percentages:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

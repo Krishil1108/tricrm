@@ -303,6 +303,21 @@ const FinanceService = {
       console.error('Error status:', error.response?.status);
       throw error;
     }
+  },
+
+  // ==================== UTILITY METHODS ====================
+  
+  // Apply default expense percentages to projects without configuration
+  applyDefaultPercentages: async () => {
+    try {
+      const response = await axios.post(`${API_URL}/finance/projects/apply-default-percentages`, {}, {
+        headers: getAuthHeader()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error applying default percentages:', error);
+      throw error;
+    }
   }
 };
 
