@@ -15,6 +15,9 @@ const HomePage = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [isEditingCompany, setIsEditingCompany] = useState(false);
+  const [searchResults, setSearchResults] = useState({ clients: [], projects: [], associates: [] });
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const [stats, setStats] = useState({
     totalProjects: 0,
     totalClients: 0,
@@ -77,6 +80,74 @@ const HomePage = () => {
 
     fetchDashboardStats();
   }, []);
+
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) {
+      setShowSearchResults(false);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const token = localStorage.getItem('token');
+      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
+
+      const [clientsRes, projectsRes, associatesRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/clients`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get(`${API_BASE_URL}/finance/projects`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get(`${API_BASE_URL}/associates`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
+
+      const searchLower = searchTerm.toLowerCase();
+      
+      const filteredClients = (clientsRes.data.data || []).filter(client =>
+        client.name?.toLowerCase().includes(searchLower) ||
+        client.email?.toLowerCase().includes(searchLower) ||
+        client.company?.toLowerCase().includes(searchLower)
+      );
+
+      const filteredProjects = (projectsRes.data.data || []).filter(project =>
+        project.projectName?.toLowerCase().includes(searchLower) ||
+        project.projectNumber?.toLowerCase().includes(searchLower)
+      );
+
+      const filteredAssociates = (associatesRes.data.data || []).filter(associate =>
+        associate.name?.toLowerCase().includes(searchLower) ||
+        associate.email?.toLowerCase().includes(searchLower) ||
+        associate.company?.toLowerCase().includes(searchLower)
+      );
+
+      setSearchResults({
+        clients: filteredClients.slice(0, 5),
+        projects: filteredProjects.slice(0, 5),
+        associates: filteredAssociates.slice(0, 5)
+      });
+      setShowSearchResults(true);
+    } catch (error) {
+      console.error('Error searching:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSearchKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    if (!e.target.value.trim()) {
+      setShowSearchResults(false);
+    }
+  };
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
@@ -216,16 +287,104 @@ const HomePage = () => {
               </svg>
               <input 
                 type="text" 
-                placeholder="Search clients, products, activities..."
+                placeholder="Search clients, projects, associates..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    alert(`Searching for: "${searchTerm}"`);
-                  }
-                }}
+                onChange={handleSearchChange}
+                onKeyPress={handleSearchKeyPress}
               />
+              {isSearching && <div className="search-spinner">🔄</div>}
             </div>
+
+            {/* Search Results Dropdown */}
+            {showSearchResults && (
+              <div className="search-results-dropdown">
+                {searchResults.clients.length === 0 && 
+                 searchResults.projects.length === 0 && 
+                 searchResults.associates.length === 0 ? (
+                  <div className="search-no-results">No results found for "{searchTerm}"</div>
+                ) : (
+                  <>
+                    {searchResults.clients.length > 0 && (
+                      <div className="search-section">
+                        <h4>Clients ({searchResults.clients.length})</h4>
+                        {searchResults.clients.map(client => (
+                          <div 
+                            key={client._id} 
+                            className="search-result-item"
+                            onClick={() => {
+                              navigate('/clients');
+                              setShowSearchResults(false);
+                              setSearchTerm('');
+                            }}
+                          >
+                            <div className="result-icon">👤</div>
+                            <div className="result-info">
+                              <div className="result-name">{client.name}</div>
+                              <div className="result-details">{client.company || client.email}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {searchResults.projects.length > 0 && (
+                      <div className="search-section">
+                        <h4>Projects ({searchResults.projects.length})</h4>
+                        {searchResults.projects.map(project => (
+                          <div 
+                            key={project._id} 
+                            className="search-result-item"
+                            onClick={() => {
+                              navigate('/projects');
+                              setShowSearchResults(false);
+                              setSearchTerm('');
+                            }}
+                          >
+                            <div className="result-icon">📁</div>
+                            <div className="result-info">
+                              <div className="result-name">{project.projectName}</div>
+                              <div className="result-details">{project.projectNumber}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {searchResults.associates.length > 0 && (
+                      <div className="search-section">
+                        <h4>Associates ({searchResults.associates.length})</h4>
+                        {searchResults.associates.map(associate => (
+                          <div 
+                            key={associate._id} 
+                            className="search-result-item"
+                            onClick={() => {
+                              navigate('/associates');
+                              setShowSearchResults(false);
+                              setSearchTerm('');
+                            }}
+                          >
+                            <div className="result-icon">🤝</div>
+                            <div className="result-info">
+                              <div className="result-name">{associate.name}</div>
+                              <div className="result-details">{associate.company || associate.email}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+                <button 
+                  className="close-search-btn"
+                  onClick={() => {
+                    setShowSearchResults(false);
+                    setSearchTerm('');
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
