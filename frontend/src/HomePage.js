@@ -70,7 +70,7 @@ const HomePage = () => {
                              Object.values(expensesRes.data.summary.customFields).reduce((sum, val) => sum + val, 0);
 
         setStats({
-          totalProjects: projectsRes.data.length || 0,
+          totalProjects: projectsRes.data.data?.length || 0,
           totalClients: clientsRes.data.data?.length || 0,
           totalAssociates: associatesRes.data.data?.length || 0,
           totalExpenses: totalExpenses,
