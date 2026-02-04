@@ -295,9 +295,9 @@ const CrossComparisonGraphs = ({ data, onExport, onDrillDown }) => {
                   ...chartOptions.plugins.tooltip,
                   callbacks: {
                     label: function(context) {
-                      const value = new Intl.NumberFormat('en-US', {
+                      const value = new Intl.NumberFormat('en-IN', {
                         style: 'currency',
-                        currency: 'USD'
+                        currency: 'INR'
                       }).format(context.parsed.y);
                       return `${context.dataset.label}: ${value}`;
                     }
@@ -347,9 +347,9 @@ const CrossComparisonGraphs = ({ data, onExport, onDrillDown }) => {
                       if (context.dataset.label.includes('Hours')) {
                         return `${context.dataset.label}: ${context.parsed.y}`;
                       } else {
-                        const value = new Intl.NumberFormat('en-US', {
+                        const value = new Intl.NumberFormat('en-IN', {
                           style: 'currency',
-                          currency: 'USD'
+                          currency: 'INR'
                         }).format(context.parsed.y);
                         return `${context.dataset.label}: ${value}`;
                       }
@@ -397,9 +397,9 @@ const CrossComparisonGraphs = ({ data, onExport, onDrillDown }) => {
                   ...chartOptions.plugins.tooltip,
                   callbacks: {
                     label: function(context) {
-                      const value = new Intl.NumberFormat('en-US', {
+                      const value = new Intl.NumberFormat('en-IN', {
                         style: 'currency',
-                        currency: 'USD'
+                        currency: 'INR'
                       }).format(context.parsed.y);
                       return `${context.dataset.label}: ${value}`;
                     }
@@ -446,9 +446,9 @@ const CrossComparisonGraphs = ({ data, onExport, onDrillDown }) => {
                   ...chartOptions.plugins.tooltip,
                   callbacks: {
                     label: function(context) {
-                      const value = new Intl.NumberFormat('en-US', {
+                      const value = new Intl.NumberFormat('en-IN', {
                         style: 'currency',
-                        currency: 'USD'
+                        currency: 'INR'
                       }).format(context.parsed.y);
                       return `${context.dataset.label}: ${value}`;
                     }
@@ -554,9 +554,9 @@ const CrossComparisonGraphs = ({ data, onExport, onDrillDown }) => {
                   ...chartOptions.plugins.tooltip,
                   callbacks: {
                     label: function(context) {
-                      const value = new Intl.NumberFormat('en-US', {
+                      const value = new Intl.NumberFormat('en-IN', {
                         style: 'currency',
-                        currency: 'USD'
+                        currency: 'INR'
                       }).format(context.parsed.y);
                       return `${context.dataset.label}: ${value}`;
                     }

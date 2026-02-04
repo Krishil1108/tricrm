@@ -217,7 +217,7 @@ const ProfitMarginGraphs = ({ data, onExport, onDrillDown }) => {
                       } else {
                         const value = new Intl.NumberFormat('en-US', {
                           style: 'currency',
-                          currency: 'USD'
+                          currency: 'INR'
                         }).format(context.parsed.y);
                         return `${context.dataset.label}: ${value}`;
                       }
@@ -273,7 +273,7 @@ const ProfitMarginGraphs = ({ data, onExport, onDrillDown }) => {
                     label: function(context) {
                       const value = new Intl.NumberFormat('en-US', {
                         style: 'currency',
-                        currency: 'USD'
+                        currency: 'INR'
                       }).format(context.parsed.y);
                       return `${context.dataset.label}: ${value}`;
                     }

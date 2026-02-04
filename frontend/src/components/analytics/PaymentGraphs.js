@@ -276,9 +276,9 @@ const PaymentGraphs = ({ data, onExport, onDrillDown }) => {
                   ...chartOptions.plugins.tooltip,
                   callbacks: {
                     label: function(context) {
-                      const value = new Intl.NumberFormat('en-US', {
+                      const value = new Intl.NumberFormat('en-IN', {
                         style: 'currency',
-                        currency: 'USD'
+                        currency: 'INR'
                       }).format(context.parsed.y);
                       return `${context.dataset.label}: ${value}`;
                     }
@@ -325,9 +325,9 @@ const PaymentGraphs = ({ data, onExport, onDrillDown }) => {
                   ...pieOptions.plugins.tooltip,
                   callbacks: {
                     label: function(context) {
-                      const value = new Intl.NumberFormat('en-US', {
+                      const value = new Intl.NumberFormat('en-IN', {
                         style: 'currency',
-                        currency: 'USD'
+                        currency: 'INR'
                       }).format(context.parsed);
                       const total = context.dataset.data.reduce((a, b) => a + b, 0);
                       const percentage = ((context.parsed / total) * 100).toFixed(1);
@@ -376,9 +376,9 @@ const PaymentGraphs = ({ data, onExport, onDrillDown }) => {
                   ...chartOptions.plugins.tooltip,
                   callbacks: {
                     label: function(context) {
-                      const value = new Intl.NumberFormat('en-US', {
+                      const value = new Intl.NumberFormat('en-IN', {
                         style: 'currency',
-                        currency: 'USD'
+                        currency: 'INR'
                       }).format(context.parsed.y);
                       return `${context.dataset.label}: ${value}`;
                     }

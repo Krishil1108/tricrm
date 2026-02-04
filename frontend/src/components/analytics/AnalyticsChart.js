@@ -257,9 +257,9 @@ const AnalyticsChart = ({
             const label = context.dataset.label || '';
             const value = context.parsed.y || context.parsed || 0;
             if (chartConfig.isCurrency) {
-              return `${label}: $${value.toLocaleString()}`;
+              return `${label}: ₹${value.toLocaleString('en-IN')}`;
             }
-            return `${label}: ${value.toLocaleString()}`;
+            return `${label}: ${value.toLocaleString('en-IN')}`;
           }
         }
       }
@@ -270,9 +270,9 @@ const AnalyticsChart = ({
         ticks: {
           callback: (value) => {
             if (chartConfig.isCurrency) {
-              return '$' + value.toLocaleString();
+              return '₹' + value.toLocaleString('en-IN');
             }
-            return value.toLocaleString();
+            return value.toLocaleString('en-IN');
           }
         }
       }
@@ -419,7 +419,7 @@ const AnalyticsChart = ({
       <div className="chart-display-compact">
         <div className="chart-meta-sm">
           <span className="meta-badge">
-            Total: <strong>{chartConfig.isCurrency ? `$${meta.total.toLocaleString()}` : meta.total.toLocaleString()}</strong>
+            Total: <strong>{chartConfig.isCurrency ? `₹${meta.total.toLocaleString('en-IN')}` : meta.total.toLocaleString('en-IN')}</strong>
           </span>
           {meta.groupBy && <span className="meta-badge">Grouping: <strong>{meta.groupBy}</strong></span>}
         </div>
