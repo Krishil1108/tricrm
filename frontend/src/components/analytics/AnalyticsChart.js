@@ -56,8 +56,8 @@ const AnalyticsChart = ({
   // Set initial date range based on chart type
   const getInitialDateRange = () => {
     const now = new Date();
-    if (chartType === 'revenue') {
-      // For revenue, show all-time data by default (last 5 years or from beginning)
+    if (chartType === 'revenue' || chartType === 'netprofit' || chartType === 'expenses') {
+      // For revenue, net profit, and expenses - show all-time data by default
       const fiveYearsAgo = new Date();
       fiveYearsAgo.setFullYear(now.getFullYear() - 5);
       return {
@@ -81,7 +81,7 @@ const AnalyticsChart = ({
 
   const [from, setFrom] = useState(initialRange.from);
   const [to, setTo] = useState(initialRange.to);
-  const [groupBy, setGroupBy] = useState(chartType === 'revenue' ? 'year' : 'month');
+  const [groupBy, setGroupBy] = useState((chartType === 'revenue' || chartType === 'netprofit' || chartType === 'expenses') ? 'year' : 'month');
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -147,6 +147,28 @@ const AnalyticsChart = ({
           showGroupBy: false,
           allowedVisuals: ['pie', 'doughnut', 'bar'],
           defaultVisual: 'doughnut',
+          isCurrency: true
+        };
+      case 'netprofit':
+        return {
+          title: '📈 Net Profit Analytics',
+          endpoint: '/analytics/netprofit/analytics',
+          description: 'Track net profit trends over time',
+          dataLabel: 'Net Profit',
+          showGroupBy: true,
+          allowedVisuals: ['bar', 'line'],
+          defaultVisual: 'bar',
+          isCurrency: true
+        };
+      case 'expenses':
+        return {
+          title: '📉 Expense Distribution',
+          endpoint: '/analytics/expenses/analytics',
+          description: 'Monitor expense trends and distribution',
+          dataLabel: 'Total Expenses',
+          showGroupBy: true,
+          allowedVisuals: ['bar', 'line'],
+          defaultVisual: 'bar',
           isCurrency: true
         };
       default:

@@ -111,6 +111,16 @@ router.get('/payments/analytics', (req, res, next) => {
   analyticsController.getPaymentAnalytics(req, res, next);
 });
 
+router.get('/netprofit/analytics', (req, res, next) => {
+  console.log('📊 [ANALYTICS] Net profit analytics requested');
+  analyticsController.getNetProfitAnalytics(req, res, next);
+});
+
+router.get('/expenses/analytics', (req, res, next) => {
+  console.log('📊 [ANALYTICS] Expenses analytics requested');
+  analyticsController.getExpensesAnalytics(req, res, next);
+});
+
 // Advanced chart endpoint with Python support
 router.get('/advanced-chart', (req, res, next) => {
   console.log('📊 [ANALYTICS] Advanced chart requested with config:', req.query);

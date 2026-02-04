@@ -312,6 +312,18 @@ const AnalyticsDashboard = () => {
             />
             
             <AnalyticsChart 
+              chartType="netprofit"
+              token={token}
+              apiBaseUrl={API_BASE_URL}
+            />
+            
+            <AnalyticsChart 
+              chartType="expenses"
+              token={token}
+              apiBaseUrl={API_BASE_URL}
+            />
+            
+            <AnalyticsChart 
               chartType="associates"
               token={token}
               apiBaseUrl={API_BASE_URL}

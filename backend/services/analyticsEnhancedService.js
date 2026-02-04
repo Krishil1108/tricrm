@@ -70,16 +70,21 @@ class AnalyticsEnhancedService {
     }
   }
 
-  // Revenue analytics over time (based on actual payment dates)
+  // Revenue analytics over time (based on actual payment dates and totalReceivedFees)
   async getRevenueAnalytics({ from, to, groupBy = 'month' }) {
     try {
       console.log('📊 [ENHANCED ANALYTICS] getRevenueAnalytics called with:', { from, to, groupBy });
       
-      // Build the aggregation pipeline to unwind payments and group by payment date
-      const pipeline = [
-        // Unwind the payments array to treat each payment as a separate document
-        { $unwind: { path: '$payments', preserveNullAndEmptyArrays: false } },
-        // Match payments within the date range
+      // Strategy: For projects with payments array, use payment dates
+      // For projects without payments array but with totalReceivedFees, use createdAt or updatedAt
+      
+      // First pipeline: Get revenue from individual payments
+      const paymentsRevenue = await FinanceProject.aggregate([
+        // Only projects with payments array
+        { $match: { payments: { $exists: true, $ne: [] } } },
+        // Unwind payments
+        { $unwind: { path: '$payments' } },
+        // Match date range if provided
         {
           $match: {
             ...(from || to ? {
@@ -90,13 +95,13 @@ class AnalyticsEnhancedService {
             } : {})
           }
         },
-        // Add a bucket field based on the groupBy parameter
+        // Add bucket
         {
           $addFields: {
             bucket: { $dateTrunc: { date: '$payments.date', unit: groupBy } }
           }
         },
-        // Group by the bucket and sum the payment amounts
+        // Group and sum
         {
           $group: {
             _id: '$bucket',
@@ -104,12 +109,71 @@ class AnalyticsEnhancedService {
             count: { $sum: 1 }
           }
         },
-        // Sort by date
         { $sort: { _id: 1 } }
-      ];
-
-      const rows = await FinanceProject.aggregate(pipeline);
+      ]);
+      
+      // Second pipeline: Get revenue from projects without payment details but with totalReceivedFees
+      const legacyRevenue = await FinanceProject.aggregate([
+        // Only projects without payments array OR empty payments, but with totalReceivedFees > 0
+        {
+          $match: {
+            $or: [
+              { payments: { $exists: false } },
+              { payments: { $size: 0 } }
+            ],
+            totalReceivedFees: { $gt: 0 }
+          }
+        },
+        // Use updatedAt as the date for grouping
+        {
+          $match: {
+            ...(from || to ? {
+              updatedAt: {
+                ...(from && { $gte: new Date(from) }),
+                ...(to && { $lte: new Date(to) })
+              }
+            } : {})
+          }
+        },
+        {
+          $addFields: {
+            bucket: { $dateTrunc: { date: '$updatedAt', unit: groupBy } }
+          }
+        },
+        {
+          $group: {
+            _id: '$bucket',
+            revenue: { $sum: { $toDouble: '$totalReceivedFees' } },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ]);
+      
+      // Merge both results
+      const mergedMap = new Map();
+      
+      [...paymentsRevenue, ...legacyRevenue].forEach(item => {
+        const key = item._id instanceof Date ? item._id.toISOString() : item._id;
+        if (mergedMap.has(key)) {
+          const existing = mergedMap.get(key);
+          existing.revenue += item.revenue;
+          existing.count += item.count;
+        } else {
+          mergedMap.set(key, { ...item });
+        }
+      });
+      
+      // Convert map back to array and sort
+      const rows = Array.from(mergedMap.values()).sort((a, b) => {
+        const dateA = a._id instanceof Date ? a._id : new Date(a._id);
+        const dateB = b._id instanceof Date ? b._id : new Date(b._id);
+        return dateA - dateB;
+      });
+      
       console.log('📊 [ENHANCED ANALYTICS] Revenue aggregation returned', rows.length, 'buckets');
+      console.log('📊 [ENHANCED ANALYTICS] Payments revenue buckets:', paymentsRevenue.length);
+      console.log('📊 [ENHANCED ANALYTICS] Legacy revenue buckets:', legacyRevenue.length);
 
       const labels = rows.map(r => r._id instanceof Date ? r._id.toISOString() : r._id);
       const values = rows.map(r => Math.round(r.revenue || 0));
@@ -256,6 +320,147 @@ class AnalyticsEnhancedService {
       };
     } catch (error) {
       console.error('❌ [ENHANCED ANALYTICS] Error in getPaymentAnalytics:', error);
+      throw error;
+    }
+  }
+
+  // Net Profit analytics over time
+  async getNetProfitAnalytics({ from, to, groupBy = 'month' }) {
+    try {
+      console.log('📊 [ENHANCED ANALYTICS] getNetProfitAnalytics called with:', { from, to, groupBy });
+      
+      const match = {};
+      if (from || to) {
+        match.updatedAt = {};
+        if (from) match.updatedAt.$gte = new Date(from);
+        if (to) match.updatedAt.$lte = new Date(to);
+      }
+
+      const pipeline = [
+        { $match: match },
+        {
+          $addFields: {
+            bucket: { $dateTrunc: { date: '$updatedAt', unit: groupBy } },
+            totalExpenses: {
+              $add: [
+                { $ifNull: ['$drawing', 0] },
+                { $ifNull: ['$documents', 0] },
+                { $ifNull: ['$siteVisit', 0] },
+                { $ifNull: ['$marketingAndMisc', 0] },
+                { $ifNull: ['$officeManagement', 0] }
+              ]
+            }
+          }
+        },
+        {
+          $group: {
+            _id: '$bucket',
+            revenue: { $sum: { $toDouble: { $ifNull: ['$totalReceivedFees', 0] } } },
+            expenses: { $sum: '$totalExpenses' },
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $addFields: {
+            netProfit: { $subtract: ['$revenue', '$expenses'] }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ];
+
+      const rows = await FinanceProject.aggregate(pipeline);
+      console.log('📊 [ENHANCED ANALYTICS] Net profit aggregation returned', rows.length, 'buckets');
+
+      const labels = rows.map(r => r._id instanceof Date ? r._id.toISOString() : r._id);
+      const values = rows.map(r => Math.round(r.netProfit || 0));
+      const revenues = rows.map(r => Math.round(r.revenue || 0));
+      const expenses = rows.map(r => Math.round(r.expenses || 0));
+      const total = values.reduce((a, b) => a + b, 0);
+
+      return {
+        labels,
+        values,
+        revenues,
+        expenses,
+        total,
+        groupBy,
+        from: from || null,
+        to: to || null
+      };
+    } catch (error) {
+      console.error('❌ [ENHANCED ANALYTICS] Error in getNetProfitAnalytics:', error);
+      throw error;
+    }
+  }
+
+  // Expense Distribution analytics over time
+  async getExpensesAnalytics({ from, to, groupBy = 'month' }) {
+    try {
+      console.log('📊 [ENHANCED ANALYTICS] getExpensesAnalytics called with:', { from, to, groupBy });
+      
+      const match = {};
+      if (from || to) {
+        match.updatedAt = {};
+        if (from) match.updatedAt.$gte = new Date(from);
+        if (to) match.updatedAt.$lte = new Date(to);
+      }
+
+      const pipeline = [
+        { $match: match },
+        {
+          $addFields: {
+            bucket: { $dateTrunc: { date: '$updatedAt', unit: groupBy } }
+          }
+        },
+        {
+          $group: {
+            _id: '$bucket',
+            drawing: { $sum: { $toDouble: { $ifNull: ['$drawing', 0] } } },
+            documents: { $sum: { $toDouble: { $ifNull: ['$documents', 0] } } },
+            siteVisit: { $sum: { $toDouble: { $ifNull: ['$siteVisit', 0] } } },
+            marketingAndMisc: { $sum: { $toDouble: { $ifNull: ['$marketingAndMisc', 0] } } },
+            officeManagement: { $sum: { $toDouble: { $ifNull: ['$officeManagement', 0] } } },
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $addFields: {
+            totalExpenses: {
+              $add: ['$drawing', '$documents', '$siteVisit', '$marketingAndMisc', '$officeManagement']
+            }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ];
+
+      const rows = await FinanceProject.aggregate(pipeline);
+      console.log('📊 [ENHANCED ANALYTICS] Expenses aggregation returned', rows.length, 'buckets');
+
+      const labels = rows.map(r => r._id instanceof Date ? r._id.toISOString() : r._id);
+      const values = rows.map(r => Math.round(r.totalExpenses || 0));
+      
+      // Breakdown by category
+      const breakdown = {
+        drawing: rows.map(r => Math.round(r.drawing || 0)),
+        documents: rows.map(r => Math.round(r.documents || 0)),
+        siteVisit: rows.map(r => Math.round(r.siteVisit || 0)),
+        marketingAndMisc: rows.map(r => Math.round(r.marketingAndMisc || 0)),
+        officeManagement: rows.map(r => Math.round(r.officeManagement || 0))
+      };
+
+      const total = values.reduce((a, b) => a + b, 0);
+
+      return {
+        labels,
+        values,
+        breakdown,
+        total,
+        groupBy,
+        from: from || null,
+        to: to || null
+      };
+    } catch (error) {
+      console.error('❌ [ENHANCED ANALYTICS] Error in getExpensesAnalytics:', error);
       throw error;
     }
   }

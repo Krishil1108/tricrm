@@ -340,6 +340,30 @@ class AnalyticsController {
       res.status(500).json({ error: 'Failed to fetch payment analytics', details: error.message });
     }
   }
+
+  async getNetProfitAnalytics(req, res) {
+    console.log('📊 [ANALYTICS CONTROLLER] getNetProfitAnalytics called');
+    try {
+      const { from, to, groupBy = 'month' } = req.query;
+      const data = await analyticsEnhancedService.getNetProfitAnalytics({ from, to, groupBy });
+      res.json(data);
+    } catch (error) {
+      console.error('❌ [ANALYTICS CONTROLLER] Error in getNetProfitAnalytics:', error);
+      res.status(500).json({ error: 'Failed to fetch net profit analytics', details: error.message });
+    }
+  }
+
+  async getExpensesAnalytics(req, res) {
+    console.log('📊 [ANALYTICS CONTROLLER] getExpensesAnalytics called');
+    try {
+      const { from, to, groupBy = 'month' } = req.query;
+      const data = await analyticsEnhancedService.getExpensesAnalytics({ from, to, groupBy });
+      res.json(data);
+    } catch (error) {
+      console.error('❌ [ANALYTICS CONTROLLER] Error in getExpensesAnalytics:', error);
+      res.status(500).json({ error: 'Failed to fetch expenses analytics', details: error.message });
+    }
+  }
 }
 
 module.exports = new AnalyticsController();
