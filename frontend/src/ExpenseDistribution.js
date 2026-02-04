@@ -4,9 +4,6 @@ import './ExpenseDistribution.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
 
-console.log('🔧 [ExpenseDistribution] REACT_APP_API_BASE_URL:', process.env.REACT_APP_API_BASE_URL);
-console.log('🔧 [ExpenseDistribution] Final API_BASE_URL:', API_BASE_URL);
-
 const ExpenseDistribution = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

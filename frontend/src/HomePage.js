@@ -39,8 +39,6 @@ const HomePage = () => {
         const token = localStorage.getItem('token');
         const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
         
-        console.log('Fetching dashboard stats from:', API_BASE_URL);
-        
         // Fetch all stats in parallel
         const [projectsRes, clientsRes, associatesRes, expensesRes] = await Promise.all([
           axios.get(`${API_BASE_URL}/finance/projects`, {
@@ -56,11 +54,6 @@ const HomePage = () => {
             headers: { Authorization: `Bearer ${token}` }
           })
         ]);
-
-        console.log('Projects:', projectsRes.data);
-        console.log('Clients:', clientsRes.data);
-        console.log('Associates:', associatesRes.data);
-        console.log('Expenses:', expensesRes.data);
 
         const totalExpenses = expensesRes.data.summary.drawing +
                              expensesRes.data.summary.documents +
@@ -78,7 +71,6 @@ const HomePage = () => {
         });
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
-        console.error('Error details:', error.response?.data || error.message);
         setStats(prev => ({ ...prev, loading: false }));
       }
     };
