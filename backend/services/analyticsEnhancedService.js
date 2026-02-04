@@ -394,15 +394,20 @@ class AnalyticsEnhancedService {
   }
 
   // Expense Distribution analytics over time
-  async getExpensesAnalytics({ from, to, groupBy = 'month' }) {
+  async getExpensesAnalytics({ from, to, groupBy = 'month', category = 'all' }) {
     try {
-      console.log('📊 [ENHANCED ANALYTICS] getExpensesAnalytics called with:', { from, to, groupBy });
+      console.log('📊 [ENHANCED ANALYTICS] getExpensesAnalytics called with:', { from, to, groupBy, category });
       
       const match = {};
       if (from || to) {
         match.updatedAt = {};
         if (from) match.updatedAt.$gte = new Date(from);
         if (to) match.updatedAt.$lte = new Date(to);
+      }
+
+      // If a specific category is selected, only include projects that have that expense
+      if (category !== 'all') {
+        match[category] = { $exists: true, $gt: 0 };
       }
 
       const pipeline = [
@@ -437,9 +442,31 @@ class AnalyticsEnhancedService {
       console.log('📊 [ENHANCED ANALYTICS] Expenses aggregation returned', rows.length, 'buckets');
 
       const labels = rows.map(r => r._id instanceof Date ? r._id.toISOString() : r._id);
-      const values = rows.map(r => Math.round(r.totalExpenses || 0));
       
-      // Breakdown by category
+      // Determine which values to return based on category
+      let values, dataLabel;
+      
+      if (category === 'all') {
+        values = rows.map(r => Math.round(r.totalExpenses || 0));
+        dataLabel = 'Total Expenses';
+      } else if (category === 'drawing') {
+        values = rows.map(r => Math.round(r.drawing || 0));
+        dataLabel = 'Drawing';
+      } else if (category === 'documents') {
+        values = rows.map(r => Math.round(r.documents || 0));
+        dataLabel = 'Documents';
+      } else if (category === 'siteVisit') {
+        values = rows.map(r => Math.round(r.siteVisit || 0));
+        dataLabel = 'Site Visit';
+      } else if (category === 'marketingAndMisc') {
+        values = rows.map(r => Math.round(r.marketingAndMisc || 0));
+        dataLabel = 'Marketing & Misc';
+      } else if (category === 'officeManagement') {
+        values = rows.map(r => Math.round(r.officeManagement || 0));
+        dataLabel = 'Office Management';
+      }
+      
+      // Breakdown by category (always include for reference)
       const breakdown = {
         drawing: rows.map(r => Math.round(r.drawing || 0)),
         documents: rows.map(r => Math.round(r.documents || 0)),
@@ -456,6 +483,8 @@ class AnalyticsEnhancedService {
         breakdown,
         total,
         groupBy,
+        category,
+        dataLabel,
         from: from || null,
         to: to || null
       };

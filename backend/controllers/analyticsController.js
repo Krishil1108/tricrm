@@ -356,8 +356,8 @@ class AnalyticsController {
   async getExpensesAnalytics(req, res) {
     console.log('📊 [ANALYTICS CONTROLLER] getExpensesAnalytics called');
     try {
-      const { from, to, groupBy = 'month' } = req.query;
-      const data = await analyticsEnhancedService.getExpensesAnalytics({ from, to, groupBy });
+      const { from, to, groupBy = 'month', category = 'all' } = req.query;
+      const data = await analyticsEnhancedService.getExpensesAnalytics({ from, to, groupBy, category });
       res.json(data);
     } catch (error) {
       console.error('❌ [ANALYTICS CONTROLLER] Error in getExpensesAnalytics:', error);

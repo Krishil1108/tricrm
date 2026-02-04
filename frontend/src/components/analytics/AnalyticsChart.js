@@ -90,6 +90,7 @@ const AnalyticsChart = ({
   const [preset, setPreset] = useState(initialRange.preset);
   const [meta, setMeta] = useState({ total: 0 });
   const [visualType, setVisualType] = useState('bar');
+  const [expenseCategory, setExpenseCategory] = useState('all'); // For expenses chart
   const chartRef = useRef(null);
 
   // Chart configuration based on type
@@ -196,6 +197,8 @@ const AnalyticsChart = ({
       // Only add from/to if they have values (empty string means fetch all data)
       if (from && from.trim()) params.append('from', from);
       if (to && to.trim()) params.append('to', to);
+      // Add category for expenses chart
+      if (chartType === 'expenses') params.append('category', expenseCategory);
 
       const url = `${apiBaseUrl}${chartConfig.endpoint}?${params.toString()}`;
       console.log('📊 Fetching analytics:', url);
@@ -214,7 +217,7 @@ const AnalyticsChart = ({
         throw new Error('Invalid data structure received from server');
       }
 
-      const labels = (chartType === 'clients' || chartType === 'revenue' || (chartType === 'projects' && groupBy !== 'status' && groupBy !== 'client'))
+      const labels = (chartType === 'clients' || chartType === 'revenue' || chartType === 'netprofit' || chartType === 'expenses' || (chartType === 'projects' && groupBy !== 'status' && groupBy !== 'client'))
         ? (data.labels || []).map(l => formatLabel(l, groupBy))
         : (data.labels || []);
 
@@ -224,7 +227,7 @@ const AnalyticsChart = ({
         labels,
         datasets: [
           {
-            label: chartConfig.dataLabel,
+            label: data.dataLabel || chartConfig.dataLabel,
             data: data.values || [],
             backgroundColor: colors,
             borderColor: colors.map((c) => c.replace('0.8', '1')),
@@ -253,7 +256,7 @@ const AnalyticsChart = ({
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [from, to, groupBy, chartType]);
+  }, [from, to, groupBy, chartType, expenseCategory]);
 
   useEffect(() => {
     if (!live) return undefined;
@@ -262,7 +265,7 @@ const AnalyticsChart = ({
     }, refreshMs);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [live, refreshMs, from, to, groupBy, chartType]);
+  }, [live, refreshMs, from, to, groupBy, chartType, expenseCategory]);
 
   const chartOptions = useMemo(() => ({
     responsive: true,
@@ -419,6 +422,19 @@ const AnalyticsChart = ({
                 </select>
               </div>
             </>
+          )}
+          {chartType === 'expenses' && (
+            <div className="control-group-inline">
+              <label>Category</label>
+              <select value={expenseCategory} onChange={(e) => setExpenseCategory(e.target.value)} className="control-input-sm">
+                <option value="all">All</option>
+                <option value="drawing">Drawing (30%)</option>
+                <option value="documents">Documents (2%)</option>
+                <option value="siteVisit">Site Visit (10%)</option>
+                <option value="marketingAndMisc">Marketing & Misc (3%)</option>
+                <option value="officeManagement">Office Management (15%)</option>
+              </select>
+            </div>
           )}
           <div className="control-group-inline">
             <button className="btn-refresh-sm" onClick={fetchData} disabled={loading}>
