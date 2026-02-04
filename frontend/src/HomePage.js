@@ -71,8 +71,8 @@ const HomePage = () => {
 
         setStats({
           totalProjects: projectsRes.data.length || 0,
-          totalClients: clientsRes.data.length || 0,
-          totalAssociates: associatesRes.data.length || 0,
+          totalClients: clientsRes.data.data?.length || 0,
+          totalAssociates: associatesRes.data.data?.length || 0,
           totalExpenses: totalExpenses,
           loading: false
         });
