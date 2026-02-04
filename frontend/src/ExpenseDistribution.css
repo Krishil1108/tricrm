@@ -46,7 +46,6 @@
 
 /* Loading and Error States */
 .expense-distribution-container .loading-state,
-.expense-distribution-container .error-state {r .loading-state,
 .expense-distribution-container .error-state {
   display: flex;
   flex-direction: column;
@@ -95,14 +94,14 @@
 }
 
 /* Summary Cards Grid - Scoped to Expense Distribution */
-.expense-distribution-container .expense-summary-cards-grid {-container .expense-summary-cards-grid {
+.expense-distribution-container .expense-summary-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
   margin-bottom: 32px;
 }
 
-.expense-distribution-container .expense-summary-card {bution-container .expense-summary-card {
+.expense-distribution-container .expense-summary-card {
   background: white;
   border-radius: 12px;
   padding: 20px;
@@ -118,7 +117,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.expense-distribution-container .expense-summary-card.total-card {ainer .expense-summary-card.total-card {
+.expense-distribution-container .expense-summary-card.total-card {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
 }
