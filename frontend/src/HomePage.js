@@ -292,7 +292,13 @@ const HomePage = () => {
                 onChange={handleSearchChange}
                 onKeyPress={handleSearchKeyPress}
               />
-              {isSearching && <div className="search-spinner">🔄</div>}
+              {isSearching && (
+                <div className="search-spinner">
+                  <div className="spinner-dot"></div>
+                  <div className="spinner-dot"></div>
+                  <div className="spinner-dot"></div>
+                </div>
+              )}
             </div>
 
             {/* Search Results Dropdown */}
