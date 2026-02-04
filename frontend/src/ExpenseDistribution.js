@@ -34,6 +34,7 @@ const ExpenseDistribution = () => {
         headers: { Authorization: `Bearer ${token}` }
       };
 
+      console.log('📊 Fetching expense distribution from:', `${API_BASE_URL}/analytics/expense-distribution`);
       const response = await axios.get(`${API_BASE_URL}/analytics/expense-distribution`, config);
       
       setSummary(response.data.summary);
@@ -41,7 +42,26 @@ const ExpenseDistribution = () => {
       setClients(response.data.clients);
     } catch (err) {
       console.error('Error fetching expense data:', err);
-      setError(err.response?.data?.message || 'Failed to load expense distribution data');
+      console.error('API URL:', `${API_BASE_URL}/analytics/expense-distribution`);
+      console.error('Error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status
+      });
+      
+      let errorMessage = 'Failed to load expense distribution data';
+      
+      if (err.code === 'ERR_NETWORK' || err.message.includes('Network Error')) {
+        errorMessage = 'Network error: Unable to connect to server. Please check if the backend is running.';
+      } else if (err.response?.status === 404) {
+        errorMessage = 'Endpoint not found. Please ensure backend is updated with latest changes.';
+      } else if (err.response?.status === 401) {
+        errorMessage = 'Unauthorized. Please log in again.';
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -92,6 +112,11 @@ const ExpenseDistribution = () => {
       <div className="expense-distribution-container">
         <div className="error-state">
           <p>❌ {error}</p>
+          {error.includes('Network error') && (
+            <p style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>
+              💡 If you're on production, the backend may need to be redeployed with the latest changes.
+            </p>
+          )}
           <button onClick={fetchExpenseData} className="retry-btn">Retry</button>
         </div>
       </div>
