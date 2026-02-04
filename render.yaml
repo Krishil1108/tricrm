@@ -9,6 +9,7 @@ services:
     region: oregon
     plan: starter  # Free tier: starter, Paid: standard/pro
     buildCommand: |
+      export REACT_APP_API_BASE_URL=https://trimity-crm-backend.onrender.com/api
       cd frontend && npm ci && npm run build
       cd ../backend && npm ci --production --silent
     startCommand: cd backend && npm start
