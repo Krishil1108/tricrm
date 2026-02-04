@@ -24,6 +24,7 @@ import ProjectPage from './ProjectPage';
 import UserManagementPage from './UserManagementPage';
 import RoleManagementPage from './RoleManagementPage';
 import AnalyticsDashboard from './AnalyticsDashboard';
+import ExpenseDistribution from './ExpenseDistribution';
 
 function App() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
@@ -133,6 +134,15 @@ function App() {
                               element={
                                 <ProtectedRoute requireModule="finance">
                                   <AnalyticsDashboard />
+                                </ProtectedRoute>
+                              } 
+                            />
+                            
+                            <Route 
+                              path="/expense-distribution" 
+                              element={
+                                <ProtectedRoute requireModule="finance">
+                                  <ExpenseDistribution />
                                 </ProtectedRoute>
                               } 
                             />
