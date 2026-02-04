@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import * as XLSX from 'xlsx';
 import './ExpenseDistribution.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
@@ -21,6 +22,8 @@ const ExpenseDistribution = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 25;
+  const [selectedFinancialYear, setSelectedFinancialYear] = useState('');
+  const [showExportModal, setShowExportModal] = useState(false);
 
   useEffect(() => {
     fetchExpenseData();
@@ -87,6 +90,271 @@ const ExpenseDistribution = () => {
       officeManagement: 'Office Management'
     };
     return labels[fieldKey] || fieldKey;
+  };
+
+  // Generate available financial years (April to March)
+  const getFinancialYears = () => {
+    const years = [];
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth(); // 0-11
+    
+    // If current month is Jan-Mar, we're in previous year's FY
+    const startYear = currentMonth < 3 ? currentYear - 5 : currentYear - 4;
+    const endYear = currentMonth < 3 ? currentYear : currentYear + 1;
+    
+    for (let year = startYear; year <= endYear; year++) {
+      years.push({
+        value: `${year}-${year + 1}`,
+        label: `FY ${year}-${(year + 1).toString().slice(-2)}`
+      });
+    }
+    
+    return years.reverse(); // Most recent first
+  };
+
+  // Get financial year from a date (April to March)
+  const getFinancialYearFromDate = (date) => {
+    if (!date) return null;
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = d.getMonth(); // 0-11
+    
+    // If month is Jan-Mar (0-2), FY is (year-1)-year
+    // If month is Apr-Dec (3-11), FY is year-(year+1)
+    if (month < 3) {
+      return `${year - 1}-${year}`;
+    } else {
+      return `${year}-${year + 1}`;
+    }
+  };
+
+  // Export to Excel with financial year data
+  const exportToExcel = async () => {
+    if (!selectedFinancialYear) {
+      alert('Please select a financial year to export');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      // Fetch all projects and associates data
+      const token = localStorage.getItem('token');
+      const config = {
+        headers: { Authorization: `Bearer ${token}` }
+      };
+
+      const [projectsRes, associatesRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/finance/projects`, config),
+        axios.get(`${API_BASE_URL}/associates`, config)
+      ]);
+
+      const allProjects = projectsRes.data.data || [];
+      const allAssociates = associatesRes.data.data || [];
+
+      // Filter projects for selected financial year
+      const fyProjects = allProjects.filter(project => {
+        const projectFY = getFinancialYearFromDate(project.date);
+        return projectFY === selectedFinancialYear;
+      });
+
+      // Create workbook
+      const wb = XLSX.utils.book_new();
+
+      // Sheet 1: Summary
+      const summaryData = [
+        ['Financial Year Report'],
+        [`Financial Year: ${selectedFinancialYear}`],
+        [`Generated on: ${new Date().toLocaleDateString('en-IN')}`],
+        [],
+        ['Summary Statistics'],
+        ['Total Projects', fyProjects.length],
+        ['Total Finalized Fees', fyProjects.reduce((sum, p) => sum + (p.finalizedFees || 0), 0)],
+        ['Total Received Payments', fyProjects.reduce((sum, p) => sum + (p.totalReceivedFees || 0), 0)],
+        ['Total Remaining', fyProjects.reduce((sum, p) => sum + ((p.finalizedFees || 0) - (p.totalReceivedFees || 0)), 0)],
+        [],
+        ['Expense Distribution'],
+        ['Drawing', fyProjects.reduce((sum, p) => sum + (p.expenses?.drawing || 0), 0)],
+        ['Documents', fyProjects.reduce((sum, p) => sum + (p.expenses?.documents || 0), 0)],
+        ['Site Visit', fyProjects.reduce((sum, p) => sum + (p.expenses?.siteVisit || 0), 0)],
+        ['Marketing & Misc', fyProjects.reduce((sum, p) => sum + (p.expenses?.marketingAndMisc || 0), 0)],
+        ['Office Management', fyProjects.reduce((sum, p) => sum + (p.expenses?.officeManagement || 0), 0)]
+      ];
+
+      const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+      XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');
+
+      // Sheet 2: Projects with Payments
+      const projectHeaders = [
+        'Project Number',
+        'Project Name',
+        'Client Name',
+        'Date',
+        'Status',
+        'Finalized Fees',
+        'Total Received',
+        'Remaining Amount',
+        'Drawing',
+        'Documents',
+        'Site Visit',
+        'Marketing & Misc',
+        'Office Management'
+      ];
+
+      const projectRows = fyProjects.map(project => [
+        project.projectNumber || '',
+        project.projectName || '',
+        project.clientName || '',
+        project.date ? new Date(project.date).toLocaleDateString('en-IN') : '',
+        project.status || '',
+        project.finalizedFees || 0,
+        project.totalReceivedFees || 0,
+        (project.finalizedFees || 0) - (project.totalReceivedFees || 0),
+        project.expenses?.drawing || 0,
+        project.expenses?.documents || 0,
+        project.expenses?.siteVisit || 0,
+        project.expenses?.marketingAndMisc || 0,
+        project.expenses?.officeManagement || 0
+      ]);
+
+      const projectData = [projectHeaders, ...projectRows];
+      const projectSheet = XLSX.utils.aoa_to_sheet(projectData);
+      XLSX.utils.book_append_sheet(wb, projectSheet, 'Projects');
+
+      // Sheet 3: Payment Details
+      const paymentHeaders = [
+        'Project Number',
+        'Project Name',
+        'Payment Date',
+        'Amount',
+        'Payment Mode',
+        'Transaction ID',
+        'Remarks'
+      ];
+
+      const paymentRows = [];
+      fyProjects.forEach(project => {
+        if (project.payments && project.payments.length > 0) {
+          project.payments.forEach(payment => {
+            paymentRows.push([
+              project.projectNumber || '',
+              project.projectName || '',
+              payment.date ? new Date(payment.date).toLocaleDateString('en-IN') : '',
+              payment.amount || 0,
+              payment.paymentMode || '',
+              payment.transactionId || '',
+              payment.remarks || ''
+            ]);
+          });
+        }
+      });
+
+      const paymentData = [paymentHeaders, ...paymentRows];
+      const paymentSheet = XLSX.utils.aoa_to_sheet(paymentData);
+      XLSX.utils.book_append_sheet(wb, paymentSheet, 'Payment Details');
+
+      // Sheet 4: Associate Distribution
+      const associateHeaders = [
+        'Associate Name',
+        'Company',
+        'Total Funds Allocated',
+        'Total Funds Received',
+        'Remaining Balance',
+        'Number of Projects'
+      ];
+
+      const associateDistribution = {};
+      
+      fyProjects.forEach(project => {
+        if (project.projectAssociates && project.projectAssociates.length > 0) {
+          project.projectAssociates.forEach(assoc => {
+            const key = assoc.associateId || assoc.name;
+            if (!associateDistribution[key]) {
+              associateDistribution[key] = {
+                name: assoc.name || '',
+                company: assoc.company || '',
+                totalAllocated: 0,
+                totalReceived: 0,
+                projects: new Set()
+              };
+            }
+            associateDistribution[key].totalAllocated += assoc.percentage || 0;
+            associateDistribution[key].totalReceived += assoc.totalDistributed || 0;
+            associateDistribution[key].projects.add(project.projectNumber);
+          });
+        }
+      });
+
+      const associateRows = Object.values(associateDistribution).map(assoc => [
+        assoc.name,
+        assoc.company,
+        assoc.totalAllocated,
+        assoc.totalReceived,
+        assoc.totalAllocated - assoc.totalReceived,
+        assoc.projects.size
+      ]);
+
+      const associateData = [associateHeaders, ...associateRows];
+      const associateSheet = XLSX.utils.aoa_to_sheet(associateData);
+      XLSX.utils.book_append_sheet(wb, associateSheet, 'Associate Distribution');
+
+      // Sheet 5: Expense Categories Breakdown
+      const expenseHeaders = [
+        'Category',
+        'Total Amount',
+        'Percentage of Total'
+      ];
+
+      const totalExpenses = fyProjects.reduce((sum, p) => {
+        return sum + 
+          (p.expenses?.drawing || 0) +
+          (p.expenses?.documents || 0) +
+          (p.expenses?.siteVisit || 0) +
+          (p.expenses?.marketingAndMisc || 0) +
+          (p.expenses?.officeManagement || 0);
+      }, 0);
+
+      const expenseRows = [
+        ['Drawing', 
+         fyProjects.reduce((sum, p) => sum + (p.expenses?.drawing || 0), 0),
+         totalExpenses > 0 ? ((fyProjects.reduce((sum, p) => sum + (p.expenses?.drawing || 0), 0) / totalExpenses) * 100).toFixed(2) + '%' : '0%'
+        ],
+        ['Documents',
+         fyProjects.reduce((sum, p) => sum + (p.expenses?.documents || 0), 0),
+         totalExpenses > 0 ? ((fyProjects.reduce((sum, p) => sum + (p.expenses?.documents || 0), 0) / totalExpenses) * 100).toFixed(2) + '%' : '0%'
+        ],
+        ['Site Visit',
+         fyProjects.reduce((sum, p) => sum + (p.expenses?.siteVisit || 0), 0),
+         totalExpenses > 0 ? ((fyProjects.reduce((sum, p) => sum + (p.expenses?.siteVisit || 0), 0) / totalExpenses) * 100).toFixed(2) + '%' : '0%'
+        ],
+        ['Marketing & Misc',
+         fyProjects.reduce((sum, p) => sum + (p.expenses?.marketingAndMisc || 0), 0),
+         totalExpenses > 0 ? ((fyProjects.reduce((sum, p) => sum + (p.expenses?.marketingAndMisc || 0), 0) / totalExpenses) * 100).toFixed(2) + '%' : '0%'
+        ],
+        ['Office Management',
+         fyProjects.reduce((sum, p) => sum + (p.expenses?.officeManagement || 0), 0),
+         totalExpenses > 0 ? ((fyProjects.reduce((sum, p) => sum + (p.expenses?.officeManagement || 0), 0) / totalExpenses) * 100).toFixed(2) + '%' : '0%'
+        ]
+      ];
+
+      const expenseData = [expenseHeaders, ...expenseRows];
+      const expenseSheet = XLSX.utils.aoa_to_sheet(expenseData);
+      XLSX.utils.book_append_sheet(wb, expenseSheet, 'Expense Breakdown');
+
+      // Generate and download
+      const [startYear, endYear] = selectedFinancialYear.split('-');
+      const fileName = `Financial_Report_FY${startYear}-${endYear}_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+
+      setShowExportModal(false);
+      alert('Excel file downloaded successfully!');
+    } catch (err) {
+      console.error('Error exporting to Excel:', err);
+      alert('Failed to export data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredProjects = projects.filter(project =>
@@ -234,10 +502,113 @@ const ExpenseDistribution = () => {
     <div className="expense-distribution-container">
       <div className="page-header">
         <h1>💰 Expense Distribution</h1>
-        <button onClick={fetchExpenseData} className="refresh-btn" disabled={loading}>
-          {loading ? '⏳' : '🔄'} Refresh
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            onClick={() => setShowExportModal(true)} 
+            className="export-excel-btn"
+            style={{
+              padding: '10px 20px',
+              background: '#10b981',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              fontSize: '14px',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}
+          >
+            📊 Export Financial Year Report
+          </button>
+          <button onClick={fetchExpenseData} className="refresh-btn" disabled={loading}>
+            {loading ? '⏳' : '🔄'} Refresh
+          </button>
+        </div>
       </div>
+
+      {/* Export Modal */}
+      {showExportModal && (
+        <div className="modal-overlay" onClick={() => setShowExportModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <div className="modal-header">
+              <h2>📊 Export Financial Year Report</h2>
+              <button className="close-btn" onClick={() => setShowExportModal(false)}>×</button>
+            </div>
+            <div className="modal-body" style={{ padding: '20px' }}>
+              <p style={{ marginBottom: '20px', color: '#666' }}>
+                Select a financial year (April to March) to export a comprehensive Excel report including:
+              </p>
+              <ul style={{ marginBottom: '20px', color: '#666', paddingLeft: '20px' }}>
+                <li>Project details and payment status</li>
+                <li>Incoming payments and remaining amounts</li>
+                <li>Expense distribution across categories</li>
+                <li>Funds allocated to associates</li>
+                <li>Detailed payment transactions</li>
+              </ul>
+              
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#1f2937' }}>
+                  Financial Year:
+                </label>
+                <select
+                  value={selectedFinancialYear}
+                  onChange={(e) => setSelectedFinancialYear(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '2px solid #3b82f6',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    fontWeight: '500'
+                  }}
+                >
+                  <option value="">Select Financial Year</option>
+                  {getFinancialYears().map(fy => (
+                    <option key={fy.value} value={fy.value}>{fy.label}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => setShowExportModal(false)}
+                  style={{
+                    padding: '10px 20px',
+                    background: '#e5e7eb',
+                    color: '#1f2937',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: '500'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={exportToExcel}
+                  disabled={!selectedFinancialYear || loading}
+                  style={{
+                    padding: '10px 20px',
+                    background: selectedFinancialYear && !loading ? '#3b82f6' : '#d1d5db',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: selectedFinancialYear && !loading ? 'pointer' : 'not-allowed',
+                    fontWeight: '500'
+                  }}
+                >
+                  {loading ? 'Generating...' : '📥 Download Excel'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Summary Cards */}
       <div className="expense-summary-cards-grid">

@@ -989,7 +989,11 @@ const ProjectPage = () => {
       
       const matchesStatus = filterStatus === 'all' || project.status === filterStatus;
       
-      return matchesSearch && matchesStatus;
+      // Filter by year - extract year from project date
+      const projectYear = project.date ? new Date(project.date).getFullYear().toString() : '';
+      const matchesYear = !filters.year || filters.year === 'all' || projectYear === filters.year;
+      
+      return matchesSearch && matchesStatus && matchesYear;
     });
   };
 
@@ -1248,12 +1252,16 @@ const ProjectPage = () => {
               onChange={(e) => setFilterStatus(e.target.value)}
               style={{ 
                 padding: '12px 16px', 
-                border: '2px solid #e5e7eb', 
+                border: '2px solid #3b82f6', 
                 borderRadius: '8px',
                 fontSize: '14px',
+                fontWeight: '500',
                 background: 'white',
                 minWidth: '140px',
-                outline: 'none'
+                outline: 'none',
+                cursor: 'pointer',
+                color: '#1f2937',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
               }}
             >
               <option value="all">All Status</option>
@@ -1270,12 +1278,16 @@ const ProjectPage = () => {
             onChange={(e) => setFilters({ ...filters, year: e.target.value })}
             style={{ 
               padding: '12px 16px', 
-              border: '2px solid #e5e7eb', 
+              border: '2px solid #3b82f6', 
               borderRadius: '8px',
               fontSize: '14px',
               background: 'white',
-              minWidth: '100px',
-              outline: 'none'
+              minWidth: '120px',
+              outline: 'none',
+              cursor: 'pointer',
+              fontWeight: '500',
+              color: '#1f2937',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
             }}
           >
             <option value="2024">2024</option>
