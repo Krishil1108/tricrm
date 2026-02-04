@@ -346,6 +346,59 @@
   font-style: italic;
 }
 
+/* Pagination Styles */
+.expense-distribution-container .pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 20px 0;
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.expense-distribution-container .pagination-btn {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  min-width: 40px;
+}
+
+.expense-distribution-container .pagination-btn:hover:not(:disabled) {
+  background: #f0f0f0;
+  border-color: #007bff;
+}
+
+.expense-distribution-container .pagination-btn.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.expense-distribution-container .pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.expense-distribution-container .pagination-ellipsis {
+  padding: 0 8px;
+  color: #666;
+}
+
+.expense-distribution-container .pagination-info {
+  margin-left: 16px;
+  color: #666;
+  font-size: 14px;
+  padding: 0 8px;
+  border-left: 1px solid #ddd;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .expense-distribution-container .expense-summary-cards-grid {

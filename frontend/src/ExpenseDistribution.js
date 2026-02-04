@@ -22,6 +22,8 @@ const ExpenseDistribution = () => {
   const [clients, setClients] = useState([]);
   const [selectedView, setSelectedView] = useState('summary'); // summary, projects, clients
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 25;
 
   useEffect(() => {
     fetchExpenseData();
@@ -98,6 +100,107 @@ const ExpenseDistribution = () => {
   const filteredClients = clients.filter(client =>
     client.clientName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Pagination calculations
+  const totalPages = selectedView === 'projects' 
+    ? Math.ceil(filteredProjects.length / itemsPerPage)
+    : selectedView === 'clients'
+    ? Math.ceil(filteredClients.length / itemsPerPage)
+    : 0;
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentProjects = filteredProjects.slice(indexOfFirstItem, indexOfLastItem);
+  const currentClients = filteredClients.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Reset to page 1 when search term changes or view changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedView]);
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage < maxVisiblePages - 1) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <div className="pagination">
+        <button
+          onClick={() => handlePageChange(1)}
+          disabled={currentPage === 1}
+          className="pagination-btn"
+        >
+          ⏮️ First
+        </button>
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="pagination-btn"
+        >
+          ◀️ Prev
+        </button>
+        
+        {startPage > 1 && (
+          <>
+            <button onClick={() => handlePageChange(1)} className="pagination-btn">1</button>
+            {startPage > 2 && <span className="pagination-ellipsis">...</span>}
+          </>
+        )}
+
+        {pageNumbers.map(number => (
+          <button
+            key={number}
+            onClick={() => handlePageChange(number)}
+            className={`pagination-btn ${currentPage === number ? 'active' : ''}`}
+          >
+            {number}
+          </button>
+        ))}
+
+        {endPage < totalPages && (
+          <>
+            {endPage < totalPages - 1 && <span className="pagination-ellipsis">...</span>}
+            <button onClick={() => handlePageChange(totalPages)} className="pagination-btn">{totalPages}</button>
+          </>
+        )}
+
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="pagination-btn"
+        >
+          Next ▶️
+        </button>
+        <button
+          onClick={() => handlePageChange(totalPages)}
+          disabled={currentPage === totalPages}
+          className="pagination-btn"
+        >
+          Last ⏭️
+        </button>
+        
+        <span className="pagination-info">
+          Page {currentPage} of {totalPages} ({selectedView === 'projects' ? filteredProjects.length : filteredClients.length} total)
+        </span>
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -300,6 +403,7 @@ const ExpenseDistribution = () => {
 
         {selectedView === 'projects' && (
           <div className="projects-view">
+            {renderPagination()}
             <div className="data-table-container">
               <table className="data-table">
                 <thead>
@@ -318,12 +422,12 @@ const ExpenseDistribution = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredProjects.length === 0 ? (
+                  {currentProjects.length === 0 ? (
                     <tr>
                       <td colSpan="20" className="no-data">No projects found</td>
                     </tr>
                   ) : (
-                    filteredProjects.map((project) => {
+                    currentProjects.map((project) => {
                       const projectTotal = project.drawing + project.documents + project.siteVisit +
                                           project.marketingAndMisc + project.officeManagement +
                                           Object.values(project.customExpenses || {}).reduce((sum, val) => sum + val, 0);
@@ -347,11 +451,13 @@ const ExpenseDistribution = () => {
                 </tbody>
               </table>
             </div>
+            {renderPagination()}
           </div>
         )}
 
         {selectedView === 'clients' && (
           <div className="clients-view">
+            {renderPagination()}
             <div className="data-table-container">
               <table className="data-table">
                 <thead>
@@ -370,12 +476,12 @@ const ExpenseDistribution = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredClients.length === 0 ? (
+                  {currentClients.length === 0 ? (
                     <tr>
                       <td colSpan="20" className="no-data">No clients found</td>
                     </tr>
                   ) : (
-                    filteredClients.map((client) => {
+                    currentClients.map((client) => {
                       const clientTotal = client.drawing + client.documents + client.siteVisit +
                                          client.marketingAndMisc + client.officeManagement +
                                          Object.values(client.customExpenses || {}).reduce((sum, val) => sum + val, 0);
@@ -399,6 +505,7 @@ const ExpenseDistribution = () => {
                 </tbody>
               </table>
             </div>
+            {renderPagination()}
           </div>
         )}
       </div>
