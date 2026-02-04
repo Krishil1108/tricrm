@@ -70,28 +70,41 @@ class AnalyticsEnhancedService {
     }
   }
 
-  // Revenue analytics over time
+  // Revenue analytics over time (based on actual payment dates)
   async getRevenueAnalytics({ from, to, groupBy = 'month' }) {
     try {
       console.log('📊 [ENHANCED ANALYTICS] getRevenueAnalytics called with:', { from, to, groupBy });
       
-      const match = {};
-      if (from || to) {
-        match.createdAt = {};
-        if (from) match.createdAt.$gte = new Date(from);
-        if (to) match.createdAt.$lte = new Date(to);
-      }
-
+      // Build the aggregation pipeline to unwind payments and group by payment date
       const pipeline = [
-        { $match: match },
-        { $addFields: { bucket: { $dateTrunc: { date: '$createdAt', unit: groupBy } } } },
-        { 
-          $group: { 
-            _id: '$bucket', 
-            revenue: { $sum: { $toDouble: '$projectValue' } },
-            count: { $sum: 1 }
-          } 
+        // Unwind the payments array to treat each payment as a separate document
+        { $unwind: { path: '$payments', preserveNullAndEmptyArrays: false } },
+        // Match payments within the date range
+        {
+          $match: {
+            ...(from || to ? {
+              'payments.date': {
+                ...(from && { $gte: new Date(from) }),
+                ...(to && { $lte: new Date(to) })
+              }
+            } : {})
+          }
         },
+        // Add a bucket field based on the groupBy parameter
+        {
+          $addFields: {
+            bucket: { $dateTrunc: { date: '$payments.date', unit: groupBy } }
+          }
+        },
+        // Group by the bucket and sum the payment amounts
+        {
+          $group: {
+            _id: '$bucket',
+            revenue: { $sum: { $toDouble: '$payments.amount' } },
+            count: { $sum: 1 }
+          }
+        },
+        // Sort by date
         { $sort: { _id: 1 } }
       ];
 

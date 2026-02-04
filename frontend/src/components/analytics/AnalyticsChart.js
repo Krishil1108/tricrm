@@ -53,19 +53,41 @@ const AnalyticsChart = ({
   token, 
   apiBaseUrl 
 }) => {
-  const [from, setFrom] = useState(() => {
-    const dt = new Date();
-    dt.setMonth(dt.getMonth() - 11);
-    return formatInputDate(dt);
-  });
-  const [to, setTo] = useState(() => formatInputDate(new Date()));
-  const [groupBy, setGroupBy] = useState('month');
+  // Set initial date range based on chart type
+  const getInitialDateRange = () => {
+    const now = new Date();
+    if (chartType === 'revenue') {
+      // For revenue, show all-time data by default (last 5 years or from beginning)
+      const fiveYearsAgo = new Date();
+      fiveYearsAgo.setFullYear(now.getFullYear() - 5);
+      return {
+        from: '',  // Empty string means no filter (all data)
+        to: formatInputDate(now),
+        preset: 'all'
+      };
+    } else {
+      // For other charts, show last 12 months
+      const dt = new Date();
+      dt.setMonth(dt.getMonth() - 11);
+      return {
+        from: formatInputDate(dt),
+        to: formatInputDate(now),
+        preset: '12m'
+      };
+    }
+  };
+
+  const initialRange = getInitialDateRange();
+
+  const [from, setFrom] = useState(initialRange.from);
+  const [to, setTo] = useState(initialRange.to);
+  const [groupBy, setGroupBy] = useState(chartType === 'revenue' ? 'year' : 'month');
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [live, setLive] = useState(false);
   const [refreshMs, setRefreshMs] = useState(30000);
-  const [preset, setPreset] = useState('12m');
+  const [preset, setPreset] = useState(initialRange.preset);
   const [meta, setMeta] = useState({ total: 0 });
   const [visualType, setVisualType] = useState('bar');
   const chartRef = useRef(null);
@@ -98,11 +120,11 @@ const AnalyticsChart = ({
         return {
           title: '💰 Revenue Analytics',
           endpoint: '/analytics/revenue/analytics',
-          description: 'Monitor revenue trends and growth',
+          description: 'Monitor revenue trends based on payment dates',
           dataLabel: 'Revenue',
           showGroupBy: true,
           allowedVisuals: ['bar', 'line'],
-          defaultVisual: 'line',
+          defaultVisual: 'bar',
           isCurrency: true
         };
       case 'associates':
@@ -149,10 +171,12 @@ const AnalyticsChart = ({
     try {
       const params = new URLSearchParams();
       if (chartConfig.showGroupBy) params.append('groupBy', groupBy);
-      if (from) params.append('from', from);
-      if (to) params.append('to', to);
+      // Only add from/to if they have values (empty string means fetch all data)
+      if (from && from.trim()) params.append('from', from);
+      if (to && to.trim()) params.append('to', to);
 
       const url = `${apiBaseUrl}${chartConfig.endpoint}?${params.toString()}`;
+      console.log('📊 Fetching analytics:', url);
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -162,6 +186,7 @@ const AnalyticsChart = ({
       }
       
       const data = await res.json();
+      console.log('📊 Analytics data received:', data);
 
       if (!data.labels || !data.values) {
         throw new Error('Invalid data structure received from server');
@@ -285,12 +310,19 @@ const AnalyticsChart = ({
       }
       case 'all':
       default:
-        nextFrom = '';
+        nextFrom = '';  // Empty string to fetch all data
     }
 
     setPreset(value);
     setFrom(nextFrom);
     setTo(nextTo);
+    
+    // Auto-adjust groupBy based on date range for better visualization
+    if (value === 'all') {
+      setGroupBy('year');
+    } else if (value === '12m' || value === 'ytd') {
+      setGroupBy('month');
+    }
   };
 
   const ChartComponent = {
