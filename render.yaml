@@ -20,7 +20,11 @@ services:
           type: web
           name: tricrm-backend
           property: port
-    # Add your environment variables in Render dashboard:
+      - key: REACT_APP_API_BASE_URL
+        value: https://trimity-crm-backend.onrender.com/api
+      - key: FRONTEND_URL
+        value: https://trimity-crm.onrender.com
+    # Add your other environment variables in Render dashboard:
     # MONGODB_URI, JWT_SECRET, EMAIL_* variables
     
     healthCheckPath: /api/health

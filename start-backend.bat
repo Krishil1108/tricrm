@@ -2,7 +2,7 @@
 echo Starting CRM Backend Server...
 echo.
 
-cd /d "C:\Users\krishils\Desktop\final\CRM\backend"
+cd /d "C:\Users\krishils\Desktop\trimity\tricrm\backend"
 
 echo Installing dependencies if needed...
 call npm install
