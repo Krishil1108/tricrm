@@ -104,8 +104,9 @@ const ExpenseDistribution = () => {
     const endYear = currentMonth < 3 ? currentYear : currentYear + 1;
     
     for (let year = startYear; year <= endYear; year++) {
+      const fyValue = `${year}-${(year + 1).toString().slice(-2)}`;
       years.push({
-        value: `${year}-${year + 1}`,
+        value: fyValue,
         label: `FY ${year}-${(year + 1).toString().slice(-2)}`
       });
     }
@@ -120,12 +121,12 @@ const ExpenseDistribution = () => {
     const year = d.getFullYear();
     const month = d.getMonth(); // 0-11
     
-    // If month is Jan-Mar (0-2), FY is (year-1)-year
-    // If month is Apr-Dec (3-11), FY is year-(year+1)
+    // If month is Jan-Mar (0-2), FY is (year-1)-year (last 2 digits)
+    // If month is Apr-Dec (3-11), FY is year-(year+1) (last 2 digits)
     if (month < 3) {
-      return `${year - 1}-${year}`;
+      return `${year - 1}-${year.toString().slice(-2)}`;
     } else {
-      return `${year}-${year + 1}`;
+      return `${year}-${(year + 1).toString().slice(-2)}`;
     }
   };
 
@@ -150,14 +151,32 @@ const ExpenseDistribution = () => {
         axios.get(`${API_BASE_URL}/associates`, config)
       ]);
 
-      const allProjects = projectsRes.data.data || [];
-      const allAssociates = associatesRes.data.data || [];
+      // Handle different response structures
+      const allProjects = projectsRes.data.data || projectsRes.data || [];
+      const allAssociates = associatesRes.data.data || associatesRes.data || [];
+
+      console.log('Total projects fetched:', allProjects.length);
+      console.log('Selected FY:', selectedFinancialYear);
 
       // Filter projects for selected financial year
       const fyProjects = allProjects.filter(project => {
         const projectFY = getFinancialYearFromDate(project.date);
+        console.log('Project:', project.projectName, 'Date:', project.date, 'FY:', projectFY);
         return projectFY === selectedFinancialYear;
       });
+
+      console.log('Filtered projects for FY:', fyProjects.length);
+
+      // Show warning if no projects found
+      if (fyProjects.length === 0) {
+        const confirmExport = window.confirm(
+          `No projects found for Financial Year ${selectedFinancialYear}.\n\nDo you still want to generate an empty report?`
+        );
+        if (!confirmExport) {
+          setLoading(false);
+          return;
+        }
+      }
 
       // Create workbook
       const wb = XLSX.utils.book_new();

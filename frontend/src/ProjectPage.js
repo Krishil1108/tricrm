@@ -41,7 +41,7 @@ const ProjectPage = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [filters, setFilters] = useState({
     status: 'all',
-    year: new Date().getFullYear().toString()
+    year: 'all'
   });
   const [formData, setFormData] = useState({});
   const [percentageConfig, setPercentageConfig] = useState({
@@ -1255,7 +1255,7 @@ const ProjectPage = () => {
                 border: '2px solid #3b82f6', 
                 borderRadius: '8px',
                 fontSize: '14px',
-                fontWeight: '500',
+                fontWeight: '600',
                 background: 'white',
                 minWidth: '140px',
                 outline: 'none',
@@ -1282,17 +1282,19 @@ const ProjectPage = () => {
               borderRadius: '8px',
               fontSize: '14px',
               background: 'white',
-              minWidth: '120px',
+              minWidth: '140px',
               outline: 'none',
               cursor: 'pointer',
-              fontWeight: '500',
+              fontWeight: '600',
               color: '#1f2937',
               boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
             }}
           >
+            <option value="all">All Years</option>
             <option value="2024">2024</option>
             <option value="2025">2025</option>
             <option value="2026">2026</option>
+            <option value="2027">2027</option>
           </select>
         </div>
       </div>
