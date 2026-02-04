@@ -112,8 +112,8 @@ const ExpenseDistribution = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="summary-cards-grid">
-        <div className="summary-card total-card">
+      <div className="expense-summary-cards-grid">
+        <div className="expense-summary-card total-card">
           <div className="card-icon">💵</div>
           <div className="card-content">
             <h3>Total Expenses</h3>
@@ -121,7 +121,7 @@ const ExpenseDistribution = () => {
           </div>
         </div>
 
-        <div className="summary-card">
+        <div className="expense-summary-card">
           <div className="card-icon">✏️</div>
           <div className="card-content">
             <h3>Drawing</h3>
@@ -132,7 +132,7 @@ const ExpenseDistribution = () => {
           </div>
         </div>
 
-        <div className="summary-card">
+        <div className="expense-summary-card">
           <div className="card-icon">📄</div>
           <div className="card-content">
             <h3>Documents</h3>
@@ -143,7 +143,7 @@ const ExpenseDistribution = () => {
           </div>
         </div>
 
-        <div className="summary-card">
+        <div className="expense-summary-card">
           <div className="card-icon">🏗️</div>
           <div className="card-content">
             <h3>Site Visit</h3>
@@ -154,7 +154,7 @@ const ExpenseDistribution = () => {
           </div>
         </div>
 
-        <div className="summary-card">
+        <div className="expense-summary-card">
           <div className="card-icon">📢</div>
           <div className="card-content">
             <h3>Marketing & Misc</h3>
@@ -165,7 +165,7 @@ const ExpenseDistribution = () => {
           </div>
         </div>
 
-        <div className="summary-card">
+        <div className="expense-summary-card">
           <div className="card-icon">🏢</div>
           <div className="card-content">
             <h3>Office Management</h3>
@@ -178,7 +178,7 @@ const ExpenseDistribution = () => {
 
         {/* Custom Fields */}
         {Object.entries(summary.customFields).map(([fieldKey, amount]) => (
-          <div key={fieldKey} className="summary-card">
+          <div key={fieldKey} className="expense-summary-card">
             <div className="card-icon">⭐</div>
             <div className="card-content">
               <h3>{getFieldLabel(fieldKey)}</h3>
