@@ -1023,7 +1023,7 @@ const ProjectPage = () => {
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters, activeTab]);
+  }, [filterStatus, activeTab]);
 
   return (
     <div className="project-page">
