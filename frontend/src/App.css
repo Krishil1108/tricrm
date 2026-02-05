@@ -12,7 +12,7 @@
 
 .main-content {
   min-height: 100vh;
-  background: linear-gradient(to bottom left, #fefefe 60%, #f0f9ff 100%);
+  background: #f8fafc;
   margin-left: 70px; /* Default collapsed sidebar width */
   transition: margin-left 0.3s ease;
   padding: 30px;
@@ -51,7 +51,7 @@
 }
 
 [data-theme="dark"] .main-content {
-  background: linear-gradient(to bottom left, #1a1b23 60%, #252730 100%);
+  background: #1a1b23;
   color: #e2e8f0;
 }
 

@@ -272,7 +272,7 @@
   right: 0;
   width: 80px;
   height: 80px;
-  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+  background: rgba(255,255,255,0.1);
   transform: rotate(45deg);
 }
 

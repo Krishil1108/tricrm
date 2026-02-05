@@ -1176,7 +1176,7 @@ table td:last-child {
 
 /* Payment-specific styles */
 .btn-payment {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: #28a745;
   color: white;
   border: none;
   padding: 6px 12px;
@@ -1190,7 +1190,7 @@ table td:last-child {
 }
 
 .btn-payment:hover:not(:disabled) {
-  background: linear-gradient(135deg, #218838 0%, #1e7e68 100%);
+  background: #218838;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
 }
@@ -1209,7 +1209,7 @@ table td:last-child {
 }
 
 .payment-modal .modal-header {
-  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  background: #007bff;
   color: white;
   padding: 16px 24px;
   border-radius: 8px 8px 0 0;
@@ -1314,7 +1314,7 @@ table td:last-child {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  background: #007bff;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -1324,14 +1324,14 @@ table td:last-child {
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #0069d9 0%, #0056b3 100%);
+  background: #0069d9;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
 }
 
 /* View Payments Button */
 .btn-view-payments {
-  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  background: #17a2b8;
   color: white;
   border: none;
   padding: 6px 12px;
@@ -1345,7 +1345,7 @@ table td:last-child {
 }
 
 .btn-view-payments:hover {
-  background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
+  background: #138496;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(23, 162, 184, 0.3);
 }
@@ -1469,7 +1469,7 @@ table td:last-child {
 }
 
 .btn-whatsapp {
-  background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+  background: #25d366;
   color: white;
   border: none;
   padding: 10px 16px;
@@ -1487,7 +1487,7 @@ table td:last-child {
 }
 
 .btn-whatsapp:hover {
-  background: linear-gradient(135deg, #128c7e 0%, #25d366 100%);
+  background: #128c7e;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(37, 211, 102, 0.4);
 }
@@ -1518,25 +1518,25 @@ table td:last-child {
 }
 
 .btn-edit-small {
-  background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);
+  background: #ffc107;
   color: white;
   box-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);
 }
 
 .btn-edit-small:hover {
-  background: linear-gradient(135deg, #ff8f00 0%, #ffc107 100%);
+  background: #ff8f00;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(255, 193, 7, 0.4);
 }
 
 .btn-delete-small {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  background: #dc3545;
   color: white;
   box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
 }
 
 .btn-delete-small:hover {
-  background: linear-gradient(135deg, #c82333 0%, #dc3545 100%);
+  background: #c82333;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
 }

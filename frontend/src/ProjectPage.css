@@ -220,34 +220,34 @@
 
 /* Add New Button - Blue Gradient */
 .project-btn-primary {
-  background: linear-gradient(135deg, #3B44F6 0%, #5A60F8 100%);
+  background: #3B44F6;
 }
 
 .project-btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2A32E6 0%, #4950E8 100%);
+  background: #2A32E6;
   transform: translateY(-1px);
   box-shadow: 0 5px 12px rgba(59, 68, 246, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Configure Percentages Button - Teal Gradient */
 .project-btn-info {
-  background: linear-gradient(135deg, #1890FF 0%, #36CFC9 100%);
+  background: #1890FF;
 }
 
 .project-btn-info:hover:not(:disabled) {
-  background: linear-gradient(135deg, #0880EF 0%, #26BFB9 100%);
+  background: #0880EF;
   transform: translateY(-1px);
   box-shadow: 0 5px 12px rgba(24, 144, 255, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Import Excel Button - Green Gradient */
 .project-btn-success {
-  background: linear-gradient(135deg, #006D5B 0%, #08979C 100%);
+  background: #006D5B;
   color: white !important;
 }
 
 .project-btn-success:hover:not(:disabled) {
-  background: linear-gradient(135deg, #005D4B 0%, #07878C 100%);
+  background: #005D4B;
   transform: translateY(-1px);
   box-shadow: 0 5px 12px rgba(0, 109, 91, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   color: white !important;
@@ -255,25 +255,25 @@
 
 /* Export Excel Button - Gray Gradient */
 .project-btn-secondary {
-  background: linear-gradient(135deg, #434343 0%, #595959 100%);
+  background: #434343;
 }
 
 .project-btn-secondary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #333333 0%, #494949 100%);
+  background: #333333;
   transform: translateY(-1px);
   box-shadow: 0 5px 12px rgba(67, 67, 67, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Outline Button for less important actions */
 .project-btn-outline {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  background: #ffffff;
   color: #495057;
   border: 2px solid #dee2e6;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .project-btn-outline:hover:not(:disabled) {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: #f8f9fa;
   color: #212529;
   border-color: #adb5bd;
   transform: translateY(-2px);
@@ -1091,13 +1091,13 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  background: #4a90e2;
   color: white;
   border: 1px solid #357abd;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #357abd 0%, #2c5282 100%);
+  background: #357abd;
   box-shadow: 0 4px 12px rgba(74, 144, 226, 0.25);
   transform: translateY(-1px);
 }
@@ -1118,25 +1118,25 @@
 
 /* Export Button Styles for Modal */
 .btn-export-excel {
-  background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+  background: #28a745;
   color: white;
   border: 1px solid #1e7e34;
 }
 
 .btn-export-excel:hover:not(:disabled) {
-  background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+  background: #218838;
   box-shadow: 0 4px 12px rgba(40, 167, 69, 0.25);
   transform: translateY(-1px);
 }
 
 .btn-export-pdf {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  background: #dc3545;
   color: white;
   border: 1px solid #bd2130;
 }
 
 .btn-export-pdf:hover:not(:disabled) {
-  background: linear-gradient(135deg, #c82333 0%, #a71e2a 100%);
+  background: #c82333;
   box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
   transform: translateY(-1px);
 }
@@ -1614,24 +1614,24 @@ button.finance-btn:disabled, .finance-btn:disabled {
 
 /* Finance Button Primary - Save/Submit Actions */
 button.finance-btn-primary, .finance-btn-primary {
-  background: linear-gradient(135deg, #3B44F6 0%, #5A60F8 100%) !important;
+  background: #3B44F6 !important;
   color: white !important;
 }
 
 button.finance-btn-primary:hover:not(:disabled), .finance-btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2A32E6 0%, #4950E8 100%) !important;
+  background: #2A32E6 !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 8px rgba(59, 68, 246, 0.25) !important;
 }
 
 /* Finance Button Secondary - Cancel Actions */
 button.finance-btn-secondary, .finance-btn-secondary {
-  background: linear-gradient(135deg, #6c757d 0%, #868e96 100%) !important;
+  background: #6c757d !important;
   color: white !important;
 }
 
 button.finance-btn-secondary:hover:not(:disabled), .finance-btn-secondary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #5c636a 0%, #767d86 100%) !important;
+  background: #5c636a !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 8px rgba(108, 117, 125, 0.25) !important;
 }

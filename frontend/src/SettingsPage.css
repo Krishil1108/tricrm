@@ -27,7 +27,7 @@
 .settings-page .nav-header {
   padding: 20px 24px;
   border-bottom: 1px solid #e5e7eb;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667eea;
   border-radius: 12px 12px 0 0;
   color: white;
 }
@@ -223,7 +223,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667eea;
 }
 
 .settings-page .logo-preview img {
@@ -500,7 +500,7 @@
 }
 
 .settings-page .stat-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667eea;
   color: white;
   padding: 24px;
   border-radius: 12px;
@@ -569,7 +569,7 @@
 
 /* Buttons */
 .settings-page .save-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667eea;
   color: white;
   border: none;
   padding: 12px 24px;
@@ -898,7 +898,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667eea;
   border-radius: 8px;
   color: white;
 }
@@ -1109,13 +1109,13 @@
 
 /* Dark Mode Buttons */
 [data-theme="dark"] .settings-page .save-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667eea;
   border-color: #667eea;
   color: white;
 }
 
 [data-theme="dark"] .settings-page .save-btn:hover {
-  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  background: #5a6fd8;
 }
 
 [data-theme="dark"] .settings-page .avatar-placeholder {

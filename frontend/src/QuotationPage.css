@@ -815,12 +815,12 @@
 }
 
 [data-theme="dark"] .add-window-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: #667eea;
   color: white;
 }
 
 [data-theme="dark"] .add-window-btn:hover {
-  background: linear-gradient(135deg, #5a6fd8, #6a4190);
+  background: #5a6fd8;
 }
 
 [data-theme="dark"] .window-item {

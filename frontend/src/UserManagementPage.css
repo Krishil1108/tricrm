@@ -46,7 +46,7 @@
   display: inline-flex;
   align-items: center;
   padding: 12px 24px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: #3b82f6;
   color: white;
   border: none;
   border-radius: 10px;
@@ -60,7 +60,7 @@
 .btn-add-modern:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: #2563eb;
 }
 
 .btn-add-modern:active {
@@ -107,7 +107,7 @@
 }
 
 .users-table thead {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: #3b82f6;
 }
 
 .users-table th {
@@ -151,7 +151,7 @@
   align-items: center;
   padding: 6px 14px;
   border-radius: 20px;
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  background: #dbeafe;
   color: #1e40af;
   font-size: 12px;
   font-weight: 600;
@@ -169,12 +169,12 @@
 }
 
 .status-badge.active {
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  background: #d1fae5;
   color: #065f46;
 }
 
 .status-badge.inactive {
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  background: #fee2e2;
   color: #991b1b;
 }
 
@@ -232,7 +232,7 @@
   align-items: center;
   padding: 24px 28px;
   border-bottom: 1px solid #f1f5f9;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: #f8fafc;
 }
 
 .user-management-page .modal-header h2 {
@@ -324,7 +324,7 @@
 /* Modern Modal Buttons */
 .user-management-page .modal-footer .btn-primary {
   padding: 11px 24px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: #3b82f6;
   color: white;
   border: none;
   border-radius: 8px;

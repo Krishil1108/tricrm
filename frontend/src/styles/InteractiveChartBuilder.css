@@ -16,14 +16,10 @@
 }
 
 .chart-builder-header h2 {
-  color: #2c3e50;
+  color: #667eea;
   font-size: 2.2rem;
   font-weight: 700;
   margin: 0 0 12px 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .chart-builder-header p {
@@ -95,7 +91,7 @@
 /* Generate Button */
 .generate-btn {
   padding: 12px 24px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667eea;
   color: white;
   border: none;
   border-radius: 8px;
@@ -173,7 +169,7 @@
 
 .chart-type-btn.active {
   border-color: #667eea;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667eea;
   color: white;
 }
 
@@ -259,7 +255,7 @@
 .chart-placeholder {
   text-align: center;
   padding: 60px 40px;
-  background: linear-gradient(135deg, #f8f9ff 0%, #e6f3ff 100%);
+  background: #f0f9ff;
   border-radius: 12px;
   border: 2px dashed #c6d9f7;
   margin-top: 24px;

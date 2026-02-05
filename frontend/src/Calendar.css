@@ -178,7 +178,7 @@
 }
 
 .sample-event {
-  background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+  background: #e0f2fe;
   border-color: #0ea5e9;
 }
 
@@ -598,12 +598,12 @@
 }
 
 [data-theme="dark"] .add-event-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: #667eea;
   border-color: #667eea;
 }
 
 [data-theme="dark"] .add-event-btn:hover {
-  background: linear-gradient(135deg, #5a6fd8, #6a4190);
+  background: #5a6fd8;
 }
 
 /* Event Categories Dark Mode */
