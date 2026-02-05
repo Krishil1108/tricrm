@@ -315,8 +315,6 @@ const ExpenseDistribution = () => {
 
       XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');
 
-      XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');
-
       // Sheet 2: Projects with Payments in Selected FY
       const projectHeaders = [
         'Project Number',
@@ -392,8 +390,6 @@ const ExpenseDistribution = () => {
 
       XLSX.utils.book_append_sheet(wb, projectSheet, 'Projects in FY');
 
-      XLSX.utils.book_append_sheet(wb, projectSheet, 'Projects in FY');
-
       // Sheet 3: All Payment Entries in Selected FY
       const paymentHeaders = [
         'S.No.',
@@ -458,8 +454,6 @@ const ExpenseDistribution = () => {
         { wch: 25 },
         { wch: 15 }
       ];
-
-      XLSX.utils.book_append_sheet(wb, paymentSheet, 'Payment Entries');
 
       XLSX.utils.book_append_sheet(wb, paymentSheet, 'Payment Entries');
 
@@ -539,8 +533,6 @@ const ExpenseDistribution = () => {
 
       XLSX.utils.book_append_sheet(wb, expenseDetailSheet, 'Expense Allocation');
 
-      XLSX.utils.book_append_sheet(wb, expenseDetailSheet, 'Expense Allocation');
-
       // Sheet 5: Project-wise Payment Breakdown
       const projectPaymentHeaders = [
         'Project Number',
@@ -600,8 +592,6 @@ const ExpenseDistribution = () => {
         { wch: 20 },
         { wch: 15 }
       ];
-
-      XLSX.utils.book_append_sheet(wb, projectPaymentSheet, 'Payment Breakdown');
 
       XLSX.utils.book_append_sheet(wb, projectPaymentSheet, 'Payment Breakdown');
 
