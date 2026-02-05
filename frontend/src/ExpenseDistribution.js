@@ -158,19 +158,81 @@ const ExpenseDistribution = () => {
       console.log('Total projects fetched:', allProjects.length);
       console.log('Selected FY:', selectedFinancialYear);
 
-      // Filter projects for selected financial year
-      const fyProjects = allProjects.filter(project => {
-        const projectFY = getFinancialYearFromDate(project.date);
-        console.log('Project:', project.projectName, 'Date:', project.date, 'FY:', projectFY);
-        return projectFY === selectedFinancialYear;
+      // Aggregate projects and payments by financial year
+      const fyAggregation = {};
+      
+      allProjects.forEach(project => {
+        if (project.payments && project.payments.length > 0) {
+          project.payments.forEach(payment => {
+            const paymentFY = getFinancialYearFromDate(payment.date);
+            
+            if (!fyAggregation[paymentFY]) {
+              fyAggregation[paymentFY] = {
+                projects: new Map(),
+                totalAmount: 0,
+                totalExpenses: {
+                  drawing: 0,
+                  documents: 0,
+                  siteVisit: 0,
+                  marketingAndMisc: 0,
+                  officeManagement: 0
+                },
+                payments: []
+              };
+            }
+
+            // Track unique projects
+            if (!fyAggregation[paymentFY].projects.has(project._id)) {
+              fyAggregation[paymentFY].projects.set(project._id, {
+                projectNumber: project.projectNumber,
+                projectName: project.projectName,
+                clientName: project.clientName,
+                finalizedFees: project.finalizedFees || 0,
+                totalPaid: 0,
+                expenses: project.expenses || {},
+                paymentsInFY: []
+              });
+            }
+
+            // Add payment to project
+            const projectData = fyAggregation[paymentFY].projects.get(project._id);
+            projectData.totalPaid += payment.amount || 0;
+            projectData.paymentsInFY.push({
+              date: payment.date,
+              amount: payment.amount,
+              mode: payment.paymentMode,
+              transactionId: payment.transactionId,
+              remarks: payment.remarks
+            });
+
+            // Add to FY totals
+            fyAggregation[paymentFY].totalAmount += payment.amount || 0;
+            fyAggregation[paymentFY].payments.push({
+              projectNumber: project.projectNumber,
+              projectName: project.projectName,
+              ...payment
+            });
+          });
+        }
       });
 
-      console.log('Filtered projects for FY:', fyProjects.length);
+      // Calculate expense distribution for selected FY
+      if (fyAggregation[selectedFinancialYear]) {
+        fyAggregation[selectedFinancialYear].projects.forEach(project => {
+          const expenses = project.expenses || {};
+          fyAggregation[selectedFinancialYear].totalExpenses.drawing += expenses.drawing || 0;
+          fyAggregation[selectedFinancialYear].totalExpenses.documents += expenses.documents || 0;
+          fyAggregation[selectedFinancialYear].totalExpenses.siteVisit += expenses.siteVisit || 0;
+          fyAggregation[selectedFinancialYear].totalExpenses.marketingAndMisc += expenses.marketingAndMisc || 0;
+          fyAggregation[selectedFinancialYear].totalExpenses.officeManagement += expenses.officeManagement || 0;
+        });
+      }
 
-      // Show warning if no projects found
-      if (fyProjects.length === 0) {
+      const selectedFYData = fyAggregation[selectedFinancialYear];
+      
+      if (!selectedFYData || selectedFYData.projects.size === 0) {
         const confirmExport = window.confirm(
-          `No projects found for Financial Year ${selectedFinancialYear}.\n\nDo you still want to generate an empty report?`
+          `No payment entries found for Financial Year ${selectedFinancialYear}.\n\nDo you still want to generate an empty report?`
         );
         if (!confirmExport) {
           setLoading(false);
@@ -181,99 +243,421 @@ const ExpenseDistribution = () => {
       // Create workbook
       const wb = XLSX.utils.book_new();
 
+      const fyProjects = selectedFYData ? Array.from(selectedFYData.projects.values()) : [];
+      const totalReceived = selectedFYData ? selectedFYData.totalAmount : 0;
+      const totalExpensesAmount = selectedFYData ? Object.values(selectedFYData.totalExpenses).reduce((sum, val) => sum + val, 0) : 0;
+
       // Sheet 1: Summary
       const summaryData = [
-        ['Financial Year Report'],
+        ['FINANCIAL YEAR REPORT'],
         [`Financial Year: ${selectedFinancialYear}`],
-        [`Generated on: ${new Date().toLocaleDateString('en-IN')}`],
+        [`Generated on: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}`],
         [],
-        ['Summary Statistics'],
-        ['Total Projects', fyProjects.length],
-        ['Total Finalized Fees', fyProjects.reduce((sum, p) => sum + (p.finalizedFees || 0), 0)],
-        ['Total Received Payments', fyProjects.reduce((sum, p) => sum + (p.totalReceivedFees || 0), 0)],
-        ['Total Remaining', fyProjects.reduce((sum, p) => sum + ((p.finalizedFees || 0) - (p.totalReceivedFees || 0)), 0)],
+        ['SUMMARY STATISTICS'],
+        ['Total Projects with Payments in FY', fyProjects.length],
+        ['Total Payments Received in FY', totalReceived],
+        ['Total Expenses Allocated', totalExpensesAmount],
+        ['Available Balance', totalReceived - totalExpensesAmount],
         [],
-        ['Expense Distribution'],
-        ['Drawing', fyProjects.reduce((sum, p) => sum + (p.expenses?.drawing || 0), 0)],
-        ['Documents', fyProjects.reduce((sum, p) => sum + (p.expenses?.documents || 0), 0)],
-        ['Site Visit', fyProjects.reduce((sum, p) => sum + (p.expenses?.siteVisit || 0), 0)],
-        ['Marketing & Misc', fyProjects.reduce((sum, p) => sum + (p.expenses?.marketingAndMisc || 0), 0)],
-        ['Office Management', fyProjects.reduce((sum, p) => sum + (p.expenses?.officeManagement || 0), 0)]
+        ['EXPENSE DISTRIBUTION'],
+        ['Category', 'Amount', 'Percentage', 'Allocated %'],
+        ['Drawing', 
+         selectedFYData?.totalExpenses.drawing || 0,
+         totalReceived > 0 ? ((selectedFYData?.totalExpenses.drawing || 0) / totalReceived * 100).toFixed(2) + '%' : '0%',
+         '40%'
+        ],
+        ['Documents',
+         selectedFYData?.totalExpenses.documents || 0,
+         totalReceived > 0 ? ((selectedFYData?.totalExpenses.documents || 0) / totalReceived * 100).toFixed(2) + '%' : '0%',
+         '30%'
+        ],
+        ['Site Visit',
+         selectedFYData?.totalExpenses.siteVisit || 0,
+         totalReceived > 0 ? ((selectedFYData?.totalExpenses.siteVisit || 0) / totalReceived * 100).toFixed(2) + '%' : '0%',
+         '10%'
+        ],
+        ['Marketing & Misc',
+         selectedFYData?.totalExpenses.marketingAndMisc || 0,
+         totalReceived > 0 ? ((selectedFYData?.totalExpenses.marketingAndMisc || 0) / totalReceived * 100).toFixed(2) + '%' : '0%',
+         '2%'
+        ],
+        ['Office Management',
+         selectedFYData?.totalExpenses.officeManagement || 0,
+         totalReceived > 0 ? ((selectedFYData?.totalExpenses.officeManagement || 0) / totalReceived * 100).toFixed(2) + '%' : '0%',
+         '3%'
+        ],
+        ['TOTAL EXPENSES', totalExpensesAmount, '100%', '85%'],
+        [],
+        ['FINANCIAL YEAR COMPARISON'],
+        ['Financial Year', 'Total Payments', 'Total Projects', 'Avg Payment per Project'],
       ];
 
+      // Add FY comparison data
+      Object.keys(fyAggregation).sort().forEach(fy => {
+        const fyData = fyAggregation[fy];
+        summaryData.push([
+          `FY ${fy}`,
+          fyData.totalAmount,
+          fyData.projects.size,
+          fyData.projects.size > 0 ? (fyData.totalAmount / fyData.projects.size).toFixed(2) : 0
+        ]);
+      });
+
       const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+      
+      // Set column widths
+      summarySheet['!cols'] = [
+        { wch: 30 },
+        { wch: 18 },
+        { wch: 15 },
+        { wch: 15 }
+      ];
+
       XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');
 
-      // Sheet 2: Projects with Payments
+      XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');
+
+      // Sheet 2: Projects with Payments in Selected FY
       const projectHeaders = [
         'Project Number',
         'Project Name',
         'Client Name',
-        'Date',
-        'Status',
-        'Finalized Fees',
-        'Total Received',
-        'Remaining Amount',
+        'Total Finalized Fees',
+        'Payments in FY',
         'Drawing',
         'Documents',
         'Site Visit',
         'Marketing & Misc',
-        'Office Management'
+        'Office Management',
+        'Total Expenses',
+        'Number of Payments'
       ];
 
-      const projectRows = fyProjects.map(project => [
-        project.projectNumber || '',
-        project.projectName || '',
-        project.clientName || '',
-        project.date ? new Date(project.date).toLocaleDateString('en-IN') : '',
-        project.status || '',
-        project.finalizedFees || 0,
-        project.totalReceivedFees || 0,
-        (project.finalizedFees || 0) - (project.totalReceivedFees || 0),
-        project.expenses?.drawing || 0,
-        project.expenses?.documents || 0,
-        project.expenses?.siteVisit || 0,
-        project.expenses?.marketingAndMisc || 0,
-        project.expenses?.officeManagement || 0
-      ]);
+      const projectRows = fyProjects.map(project => {
+        const totalExpenses = (project.expenses?.drawing || 0) +
+                             (project.expenses?.documents || 0) +
+                             (project.expenses?.siteVisit || 0) +
+                             (project.expenses?.marketingAndMisc || 0) +
+                             (project.expenses?.officeManagement || 0);
+        
+        return [
+          project.projectNumber || '',
+          project.projectName || '',
+          project.clientName || '',
+          project.finalizedFees || 0,
+          project.totalPaid || 0,
+          project.expenses?.drawing || 0,
+          project.expenses?.documents || 0,
+          project.expenses?.siteVisit || 0,
+          project.expenses?.marketingAndMisc || 0,
+          project.expenses?.officeManagement || 0,
+          totalExpenses,
+          project.paymentsInFY?.length || 0
+        ];
+      });
 
-      const projectData = [projectHeaders, ...projectRows];
+      // Add totals row
+      const totalRow = [
+        '',
+        'TOTAL',
+        '',
+        fyProjects.reduce((sum, p) => sum + (p.finalizedFees || 0), 0),
+        fyProjects.reduce((sum, p) => sum + (p.totalPaid || 0), 0),
+        selectedFYData?.totalExpenses.drawing || 0,
+        selectedFYData?.totalExpenses.documents || 0,
+        selectedFYData?.totalExpenses.siteVisit || 0,
+        selectedFYData?.totalExpenses.marketingAndMisc || 0,
+        selectedFYData?.totalExpenses.officeManagement || 0,
+        totalExpensesAmount,
+        fyProjects.reduce((sum, p) => sum + (p.paymentsInFY?.length || 0), 0)
+      ];
+
+      const projectData = [projectHeaders, ...projectRows, totalRow];
       const projectSheet = XLSX.utils.aoa_to_sheet(projectData);
-      XLSX.utils.book_append_sheet(wb, projectSheet, 'Projects');
+      
+      projectSheet['!cols'] = [
+        { wch: 15 },
+        { wch: 30 },
+        { wch: 25 },
+        { wch: 18 },
+        { wch: 15 },
+        { wch: 12 },
+        { wch: 12 },
+        { wch: 12 },
+        { wch: 15 },
+        { wch: 18 },
+        { wch: 15 },
+        { wch: 12 }
+      ];
 
-      // Sheet 3: Payment Details
+      XLSX.utils.book_append_sheet(wb, projectSheet, 'Projects in FY');
+
+      XLSX.utils.book_append_sheet(wb, projectSheet, 'Projects in FY');
+
+      // Sheet 3: All Payment Entries in Selected FY
       const paymentHeaders = [
+        'S.No.',
+        'Payment Date',
         'Project Number',
         'Project Name',
-        'Payment Date',
         'Amount',
         'Payment Mode',
+        'Cheque/NEFT Number',
         'Transaction ID',
-        'Remarks'
+        'Remarks',
+        'Cumulative Total'
       ];
 
-      const paymentRows = [];
-      fyProjects.forEach(project => {
-        if (project.payments && project.payments.length > 0) {
-          project.payments.forEach(payment => {
-            paymentRows.push([
-              project.projectNumber || '',
-              project.projectName || '',
-              payment.date ? new Date(payment.date).toLocaleDateString('en-IN') : '',
-              payment.amount || 0,
-              payment.paymentMode || '',
-              payment.transactionId || '',
-              payment.remarks || ''
-            ]);
-          });
-        }
-      });
+      let cumulativeTotal = 0;
+      const paymentRows = selectedFYData ? selectedFYData.payments
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .map((payment, index) => {
+          cumulativeTotal += payment.amount || 0;
+          return [
+            index + 1,
+            payment.date ? new Date(payment.date).toLocaleDateString('en-IN') : '',
+            payment.projectNumber || '',
+            payment.projectName || '',
+            payment.amount || 0,
+            payment.paymentMode || '',
+            payment.chequeNumber || payment.neftNumber || '',
+            payment.transactionId || '',
+            payment.remarks || '',
+            cumulativeTotal
+          ];
+        }) : [];
+
+      // Add summary row
+      if (paymentRows.length > 0) {
+        paymentRows.push([
+          '',
+          'TOTAL',
+          '',
+          '',
+          selectedFYData.totalAmount,
+          '',
+          '',
+          '',
+          `${paymentRows.length} Payments`,
+          ''
+        ]);
+      }
 
       const paymentData = [paymentHeaders, ...paymentRows];
       const paymentSheet = XLSX.utils.aoa_to_sheet(paymentData);
-      XLSX.utils.book_append_sheet(wb, paymentSheet, 'Payment Details');
+      
+      paymentSheet['!cols'] = [
+        { wch: 6 },
+        { wch: 12 },
+        { wch: 15 },
+        { wch: 30 },
+        { wch: 15 },
+        { wch: 12 },
+        { wch: 18 },
+        { wch: 18 },
+        { wch: 25 },
+        { wch: 15 }
+      ];
 
-      // Sheet 4: Associate Distribution
+      XLSX.utils.book_append_sheet(wb, paymentSheet, 'Payment Entries');
+
+      XLSX.utils.book_append_sheet(wb, paymentSheet, 'Payment Entries');
+
+      // Sheet 4: Detailed Expense Distribution by Project
+      const expenseDetailHeaders = [
+        'Project Number',
+        'Project Name',
+        'Payments in FY',
+        'Profit Margin (40%)',
+        'Drawing (30%)',
+        'Documents (2%)',
+        'Site Visit (10%)',
+        'Marketing & Misc (2%)',
+        'Office Management (3%)',
+        'Total Allocated (85%)',
+        'Remaining (15%)'
+      ];
+
+      const expenseDetailRows = fyProjects.map(project => {
+        const paidAmount = project.totalPaid || 0;
+        const profitMargin = paidAmount * 0.40;
+        const drawing = paidAmount * 0.30;
+        const documents = paidAmount * 0.02;
+        const siteVisit = paidAmount * 0.10;
+        const marketing = paidAmount * 0.02;
+        const officeManagement = paidAmount * 0.03;
+        const totalAllocated = paidAmount * 0.85;
+        const remaining = paidAmount * 0.15;
+
+        return [
+          project.projectNumber || '',
+          project.projectName || '',
+          paidAmount,
+          profitMargin,
+          drawing,
+          documents,
+          siteVisit,
+          marketing,
+          officeManagement,
+          totalAllocated,
+          remaining
+        ];
+      });
+
+      // Add totals
+      const totalPaidInFY = fyProjects.reduce((sum, p) => sum + (p.totalPaid || 0), 0);
+      expenseDetailRows.push([
+        '',
+        'TOTAL',
+        totalPaidInFY,
+        totalPaidInFY * 0.40,
+        totalPaidInFY * 0.30,
+        totalPaidInFY * 0.02,
+        totalPaidInFY * 0.10,
+        totalPaidInFY * 0.02,
+        totalPaidInFY * 0.03,
+        totalPaidInFY * 0.85,
+        totalPaidInFY * 0.15
+      ]);
+
+      const expenseDetailData = [expenseDetailHeaders, ...expenseDetailRows];
+      const expenseDetailSheet = XLSX.utils.aoa_to_sheet(expenseDetailData);
+      
+      expenseDetailSheet['!cols'] = [
+        { wch: 15 },
+        { wch: 30 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 12 },
+        { wch: 12 },
+        { wch: 12 },
+        { wch: 15 },
+        { wch: 18 },
+        { wch: 18 },
+        { wch: 15 }
+      ];
+
+      XLSX.utils.book_append_sheet(wb, expenseDetailSheet, 'Expense Allocation');
+
+      XLSX.utils.book_append_sheet(wb, expenseDetailSheet, 'Expense Allocation');
+
+      // Sheet 5: Project-wise Payment Breakdown
+      const projectPaymentHeaders = [
+        'Project Number',
+        'Project Name',
+        'Payment #',
+        'Payment Date',
+        'Amount',
+        'Mode',
+        'Transaction/Cheque No.',
+        'Running Total'
+      ];
+
+      const projectPaymentRows = [];
+      fyProjects.forEach(project => {
+        let runningTotal = 0;
+        if (project.paymentsInFY && project.paymentsInFY.length > 0) {
+          project.paymentsInFY
+            .sort((a, b) => new Date(a.date) - new Date(b.date))
+            .forEach((payment, idx) => {
+              runningTotal += payment.amount || 0;
+              projectPaymentRows.push([
+                idx === 0 ? (project.projectNumber || '') : '',
+                idx === 0 ? (project.projectName || '') : '',
+                idx + 1,
+                payment.date ? new Date(payment.date).toLocaleDateString('en-IN') : '',
+                payment.amount || 0,
+                payment.mode || '',
+                payment.transactionId || '',
+                runningTotal
+              ]);
+            });
+          
+          // Add project subtotal
+          projectPaymentRows.push([
+            '',
+            'Subtotal',
+            '',
+            '',
+            runningTotal,
+            '',
+            '',
+            ''
+          ]);
+        }
+      });
+
+      const projectPaymentData = [projectPaymentHeaders, ...projectPaymentRows];
+      const projectPaymentSheet = XLSX.utils.aoa_to_sheet(projectPaymentData);
+      
+      projectPaymentSheet['!cols'] = [
+        { wch: 15 },
+        { wch: 30 },
+        { wch: 10 },
+        { wch: 12 },
+        { wch: 15 },
+        { wch: 12 },
+        { wch: 20 },
+        { wch: 15 }
+      ];
+
+      XLSX.utils.book_append_sheet(wb, projectPaymentSheet, 'Payment Breakdown');
+
+      XLSX.utils.book_append_sheet(wb, projectPaymentSheet, 'Payment Breakdown');
+
+      // Sheet 6: Month-wise Payment Analysis
+      const monthHeaders = [
+        'Month',
+        'Number of Payments',
+        'Total Amount',
+        'Avg Payment',
+        'Projects Involved'
+      ];
+
+      const monthlyData = {};
+      if (selectedFYData) {
+        selectedFYData.payments.forEach(payment => {
+          const date = new Date(payment.date);
+          const monthKey = `${date.toLocaleString('en-IN', { month: 'short' })} ${date.getFullYear()}`;
+          
+          if (!monthlyData[monthKey]) {
+            monthlyData[monthKey] = {
+              count: 0,
+              total: 0,
+              projects: new Set()
+            };
+          }
+          
+          monthlyData[monthKey].count++;
+          monthlyData[monthKey].total += payment.amount || 0;
+          monthlyData[monthKey].projects.add(payment.projectNumber);
+        });
+      }
+
+      const monthRows = Object.entries(monthlyData)
+        .sort((a, b) => new Date(a[0]) - new Date(b[0]))
+        .map(([month, data]) => [
+          month,
+          data.count,
+          data.total,
+          data.count > 0 ? (data.total / data.count).toFixed(2) : 0,
+          data.projects.size
+        ]);
+
+      const monthData = [monthHeaders, ...monthRows];
+      const monthSheet = XLSX.utils.aoa_to_sheet(monthData);
+      
+      monthSheet['!cols'] = [
+        { wch: 15 },
+        { wch: 18 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 18 }
+      ];
+
+      XLSX.utils.book_append_sheet(wb, monthSheet, 'Monthly Analysis');
+
+      // Sheet 7: Associate Distribution (if applicable)
       const associateHeaders = [
         'Associate Name',
         'Company',
@@ -285,23 +669,30 @@ const ExpenseDistribution = () => {
 
       const associateDistribution = {};
       
-      fyProjects.forEach(project => {
+      allProjects.forEach(project => {
         if (project.projectAssociates && project.projectAssociates.length > 0) {
-          project.projectAssociates.forEach(assoc => {
-            const key = assoc.associateId || assoc.name;
-            if (!associateDistribution[key]) {
-              associateDistribution[key] = {
-                name: assoc.name || '',
-                company: assoc.company || '',
-                totalAllocated: 0,
-                totalReceived: 0,
-                projects: new Set()
-              };
-            }
-            associateDistribution[key].totalAllocated += assoc.percentage || 0;
-            associateDistribution[key].totalReceived += assoc.totalDistributed || 0;
-            associateDistribution[key].projects.add(project.projectNumber);
-          });
+          // Check if this project has payments in selected FY
+          const hasPaymentInFY = project.payments?.some(p => 
+            getFinancialYearFromDate(p.date) === selectedFinancialYear
+          );
+          
+          if (hasPaymentInFY) {
+            project.projectAssociates.forEach(assoc => {
+              const key = assoc.associateId || assoc.name;
+              if (!associateDistribution[key]) {
+                associateDistribution[key] = {
+                  name: assoc.name || '',
+                  company: assoc.company || '',
+                  totalAllocated: 0,
+                  totalReceived: 0,
+                  projects: new Set()
+                };
+              }
+              associateDistribution[key].totalAllocated += assoc.percentage || 0;
+              associateDistribution[key].totalReceived += assoc.totalDistributed || 0;
+              associateDistribution[key].projects.add(project.projectNumber);
+            });
+          }
         }
       });
 
@@ -314,52 +705,21 @@ const ExpenseDistribution = () => {
         assoc.projects.size
       ]);
 
-      const associateData = [associateHeaders, ...associateRows];
-      const associateSheet = XLSX.utils.aoa_to_sheet(associateData);
-      XLSX.utils.book_append_sheet(wb, associateSheet, 'Associate Distribution');
+      if (associateRows.length > 0) {
+        const associateData = [associateHeaders, ...associateRows];
+        const associateSheet = XLSX.utils.aoa_to_sheet(associateData);
+        
+        associateSheet['!cols'] = [
+          { wch: 25 },
+          { wch: 25 },
+          { wch: 20 },
+          { wch: 20 },
+          { wch: 20 },
+          { wch: 18 }
+        ];
 
-      // Sheet 5: Expense Categories Breakdown
-      const expenseHeaders = [
-        'Category',
-        'Total Amount',
-        'Percentage of Total'
-      ];
-
-      const totalExpenses = fyProjects.reduce((sum, p) => {
-        return sum + 
-          (p.expenses?.drawing || 0) +
-          (p.expenses?.documents || 0) +
-          (p.expenses?.siteVisit || 0) +
-          (p.expenses?.marketingAndMisc || 0) +
-          (p.expenses?.officeManagement || 0);
-      }, 0);
-
-      const expenseRows = [
-        ['Drawing', 
-         fyProjects.reduce((sum, p) => sum + (p.expenses?.drawing || 0), 0),
-         totalExpenses > 0 ? ((fyProjects.reduce((sum, p) => sum + (p.expenses?.drawing || 0), 0) / totalExpenses) * 100).toFixed(2) + '%' : '0%'
-        ],
-        ['Documents',
-         fyProjects.reduce((sum, p) => sum + (p.expenses?.documents || 0), 0),
-         totalExpenses > 0 ? ((fyProjects.reduce((sum, p) => sum + (p.expenses?.documents || 0), 0) / totalExpenses) * 100).toFixed(2) + '%' : '0%'
-        ],
-        ['Site Visit',
-         fyProjects.reduce((sum, p) => sum + (p.expenses?.siteVisit || 0), 0),
-         totalExpenses > 0 ? ((fyProjects.reduce((sum, p) => sum + (p.expenses?.siteVisit || 0), 0) / totalExpenses) * 100).toFixed(2) + '%' : '0%'
-        ],
-        ['Marketing & Misc',
-         fyProjects.reduce((sum, p) => sum + (p.expenses?.marketingAndMisc || 0), 0),
-         totalExpenses > 0 ? ((fyProjects.reduce((sum, p) => sum + (p.expenses?.marketingAndMisc || 0), 0) / totalExpenses) * 100).toFixed(2) + '%' : '0%'
-        ],
-        ['Office Management',
-         fyProjects.reduce((sum, p) => sum + (p.expenses?.officeManagement || 0), 0),
-         totalExpenses > 0 ? ((fyProjects.reduce((sum, p) => sum + (p.expenses?.officeManagement || 0), 0) / totalExpenses) * 100).toFixed(2) + '%' : '0%'
-        ]
-      ];
-
-      const expenseData = [expenseHeaders, ...expenseRows];
-      const expenseSheet = XLSX.utils.aoa_to_sheet(expenseData);
-      XLSX.utils.book_append_sheet(wb, expenseSheet, 'Expense Breakdown');
+        XLSX.utils.book_append_sheet(wb, associateSheet, 'Associate Distribution');
+      }
 
       // Generate and download
       const [startYear, endYear] = selectedFinancialYear.split('-');

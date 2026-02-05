@@ -39,10 +39,6 @@ const ProjectPage = () => {
   const [editingItem, setEditingItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [filters, setFilters] = useState({
-    status: 'all',
-    year: 'all'
-  });
   const [formData, setFormData] = useState({});
   const [percentageConfig, setPercentageConfig] = useState({
     profitMarginPercent: 0,
@@ -134,7 +130,7 @@ const ProjectPage = () => {
     loadPercentageConfig();
     loadClients();
     loadAssociates();
-  }, [activeTab, filterStatus, filters.year]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeTab, filterStatus]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -402,8 +398,7 @@ const ProjectPage = () => {
     try {
       setLoading(true);
       const apiFilters = { 
-        status: filterStatus,
-        year: filters.year 
+        status: filterStatus
       };
       if (activeTab === 'projects') {
         const response = await FinanceService.getAllProjects(apiFilters);
@@ -422,7 +417,7 @@ const ProjectPage = () => {
 
   const fetchStats = async () => {
     try {
-      const response = await FinanceService.getStats({ year: filters.year });
+      const response = await FinanceService.getStats({});
       setStats(response.data || {});
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -451,8 +446,7 @@ const ProjectPage = () => {
     try {
       showLoading('Exporting to Excel...');
       const apiFilters = { 
-        status: filterStatus,
-        year: filters.year 
+        status: filterStatus
       };
       if (activeTab === 'projects') {
         await FinanceService.exportProjects();
@@ -989,11 +983,7 @@ const ProjectPage = () => {
       
       const matchesStatus = filterStatus === 'all' || project.status === filterStatus;
       
-      // Filter by year - extract year from project date
-      const projectYear = project.date ? new Date(project.date).getFullYear().toString() : '';
-      const matchesYear = !filters.year || filters.year === 'all' || projectYear === filters.year;
-      
-      return matchesSearch && matchesStatus && matchesYear;
+      return matchesSearch && matchesStatus;
     });
   };
 
@@ -1271,31 +1261,6 @@ const ProjectPage = () => {
               <option value="Cancelled">Cancelled</option>
             </select>
           )}
-          
-          <select
-            className="filter-select"
-            value={filters.year}
-            onChange={(e) => setFilters({ ...filters, year: e.target.value })}
-            style={{ 
-              padding: '12px 16px', 
-              border: '2px solid #3b82f6', 
-              borderRadius: '8px',
-              fontSize: '14px',
-              background: 'white',
-              minWidth: '140px',
-              outline: 'none',
-              cursor: 'pointer',
-              fontWeight: '600',
-              color: '#1f2937',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-            }}
-          >
-            <option value="all">All Years</option>
-            <option value="2024">2024</option>
-            <option value="2025">2025</option>
-            <option value="2026">2026</option>
-            <option value="2027">2027</option>
-          </select>
         </div>
       </div>
 
