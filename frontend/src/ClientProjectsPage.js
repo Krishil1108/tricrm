@@ -10,8 +10,9 @@ import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { FaChartBar, FaCheckCircle, FaClock, FaCreditCard, FaEdit, FaFileExcel, FaFilePdf, FaLink, FaMoneyBillWave, FaTrash, FaWhatsapp } from 'react-icons/fa';
-import { FiAlertTriangle } from 'react-icons/fi';
+import { FiAlertTriangle, FiChevronDown, FiChevronUp, FiChevronsUpDown } from 'react-icons/fi';
 import { FiBarChart2 } from 'react-icons/fi';
+import useSortableData from './utils/useSortableData';
 import './ClientProjectsPage.css';
 import './styles/ActionButtons.css';
 
@@ -414,12 +415,27 @@ const ClientProjectsPage = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const {
+    items: sortedProjects,
+    requestSort: requestProjectSort,
+    sortConfig: projectSortConfig
+  } = useSortableData(filteredProjects, { key: 'projectNumber', direction: 'asc' });
+
   // Pagination calculations
   const totalItems = filteredProjects.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentProjects = filteredProjects.slice(startIndex, endIndex);
+  const currentProjects = sortedProjects.slice(startIndex, endIndex);
+
+  const renderSortIcon = (key) => {
+    if (!projectSortConfig || projectSortConfig.key !== key) {
+      return <FiChevronsUpDown className="sort-icon" />;
+    }
+    return projectSortConfig.direction === 'asc'
+      ? <FiChevronUp className="sort-icon" />
+      : <FiChevronDown className="sort-icon" />;
+  };
 
   // Pagination handlers
   const handlePageChange = (page) => {
@@ -591,16 +607,70 @@ const ClientProjectsPage = () => {
           </div>
         ) : (
           <div className="project-table-container">
-            <table className="project-table">
+            <table className="project-table table-sticky">
               <thead>
                 <tr>
-                  <th>Project Number</th>
-                  <th>Project Name</th>
-                  <th>Finalized Fees</th>
-                  <th>Received Fees</th>
-                  <th>Pending Amount</th>
+                  <th aria-sort={projectSortConfig?.key === 'projectNumber' ? projectSortConfig.direction : 'none'}>
+                    <button
+                      type="button"
+                      className={`sortable-header ${projectSortConfig?.key === 'projectNumber' ? 'active' : ''}`}
+                      onClick={() => requestProjectSort('projectNumber')}
+                    >
+                      Project Number
+                      {renderSortIcon('projectNumber')}
+                    </button>
+                  </th>
+                  <th aria-sort={projectSortConfig?.key === 'projectName' ? projectSortConfig.direction : 'none'}>
+                    <button
+                      type="button"
+                      className={`sortable-header ${projectSortConfig?.key === 'projectName' ? 'active' : ''}`}
+                      onClick={() => requestProjectSort('projectName')}
+                    >
+                      Project Name
+                      {renderSortIcon('projectName')}
+                    </button>
+                  </th>
+                  <th aria-sort={projectSortConfig?.key === 'finalizedFees' ? projectSortConfig.direction : 'none'}>
+                    <button
+                      type="button"
+                      className={`sortable-header ${projectSortConfig?.key === 'finalizedFees' ? 'active' : ''}`}
+                      onClick={() => requestProjectSort('finalizedFees')}
+                    >
+                      Finalized Fees
+                      {renderSortIcon('finalizedFees')}
+                    </button>
+                  </th>
+                  <th aria-sort={projectSortConfig?.key === 'totalReceivedFees' ? projectSortConfig.direction : 'none'}>
+                    <button
+                      type="button"
+                      className={`sortable-header ${projectSortConfig?.key === 'totalReceivedFees' ? 'active' : ''}`}
+                      onClick={() => requestProjectSort('totalReceivedFees')}
+                    >
+                      Received Fees
+                      {renderSortIcon('totalReceivedFees')}
+                    </button>
+                  </th>
+                  <th aria-sort={projectSortConfig?.key === 'pendingAmount' ? projectSortConfig.direction : 'none'}>
+                    <button
+                      type="button"
+                      className={`sortable-header ${projectSortConfig?.key === 'pendingAmount' ? 'active' : ''}`}
+                      onClick={() => requestProjectSort('pendingAmount', (project) => (project.finalizedFees || 0) - (project.totalReceivedFees || 0))}
+                    >
+                      Pending Amount
+                      {renderSortIcon('pendingAmount')}
+                    </button>
+                  </th>
                   <th>Payments</th>
-                  <th>Status</th>
+                  <th aria-sort={projectSortConfig?.key === 'status' ? projectSortConfig.direction : 'none'}>
+                    <button
+                      type="button"
+                      className={`sortable-header ${projectSortConfig?.key === 'status' ? 'active' : ''}`}
+                      onClick={() => requestProjectSort('status')}
+                    >
+                      Status
+                      {renderSortIcon('status')}
+                    </button>
+                  </th>
                   <th>Actions</th>
                 </tr>
               </thead>

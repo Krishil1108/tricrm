@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaTrash } from 'react-icons/fa';
+import { FiChevronDown, FiChevronUp, FiChevronsUpDown } from 'react-icons/fi';
+import useSortableData from './utils/useSortableData';
 import './PageContent.css';
 import './styles/ActionButtons.css';
 
@@ -31,7 +33,7 @@ const ClientListPage = () => {
     localStorage.setItem('clients', JSON.stringify(updatedClients));
   };
 
-  // Filter and sort clients
+  // Filter clients
   const filteredClients = clients
     .filter(client => {
       const matchesSearch = client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -39,21 +41,31 @@ const ClientListPage = () => {
                            (client.company && client.company.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesStatus = filterStatus === 'all' || client.status === filterStatus;
       return matchesSearch && matchesStatus;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'email':
-          return a.email.localeCompare(b.email);
-        case 'company':
-          return (a.company || '').localeCompare(b.company || '');
-        case 'date':
-          return new Date(b.createdAt) - new Date(a.createdAt);
-        default:
-          return 0;
-      }
     });
+
+  const {
+    items: sortedClients,
+    requestSort: requestClientSort,
+    sortConfig: clientSortConfig
+  } = useSortableData(filteredClients, { key: 'name', direction: 'asc' });
+
+  const handleSortChange = (value) => {
+    setSortBy(value);
+    if (value === 'date') {
+      requestClientSort('createdAt', (client) => new Date(client.createdAt).getTime());
+      return;
+    }
+    requestClientSort(value);
+  };
+
+  const renderSortIcon = (key) => {
+    if (!clientSortConfig || clientSortConfig.key !== key) {
+      return <FiChevronsUpDown className="sort-icon" />;
+    }
+    return clientSortConfig.direction === 'asc'
+      ? <FiChevronUp className="sort-icon" />
+      : <FiChevronDown className="sort-icon" />;
+  };
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -87,7 +99,7 @@ const ClientListPage = () => {
           </div>
 
           <div className="filter-section">
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+            <select value={sortBy} onChange={(e) => handleSortChange(e.target.value)}>
               <option value="name">Sort by Name</option>
               <option value="email">Sort by Email</option>
               <option value="company">Sort by Company</option>
@@ -153,20 +165,68 @@ const ClientListPage = () => {
               <p>Start by adding your first client using the "Add Client" page.</p>
             </div>
           ) : (
-            <table className="client-table">
+            <table className="client-table table-sticky">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Company</th>
+                  <th aria-sort={clientSortConfig?.key === 'name' ? clientSortConfig.direction : 'none'}>
+                    <button
+                      type="button"
+                      className={`sortable-header ${clientSortConfig?.key === 'name' ? 'active' : ''}`}
+                      onClick={() => {
+                        requestClientSort('name');
+                        setSortBy('name');
+                      }}
+                    >
+                      Name
+                      {renderSortIcon('name')}
+                    </button>
+                  </th>
+                  <th aria-sort={clientSortConfig?.key === 'email' ? clientSortConfig.direction : 'none'}>
+                    <button
+                      type="button"
+                      className={`sortable-header ${clientSortConfig?.key === 'email' ? 'active' : ''}`}
+                      onClick={() => {
+                        requestClientSort('email');
+                        setSortBy('email');
+                      }}
+                    >
+                      Email
+                      {renderSortIcon('email')}
+                    </button>
+                  </th>
+                  <th aria-sort={clientSortConfig?.key === 'company' ? clientSortConfig.direction : 'none'}>
+                    <button
+                      type="button"
+                      className={`sortable-header ${clientSortConfig?.key === 'company' ? 'active' : ''}`}
+                      onClick={() => {
+                        requestClientSort('company');
+                        setSortBy('company');
+                      }}
+                    >
+                      Company
+                      {renderSortIcon('company')}
+                    </button>
+                  </th>
                   <th>Phone</th>
                   <th>Status</th>
-                  <th>Added Date</th>
+                  <th aria-sort={clientSortConfig?.key === 'createdAt' ? clientSortConfig.direction : 'none'}>
+                    <button
+                      type="button"
+                      className={`sortable-header ${clientSortConfig?.key === 'createdAt' ? 'active' : ''}`}
+                      onClick={() => {
+                        requestClientSort('createdAt', (client) => new Date(client.createdAt).getTime());
+                        setSortBy('date');
+                      }}
+                    >
+                      Added Date
+                      {renderSortIcon('createdAt')}
+                    </button>
+                  </th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredClients.map(client => (
+                {sortedClients.map(client => (
                   <tr key={client.id}>
                     <td>
                       <div className="client-name">

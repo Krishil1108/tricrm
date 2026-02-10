@@ -224,7 +224,7 @@ function ResetPasswordPage() {
 
         <form onSubmit={handleSubmit} className="reset-password-form">
           {error && (
-            <div className="error-message">
+            <div className="error-message form-error">
               <span className="error-icon"><FiAlertTriangle /></span>
               {error}
             </div>
@@ -243,6 +243,7 @@ function ResetPasswordPage() {
                 required
                 disabled={loading}
                 autoFocus
+                aria-invalid={Boolean(error)}
               />
               <button
                 type="button"
@@ -296,6 +297,7 @@ function ResetPasswordPage() {
               placeholder="Confirm new password"
               required
               disabled={loading}
+              aria-invalid={Boolean(error)}
             />
             {formData.confirmPassword && (
               <div className="password-match">

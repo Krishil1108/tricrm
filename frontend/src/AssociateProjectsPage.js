@@ -5,7 +5,8 @@ import FinanceService from './services/FinanceService';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
 import { FaChartBar, FaCheckCircle, FaClock, FaDownload, FaEdit, FaFileExcel, FaFilePdf, FaHistory, FaMoneyBillWave, FaUser, FaUsers } from 'react-icons/fa';
-import { FiBarChart2 } from 'react-icons/fi';
+import { FiBarChart2, FiChevronDown, FiChevronUp, FiChevronsUpDown } from 'react-icons/fi';
+import useSortableData from './utils/useSortableData';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -134,9 +135,6 @@ const AssociateProjectsPage = () => {
   // Export to Excel
   const exportToExcel = () => {
     try {
-      console.log('Starting Excel export...');
-      console.log('Filtered projects count:', filteredProjects.length);
-      
       if (filteredProjects.length === 0) {
         showError('No projects to export');
         return;
@@ -163,8 +161,6 @@ const AssociateProjectsPage = () => {
           'Status': project.status || ''
         };
       });
-
-      console.log('Export data prepared:', exportData.length, 'rows');
 
       const workbook = XLSX.utils.book_new();
       const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -198,16 +194,12 @@ const AssociateProjectsPage = () => {
       XLSX.utils.book_append_sheet(workbook, summaryWorksheet, 'Summary');
 
       const filename = `${associateInfo.name.replace(/\s+/g, '_')}_Statement_${new Date().toISOString().split('T')[0]}.xlsx`;
-      
-      console.log('Writing file:', filename);
-      
+
       // Use writeFileXLSX for better browser compatibility
       XLSX.writeFileXLSX(workbook, filename, {
         compression: true,
         bookType: 'xlsx'
       });
-      
-      console.log('File write completed');
       showSuccess(`Statement exported successfully as ${filename}`);
     } catch (error) {
       console.error('Error exporting to Excel:', error);
@@ -219,8 +211,6 @@ const AssociateProjectsPage = () => {
   // Export to PDF
   const exportToPDF = () => {
     try {
-      console.log('Starting PDF export...');
-      
       if (filteredProjects.length === 0) {
         showError('No projects to export');
         return;
@@ -250,9 +240,7 @@ const AssociateProjectsPage = () => {
       doc.text(`Total Associate Allocation: ₹${stats.totalAssociateAllocation.toLocaleString('en-IN')}`, 80, summaryY);
       doc.text(`Amount Paid: ₹${stats.totalAssociatePaid.toLocaleString('en-IN')}`, 160, summaryY);
       doc.text(`Pending Amount: ₹${stats.totalAssociatePending.toLocaleString('en-IN')}`, 220, summaryY);
-      
-      console.log('Preparing table data...');
-      
+
       // Prepare table data
       const tableData = filteredProjects.map(project => {
         const associateDataFromProject = project.projectAssociates?.find(
@@ -275,9 +263,7 @@ const AssociateProjectsPage = () => {
           project.status || ''
         ];
       });
-      
-      console.log('Table data prepared, rows:', tableData.length);
-      
+
       // Add table
       autoTable(doc, {
         startY: summaryY + 8,
@@ -297,13 +283,9 @@ const AssociateProjectsPage = () => {
         },
         margin: { left: 14, right: 14 }
       });
-      
-      console.log('Table added, saving PDF...');
-      
+
       const filename = `${associateInfo.name.replace(/\s+/g, '_')}_Statement_${new Date().toISOString().split('T')[0]}.pdf`;
       doc.save(filename);
-      
-      console.log('PDF saved:', filename);
       showSuccess(`Statement exported successfully as ${filename}`);
     } catch (error) {
       console.error('Error exporting to PDF:', error);
@@ -421,14 +403,6 @@ const AssociateProjectsPage = () => {
 
   // Delete transaction handler
   const handleDeleteTransaction = async (index, payment) => {
-    console.log('Delete transaction data:', {
-      projectId: selectedProject._id,
-      associateId: associateId,
-      transactionId: payment._id,
-      payment: payment,
-      paymentKeys: Object.keys(payment)
-    });
-    
     if (window.confirm('Are you sure you want to delete this payment transaction?')) {
       try {
         showLoading('Deleting payment transaction...');
@@ -503,12 +477,6 @@ const AssociateProjectsPage = () => {
       
       // Fetch payment history for this associate in this project
       const response = await FinanceService.getAssociatePaymentTransactions(project._id, associateId);
-      console.log('Payment history response:', response);
-      console.log('Transactions:', response.data.transactions);
-      if (response.data.transactions && response.data.transactions.length > 0) {
-        console.log('First transaction sample:', response.data.transactions[0]);
-        console.log('First transaction keys:', Object.keys(response.data.transactions[0]));
-      }
       setPaymentHistory(response.data.transactions || []);
       setShowPaymentHistoryModal(true);
       
@@ -528,12 +496,27 @@ const AssociateProjectsPage = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const {
+    items: sortedProjects,
+    requestSort: requestProjectSort,
+    sortConfig: projectSortConfig
+  } = useSortableData(filteredProjects, { key: 'projectNumber', direction: 'asc' });
+
   // Pagination calculations
   const totalItems = filteredProjects.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentProjects = filteredProjects.slice(startIndex, endIndex);
+  const currentProjects = sortedProjects.slice(startIndex, endIndex);
+
+  const renderSortIcon = (key) => {
+    if (!projectSortConfig || projectSortConfig.key !== key) {
+      return <FiChevronsUpDown className="sort-icon" />;
+    }
+    return projectSortConfig.direction === 'asc'
+      ? <FiChevronUp className="sort-icon" />
+      : <FiChevronDown className="sort-icon" />;
+  };
 
   // Pagination handlers
   const handlePageChange = (page) => {
@@ -769,16 +752,103 @@ const AssociateProjectsPage = () => {
           <div className="project-table-container">
             {activeView === 'owner' ? (
               // Owner View Table - Shows owner's perspective
-              <table className="project-table">
+              <table className="project-table table-sticky">
                 <thead>
                   <tr>
-                    <th>Project Number</th>
-                    <th>Project Name</th>
-                    <th>Finalized Fees</th>
-                    <th>Associate Share %</th>
-                    <th>Associate Amount</th>
-                    <th>Amount Paid to Associate</th>
-                    <th>Pending to Associate</th>
+                    <th aria-sort={projectSortConfig?.key === 'projectNumber' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'projectNumber' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('projectNumber')}
+                      >
+                        Project Number
+                        {renderSortIcon('projectNumber')}
+                      </button>
+                    </th>
+                    <th aria-sort={projectSortConfig?.key === 'projectName' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'projectName' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('projectName')}
+                      >
+                        Project Name
+                        {renderSortIcon('projectName')}
+                      </button>
+                    </th>
+                    <th aria-sort={projectSortConfig?.key === 'finalizedFees' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'finalizedFees' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('finalizedFees')}
+                      >
+                        Finalized Fees
+                        {renderSortIcon('finalizedFees')}
+                      </button>
+                    </th>
+                    <th aria-sort={projectSortConfig?.key === 'associatePercentage' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'associatePercentage' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('associatePercentage', (project) => {
+                          const associateDataFromProject = project.projectAssociates?.find(
+                            assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+                          );
+                          return associateDataFromProject?.percentage || 0;
+                        })}
+                      >
+                        Associate Share %
+                        {renderSortIcon('associatePercentage')}
+                      </button>
+                    </th>
+                    <th aria-sort={projectSortConfig?.key === 'associateAmount' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'associateAmount' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('associateAmount', (project) => {
+                          const associateDataFromProject = project.projectAssociates?.find(
+                            assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+                          );
+                          const associatePercentage = associateDataFromProject?.percentage || 0;
+                          return Math.round((project.finalizedFees * associatePercentage) / 100);
+                        })}
+                      >
+                        Associate Amount
+                        {renderSortIcon('associateAmount')}
+                      </button>
+                    </th>
+                    <th aria-sort={projectSortConfig?.key === 'amountPaid' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'amountPaid' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('amountPaid', (project) => {
+                          const associateDataFromProject = project.projectAssociates?.find(
+                            assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+                          );
+                          return associateDataFromProject?.amountPaid || 0;
+                        })}
+                      >
+                        Amount Paid to Associate
+                        {renderSortIcon('amountPaid')}
+                      </button>
+                    </th>
+                    <th aria-sort={projectSortConfig?.key === 'pendingAmount' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'pendingAmount' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('pendingAmount', (project) => {
+                          const associateDataFromProject = project.projectAssociates?.find(
+                            assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+                          );
+                          const associatePercentage = associateDataFromProject?.percentage || 0;
+                          const receivedBasedAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
+                          const amountPaid = associateDataFromProject?.amountPaid || 0;
+                          return receivedBasedAmount - amountPaid;
+                        })}
+                      >
+                        Pending to Associate
+                        {renderSortIcon('pendingAmount')}
+                      </button>
+                    </th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -858,16 +928,112 @@ const AssociateProjectsPage = () => {
               </table>
             ) : (
               // Associate Details Table - Shows associate's perspective
-              <table className="project-table">
+              <table className="project-table table-sticky">
                 <thead>
                   <tr>
-                    <th>Project Number</th>
-                    <th>Project Name</th>
-                    <th>Associate Share %</th>
-                    <th>Allocated Amount</th>
-                    <th>Payment Status</th>
-                    <th>Paid Amount</th>
-                    <th>Pending Amount</th>
+                    <th aria-sort={projectSortConfig?.key === 'projectNumber' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'projectNumber' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('projectNumber')}
+                      >
+                        Project Number
+                        {renderSortIcon('projectNumber')}
+                      </button>
+                    </th>
+                    <th aria-sort={projectSortConfig?.key === 'projectName' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'projectName' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('projectName')}
+                      >
+                        Project Name
+                        {renderSortIcon('projectName')}
+                      </button>
+                    </th>
+                    <th aria-sort={projectSortConfig?.key === 'associatePercentage' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'associatePercentage' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('associatePercentage', (project) => {
+                          const associateData = project.projectAssociates?.find(
+                            assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+                          );
+                          return associateData?.percentage || 0;
+                        })}
+                      >
+                        Associate Share %
+                        {renderSortIcon('associatePercentage')}
+                      </button>
+                    </th>
+                    <th aria-sort={projectSortConfig?.key === 'associateAmount' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'associateAmount' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('associateAmount', (project) => {
+                          const associateData = project.projectAssociates?.find(
+                            assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+                          );
+                          const associatePercentage = associateData?.percentage || 0;
+                          return Math.round((project.finalizedFees * associatePercentage) / 100);
+                        })}
+                      >
+                        Allocated Amount
+                        {renderSortIcon('associateAmount')}
+                      </button>
+                    </th>
+                    <th aria-sort={projectSortConfig?.key === 'paymentStatus' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'paymentStatus' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('paymentStatus', (project) => {
+                          const associateData = project.projectAssociates?.find(
+                            assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+                          );
+                          const associatePercentage = associateData?.percentage || 0;
+                          const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
+                          const amountPaid = associateData?.amountPaid || 0;
+                          const pendingAmount = associateAmount - amountPaid;
+                          return pendingAmount === 0 ? 'Completed' : amountPaid > 0 ? 'Partial' : 'Pending';
+                        })}
+                      >
+                        Payment Status
+                        {renderSortIcon('paymentStatus')}
+                      </button>
+                    </th>
+                    <th aria-sort={projectSortConfig?.key === 'amountPaid' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'amountPaid' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('amountPaid', (project) => {
+                          const associateData = project.projectAssociates?.find(
+                            assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+                          );
+                          return associateData?.amountPaid || 0;
+                        })}
+                      >
+                        Paid Amount
+                        {renderSortIcon('amountPaid')}
+                      </button>
+                    </th>
+                    <th aria-sort={projectSortConfig?.key === 'pendingAmount' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'pendingAmount' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('pendingAmount', (project) => {
+                          const associateData = project.projectAssociates?.find(
+                            assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+                          );
+                          const associatePercentage = associateData?.percentage || 0;
+                          const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
+                          const amountPaid = associateData?.amountPaid || 0;
+                          return associateAmount - amountPaid;
+                        })}
+                      >
+                        Pending Amount
+                        {renderSortIcon('pendingAmount')}
+                      </button>
+                    </th>
                     <th>Actions</th>
                   </tr>
                 </thead>

@@ -99,7 +99,6 @@ const WhatsAppIntegration = ({ client, quotation, onClose }) => {
       }
       
       // Log the activity
-      console.log(`WhatsApp message sent to ${client.name} (${client.phone})`);
       // Show success message with action feedback
       setModalConfig({
         title: 'WhatsApp Opened Successfully',

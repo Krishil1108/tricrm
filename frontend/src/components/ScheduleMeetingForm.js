@@ -17,6 +17,7 @@ const ScheduleMeetingForm = ({ selectedDate, onClose, onBack }) => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [formErrors, setFormErrors] = useState({});
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -24,10 +25,31 @@ const ScheduleMeetingForm = ({ selectedDate, onClose, onBack }) => {
       ...prev,
       [name]: value
     }));
+    if (formErrors[name]) {
+      setFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormErrors({});
+
+    const nextErrors = {};
+    if (!formData.title.trim()) {
+      nextErrors.title = 'Meeting title is required';
+    }
+    if (!formData.date) {
+      nextErrors.date = 'Date is required';
+    }
+    if (!formData.time) {
+      nextErrors.time = 'Time is required';
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setFormErrors(nextErrors);
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -41,8 +63,6 @@ const ScheduleMeetingForm = ({ selectedDate, onClose, onBack }) => {
         reminderMinutes: Number(formData.reminderMinutes),
         attendees: formData.attendees.split(',').map(email => email.trim()).filter(email => email)
       });
-      
-      console.log('Meeting scheduled successfully:', response.data);
       dataEventManager.emit(DATA_TYPES.MEETINGS, response.data);
       onClose();
     } catch (err) {
@@ -56,7 +76,7 @@ const ScheduleMeetingForm = ({ selectedDate, onClose, onBack }) => {
   return (
     <div className="form-container">
       <form onSubmit={handleSubmit}>
-        {error && <div className="error-message">{error}</div>}
+        {error && <div className="error-message form-error">{error}</div>}
         
         <div className="form-group">
           <label htmlFor="title">Meeting Title *</label>
@@ -68,7 +88,9 @@ const ScheduleMeetingForm = ({ selectedDate, onClose, onBack }) => {
             onChange={handleInputChange}
             required
             placeholder="Enter meeting title"
+            aria-invalid={Boolean(formErrors.title)}
           />
+          {formErrors.title && <div className="error-text">{formErrors.title}</div>}
         </div>
 
         <div className="form-group">
@@ -93,7 +115,9 @@ const ScheduleMeetingForm = ({ selectedDate, onClose, onBack }) => {
               value={formData.date}
               onChange={handleInputChange}
               required
+              aria-invalid={Boolean(formErrors.date)}
             />
+            {formErrors.date && <div className="error-text">{formErrors.date}</div>}
           </div>
           <div className="form-group">
             <label htmlFor="time">Time *</label>
@@ -104,7 +128,9 @@ const ScheduleMeetingForm = ({ selectedDate, onClose, onBack }) => {
               value={formData.time}
               onChange={handleInputChange}
               required
+              aria-invalid={Boolean(formErrors.time)}
             />
+            {formErrors.time && <div className="error-text">{formErrors.time}</div>}
           </div>
         </div>
 

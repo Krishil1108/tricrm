@@ -101,7 +101,6 @@ class WhatsAppService {
     try {
       return await this.sendAPIMessage(phoneNumber, message, messageType);
     } catch (error) {
-      console.log('API failed, using direct method as fallback');
       return this.sendDirectMessage(phoneNumber, message);
     }
   }

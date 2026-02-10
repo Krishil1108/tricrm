@@ -292,7 +292,6 @@ const FinanceService = {
   // Delete payment transaction for an associate
   deleteAssociatePaymentTransaction: async (projectId, associateId, transactionId) => {
     try {
-      console.log('Delete API call:', `${API_URL}/finance/projects/${projectId}/associate/${associateId}/payments/${transactionId}`);
       const response = await axios.delete(`${API_URL}/finance/projects/${projectId}/associate/${associateId}/payments/${transactionId}`, {
         headers: getAuthHeader()
       });
@@ -310,15 +309,9 @@ const FinanceService = {
   // Apply default expense percentages to projects without configuration
   applyDefaultPercentages: async () => {
     try {
-      console.log('🔧 Applying default percentages...');
-      console.log('API URL:', `${API_URL}/finance/projects/apply-default-percentages`);
-      console.log('Headers:', getAuthHeader());
-      
       const response = await axios.post(`${API_URL}/finance/projects/apply-default-percentages`, {}, {
         headers: getAuthHeader()
       });
-      
-      console.log('✅ Response received:', response.data);
       return response.data;
     } catch (error) {
       console.error('❌ Error applying default percentages:', error);

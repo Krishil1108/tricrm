@@ -6,7 +6,10 @@ import ExcelExportService from './services/ExcelExportService';
 import ExcelImport from './components/ExcelImport';
 import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import Watermark from './components/Watermark';
+import LoadingSkeleton from './components/LoadingSkeleton';
 import { FaEye, FaEdit, FaTrash, FaFolder, FaEllipsisV } from 'react-icons/fa';
+import { FiChevronDown, FiChevronUp, FiChevronsUpDown } from 'react-icons/fi';
+import useSortableData from './utils/useSortableData';
 import './PageContent.css';
 import './styles/ClientsPageEnhanced.css';
 import './styles/ActionButtons.css';
@@ -54,6 +57,7 @@ const ClientsPage = () => {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     loadClients();
@@ -155,10 +159,30 @@ const ClientsPage = () => {
       ...prev,
       [name]: value
     }));
+    if (formErrors[name]) {
+      setFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const validateClientForm = () => {
+    const nextErrors = {};
+    if (!clientData.name.trim()) {
+      nextErrors.name = 'Full name is required.';
+    }
+    if (clientData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clientData.email)) {
+      nextErrors.email = 'Enter a valid email address.';
+    }
+    return nextErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const nextErrors = validateClientForm();
+    if (Object.keys(nextErrors).length > 0) {
+      setFormErrors(nextErrors);
+      return;
+    }
     
     try {
       setLoading(true);
@@ -206,6 +230,12 @@ const ClientsPage = () => {
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
+
+    const nextErrors = validateClientForm();
+    if (Object.keys(nextErrors).length > 0) {
+      setFormErrors(nextErrors);
+      return;
+    }
     
     try {
       setLoading(true);
@@ -259,6 +289,7 @@ const ClientsPage = () => {
     setShowViewPopup(false);
     setEditingClient(null);
     setViewingClient(null);
+    setFormErrors({});
     setClientData({
       name: '',
       email: '',
@@ -273,7 +304,7 @@ const ClientsPage = () => {
     });
   };
 
-  // Filter and sort clients - ensure clients is always an array
+  // Filter clients - ensure clients is always an array
   const filteredClients = (Array.isArray(clients) ? clients : [])
     .filter(client => {
       const matchesSearch = client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -281,28 +312,38 @@ const ClientsPage = () => {
                            (client.company && client.company.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesStatus = filterStatus === 'all' || client.status === filterStatus;
       return matchesSearch && matchesStatus;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'email':
-          return a.email.localeCompare(b.email);
-        case 'company':
-          return (a.company || '').localeCompare(b.company || '');
-        case 'date':
-          return new Date(b.createdAt) - new Date(a.createdAt);
-        default:
-          return 0;
-      }
     });
+
+  const {
+    items: sortedClients,
+    requestSort: requestClientSort,
+    sortConfig: clientSortConfig
+  } = useSortableData(filteredClients, { key: 'name', direction: 'asc' });
 
   // Pagination calculations
   const totalItems = filteredClients.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentClients = filteredClients.slice(startIndex, endIndex);
+  const currentClients = sortedClients.slice(startIndex, endIndex);
+
+  const handleSortChange = (value) => {
+    setSortBy(value);
+    if (value === 'date') {
+      requestClientSort('createdAt', (client) => new Date(client.createdAt).getTime());
+      return;
+    }
+    requestClientSort(value);
+  };
+
+  const renderSortIcon = (key) => {
+    if (!clientSortConfig || clientSortConfig.key !== key) {
+      return <FiChevronsUpDown className="sort-icon" />;
+    }
+    return clientSortConfig.direction === 'asc'
+      ? <FiChevronUp className="sort-icon" />
+      : <FiChevronDown className="sort-icon" />;
+  };
 
   // Pagination handlers
   const handlePageChange = (page) => {
@@ -457,19 +498,23 @@ const ClientsPage = () => {
 
         {/* Error Message */}
         {error && (
-          <div className="error-message">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{marginRight: '8px'}}>
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-            </svg>
-            {error}
+          <div className="error-state" role="alert">
+            <div className="state-icon" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 13h-2v-2h2v2zm0-4h-2V7h2v4z"/>
+              </svg>
+            </div>
+            <h3>Unable to load clients</h3>
+            <p>{error}</p>
+            <button type="button" className="btn-secondary-modern" onClick={loadClients}>
+              Retry
+            </button>
           </div>
         )}
 
         {/* Loading State */}
         {loading && (
-          <div className="loading-message">
-            <div className="loading-spinner" aria-hidden="true"></div>
-          </div>
+          <LoadingSkeleton rows={7} variant="table" />
         )}
 
         {/* Client Statistics - Enhanced Modern Cards */}
@@ -557,7 +602,7 @@ const ClientsPage = () => {
               </svg>
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                onChange={(e) => handleSortChange(e.target.value)}
                 className="status-filter-enhanced"
               >
                 <option value="name">Sort by Name</option>
@@ -612,14 +657,16 @@ const ClientsPage = () => {
 
         {/* Enhanced Clients Table */}
         <div className="table-container-enhanced">
-          <div className="table-wrapper-modern">
+          <div className="table-wrapper-modern table-scroll">
             {filteredClients.length === 0 ? (
-              <div className={searchTerm || filterStatus !== 'all' || sortBy !== 'name' ? 'no-search-results' : 'no-clients'}>
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-                  <path d={searchTerm || filterStatus !== 'all' || sortBy !== 'name' ? 
-                    "M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" :
-                    "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"} />
-                </svg>
+              <div className={`empty-state ${searchTerm || filterStatus !== 'all' || sortBy !== 'name' ? 'no-search-results' : 'no-clients'}`}>
+                <div className="empty-state-icon" aria-hidden="true">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                    <path d={searchTerm || filterStatus !== 'all' || sortBy !== 'name' ? 
+                      "M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" :
+                      "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"} />
+                  </svg>
+                </div>
                 <h3>{searchTerm || filterStatus !== 'all' || sortBy !== 'name' ? 'No matching clients found' : 'No clients found'}</h3>
                 <p>{searchTerm || filterStatus !== 'all' || sortBy !== 'name' ? 
                   'Try adjusting your search criteria or filters to find clients.' : 
@@ -628,32 +675,62 @@ const ClientsPage = () => {
             ) : (
               <div className="filtered-results-container">
                 <div className="table-content-wrapper">
-              <table className="clients-table-enhanced">
+              <table className="clients-table-enhanced table-sticky">
                 <thead className="table-header-modern">
                   <tr>
-                    <th className="th-name" style={{ textAlign: 'center' }}>
-                      <div className="th-content" style={{ justifyContent: 'center' }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
-                          <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
-                        </svg>
-                        <span>Name</span>
-                      </div>
+                    <th className="th-name" style={{ textAlign: 'center' }} aria-sort={clientSortConfig?.key === 'name' ? clientSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${clientSortConfig?.key === 'name' ? 'active' : ''}`}
+                        onClick={() => {
+                          requestClientSort('name');
+                          setSortBy('name');
+                        }}
+                      >
+                        <span className="th-content" style={{ justifyContent: 'center' }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
+                            <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
+                          </svg>
+                          <span>Name</span>
+                        </span>
+                        {renderSortIcon('name')}
+                      </button>
                     </th>
-                    <th className="th-email" style={{ textAlign: 'center' }}>
-                      <div className="th-content" style={{ justifyContent: 'center' }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
-                          <path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z"/>
-                        </svg>
-                        <span>Email</span>
-                      </div>
+                    <th className="th-email" style={{ textAlign: 'center' }} aria-sort={clientSortConfig?.key === 'email' ? clientSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${clientSortConfig?.key === 'email' ? 'active' : ''}`}
+                        onClick={() => {
+                          requestClientSort('email');
+                          setSortBy('email');
+                        }}
+                      >
+                        <span className="th-content" style={{ justifyContent: 'center' }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
+                            <path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z"/>
+                          </svg>
+                          <span>Email</span>
+                        </span>
+                        {renderSortIcon('email')}
+                      </button>
                     </th>
-                    <th className="th-company" style={{ textAlign: 'center' }}>
-                      <div className="th-content" style={{ justifyContent: 'center' }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
-                          <path d="M12,7V3H2V21H22V7H12M6,19H4V17H6V19M6,15H4V13H6V15M6,11H4V9H6V11M6,7H4V5H6V7M10,19H8V17H10V19M10,15H8V13H10V15M10,11H8V9H10V11M10,7H8V5H10V7M20,19H12V17H20V19M20,15H12V13H20V15M20,11H12V9H20V11Z"/>
-                        </svg>
-                        <span>Company</span>
-                      </div>
+                    <th className="th-company" style={{ textAlign: 'center' }} aria-sort={clientSortConfig?.key === 'company' ? clientSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${clientSortConfig?.key === 'company' ? 'active' : ''}`}
+                        onClick={() => {
+                          requestClientSort('company');
+                          setSortBy('company');
+                        }}
+                      >
+                        <span className="th-content" style={{ justifyContent: 'center' }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
+                            <path d="M12,7V3H2V21H22V7H12M6,19H4V17H6V19M6,15H4V13H6V15M6,11H4V9H6V11M6,7H4V5H6V7M10,19H8V17H10V19M10,15H8V13H10V15M10,11H8V9H10V11M10,7H8V5H10V7M20,19H12V17H20V19M20,15H12V13H20V15M20,11H12V9H20V11Z"/>
+                          </svg>
+                          <span>Company</span>
+                        </span>
+                        {renderSortIcon('company')}
+                      </button>
                     </th>
                     <th className="th-phone" style={{ textAlign: 'center' }}>
                       <div className="th-content" style={{ justifyContent: 'center' }}>
@@ -679,13 +756,23 @@ const ClientsPage = () => {
                         <span>Status</span>
                       </div>
                     </th>
-                    <th className="th-date" style={{ textAlign: 'center' }}>
-                      <div className="th-content" style={{ justifyContent: 'center' }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
-                          <path d="M19,19H5V8H19M16,1V3H8V1H6V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3H18V1M17,12H12V17H17V12Z"/>
-                        </svg>
-                        <span>Added Date</span>
-                      </div>
+                    <th className="th-date" style={{ textAlign: 'center' }} aria-sort={clientSortConfig?.key === 'createdAt' ? clientSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${clientSortConfig?.key === 'createdAt' ? 'active' : ''}`}
+                        onClick={() => {
+                          requestClientSort('createdAt', (client) => new Date(client.createdAt).getTime());
+                          setSortBy('date');
+                        }}
+                      >
+                        <span className="th-content" style={{ justifyContent: 'center' }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
+                            <path d="M19,19H5V8H19M16,1V3H8V1H6V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3H18V1M17,12H12V17H17V12Z"/>
+                          </svg>
+                          <span>Added Date</span>
+                        </span>
+                        {renderSortIcon('createdAt')}
+                      </button>
                     </th>
                     <th className="th-actions" style={{ textAlign: 'center' }}>
                       <div className="th-content" style={{ justifyContent: 'center' }}>
@@ -879,8 +966,13 @@ const ClientsPage = () => {
                       value={clientData.name}
                       onChange={handleInputChange}
                       placeholder="Enter client's full name"
+                      aria-invalid={Boolean(formErrors.name)}
+                      aria-describedby={formErrors.name ? 'client-name-error' : undefined}
                       required
                     />
+                    {formErrors.name && (
+                      <div className="error-text" id="client-name-error">{formErrors.name}</div>
+                    )}
                   </div>
                   <div className="form-group">
                     <label htmlFor="email">Email Address</label>
@@ -891,7 +983,12 @@ const ClientsPage = () => {
                       value={clientData.email}
                       onChange={handleInputChange}
                       placeholder="client@example.com"
+                      aria-invalid={Boolean(formErrors.email)}
+                      aria-describedby={formErrors.email ? 'client-email-error' : undefined}
                     />
+                    {formErrors.email && (
+                      <div className="error-text" id="client-email-error">{formErrors.email}</div>
+                    )}
                   </div>
                 </div>
 
@@ -1001,6 +1098,8 @@ const ClientsPage = () => {
                 </div>
               </div>
 
+              {error && <div className="error-message form-error">{error}</div>}
+
               <div className="popup-actions">
                 <button type="button" onClick={handleClosePopup} className="cancel-btn">
                   Cancel
@@ -1039,21 +1138,33 @@ const ClientsPage = () => {
                     <input
                       type="text"
                       id="edit-name"
+                      name="name"
                       value={clientData.name}
-                      onChange={(e) => setClientData({...clientData, name: e.target.value})}
+                      onChange={handleInputChange}
                       placeholder="Enter client's full name"
+                      aria-invalid={Boolean(formErrors.name)}
+                      aria-describedby={formErrors.name ? 'client-edit-name-error' : undefined}
                       required
                     />
+                    {formErrors.name && (
+                      <div className="error-text" id="client-edit-name-error">{formErrors.name}</div>
+                    )}
                   </div>
                   <div className="form-group">
                     <label htmlFor="edit-email">Email Address</label>
                     <input
                       type="email"
                       id="edit-email"
+                      name="email"
                       value={clientData.email}
-                      onChange={(e) => setClientData({...clientData, email: e.target.value})}
+                      onChange={handleInputChange}
                       placeholder="client@example.com"
+                      aria-invalid={Boolean(formErrors.email)}
+                      aria-describedby={formErrors.email ? 'client-edit-email-error' : undefined}
                     />
+                    {formErrors.email && (
+                      <div className="error-text" id="client-edit-email-error">{formErrors.email}</div>
+                    )}
                   </div>
                 </div>
                 <div className="form-row">
@@ -1062,8 +1173,9 @@ const ClientsPage = () => {
                     <input
                       type="tel"
                       id="edit-phone"
+                      name="phone"
                       value={clientData.phone}
-                      onChange={(e) => setClientData({...clientData, phone: e.target.value})}
+                      onChange={handleInputChange}
                       placeholder="+1 (555) 123-4567"
                     />
                   </div>
@@ -1072,8 +1184,9 @@ const ClientsPage = () => {
                     <input
                       type="text"
                       id="edit-company"
+                      name="company"
                       value={clientData.company}
-                      onChange={(e) => setClientData({...clientData, company: e.target.value})}
+                      onChange={handleInputChange}
                       placeholder="Company name"
                     />
                   </div>
@@ -1087,8 +1200,9 @@ const ClientsPage = () => {
                   <input
                     type="text"
                     id="edit-address"
+                    name="address"
                     value={clientData.address}
-                    onChange={(e) => setClientData({...clientData, address: e.target.value})}
+                    onChange={handleInputChange}
                     placeholder="123 Main Street"
                   />
                 </div>
@@ -1099,8 +1213,9 @@ const ClientsPage = () => {
                     <input
                       type="text"
                       id="edit-city"
+                      name="city"
                       value={clientData.city}
-                      onChange={(e) => setClientData({...clientData, city: e.target.value})}
+                      onChange={handleInputChange}
                       placeholder="New York"
                     />
                   </div>
@@ -1109,8 +1224,9 @@ const ClientsPage = () => {
                     <input
                       type="text"
                       id="edit-state"
+                      name="state"
                       value={clientData.state}
-                      onChange={(e) => setClientData({...clientData, state: e.target.value})}
+                      onChange={handleInputChange}
                       placeholder="NY"
                     />
                   </div>
@@ -1122,8 +1238,9 @@ const ClientsPage = () => {
                     <input
                       type="text"
                       id="edit-zipCode"
+                      name="zipCode"
                       value={clientData.zipCode}
-                      onChange={(e) => setClientData({...clientData, zipCode: e.target.value})}
+                      onChange={handleInputChange}
                       placeholder="10001"
                     />
                   </div>
@@ -1132,8 +1249,9 @@ const ClientsPage = () => {
                     <input
                       type="text"
                       id="edit-country"
+                      name="country"
                       value={clientData.country}
-                      onChange={(e) => setClientData({...clientData, country: e.target.value})}
+                      onChange={handleInputChange}
                       placeholder="India"
                     />
                   </div>
@@ -1146,15 +1264,16 @@ const ClientsPage = () => {
                   <label htmlFor="edit-notes">Notes</label>
                   <textarea
                     id="edit-notes"
+                    name="notes"
                     value={clientData.notes}
-                    onChange={(e) => setClientData({...clientData, notes: e.target.value})}
+                    onChange={handleInputChange}
                     placeholder="Any additional notes about the client..."
                     rows="3"
                   />
                 </div>
               </div>
 
-              {error && <div className="error-message">{error}</div>}
+              {error && <div className="error-message form-error">{error}</div>}
 
               <div className="popup-actions">
                 <button type="button" onClick={handleClosePopup} className="cancel-btn">

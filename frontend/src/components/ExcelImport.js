@@ -193,13 +193,6 @@ const ExcelImport = ({ type, onSuccess, onClose }) => {
           });
 
           // Send to backend using API service
-          console.log('Sending to backend:', {
-            type,
-            dataLength: transformedData.length,
-            firstItem: transformedData[0],
-            allData: transformedData
-          });
-          
           const response = type === 'clients' 
             ? await clientAPI.bulkImport(transformedData)
             : null; // Inventory functionality removed
@@ -208,7 +201,6 @@ const ExcelImport = ({ type, onSuccess, onClose }) => {
             throw new Error('Inventory import not supported');
           }
 
-          console.log('Import successful:', response.data);
           setStep(3);
           
           // Trigger refresh on parent component

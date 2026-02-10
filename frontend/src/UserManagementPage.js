@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import { FaEdit, FaTrash, FaKey, FaUserPlus, FaCheckCircle, FaTimesCircle, FaToggleOn, FaToggleOff } from 'react-icons/fa';
+import { FiChevronDown, FiChevronUp, FiChevronsUpDown } from 'react-icons/fi';
+import useSortableData from './utils/useSortableData';
 import Watermark from './components/Watermark';
 import './UserManagementPage.css';
 import './styles/ActionButtons.css';
@@ -21,6 +23,7 @@ function UserManagementPage() {
   const [editingUser, setEditingUser] = useState(null);
   const [resetPasswordUser, setResetPasswordUser] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [formErrors, setFormErrors] = useState({});
 
   const [formData, setFormData] = useState({
     username: '',
@@ -36,6 +39,21 @@ function UserManagementPage() {
     confirmPassword: '',
     requirePasswordChange: false
   });
+
+  const {
+    items: sortedUsers,
+    requestSort: requestUserSort,
+    sortConfig: userSortConfig
+  } = useSortableData(users, { key: 'fullName', direction: 'asc' });
+
+  const renderSortIcon = (key) => {
+    if (!userSortConfig || userSortConfig.key !== key) {
+      return <FiChevronsUpDown className="sort-icon" />;
+    }
+    return userSortConfig.direction === 'asc'
+      ? <FiChevronUp className="sort-icon" />
+      : <FiChevronDown className="sort-icon" />;
+  };
 
   useEffect(() => {
     fetchUsers();
@@ -105,46 +123,47 @@ function UserManagementPage() {
   const handleCloseModal = () => {
     setShowModal(false);
     setEditingUser(null);
+    setFormErrors({});
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormErrors({});
 
     // Validate form data
+    const nextErrors = {};
     if (!formData.fullName.trim()) {
-      showMessage('error', 'Full Name is required');
-      return;
+      nextErrors.fullName = 'Full Name is required';
     }
     if (!formData.username.trim()) {
-      showMessage('error', 'Username is required');
-      return;
+      nextErrors.username = 'Username is required';
     }
     if (!formData.email.trim()) {
-      showMessage('error', 'Email is required');
-      return;
+      nextErrors.email = 'Email is required';
     }
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email.trim())) {
-      showMessage('error', 'Please enter a valid email address');
-      return;
+    if (formData.email.trim() && !emailRegex.test(formData.email.trim())) {
+      nextErrors.email = 'Please enter a valid email address';
     }
     if (!formData.role) {
-      showMessage('error', 'Role is required');
-      return;
+      nextErrors.role = 'Role is required';
     }
     // Validate role exists
     const selectedRole = roles.find(role => role._id === formData.role);
-    if (!selectedRole) {
-      showMessage('error', 'Please select a valid role');
-      return;
+    if (formData.role && !selectedRole) {
+      nextErrors.role = 'Please select a valid role';
     }
     if (!editingUser && !formData.password) {
-      showMessage('error', 'Password is required for new users');
-      return;
+      nextErrors.password = 'Password is required for new users';
     }
-    if (!editingUser && formData.password.length < 6) {
-      showMessage('error', 'Password must be at least 6 characters');
+    if (!editingUser && formData.password && formData.password.length < 6) {
+      nextErrors.password = 'Password must be at least 6 characters';
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setFormErrors(nextErrors);
+      showMessage('error', 'Please fix the highlighted fields');
       return;
     }
 
@@ -159,13 +178,6 @@ function UserManagementPage() {
       : formData;
 
     try {
-      console.log('Form data before processing:', formData);
-      console.log('Available roles:', roles);
-      console.log('Selected role object:', selectedRole);
-      console.log('Sending payload:', payload);
-      console.log('Request URL:', url);
-      console.log('Request method:', method);
-      
       const response = await fetch(url, {
         method,
         headers: {
@@ -175,11 +187,7 @@ function UserManagementPage() {
         body: JSON.stringify(payload)
       });
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
-      
       const data = await response.json();
-      console.log('Response data:', JSON.stringify(data, null, 2));
 
       if (response.ok && data.success) {
         showMessage('success', data.message || 'User saved successfully');
@@ -341,20 +349,74 @@ function UserManagementPage() {
       )}
 
       <div className="users-table-container">
-        <table className="users-table">
+        <table className="users-table table-sticky">
           <thead>
             <tr>
-              <th>Full Name</th>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Last Login</th>
+              <th aria-sort={userSortConfig?.key === 'fullName' ? userSortConfig.direction : 'none'}>
+                <button
+                  type="button"
+                  className={`sortable-header ${userSortConfig?.key === 'fullName' ? 'active' : ''}`}
+                  onClick={() => requestUserSort('fullName')}
+                >
+                  Full Name
+                  {renderSortIcon('fullName')}
+                </button>
+              </th>
+              <th aria-sort={userSortConfig?.key === 'username' ? userSortConfig.direction : 'none'}>
+                <button
+                  type="button"
+                  className={`sortable-header ${userSortConfig?.key === 'username' ? 'active' : ''}`}
+                  onClick={() => requestUserSort('username')}
+                >
+                  Username
+                  {renderSortIcon('username')}
+                </button>
+              </th>
+              <th aria-sort={userSortConfig?.key === 'email' ? userSortConfig.direction : 'none'}>
+                <button
+                  type="button"
+                  className={`sortable-header ${userSortConfig?.key === 'email' ? 'active' : ''}`}
+                  onClick={() => requestUserSort('email')}
+                >
+                  Email
+                  {renderSortIcon('email')}
+                </button>
+              </th>
+              <th aria-sort={userSortConfig?.key === 'role' ? userSortConfig.direction : 'none'}>
+                <button
+                  type="button"
+                  className={`sortable-header ${userSortConfig?.key === 'role' ? 'active' : ''}`}
+                  onClick={() => requestUserSort('role', (user) => user.role?.name || '')}
+                >
+                  Role
+                  {renderSortIcon('role')}
+                </button>
+              </th>
+              <th aria-sort={userSortConfig?.key === 'status' ? userSortConfig.direction : 'none'}>
+                <button
+                  type="button"
+                  className={`sortable-header ${userSortConfig?.key === 'status' ? 'active' : ''}`}
+                  onClick={() => requestUserSort('status', (user) => (user.isActive ? 'Active' : 'Inactive'))}
+                >
+                  Status
+                  {renderSortIcon('status')}
+                </button>
+              </th>
+              <th aria-sort={userSortConfig?.key === 'lastLogin' ? userSortConfig.direction : 'none'}>
+                <button
+                  type="button"
+                  className={`sortable-header ${userSortConfig?.key === 'lastLogin' ? 'active' : ''}`}
+                  onClick={() => requestUserSort('lastLogin', (user) => new Date(user.lastLogin || 0).getTime())}
+                >
+                  Last Login
+                  {renderSortIcon('lastLogin')}
+                </button>
+              </th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {users.map(user => (
+            {sortedUsers.map(user => (
               <tr key={user._id}>
                 <td>{user.fullName}</td>
                 <td>{user.username}</td>
@@ -443,27 +505,48 @@ function UserManagementPage() {
                 <input
                   type="text"
                   value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, fullName: e.target.value });
+                    if (formErrors.fullName) {
+                      setFormErrors(prev => ({ ...prev, fullName: '' }));
+                    }
+                  }}
                   required
+                  aria-invalid={Boolean(formErrors.fullName)}
                 />
+                {formErrors.fullName && <div className="error-text">{formErrors.fullName}</div>}
               </div>
               <div className="form-group">
                 <label>Username</label>
                 <input
                   type="text"
                   value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, username: e.target.value });
+                    if (formErrors.username) {
+                      setFormErrors(prev => ({ ...prev, username: '' }));
+                    }
+                  }}
                   required
+                  aria-invalid={Boolean(formErrors.username)}
                 />
+                {formErrors.username && <div className="error-text">{formErrors.username}</div>}
               </div>
               <div className="form-group">
                 <label>Email</label>
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, email: e.target.value });
+                    if (formErrors.email) {
+                      setFormErrors(prev => ({ ...prev, email: '' }));
+                    }
+                  }}
                   required
+                  aria-invalid={Boolean(formErrors.email)}
                 />
+                {formErrors.email && <div className="error-text">{formErrors.email}</div>}
               </div>
               {!editingUser && (
                 <div className="form-group">
@@ -471,24 +554,38 @@ function UserManagementPage() {
                   <input
                     type="password"
                     value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    onChange={(e) => {
+                      setFormData({ ...formData, password: e.target.value });
+                      if (formErrors.password) {
+                        setFormErrors(prev => ({ ...prev, password: '' }));
+                      }
+                    }}
                     required
                     minLength="6"
+                    aria-invalid={Boolean(formErrors.password)}
                   />
+                  {formErrors.password && <div className="error-text">{formErrors.password}</div>}
                 </div>
               )}
               <div className="form-group">
                 <label>Role</label>
                 <select
                   value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, role: e.target.value });
+                    if (formErrors.role) {
+                      setFormErrors(prev => ({ ...prev, role: '' }));
+                    }
+                  }}
                   required
+                  aria-invalid={Boolean(formErrors.role)}
                 >
                   <option value="">Select Role</option>
                   {roles.map(role => (
                     <option key={role._id} value={role._id}>{role.name}</option>
                   ))}
                 </select>
+                {formErrors.role && <div className="error-text">{formErrors.role}</div>}
               </div>
               {editingUser && (
                 <div className="form-group">

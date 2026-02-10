@@ -45,11 +45,6 @@ const InteractiveChartBuilder = ({ token, apiBaseUrl }) => {
   const chartRef = useRef(null);
 
   const fetchData = async () => {
-    console.log('📊 [CHART] Fetching analytics data...');
-    console.log('📊 [CHART] Parameters:', { from, to, groupBy });
-    console.log('📊 [CHART] API Base URL:', apiBaseUrl);
-    console.log('📊 [CHART] Token available:', !!token);
-    
     setLoading(true);
     setError('');
     try {
@@ -58,14 +53,11 @@ const InteractiveChartBuilder = ({ token, apiBaseUrl }) => {
       if (to) params.append('to', to);
 
       const url = `${apiBaseUrl}/analytics/clients/monthly?${params.toString()}`;
-      console.log('📊 [CHART] Fetching from URL:', url);
 
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
-      console.log('📊 [CHART] Response status:', res.status, res.statusText);
-      
+
       if (!res.ok) {
         const errorText = await res.text();
         console.error('❌ [CHART] API error response:', errorText);
@@ -73,12 +65,7 @@ const InteractiveChartBuilder = ({ token, apiBaseUrl }) => {
       }
       
       const data = await res.json();
-      console.log('📊 [CHART] Received data:', data);
-      console.log('📊 [CHART] Full response JSON:', JSON.stringify(data, null, 2));
-      console.log('📊 [CHART] Labels count:', data.labels?.length || 0);
-      console.log('📊 [CHART] Values:', data.values);
-      console.log('📊 [CHART] Total:', data.total);
-      
+
       // Check if response has unexpected structure
       if (!data.labels && !data.values && !data.total) {
         console.error('❌ [CHART] Backend returned empty/invalid data structure');
@@ -87,8 +74,6 @@ const InteractiveChartBuilder = ({ token, apiBaseUrl }) => {
 
       const labels = (data.labels || []).map(formatLabel);
       const colors = labels.map((_, idx) => colorPalette[idx % colorPalette.length]);
-
-      console.log('📊 [CHART] Formatted labels:', labels);
 
       setChartData({
         labels,
@@ -108,8 +93,6 @@ const InteractiveChartBuilder = ({ token, apiBaseUrl }) => {
         from: data.from || from,
         to: data.to || to
       });
-      
-      console.log('✅ [CHART] Chart data updated successfully');
     } catch (e) {
       console.error('❌ [CHART] Error fetching data:', e);
       console.error('❌ [CHART] Error stack:', e.stack);

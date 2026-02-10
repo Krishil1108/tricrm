@@ -17,6 +17,7 @@ const AddClientForm = ({ selectedDate, onClose, onBack }) => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [formErrors, setFormErrors] = useState({});
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -24,10 +25,30 @@ const AddClientForm = ({ selectedDate, onClose, onBack }) => {
       ...prev,
       [name]: value
     }));
+    if (formErrors[name]) {
+      setFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormErrors({});
+
+    const nextErrors = {};
+    if (!formData.name.trim()) {
+      nextErrors.name = 'Full name is required';
+    }
+    if (!formData.email.trim()) {
+      nextErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      nextErrors.email = 'Please enter a valid email address';
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setFormErrors(nextErrors);
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -36,8 +57,6 @@ const AddClientForm = ({ selectedDate, onClose, onBack }) => {
         ...formData,
         dateAdded: selectedDate.toISOString()
       });
-      
-      console.log('Client added successfully:', response.data);
       dataEventManager.emit(DATA_TYPES.CLIENTS, response.data);
       onClose();
     } catch (err) {
@@ -51,7 +70,7 @@ const AddClientForm = ({ selectedDate, onClose, onBack }) => {
   return (
     <div className="form-container">
       <form onSubmit={handleSubmit}>
-        {error && <div className="error-message">{error}</div>}
+        {error && <div className="error-message form-error">{error}</div>}
         
         <div className="form-row">
           <div className="form-group">
@@ -64,7 +83,9 @@ const AddClientForm = ({ selectedDate, onClose, onBack }) => {
               onChange={handleInputChange}
               required
               placeholder="Enter client's full name"
+              aria-invalid={Boolean(formErrors.name)}
             />
+            {formErrors.name && <div className="error-text">{formErrors.name}</div>}
           </div>
           <div className="form-group">
             <label htmlFor="email">Email *</label>
@@ -76,7 +97,9 @@ const AddClientForm = ({ selectedDate, onClose, onBack }) => {
               onChange={handleInputChange}
               required
               placeholder="client@example.com"
+              aria-invalid={Boolean(formErrors.email)}
             />
+            {formErrors.email && <div className="error-text">{formErrors.email}</div>}
           </div>
         </div>
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { FaEdit, FaTrash, FaChartPie, FaUsers } from 'react-icons/fa';
-import { FiAlertTriangle, FiBarChart2, FiCheckCircle, FiCreditCard, FiInfo } from 'react-icons/fi';
+import { FiAlertTriangle, FiBarChart2, FiCheckCircle, FiChevronDown, FiChevronUp, FiChevronsUpDown, FiCreditCard, FiInfo } from 'react-icons/fi';
 import './ProjectPage.css';
 import './styles/ClientsPageEnhanced.css';
 import './styles/ActionButtons.css';
@@ -15,6 +15,7 @@ import { useToast } from './context/ToastContext';
 import YearlyDistributionTable from './components/YearlyDistributionTable';
 import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import Watermark from './components/Watermark';
+import useSortableData from './utils/useSortableData';
 
 const ProjectPage = () => {
   const location = useLocation();
@@ -113,7 +114,6 @@ const ProjectPage = () => {
 
   // Handle modal close and reset edit state
   const handleCloseModal = () => {
-    console.log('Closing modal, current editing item:', editingItem);
     setShowModal(false);
     
     // Clear state after modal animation completes
@@ -121,7 +121,6 @@ const ProjectPage = () => {
       setEditingItem(null);
       setFormData({});
       processedEditId.current = null; // Reset the processed edit ID
-      console.log('Modal state cleared');
     }, 300);
   };
 
@@ -165,8 +164,6 @@ const ProjectPage = () => {
           const projectData = response.data || response;
           
           if (projectData) {
-            console.log('Loaded project data for editing:', projectData);
-            
             // Set the active tab to projects
             setActiveTab('projects');
             
@@ -189,9 +186,7 @@ const ProjectPage = () => {
               projectAssociates: projectData.projectAssociates || [],
               payments: projectData.payments || []
             };
-            
-            console.log('Setting form data:', formDataForEdit);
-            
+
             // Set editing item first to prevent conflicts
             setEditingItem(projectData);
             
@@ -201,7 +196,6 @@ const ProjectPage = () => {
             // Finally show modal after a small delay
             setTimeout(() => {
               setShowModal(true);
-              console.log('Modal opened with formData:', formDataForEdit);
             }, 150); // Small delay to ensure state is set
             
             // Clear the state to prevent re-triggering
@@ -308,7 +302,6 @@ const ProjectPage = () => {
       }
     } catch (error) {
       console.error('Error loading from version service:', error);
-      console.log('Falling back to localStorage');
     }
     
     // Fallback to localStorage if version service fails
@@ -468,15 +461,12 @@ const ProjectPage = () => {
     }
 
     try {
-      console.log('🚀 Starting apply default percentages...');
       showLoading('Applying default percentages...');
       
       const response = await FinanceService.applyDefaultPercentages();
-      console.log('Full response:', response);
       
       if (response.status === 'success' || response.success) {
         const updatedCount = response.data?.updated || 0;
-        console.log('Updated count:', updatedCount);
         
         if (updatedCount > 0) {
           showSuccess(`Successfully applied default percentages to ${updatedCount} project(s)`);
@@ -514,7 +504,6 @@ const ProjectPage = () => {
       showError(errorMessage);
     } finally {
       hideLoading();
-      console.log('🏁 Apply default percentages completed');
     }
   };
 
@@ -765,9 +754,7 @@ const ProjectPage = () => {
           delete cleanFormData[field]; // Remove the field entirely if empty
         }
       });
-      
-      console.log('Sending project data:', cleanFormData);
-      
+
       if (activeTab === 'projects') {
         if (editingItem) {
           await FinanceService.updateProject(editingItem._id, cleanFormData);
@@ -988,12 +975,6 @@ const ProjectPage = () => {
     });
   };
 
-  const getPaginatedProjects = () => {
-    const filtered = getFilteredProjects();
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return filtered.slice(startIndex, startIndex + itemsPerPage);
-  };
-
   // Filter and paginate expenses
   const getFilteredExpenses = () => {
     return expenses.filter(expense => {
@@ -1005,15 +986,43 @@ const ProjectPage = () => {
     });
   };
 
-  const getPaginatedExpenses = () => {
-    const filtered = getFilteredExpenses();
+  const filteredProjects = getFilteredProjects();
+  const filteredExpenses = getFilteredExpenses();
+
+  const {
+    items: sortedProjects,
+    requestSort: requestProjectSort,
+    sortConfig: projectSortConfig
+  } = useSortableData(filteredProjects, { key: 'projectNumber', direction: 'asc' });
+
+  const {
+    items: sortedExpenses,
+    requestSort: requestExpenseSort,
+    sortConfig: expenseSortConfig
+  } = useSortableData(filteredExpenses, { key: 'bankName', direction: 'asc' });
+
+  const renderSortIcon = (key, config) => {
+    if (!config || config.key !== key) {
+      return <FiChevronsUpDown className="sort-icon" />;
+    }
+    return config.direction === 'asc'
+      ? <FiChevronUp className="sort-icon" />
+      : <FiChevronDown className="sort-icon" />;
+  };
+
+  const getPaginatedProjects = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return filtered.slice(startIndex, startIndex + itemsPerPage);
+    return sortedProjects.slice(startIndex, startIndex + itemsPerPage);
+  };
+
+  const getPaginatedExpenses = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return sortedExpenses.slice(startIndex, startIndex + itemsPerPage);
   };
 
   // Pagination helpers
   const getTotalPages = () => {
-    const filteredData = activeTab === 'projects' ? getFilteredProjects() : getFilteredExpenses();
+    const filteredData = activeTab === 'projects' ? filteredProjects : filteredExpenses;
     return Math.ceil(filteredData.length / itemsPerPage);
   };
 
@@ -1110,7 +1119,7 @@ const ProjectPage = () => {
                 </div>
                 <div className="btn-content">
                   <span className="btn-text">Export</span>
-                  <span className="btn-count">({activeTab === 'projects' ? getFilteredProjects().length : getFilteredExpenses().length})</span>
+                  <span className="btn-count">({activeTab === 'projects' ? filteredProjects.length : filteredExpenses.length})</span>
                 </div>
               </button>
             )}
@@ -1269,7 +1278,7 @@ const ProjectPage = () => {
       {activeTab === 'projects' ? (
         <ProjectsTable
           projects={getPaginatedProjects()}
-          totalProjects={getFilteredProjects().length}
+          totalProjects={filteredProjects.length}
           onEdit={handleEdit}
           onViewDistribution={handleViewDistribution}
           onViewAssociateDistribution={handleViewAssociateDistribution}
@@ -1281,14 +1290,20 @@ const ProjectPage = () => {
           canDelete={canDeleteProject}
           canExpenseDistribution={canExpenseDistribution}
           canAssociateDistribution={canAssociateDistribution}
+          onRequestSort={requestProjectSort}
+          sortConfig={projectSortConfig}
+          renderSortIcon={renderSortIcon}
         />
       ) : (
         <ExpensesTable
           expenses={getPaginatedExpenses()}
-          totalExpenses={getFilteredExpenses().length}
+          totalExpenses={filteredExpenses.length}
           onEdit={handleEdit}
           onDelete={handleDelete}
           formatCurrency={formatCurrency}
+          onRequestSort={requestExpenseSort}
+          sortConfig={expenseSortConfig}
+          renderSortIcon={renderSortIcon}
         />
       )}
 
@@ -1298,7 +1313,7 @@ const ProjectPage = () => {
           currentPage={currentPage}
           totalPages={getTotalPages()}
           onPageChange={handlePageChange}
-          totalItems={activeTab === 'projects' ? getFilteredProjects().length : getFilteredExpenses().length}
+          totalItems={activeTab === 'projects' ? filteredProjects.length : filteredExpenses.length}
           itemsPerPage={itemsPerPage}
         />
       )}
@@ -1817,7 +1832,23 @@ const ProjectPage = () => {
 };
 
 // Projects Table Component
-const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDistribution, onDelete, formatCurrency, dropdownOpenId, setDropdownOpenId, canEdit, canDelete, canExpenseDistribution, canAssociateDistribution }) => {
+const ProjectsTable = ({
+  projects,
+  onEdit,
+  onViewDistribution,
+  onViewAssociateDistribution,
+  onDelete,
+  formatCurrency,
+  dropdownOpenId,
+  setDropdownOpenId,
+  canEdit,
+  canDelete,
+  canExpenseDistribution,
+  canAssociateDistribution,
+  onRequestSort,
+  sortConfig,
+  renderSortIcon
+}) => {
   if (projects.length === 0) {
     return (
       <div className="empty-state">
@@ -1830,15 +1861,69 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
 
   return (
     <div className="project-table-container" style={{ position: 'relative', overflow: 'visible' }}>
-      <table className="project-table">
+      <table className="project-table table-sticky">
         <thead>
           <tr>
-            <th>Project Number</th>
-            <th>Project Name</th>
-            <th>Project Location</th>
-            <th>Finalized Fees</th>
-            <th>Received Fees</th>
-            <th>Status</th>
+            <th aria-sort={sortConfig?.key === 'projectNumber' ? sortConfig.direction : 'none'}>
+              <button
+                type="button"
+                className={`sortable-header ${sortConfig?.key === 'projectNumber' ? 'active' : ''}`}
+                onClick={() => onRequestSort('projectNumber')}
+              >
+                Project Number
+                {renderSortIcon('projectNumber', sortConfig)}
+              </button>
+            </th>
+            <th aria-sort={sortConfig?.key === 'projectName' ? sortConfig.direction : 'none'}>
+              <button
+                type="button"
+                className={`sortable-header ${sortConfig?.key === 'projectName' ? 'active' : ''}`}
+                onClick={() => onRequestSort('projectName')}
+              >
+                Project Name
+                {renderSortIcon('projectName', sortConfig)}
+              </button>
+            </th>
+            <th aria-sort={sortConfig?.key === 'projectLocation' ? sortConfig.direction : 'none'}>
+              <button
+                type="button"
+                className={`sortable-header ${sortConfig?.key === 'projectLocation' ? 'active' : ''}`}
+                onClick={() => onRequestSort('projectLocation')}
+              >
+                Project Location
+                {renderSortIcon('projectLocation', sortConfig)}
+              </button>
+            </th>
+            <th aria-sort={sortConfig?.key === 'finalizedFees' ? sortConfig.direction : 'none'}>
+              <button
+                type="button"
+                className={`sortable-header ${sortConfig?.key === 'finalizedFees' ? 'active' : ''}`}
+                onClick={() => onRequestSort('finalizedFees')}
+              >
+                Finalized Fees
+                {renderSortIcon('finalizedFees', sortConfig)}
+              </button>
+            </th>
+            <th aria-sort={sortConfig?.key === 'totalReceivedFees' ? sortConfig.direction : 'none'}>
+              <button
+                type="button"
+                className={`sortable-header ${sortConfig?.key === 'totalReceivedFees' ? 'active' : ''}`}
+                onClick={() => onRequestSort('totalReceivedFees')}
+              >
+                Received Fees
+                {renderSortIcon('totalReceivedFees', sortConfig)}
+              </button>
+            </th>
+            <th aria-sort={sortConfig?.key === 'status' ? sortConfig.direction : 'none'}>
+              <button
+                type="button"
+                className={`sortable-header ${sortConfig?.key === 'status' ? 'active' : ''}`}
+                onClick={() => onRequestSort('status')}
+              >
+                Status
+                {renderSortIcon('status', sortConfig)}
+              </button>
+            </th>
             <th style={{textAlign: 'center'}}>Actions</th>
           </tr>
         </thead>
@@ -2038,7 +2123,7 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
 };
 
 // Expenses Table Component
-const ExpensesTable = ({ expenses, onEdit, onDelete, formatCurrency }) => {
+const ExpensesTable = ({ expenses, onEdit, onDelete, formatCurrency, onRequestSort, sortConfig, renderSortIcon }) => {
   if (expenses.length === 0) {
     return (
       <div className="empty-state">
@@ -2051,17 +2136,89 @@ const ExpensesTable = ({ expenses, onEdit, onDelete, formatCurrency }) => {
 
   return (
     <div className="project-table-container">
-      <table className="project-table">
+      <table className="project-table table-sticky">
         <thead>
           <tr>
-            <th>Bank Name</th>
-            <th>Month</th>
-            <th>Year</th>
-            <th>Amount</th>
-            <th>Drawing</th>
-            <th>Site Visit</th>
-            <th>Office Mgmt</th>
-            <th>Total</th>
+            <th aria-sort={sortConfig?.key === 'bankName' ? sortConfig.direction : 'none'}>
+              <button
+                type="button"
+                className={`sortable-header ${sortConfig?.key === 'bankName' ? 'active' : ''}`}
+                onClick={() => onRequestSort('bankName')}
+              >
+                Bank Name
+                {renderSortIcon('bankName', sortConfig)}
+              </button>
+            </th>
+            <th aria-sort={sortConfig?.key === 'month' ? sortConfig.direction : 'none'}>
+              <button
+                type="button"
+                className={`sortable-header ${sortConfig?.key === 'month' ? 'active' : ''}`}
+                onClick={() => onRequestSort('month')}
+              >
+                Month
+                {renderSortIcon('month', sortConfig)}
+              </button>
+            </th>
+            <th aria-sort={sortConfig?.key === 'year' ? sortConfig.direction : 'none'}>
+              <button
+                type="button"
+                className={`sortable-header ${sortConfig?.key === 'year' ? 'active' : ''}`}
+                onClick={() => onRequestSort('year')}
+              >
+                Year
+                {renderSortIcon('year', sortConfig)}
+              </button>
+            </th>
+            <th aria-sort={sortConfig?.key === 'amount' ? sortConfig.direction : 'none'}>
+              <button
+                type="button"
+                className={`sortable-header ${sortConfig?.key === 'amount' ? 'active' : ''}`}
+                onClick={() => onRequestSort('amount')}
+              >
+                Amount
+                {renderSortIcon('amount', sortConfig)}
+              </button>
+            </th>
+            <th aria-sort={sortConfig?.key === 'drawing' ? sortConfig.direction : 'none'}>
+              <button
+                type="button"
+                className={`sortable-header ${sortConfig?.key === 'drawing' ? 'active' : ''}`}
+                onClick={() => onRequestSort('drawing')}
+              >
+                Drawing
+                {renderSortIcon('drawing', sortConfig)}
+              </button>
+            </th>
+            <th aria-sort={sortConfig?.key === 'siteVisit' ? sortConfig.direction : 'none'}>
+              <button
+                type="button"
+                className={`sortable-header ${sortConfig?.key === 'siteVisit' ? 'active' : ''}`}
+                onClick={() => onRequestSort('siteVisit')}
+              >
+                Site Visit
+                {renderSortIcon('siteVisit', sortConfig)}
+              </button>
+            </th>
+            <th aria-sort={sortConfig?.key === 'officeManagement' ? sortConfig.direction : 'none'}>
+              <button
+                type="button"
+                className={`sortable-header ${sortConfig?.key === 'officeManagement' ? 'active' : ''}`}
+                onClick={() => onRequestSort('officeManagement')}
+              >
+                Office Mgmt
+                {renderSortIcon('officeManagement', sortConfig)}
+              </button>
+            </th>
+            <th aria-sort={sortConfig?.key === 'total' ? sortConfig.direction : 'none'}>
+              <button
+                type="button"
+                className={`sortable-header ${sortConfig?.key === 'total' ? 'active' : ''}`}
+                onClick={() => onRequestSort('total')}
+              >
+                Total
+                {renderSortIcon('total', sortConfig)}
+              </button>
+            </th>
             <th style={{textAlign: 'center'}}>Actions</th>
           </tr>
         </thead>

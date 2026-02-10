@@ -16,6 +16,7 @@ const AddNotesForm = ({ selectedDate, onClose, onBack }) => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [formErrors, setFormErrors] = useState({});
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -23,10 +24,28 @@ const AddNotesForm = ({ selectedDate, onClose, onBack }) => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    if (formErrors[name]) {
+      setFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setFormErrors({});
+
+    const nextErrors = {};
+    if (!formData.title.trim()) {
+      nextErrors.title = 'Note title is required';
+    }
+    if (!formData.content.trim()) {
+      nextErrors.content = 'Content is required';
+    }
+
+    if (Object.keys(nextErrors).length > 0) {
+      setFormErrors(nextErrors);
+      return;
+    }
+
     setLoading(true);
     setError('');
 
@@ -42,8 +61,6 @@ const AddNotesForm = ({ selectedDate, onClose, onBack }) => {
         reminderDateTime: reminderDateTime?.toISOString(),
         tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
       });
-      
-      console.log('Note added successfully:', response.data);
       dataEventManager.emit(DATA_TYPES.NOTES, response.data);
       onClose();
     } catch (err) {
@@ -57,7 +74,7 @@ const AddNotesForm = ({ selectedDate, onClose, onBack }) => {
   return (
     <div className="form-container">
       <form onSubmit={handleSubmit}>
-        {error && <div className="error-message">{error}</div>}
+        {error && <div className="error-message form-error">{error}</div>}
         
         <div className="form-group">
           <label htmlFor="title">Note Title *</label>
@@ -69,7 +86,9 @@ const AddNotesForm = ({ selectedDate, onClose, onBack }) => {
             onChange={handleInputChange}
             required
             placeholder="Enter note title"
+            aria-invalid={Boolean(formErrors.title)}
           />
+          {formErrors.title && <div className="error-text">{formErrors.title}</div>}
         </div>
 
         <div className="form-group">
@@ -82,7 +101,9 @@ const AddNotesForm = ({ selectedDate, onClose, onBack }) => {
             required
             placeholder="Write your note here..."
             rows="6"
+            aria-invalid={Boolean(formErrors.content)}
           />
+          {formErrors.content && <div className="error-text">{formErrors.content}</div>}
         </div>
 
         <div className="form-row">

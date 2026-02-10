@@ -78,7 +78,7 @@ function ForgotPasswordPage() {
         ) : (
           <form onSubmit={handleSubmit} className="forgot-password-form">
             {error && (
-              <div className="error-message">
+              <div className="error-message form-error">
                 <span className="error-icon"><FiAlertTriangle /></span>
                 {error}
               </div>

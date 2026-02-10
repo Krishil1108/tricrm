@@ -64,10 +64,6 @@ const AnalyticsDashboard = () => {
   }, [filters]);
 
   const fetchFilterOptions = async () => {
-    console.log('📊 [ANALYTICS DASHBOARD] Starting fetchFilterOptions');
-    console.log('📊 [ANALYTICS DASHBOARD] Token:', token ? 'Present' : 'Missing');
-    console.log('📊 [ANALYTICS DASHBOARD] API_BASE_URL:', API_BASE_URL);
-    
     if (!token) {
       console.error('❌ [ANALYTICS DASHBOARD] No token available for API calls');
       setError('Authentication required. Please log in.');
@@ -75,18 +71,14 @@ const AnalyticsDashboard = () => {
     }
     
     try {
-      console.log('📊 [ANALYTICS DASHBOARD] Making API calls to filter options...');
-      
       // Make individual API calls with error handling for each
       const fetchClient = async () => {
         try {
           const response = await fetch(`${API_BASE_URL}/analytics/filter-options/clients`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
-          console.log('📊 [ANALYTICS DASHBOARD] Clients response:', response.status, response.statusText);
           if (response.ok) {
             const data = await response.json();
-            console.log('📊 [ANALYTICS DASHBOARD] Clients data:', Array.isArray(data) ? data.length : 'Invalid', data);
             return Array.isArray(data) ? data : [];
           }
           return [];
@@ -101,10 +93,8 @@ const AnalyticsDashboard = () => {
           const response = await fetch(`${API_BASE_URL}/analytics/filter-options/projects`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
-          console.log('📊 [ANALYTICS DASHBOARD] Projects response:', response.status, response.statusText);
           if (response.ok) {
             const data = await response.json();
-            console.log('📊 [ANALYTICS DASHBOARD] Projects data:', Array.isArray(data) ? data.length : 'Invalid', data);
             return Array.isArray(data) ? data : [];
           }
           return [];
@@ -119,10 +109,8 @@ const AnalyticsDashboard = () => {
           const response = await fetch(`${API_BASE_URL}/analytics/filter-options/associates`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
-          console.log('📊 [ANALYTICS DASHBOARD] Associates response:', response.status, response.statusText);
           if (response.ok) {
             const data = await response.json();
-            console.log('📊 [ANALYTICS DASHBOARD] Associates data:', Array.isArray(data) ? data.length : 'Invalid', data);
             return Array.isArray(data) ? data : [];
           }
           return [];
@@ -140,8 +128,6 @@ const AnalyticsDashboard = () => {
       ]);
 
       setFilterOptions({ clients, projects, associates });
-      console.log('✅ [ANALYTICS DASHBOARD] Filter options loaded - Clients:', clients.length, 'Projects:', projects.length, 'Associates:', associates.length);
-      
     } catch (error) {
       console.error('❌ [ANALYTICS DASHBOARD] Error in fetchFilterOptions:', error);
       console.error('❌ [ANALYTICS DASHBOARD] Error stack:', error.stack);
@@ -150,9 +136,6 @@ const AnalyticsDashboard = () => {
   };
 
   const fetchDashboardData = async () => {
-    console.log('📊 [ANALYTICS DASHBOARD] Starting fetchDashboardData with filters:', filters);
-    console.log('📊 [ANALYTICS DASHBOARD] Token available:', !!token);
-    
     if (!token) {
       console.error('❌ [ANALYTICS DASHBOARD] No token for dashboard data fetch');
       setError('Authentication required');
@@ -175,13 +158,10 @@ const AnalyticsDashboard = () => {
       });
 
       const dashboardUrl = `${API_BASE_URL}/analytics/dashboard?${queryParams}`;
-      console.log('📊 [ANALYTICS DASHBOARD] Fetching dashboard data from:', dashboardUrl);
 
       const response = await fetch(dashboardUrl, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-
-      console.log('📊 [ANALYTICS DASHBOARD] Dashboard response status:', response.status, response.statusText);
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -195,7 +175,6 @@ const AnalyticsDashboard = () => {
       }
 
       const data = await response.json();
-      console.log('📊 [ANALYTICS DASHBOARD] Dashboard data received:', data);
       setDashboardData(data);
       setError(null);
     } catch (error) {
@@ -218,7 +197,6 @@ const AnalyticsDashboard = () => {
 
   const handleDrillDown = (type, id, data) => {
     // Handle drill-down navigation
-    console.log('Drill down:', type, id, data);
     // Implement navigation to detailed view
   };
 

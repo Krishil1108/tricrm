@@ -45,7 +45,7 @@ function LoginPage() {
         <p className="subtitle">Sign in to your account</p>
         
         {error && (
-          <div className="login-error">
+          <div className="login-error form-error">
             {error}
           </div>
         )}

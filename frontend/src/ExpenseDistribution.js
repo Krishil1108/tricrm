@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
-import { FiAlertCircle, FiChevronLeft, FiChevronsLeft, FiChevronRight, FiChevronsRight, FiInfo } from 'react-icons/fi';
+import { FiAlertCircle, FiChevronDown, FiChevronLeft, FiChevronRight, FiChevronsLeft, FiChevronsRight, FiChevronsUpDown, FiChevronUp, FiInfo } from 'react-icons/fi';
+import useSortableData from './utils/useSortableData';
 import './ExpenseDistribution.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
@@ -40,7 +41,6 @@ const ExpenseDistribution = () => {
         headers: { Authorization: `Bearer ${token}` }
       };
 
-      console.log('Fetching expense distribution from:', `${API_BASE_URL}/analytics/expense-distribution`);
       const response = await axios.get(`${API_BASE_URL}/analytics/expense-distribution`, config);
       
       setSummary(response.data.summary);
@@ -156,8 +156,6 @@ const ExpenseDistribution = () => {
       const allProjects = projectsRes.data.data || projectsRes.data || [];
       const allAssociates = associatesRes.data.data || associatesRes.data || [];
 
-      console.log('Total projects fetched:', allProjects.length);
-      console.log('Selected FY:', selectedFinancialYear);
 
       // Aggregate projects and payments by financial year
       const fyAggregation = {};
@@ -736,6 +734,18 @@ const ExpenseDistribution = () => {
     client.clientName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const {
+    items: sortedProjects,
+    requestSort: requestProjectSort,
+    sortConfig: projectSortConfig
+  } = useSortableData(filteredProjects, { key: 'projectNumber', direction: 'asc' });
+
+  const {
+    items: sortedClients,
+    requestSort: requestClientSort,
+    sortConfig: clientSortConfig
+  } = useSortableData(filteredClients, { key: 'clientName', direction: 'asc' });
+
   // Pagination calculations
   const totalPages = selectedView === 'projects' 
     ? Math.ceil(filteredProjects.length / itemsPerPage)
@@ -745,8 +755,17 @@ const ExpenseDistribution = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentProjects = filteredProjects.slice(indexOfFirstItem, indexOfLastItem);
-  const currentClients = filteredClients.slice(indexOfFirstItem, indexOfLastItem);
+  const currentProjects = sortedProjects.slice(indexOfFirstItem, indexOfLastItem);
+  const currentClients = sortedClients.slice(indexOfFirstItem, indexOfLastItem);
+
+  const renderSortIcon = (key, config) => {
+    if (!config || config.key !== key) {
+      return <FiChevronsUpDown className="sort-icon" />;
+    }
+    return config.direction === 'asc'
+      ? <FiChevronUp className="sort-icon" />
+      : <FiChevronDown className="sort-icon" />;
+  };
 
   // Reset to page 1 when search term changes or view changes
   useEffect(() => {
@@ -1240,11 +1259,29 @@ const ExpenseDistribution = () => {
           <div className="projects-view">
             {renderPagination()}
             <div className="data-table-container">
-              <table className="data-table">
+              <table className="data-table table-sticky">
                 <thead>
                   <tr>
-                    <th>Project No.</th>
-                    <th>Project Name</th>
+                    <th aria-sort={projectSortConfig?.key === 'projectNumber' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'projectNumber' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('projectNumber')}
+                      >
+                        Project No.
+                        {renderSortIcon('projectNumber', projectSortConfig)}
+                      </button>
+                    </th>
+                    <th aria-sort={projectSortConfig?.key === 'projectName' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'projectName' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('projectName')}
+                      >
+                        Project Name
+                        {renderSortIcon('projectName', projectSortConfig)}
+                      </button>
+                    </th>
                     <th>Drawing</th>
                     <th>Documents</th>
                     <th>Site Visit</th>
@@ -1294,10 +1331,19 @@ const ExpenseDistribution = () => {
           <div className="clients-view">
             {renderPagination()}
             <div className="data-table-container">
-              <table className="data-table">
+              <table className="data-table table-sticky">
                 <thead>
                   <tr>
-                    <th>Client Name</th>
+                    <th aria-sort={clientSortConfig?.key === 'clientName' ? clientSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${clientSortConfig?.key === 'clientName' ? 'active' : ''}`}
+                        onClick={() => requestClientSort('clientName')}
+                      >
+                        Client Name
+                        {renderSortIcon('clientName', clientSortConfig)}
+                      </button>
+                    </th>
                     <th>Projects</th>
                     <th>Drawing</th>
                     <th>Documents</th>

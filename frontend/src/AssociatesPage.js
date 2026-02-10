@@ -7,6 +7,8 @@ import ExcelImport from './components/ExcelImport';
 import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import Watermark from './components/Watermark';
 import { FaEdit, FaTrash, FaFolder } from 'react-icons/fa';
+import { FiChevronDown, FiChevronUp, FiChevronsUpDown } from 'react-icons/fi';
+import useSortableData from './utils/useSortableData';
 import './PageContent.css';
 import './styles/ActionButtons.css';
 import './styles/ClientsPageEnhanced.css';
@@ -260,7 +262,7 @@ const AssociatesPage = () => {
     });
   };
 
-  // Filter and sort associates - ensure associates is always an array
+  // Filter associates - ensure associates is always an array
   const filteredAssociates = (Array.isArray(associates) ? associates : [])
     .filter(associate => {
       const matchesSearch = associate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -268,28 +270,38 @@ const AssociatesPage = () => {
                            (associate.company && associate.company.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesStatus = filterStatus === 'all' || associate.status === filterStatus;
       return matchesSearch && matchesStatus;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'email':
-          return a.email.localeCompare(b.email);
-        case 'company':
-          return (a.company || '').localeCompare(b.company || '');
-        case 'date':
-          return new Date(b.createdAt) - new Date(a.createdAt);
-        default:
-          return 0;
-      }
     });
+
+  const {
+    items: sortedAssociates,
+    requestSort: requestAssociateSort,
+    sortConfig: associateSortConfig
+  } = useSortableData(filteredAssociates, { key: 'name', direction: 'asc' });
 
   // Pagination calculations
   const totalItems = filteredAssociates.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentAssociates = filteredAssociates.slice(startIndex, endIndex);
+  const currentAssociates = sortedAssociates.slice(startIndex, endIndex);
+
+  const handleSortChange = (value) => {
+    setSortBy(value);
+    if (value === 'date') {
+      requestAssociateSort('createdAt', (associate) => new Date(associate.createdAt).getTime());
+      return;
+    }
+    requestAssociateSort(value);
+  };
+
+  const renderSortIcon = (key) => {
+    if (!associateSortConfig || associateSortConfig.key !== key) {
+      return <FiChevronsUpDown className="sort-icon" />;
+    }
+    return associateSortConfig.direction === 'asc'
+      ? <FiChevronUp className="sort-icon" />
+      : <FiChevronDown className="sort-icon" />;
+  };
 
   // Pagination handlers
   const handlePageChange = (page) => {
@@ -545,7 +557,7 @@ const AssociatesPage = () => {
               </svg>
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
+                onChange={(e) => handleSortChange(e.target.value)}
                 className="status-filter-enhanced"
               >
                 <option value="name">Sort by Name</option>
@@ -609,16 +621,64 @@ const AssociatesPage = () => {
               <p>Start by adding your first associate using the "Add New Associate" button.</p>
             </div>
           ) : (
-            <table className="client-table">
+            <table className="client-table table-sticky">
               <thead>
                 <tr>
-                  <th style={{ textAlign: 'center' }}>Name</th>
-                  <th style={{ textAlign: 'center' }}>Email</th>
-                  <th style={{ textAlign: 'center' }}>Company</th>
+                  <th style={{ textAlign: 'center' }} aria-sort={associateSortConfig?.key === 'name' ? associateSortConfig.direction : 'none'}>
+                    <button
+                      type="button"
+                      className={`sortable-header ${associateSortConfig?.key === 'name' ? 'active' : ''}`}
+                      onClick={() => {
+                        requestAssociateSort('name');
+                        setSortBy('name');
+                      }}
+                    >
+                      Name
+                      {renderSortIcon('name')}
+                    </button>
+                  </th>
+                  <th style={{ textAlign: 'center' }} aria-sort={associateSortConfig?.key === 'email' ? associateSortConfig.direction : 'none'}>
+                    <button
+                      type="button"
+                      className={`sortable-header ${associateSortConfig?.key === 'email' ? 'active' : ''}`}
+                      onClick={() => {
+                        requestAssociateSort('email');
+                        setSortBy('email');
+                      }}
+                    >
+                      Email
+                      {renderSortIcon('email')}
+                    </button>
+                  </th>
+                  <th style={{ textAlign: 'center' }} aria-sort={associateSortConfig?.key === 'company' ? associateSortConfig.direction : 'none'}>
+                    <button
+                      type="button"
+                      className={`sortable-header ${associateSortConfig?.key === 'company' ? 'active' : ''}`}
+                      onClick={() => {
+                        requestAssociateSort('company');
+                        setSortBy('company');
+                      }}
+                    >
+                      Company
+                      {renderSortIcon('company')}
+                    </button>
+                  </th>
                   <th style={{ textAlign: 'center' }}>Phone</th>
                   <th style={{ textAlign: 'center' }}>Projects</th>
                   <th style={{ textAlign: 'center' }}>Status</th>
-                  <th style={{ textAlign: 'center' }}>Added Date</th>
+                  <th style={{ textAlign: 'center' }} aria-sort={associateSortConfig?.key === 'createdAt' ? associateSortConfig.direction : 'none'}>
+                    <button
+                      type="button"
+                      className={`sortable-header ${associateSortConfig?.key === 'createdAt' ? 'active' : ''}`}
+                      onClick={() => {
+                        requestAssociateSort('createdAt', (associate) => new Date(associate.createdAt).getTime());
+                        setSortBy('date');
+                      }}
+                    >
+                      Added Date
+                      {renderSortIcon('createdAt')}
+                    </button>
+                  </th>
                   <th style={{ textAlign: 'center' }}>Actions</th>
                 </tr>
               </thead>

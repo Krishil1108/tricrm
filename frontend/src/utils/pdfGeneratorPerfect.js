@@ -434,7 +434,6 @@ class PerfectQuotationPDFGenerator {
     
     // Get window type specific details
     const windowType = window.type || window.selectedWindowType || 'sliding';
-    console.log('Debug - Profile section windowType:', windowType, 'typeof:', typeof windowType);
     
     const panels = this.getPanelInfo(window, windowType);
     const tracks = this.getTrackInfo(window, windowType);

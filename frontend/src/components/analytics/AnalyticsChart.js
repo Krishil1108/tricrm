@@ -201,7 +201,6 @@ const AnalyticsChart = ({
       if (chartType === 'expenses') params.append('category', expenseCategory);
 
       const url = `${apiBaseUrl}${chartConfig.endpoint}?${params.toString()}`;
-      console.log('📊 Fetching analytics:', url);
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -211,7 +210,6 @@ const AnalyticsChart = ({
       }
       
       const data = await res.json();
-      console.log('📊 Analytics data received:', data);
 
       if (!data.labels || !data.values) {
         throw new Error('Invalid data structure received from server');

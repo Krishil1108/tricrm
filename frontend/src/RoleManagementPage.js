@@ -139,8 +139,6 @@ const RoleManagementPage = () => {
       });
       const data = await response.json();
       if (data.success) {
-        console.log('Fetched roles:', data.roles);
-        console.log('First role finance permissions:', data.roles[0]?.permissions?.finance);
         setRoles(data.roles);
       }
     } catch (error) {
@@ -158,7 +156,6 @@ const RoleManagementPage = () => {
   const handleOpenModal = (role = null) => {
     if (role) {
       setEditingRole(role);
-      console.log('Editing role:', role);
       
       // Initialize permissions with nested structure, preserving existing values
       const initializedPermissions = {
@@ -212,16 +209,12 @@ const RoleManagementPage = () => {
           manageRoles: role.permissions?.settings?.manageRoles || false
         }
       };
-
-      console.log('Initialized permissions:', initializedPermissions);
-      console.log('Original role finance permissions:', role.permissions?.finance);
       
       const newFormData = {
         name: role.name,
         description: role.description,
         permissions: initializedPermissions
       };
-      console.log('Setting form data:', newFormData);
       setFormData(newFormData);
     } else {
       setEditingRole(null);
@@ -348,8 +341,6 @@ const RoleManagementPage = () => {
       const data = await response.json();
 
       if (data.success) {
-        console.log('Save response:', data);
-        console.log('Updated role permissions:', data.role?.permissions);
         showMessage('success', editingRole ? 'Role updated successfully' : 'Role created successfully');
         fetchRoles();
         setShowModal(false);
