@@ -145,10 +145,25 @@ label[for="password"] {
   z-index: 10;
   pointer-events: auto;
   user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 4px;
+}
+
+.password-toggle svg {
+  display: block;
+  stroke: #333333;
+  transition: stroke 0.3s ease, transform 0.3s ease;
+}
+
+.password-toggle:hover svg {
+  stroke: #000000;
 }
 
 .password-toggle:hover {
-  color: #000000;
   transform: translateY(-50%) scale(1.1);
 }
 

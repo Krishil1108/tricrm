@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FiBox, FiCalendar, FiFileText, FiFolder, FiMail, FiPieChart, FiRepeat, FiUser } from 'react-icons/fi';
 import ActivityService from '../services/ActivityService';
 import './ActivitySection.css';
 
@@ -7,6 +8,17 @@ const ActivitySection = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [usingMockData, setUsingMockData] = useState(false);
+
+  const activityIcons = {
+    client_added: <FiUser />,
+    inventory_added: <FiBox />,
+    meeting_scheduled: <FiCalendar />,
+    note_added: <FiFileText />,
+    client_updated: <FiUser />,
+    inventory_updated: <FiBox />,
+    meeting_updated: <FiRepeat />,
+    note_updated: <FiFileText />
+  };
 
   const fetchActivities = async () => {
     try {
@@ -131,7 +143,7 @@ const ActivitySection = () => {
             >
               <div className="activity-meta">
                 <span className="activity-icon">
-                  {ActivityService.getActivityIcon(activity.type)}
+                  {activityIcons[activity.type] || <FiFileText />}
                 </span>
                 <span className="activity-time">{activity.timeAgo}</span>
               </div>
@@ -140,16 +152,16 @@ const ActivitySection = () => {
                 {activity.metadata && Object.keys(activity.metadata).length > 0 && (
                   <div className="activity-details">
                     {activity.metadata.email && (
-                      <span className="detail-tag">📧 {activity.metadata.email}</span>
+                      <span className="detail-tag"><FiMail className="inline-icon" />{activity.metadata.email}</span>
                     )}
                     {activity.metadata.company && (
-                      <span className="detail-tag">🏢 {activity.metadata.company}</span>
+                      <span className="detail-tag"><FiFolder className="inline-icon" />{activity.metadata.company}</span>
                     )}
                     {activity.metadata.category && (
-                      <span className="detail-tag">📂 {activity.metadata.category}</span>
+                      <span className="detail-tag"><FiFolder className="inline-icon" />{activity.metadata.category}</span>
                     )}
                     {activity.metadata.quantity && (
-                      <span className="detail-tag">📊 Qty: {activity.metadata.quantity}</span>
+                      <span className="detail-tag"><FiPieChart className="inline-icon" />Qty: {activity.metadata.quantity}</span>
                     )}
                   </div>
                 )}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FiAlertTriangle, FiCheckCircle, FiClock, FiLock } from 'react-icons/fi';
 import './ForgotPasswordPage.css';
 import API_BASE_URL from './config/api';
 
@@ -50,7 +51,7 @@ function ForgotPasswordPage() {
       <div className="forgot-password-container">
         <div className="forgot-password-header">
           <div className="icon-container">
-            <span className="lock-icon">🔒</span>
+            <span className="lock-icon"><FiLock /></span>
           </div>
           <h1>Forgot Password?</h1>
           <p className="subtitle">
@@ -60,14 +61,14 @@ function ForgotPasswordPage() {
 
         {success ? (
           <div className="success-message">
-            <div className="success-icon">✅</div>
+            <div className="success-icon"><FiCheckCircle /></div>
             <h2>Check Your Email</h2>
             <p>
               If an account with that email exists, we've sent a password reset link.
               Please check your inbox and spam folder.
             </p>
             <div className="info-box">
-              <strong>⏰ Link expires in 30 minutes</strong>
+              <strong><FiClock className="inline-icon" />Link expires in 30 minutes</strong>
               <p>Make sure to reset your password before the link expires.</p>
             </div>
             <Link to="/login" className="back-to-login-btn">
@@ -78,7 +79,7 @@ function ForgotPasswordPage() {
           <form onSubmit={handleSubmit} className="forgot-password-form">
             {error && (
               <div className="error-message">
-                <span className="error-icon">⚠️</span>
+                <span className="error-icon"><FiAlertTriangle /></span>
                 {error}
               </div>
             )}

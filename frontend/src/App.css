@@ -6,16 +6,16 @@
 
 .App {
   min-height: 100vh;
-  background-color: #fefefe;
+  background-color: var(--color-bg);
   position: relative;
 }
 
 .main-content {
   min-height: 100vh;
-  background: #f8fafc;
+  background: var(--color-bg);
   margin-left: 70px; /* Default collapsed sidebar width */
   transition: margin-left 0.3s ease;
-  padding: 30px;
+  padding: var(--space-7);
   display: flex;
   flex-direction: column;
   align-items: center;

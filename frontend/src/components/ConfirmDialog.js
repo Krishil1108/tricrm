@@ -1,4 +1,5 @@
 import React from 'react';
+import { FiAlertTriangle, FiCheck, FiHelpCircle, FiInfo, FiZap } from 'react-icons/fi';
 import './ConfirmDialog.css';
 
 const ConfirmDialog = ({ 
@@ -25,15 +26,15 @@ const ConfirmDialog = ({
   const getIcon = () => {
     switch (type) {
       case 'danger':
-        return '⚠️';
+        return <FiAlertTriangle />;
       case 'warning':
-        return '⚡';
+        return <FiZap />;
       case 'info':
-        return 'ℹ️';
+        return <FiInfo />;
       case 'success':
-        return '✓';
+        return <FiCheck />;
       default:
-        return '❓';
+        return <FiHelpCircle />;
     }
   };
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { FaEdit, FaTrash, FaChartPie, FaUsers } from 'react-icons/fa';
+import { FiAlertTriangle, FiBarChart2, FiCheckCircle, FiCreditCard, FiInfo } from 'react-icons/fi';
 import './ProjectPage.css';
 import './styles/ClientsPageEnhanced.css';
 import './styles/ActionButtons.css';
@@ -471,11 +472,11 @@ const ProjectPage = () => {
       showLoading('Applying default percentages...');
       
       const response = await FinanceService.applyDefaultPercentages();
-      console.log('📊 Full response:', response);
+      console.log('Full response:', response);
       
       if (response.status === 'success' || response.success) {
         const updatedCount = response.data?.updated || 0;
-        console.log('✅ Updated count:', updatedCount);
+        console.log('Updated count:', updatedCount);
         
         if (updatedCount > 0) {
           showSuccess(`Successfully applied default percentages to ${updatedCount} project(s)`);
@@ -485,7 +486,7 @@ const ProjectPage = () => {
           showSuccess('All projects already have expense distribution configured');
         }
       } else {
-        console.error('❌ Response status was not success:', response);
+        console.error('Response status was not success:', response);
         showError('Failed to apply default percentages');
       }
     } catch (error) {
@@ -1334,7 +1335,7 @@ const ProjectPage = () => {
         <div className="modal-overlay" onClick={() => setShowDistributionModal(false)}>
           <div className="modal-content distribution-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>📊 Payment Distribution - {selectedProjectForDistribution.projectName}</h3>
+              <h3><FiBarChart2 className="inline-icon" />Payment Distribution - {selectedProjectForDistribution.projectName}</h3>
               <button className="modal-close" onClick={() => setShowDistributionModal(false)}>×</button>
             </div>
             <div className="modal-body distribution-modal-body">
@@ -1375,7 +1376,7 @@ const ProjectPage = () => {
         <div className="modal-overlay" onClick={() => setShowAssociateDistributionModal(false)}>
           <div className="modal-content distribution-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>👥 Associate Distribution - {selectedProjectForAssociateDistribution.projectName}</h3>
+              <h3><FaUsers className="inline-icon" />Associate Distribution - {selectedProjectForAssociateDistribution.projectName}</h3>
               <button className="modal-close" onClick={() => setShowAssociateDistributionModal(false)}>×</button>
             </div>
             <div className="modal-body distribution-modal-body">
@@ -1485,12 +1486,12 @@ const ProjectPage = () => {
                     fontSize: '14px',
                     color: '#856404'
                   }}>
-                    💡 <strong>Note:</strong> Distribution amounts are calculated based on the total received fees (₹{selectedProjectForAssociateDistribution.totalReceivedFees?.toLocaleString('en-IN') || '0'}) and each associate's percentage share. This distribution is deducted before expense calculations.
+                    <FiInfo className="inline-icon" /><strong>Note:</strong> Distribution amounts are calculated based on the total received fees (₹{selectedProjectForAssociateDistribution.totalReceivedFees?.toLocaleString('en-IN') || '0'}) and each associate's percentage share. This distribution is deducted before expense calculations.
                   </div>
                 </div>
               ) : (
                 <div style={{ textAlign: 'center', padding: '40px', color: '#6c757d' }}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>👥</div>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}><FaUsers /></div>
                   <h4>No Associates Found</h4>
                   <p>This project doesn't have any associates assigned with percentage shares.</p>
                 </div>
@@ -1820,7 +1821,7 @@ const ProjectsTable = ({ projects, onEdit, onViewDistribution, onViewAssociateDi
   if (projects.length === 0) {
     return (
       <div className="empty-state">
-        <div className="empty-state-icon">📊</div>
+        <div className="empty-state-icon"><FiBarChart2 /></div>
         <h3>No projects found</h3>
         <p>Start by adding a new project or importing from Excel</p>
       </div>
@@ -2041,7 +2042,7 @@ const ExpensesTable = ({ expenses, onEdit, onDelete, formatCurrency }) => {
   if (expenses.length === 0) {
     return (
       <div className="empty-state">
-        <div className="empty-state-icon">💳</div>
+        <div className="empty-state-icon"><FiCreditCard /></div>
         <h3>No expenses found</h3>
         <p>Start by adding bank expenses</p>
       </div>
@@ -2369,7 +2370,7 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
       {/* Payment Management Section */}
       {hasPermission('finance', 'add_payment') && (
         <div className="form-section-header">
-          <h3>💳 Payment Details</h3>
+          <h3><FiCreditCard className="inline-icon" />Payment Details</h3>
           <button 
             type="button" 
             className="project-btn project-btn-success"
@@ -2595,7 +2596,7 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
                           color: '#dc3545',
                           fontWeight: '500'
                         }}>
-                          ⚠️ This associate is already added
+                          <FiAlertTriangle className="inline-icon" />This associate is already added
                         </div>
                       );
                     })()}
@@ -2706,7 +2707,7 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
             <strong>Total Associate Share: </strong>
             {formData.projectAssociates.reduce((sum, a) => sum + (parseFloat(a.percentage) || 0), 0).toFixed(2)}%
             {formData.projectAssociates.reduce((sum, a) => sum + (parseFloat(a.percentage) || 0), 0) > 100 && (
-              <span style={{ color: '#856404', marginLeft: '8px' }}>⚠️ Warning: Total exceeds 100%</span>
+              <span style={{ color: '#856404', marginLeft: '8px' }}><FiAlertTriangle className="inline-icon" />Warning: Total exceeds 100%</span>
             )}
           </div>
         )}
@@ -3070,7 +3071,7 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
               )}
             </div>
             <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#6c757d' }}>Set default percentages and visibility for expense categories</p>
-            <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#9e9e9e', fontStyle: 'italic' }}>⚠️ Changes will only apply to new projects created after saving</p>
+            <p style={{ margin: '4px 0 0 0', fontSize: '11px', color: '#9e9e9e', fontStyle: 'italic' }}><FiAlertTriangle className="inline-icon" />Changes will only apply to new projects created after saving</p>
           </div>
           <button className="close-btn" onClick={onClose} style={{
             background: 'none',
@@ -3110,7 +3111,7 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
           }}>
             <div>
               <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#495057', lineHeight: '1.5' }}>
-                💡 <strong>Quick Tip:</strong> Check boxes to show fields in distribution table
+                <FiInfo className="inline-icon" /><strong>Quick Tip:</strong> Check boxes to show fields in distribution table
               </p>
               <p style={{ margin: '0', fontSize: '12px', color: '#6c757d', lineHeight: '1.4' }}>
                 Unchecked fields will be hidden from the expense distribution view
@@ -3659,10 +3660,10 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
         }}>
           <div style={{ fontSize: '12px', color: '#6c757d' }}>
             {calculateTotalPercentage() > 100 && (
-              <span style={{ color: '#dc3545', fontWeight: '500' }}>⚠️ Total exceeds 100%</span>
+              <span style={{ color: '#dc3545', fontWeight: '500' }}><FiAlertTriangle className="inline-icon" />Total exceeds 100%</span>
             )}
             {calculateTotalPercentage() === 100 && (
-              <span style={{ color: '#28a745', fontWeight: '500' }}>✓ Perfect allocation</span>
+              <span style={{ color: '#28a745', fontWeight: '500' }}><FiCheckCircle className="inline-icon" />Perfect allocation</span>
             )}
           </div>
           <div style={{ display: 'flex', gap: '12px' }}>

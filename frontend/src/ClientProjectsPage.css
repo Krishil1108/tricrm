@@ -173,6 +173,11 @@
   border: 1px solid #dee2e6;
 }
 
+.stat-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
 .stat-number {
   font-size: 20px;
   font-weight: 600;
@@ -728,27 +733,36 @@ table td:last-child {
 .empty-state {
   text-align: center;
   padding: 48px 24px;
-  background-color: #ffffff;
-  border-radius: 4px;
-  border: 1px solid #dee2e6;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
 .empty-state-icon {
-  font-size: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
   margin-bottom: 16px;
-  color: #6c757d;
+  color: #94a3b8;
+}
+
+.empty-state-icon svg {
+  width: 48px;
+  height: 48px;
 }
 
 .empty-state h3 {
-  color: #212529;
+  color: var(--color-text);
   margin-bottom: 8px;
   font-size: 20px;
   font-weight: 500;
 }
 
 .empty-state p {
-  color: #6c757d;
+  color: var(--color-muted);
   margin-bottom: 20px;
   font-size: 14px;
 }
@@ -1619,8 +1633,17 @@ table td:last-child {
 }
 
 .warning-icon {
-  font-size: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
+}
+
+.warning-icon svg {
+  width: 24px;
+  height: 24px;
 }
 
 .delete-options {

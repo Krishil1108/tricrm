@@ -765,9 +765,18 @@
 }
 
 .empty-state-icon {
-  font-size: 64px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
   margin-bottom: 20px;
-  opacity: 0.5;
+  color: #94a3b8;
+}
+
+.empty-state-icon svg {
+  width: 64px;
+  height: 64px;
 }
 
 .empty-state h3 {

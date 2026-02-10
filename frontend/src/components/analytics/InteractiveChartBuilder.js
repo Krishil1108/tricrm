@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { FiAlertCircle } from 'react-icons/fi';
 import './InteractiveChartBuilder.css';
 import {
   Chart as ChartJS,
@@ -248,7 +249,7 @@ const InteractiveChartBuilder = ({ token, apiBaseUrl }) => {
 
       {error && (
         <div className="chart-error">
-          <p>❌ {error}</p>
+          <p><FiAlertCircle className="inline-icon" />{error}</p>
         </div>
       )}
 

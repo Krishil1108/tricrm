@@ -9,7 +9,9 @@ import ExcelExportService from './services/ExcelExportService';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { FaWhatsapp, FaChartBar, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaChartBar, FaCheckCircle, FaClock, FaCreditCard, FaEdit, FaFileExcel, FaFilePdf, FaLink, FaMoneyBillWave, FaTrash, FaWhatsapp } from 'react-icons/fa';
+import { FiAlertTriangle } from 'react-icons/fi';
+import { FiBarChart2 } from 'react-icons/fi';
 import './ClientProjectsPage.css';
 import './styles/ActionButtons.css';
 
@@ -481,14 +483,14 @@ const ClientProjectsPage = () => {
             onClick={handleExportToExcel}
             title="Export projects to Excel spreadsheet"
           >
-            📊 Export to Excel
+            <FaFileExcel className="inline-icon" />Export to Excel
           </button>
           <button 
             className="project-btn project-btn-danger"
             onClick={handleExportToPDF}
             title="Export projects to PDF document"
           >
-            📄 Export to PDF
+            <FaFilePdf className="inline-icon" />Export to PDF
           </button>
           <button 
             className="project-btn project-btn-primary"
@@ -509,28 +511,28 @@ const ClientProjectsPage = () => {
       {canViewStats('clients') && (
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-icon">📊</div>
+            <div className="stat-icon"><FaChartBar /></div>
             <div className="stat-info">
               <div className="stat-number">{stats.totalProjects}</div>
               <div className="stat-label">Total Projects</div>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon">💰</div>
+            <div className="stat-icon"><FaMoneyBillWave /></div>
             <div className="stat-info">
               <div className="stat-number">{formatCurrency(stats.totalContractValue)}</div>
               <div className="stat-label">Total Contract Value</div>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon">✅</div>
+            <div className="stat-icon"><FaCheckCircle /></div>
             <div className="stat-info">
               <div className="stat-number">{formatCurrency(stats.totalReceived)}</div>
               <div className="stat-label">Total Received</div>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon">⏳</div>
+            <div className="stat-icon"><FaClock /></div>
             <div className="stat-info">
               <div className="stat-number">{formatCurrency(stats.outstandingAmount)}</div>
               <div className="stat-label">Outstanding Amount</div>
@@ -572,7 +574,7 @@ const ClientProjectsPage = () => {
       <div className="project-content">
         {filteredProjects.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state-icon">📊</div>
+            <div className="empty-state-icon"><FiBarChart2 /></div>
             <h3>No projects found</h3>
             <p>
               {projects.length === 0 
@@ -730,7 +732,7 @@ const ClientProjectsPage = () => {
         <div className="modal-overlay" onClick={handleCloseDistribution}>
           <div className="client-distribution-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>💰 Payment Distribution - {selectedProject.projectName}</h3>
+              <h3><FaMoneyBillWave className="inline-icon" />Payment Distribution - {selectedProject.projectName}</h3>
               <button className="modal-close" onClick={handleCloseDistribution}>×</button>
             </div>
             
@@ -762,7 +764,7 @@ const ClientProjectsPage = () => {
 
               {/* Payment History with Distribution */}
               <div className="payment-history">
-                <h4>💳 Payment History & Distribution</h4>
+                <h4><FaCreditCard className="inline-icon" />Payment History & Distribution</h4>
                 {selectedProject.payments && selectedProject.payments.length > 0 ? (
                   <div className="payments-container">
                     {selectedProject.payments.map((payment, index) => {
@@ -832,19 +834,19 @@ const ClientProjectsPage = () => {
         <div className="modal-overlay" onClick={handleCloseDeleteModal}>
           <div className="delete-confirmation-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>🗑️ Delete Project - {projectToDelete.projectName}</h3>
+              <h3><FaTrash className="inline-icon" />Delete Project - {projectToDelete.projectName}</h3>
               <button className="modal-close" onClick={handleCloseDeleteModal}>×</button>
             </div>
             
             <div className="modal-body">
               <div className="delete-warning">
-                <div className="warning-icon">⚠️</div>
+                <div className="warning-icon"><FiAlertTriangle /></div>
                 <p><strong>Warning:</strong> You are about to delete this project. Please choose an option:</p>
               </div>
               
               <div className="delete-options">
                 <div className="delete-option">
-                  <h4>🔗 Remove from Client Only</h4>
+                  <h4><FaLink className="inline-icon" />Remove from Client Only</h4>
                   <p>Remove this project from <strong>{clientInfo.name}</strong> only. The project will still exist in the system and can be linked to other clients.</p>
                   <button 
                     className="btn btn-warning delete-option-btn"
@@ -855,7 +857,7 @@ const ClientProjectsPage = () => {
                 </div>
                 
                 <div className="delete-option danger">
-                  <h4>🗑️ Delete Completely</h4>
+                  <h4><FaTrash className="inline-icon" />Delete Completely</h4>
                   <p><strong>Danger:</strong> Delete this project completely from all clients and the entire system. This action cannot be undone!</p>
                   <button 
                     className="btn btn-danger delete-option-btn"

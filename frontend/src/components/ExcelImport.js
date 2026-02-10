@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FiCheckCircle } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
 import { clientAPI } from '../services/api';
 import './ExcelImport.css';
@@ -379,7 +380,7 @@ const ExcelImport = ({ type, onSuccess, onClose }) => {
 
         {step === 3 && (
           <div className="success-step">
-            <div className="success-icon">✅</div>
+            <div className="success-icon"><FiCheckCircle /></div>
             <h3>Import Successful!</h3>
             <p>Your {type} data has been imported successfully.</p>
             <button className="btn btn-primary" onClick={onClose}>

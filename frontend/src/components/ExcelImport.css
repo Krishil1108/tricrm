@@ -262,8 +262,18 @@
 }
 
 .success-icon {
-  font-size: 4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
   margin-bottom: 16px;
+}
+
+.success-icon svg {
+  width: 64px;
+  height: 64px;
+  color: #4caf50;
 }
 
 .success-step h3 {

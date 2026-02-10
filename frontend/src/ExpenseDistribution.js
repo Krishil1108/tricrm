@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
+import { FiAlertCircle, FiChevronLeft, FiChevronsLeft, FiChevronRight, FiChevronsRight, FiInfo } from 'react-icons/fi';
 import './ExpenseDistribution.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
@@ -39,7 +40,7 @@ const ExpenseDistribution = () => {
         headers: { Authorization: `Bearer ${token}` }
       };
 
-      console.log('📊 Fetching expense distribution from:', `${API_BASE_URL}/analytics/expense-distribution`);
+      console.log('Fetching expense distribution from:', `${API_BASE_URL}/analytics/expense-distribution`);
       const response = await axios.get(`${API_BASE_URL}/analytics/expense-distribution`, config);
       
       setSummary(response.data.summary);
@@ -780,14 +781,16 @@ const ExpenseDistribution = () => {
           disabled={currentPage === 1}
           className="pagination-btn"
         >
-          ⏮️ First
+          <FiChevronsLeft className="pagination-icon" />
+          First
         </button>
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1}
           className="pagination-btn"
         >
-          ◀️ Prev
+          <FiChevronLeft className="pagination-icon" />
+          Prev
         </button>
         
         {startPage > 1 && (
@@ -819,14 +822,16 @@ const ExpenseDistribution = () => {
           disabled={currentPage === totalPages}
           className="pagination-btn"
         >
-          Next ▶️
+          Next
+          <FiChevronRight className="pagination-icon" />
         </button>
         <button
           onClick={() => handlePageChange(totalPages)}
           disabled={currentPage === totalPages}
           className="pagination-btn"
         >
-          Last ⏭️
+          Last
+          <FiChevronsRight className="pagination-icon" />
         </button>
         
         <span className="pagination-info">
@@ -851,10 +856,12 @@ const ExpenseDistribution = () => {
     return (
       <div className="expense-distribution-container">
         <div className="error-state">
-          <p>❌ {error}</p>
+          <FiAlertCircle className="state-icon" />
+          <p>{error}</p>
           {error.includes('Network error') && (
             <p style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>
-              💡 If you're on production, the backend may need to be redeployed with the latest changes.
+              <FiInfo className="inline-icon" />
+              If you're on production, the backend may need to be redeployed with the latest changes.
             </p>
           )}
           <button onClick={fetchExpenseData} className="retry-btn">Retry</button>

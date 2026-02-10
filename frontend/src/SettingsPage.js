@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FiActivity, FiAlertCircle, FiAlertTriangle, FiCheckCircle } from 'react-icons/fi';
 import { useCompany } from './CompanyContext';
 import Watermark from './components/Watermark';
 import './PageContent.css';
@@ -1225,7 +1226,7 @@ const SettingsPage = () => {
             </button>
           </div>
           <div className="danger-warning">
-            <small>⚠️ Destructive operations are currently disabled for safety. Contact administrator for data reset operations.</small>
+            <small><FiAlertTriangle className="inline-icon" />Destructive operations are currently disabled for safety. Contact administrator for data reset operations.</small>
           </div>
         </div>
       </div>
@@ -1289,13 +1290,13 @@ const SettingsPage = () => {
           
           {statsError && (
             <span style={{ fontSize: '12px', color: '#dc3545' }}>
-              ⚠️ {statsError}
+              <FiAlertCircle className="inline-icon" />{statsError}
             </span>
           )}
           
           {!statsError && !isLoadingStats && (
             <span style={{ fontSize: '12px', color: '#28a745' }}>
-              🟢 Auto-refresh: 30s
+              <FiActivity className="inline-icon" />Auto-refresh: 30s
             </span>
           )}
         </div>
@@ -1529,7 +1530,7 @@ const SettingsPage = () => {
           {/* Success Message */}
           {saved && saveMessage && (
             <div className="success-message">
-              ✅ {saveMessage}
+              <FiCheckCircle className="inline-icon" />{saveMessage}
             </div>
           )}
         </div>

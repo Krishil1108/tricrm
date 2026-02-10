@@ -4,7 +4,8 @@ import { useAuth } from './contexts/AuthContext';
 import FinanceService from './services/FinanceService';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
-import { FaMoneyBillWave, FaEdit, FaHistory, FaChartBar, FaUser, FaFileExcel, FaFilePdf, FaDownload } from 'react-icons/fa';
+import { FaChartBar, FaCheckCircle, FaClock, FaDownload, FaEdit, FaFileExcel, FaFilePdf, FaHistory, FaMoneyBillWave, FaUser, FaUsers } from 'react-icons/fa';
+import { FiBarChart2 } from 'react-icons/fi';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -654,35 +655,35 @@ const AssociateProjectsPage = () => {
       {canViewStats('associates') && (
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-icon">📊</div>
+            <div className="stat-icon"><FaChartBar /></div>
             <div className="stat-info">
               <div className="stat-number">{stats.totalProjects}</div>
               <div className="stat-label">Total Projects</div>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon">💰</div>
+            <div className="stat-icon"><FaMoneyBillWave /></div>
             <div className="stat-info">
               <div className="stat-number">{formatCurrency(stats.totalReceived)}</div>
               <div className="stat-label">Total Received by Owner</div>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon">👥</div>
+            <div className="stat-icon"><FaUsers /></div>
             <div className="stat-info">
               <div className="stat-number">{formatCurrency(stats.totalAssociateAllocation)}</div>
               <div className="stat-label">Total Associate Allocation</div>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon">✅</div>
+            <div className="stat-icon"><FaCheckCircle /></div>
             <div className="stat-info">
               <div className="stat-number">{formatCurrency(stats.totalAssociatePaid)}</div>
               <div className="stat-label">Amount Paid to Associate</div>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon">⏳</div>
+            <div className="stat-icon"><FaClock /></div>
             <div className="stat-info">
               <div className="stat-number">{formatCurrency(stats.totalAssociatePending)}</div>
               <div className="stat-label">Pending to Associate</div>
@@ -749,7 +750,7 @@ const AssociateProjectsPage = () => {
       <div className="project-content">
         {filteredProjects.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state-icon">📊</div>
+            <div className="empty-state-icon"><FiBarChart2 /></div>
             <h3>No projects found</h3>
             <p>
               {projects.length === 0 

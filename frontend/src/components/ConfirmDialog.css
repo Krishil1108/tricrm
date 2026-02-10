@@ -72,8 +72,17 @@
 }
 
 .confirm-dialog-icon {
-  font-size: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   line-height: 1;
+}
+
+.confirm-dialog-icon svg {
+  width: 28px;
+  height: 28px;
 }
 
 .confirm-dialog-title {

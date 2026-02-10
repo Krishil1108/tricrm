@@ -148,8 +148,17 @@
 }
 
 .warning-icon {
-  font-size: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
+}
+
+.warning-icon svg {
+  width: 24px;
+  height: 24px;
 }
 
 .warning-message strong {
@@ -233,7 +242,16 @@
 }
 
 .type-icon {
-  font-size: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.type-icon svg {
+  width: 24px;
+  height: 24px;
 }
 
 .type-label {

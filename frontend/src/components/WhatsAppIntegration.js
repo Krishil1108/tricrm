@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import WhatsAppService from '../services/WhatsAppService';
 import { FaWhatsapp } from 'react-icons/fa';
+import { FiAlertTriangle, FiBarChart2, FiCalendar, FiCreditCard, FiEdit3, FiFileText, FiPhone } from 'react-icons/fi';
 import { useToast } from '../context/ToastContext';
 import Modal from './Modal';
 import './WhatsAppIntegration.css';
@@ -14,12 +15,12 @@ const WhatsAppIntegration = ({ client, quotation, onClose }) => {
   const { showSuccess, showError, showWarning, showInfo } = useToast();
 
   const messageTypes = [
-    { value: 'quotation', label: '📋 Send Quotation', icon: '📋' },
-    { value: 'payment', label: '💳 Payment Reminder', icon: '💳' },
-    { value: 'followup', label: '📞 Follow-up', icon: '📞' },
-    { value: 'meeting', label: '📅 Meeting Reminder', icon: '📅' },
-    { value: 'status', label: '📊 Status Update', icon: '📊' },
-    { value: 'custom', label: '✏️ Custom Message', icon: '✏️' }
+    { value: 'quotation', label: 'Send Quotation', icon: <FiFileText /> },
+    { value: 'payment', label: 'Payment Reminder', icon: <FiCreditCard /> },
+    { value: 'followup', label: 'Follow-up', icon: <FiPhone /> },
+    { value: 'meeting', label: 'Meeting Reminder', icon: <FiCalendar /> },
+    { value: 'status', label: 'Status Update', icon: <FiBarChart2 /> },
+    { value: 'custom', label: 'Custom Message', icon: <FiEdit3 /> }
   ];
 
   const handleSendMessage = async () => {
@@ -231,7 +232,7 @@ const WhatsAppIntegration = ({ client, quotation, onClose }) => {
           {/* Phone Number Warning */}
           {!client.phone && (
             <div className="warning-message">
-              <span className="warning-icon">⚠️</span>
+              <span className="warning-icon"><FiAlertTriangle /></span>
               <div>
                 <strong>No Phone Number Available</strong>
                 <p>This client doesn't have a phone number. Please add a phone number to send WhatsApp messages.</p>
