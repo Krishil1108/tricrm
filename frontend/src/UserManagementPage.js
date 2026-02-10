@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import { FaEdit, FaTrash, FaKey, FaUserPlus, FaCheckCircle, FaTimesCircle, FaToggleOn, FaToggleOff } from 'react-icons/fa';
-import { FiChevronDown, FiChevronUp, FiChevronsUpDown } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp, FiMinus } from 'react-icons/fi';
 import useSortableData from './utils/useSortableData';
 import Watermark from './components/Watermark';
 import './UserManagementPage.css';
@@ -48,7 +48,7 @@ function UserManagementPage() {
 
   const renderSortIcon = (key) => {
     if (!userSortConfig || userSortConfig.key !== key) {
-      return <FiChevronsUpDown className="sort-icon" />;
+      return <FiMinus className="sort-icon" />;
     }
     return userSortConfig.direction === 'asc'
       ? <FiChevronUp className="sort-icon" />

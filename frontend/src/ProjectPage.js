@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { FaEdit, FaTrash, FaChartPie, FaUsers } from 'react-icons/fa';
-import { FiAlertTriangle, FiBarChart2, FiCheckCircle, FiChevronDown, FiChevronUp, FiChevronsUpDown, FiCreditCard, FiInfo } from 'react-icons/fi';
+import { FiAlertTriangle, FiBarChart2, FiCheckCircle, FiChevronDown, FiChevronUp, FiMinus, FiCreditCard, FiInfo } from 'react-icons/fi';
 import './ProjectPage.css';
 import './styles/ClientsPageEnhanced.css';
 import './styles/ActionButtons.css';
@@ -1003,7 +1003,7 @@ const ProjectPage = () => {
 
   const renderSortIcon = (key, config) => {
     if (!config || config.key !== key) {
-      return <FiChevronsUpDown className="sort-icon" />;
+      return <FiMinus className="sort-icon" />;
     }
     return config.direction === 'asc'
       ? <FiChevronUp className="sort-icon" />

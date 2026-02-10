@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
-import { FiAlertCircle, FiChevronDown, FiChevronLeft, FiChevronRight, FiChevronsLeft, FiChevronsRight, FiChevronsUpDown, FiChevronUp, FiInfo } from 'react-icons/fi';
+import { FiAlertCircle, FiChevronDown, FiChevronLeft, FiChevronRight, FiChevronsLeft, FiChevronsRight, FiMinus, FiChevronUp, FiInfo } from 'react-icons/fi';
 import useSortableData from './utils/useSortableData';
 import './ExpenseDistribution.css';
 
@@ -760,7 +760,7 @@ const ExpenseDistribution = () => {
 
   const renderSortIcon = (key, config) => {
     if (!config || config.key !== key) {
-      return <FiChevronsUpDown className="sort-icon" />;
+      return <FiMinus className="sort-icon" />;
     }
     return config.direction === 'asc'
       ? <FiChevronUp className="sort-icon" />

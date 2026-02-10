@@ -10,7 +10,7 @@ import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { FaChartBar, FaCheckCircle, FaClock, FaCreditCard, FaEdit, FaFileExcel, FaFilePdf, FaLink, FaMoneyBillWave, FaTrash, FaWhatsapp } from 'react-icons/fa';
-import { FiAlertTriangle, FiChevronDown, FiChevronUp, FiChevronsUpDown } from 'react-icons/fi';
+import { FiAlertTriangle, FiChevronDown, FiChevronUp, FiMinus } from 'react-icons/fi';
 import { FiBarChart2 } from 'react-icons/fi';
 import useSortableData from './utils/useSortableData';
 import './ClientProjectsPage.css';
@@ -430,7 +430,7 @@ const ClientProjectsPage = () => {
 
   const renderSortIcon = (key) => {
     if (!projectSortConfig || projectSortConfig.key !== key) {
-      return <FiChevronsUpDown className="sort-icon" />;
+      return <FiMinus className="sort-icon" />;
     }
     return projectSortConfig.direction === 'asc'
       ? <FiChevronUp className="sort-icon" />

@@ -8,7 +8,7 @@ import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import Watermark from './components/Watermark';
 import LoadingSkeleton from './components/LoadingSkeleton';
 import { FaEye, FaEdit, FaTrash, FaFolder, FaEllipsisV } from 'react-icons/fa';
-import { FiChevronDown, FiChevronUp, FiChevronsUpDown } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp, FiMinus } from 'react-icons/fi';
 import useSortableData from './utils/useSortableData';
 import './PageContent.css';
 import './styles/ClientsPageEnhanced.css';
@@ -338,7 +338,7 @@ const ClientsPage = () => {
 
   const renderSortIcon = (key) => {
     if (!clientSortConfig || clientSortConfig.key !== key) {
-      return <FiChevronsUpDown className="sort-icon" />;
+      return <FiMinus className="sort-icon" />;
     }
     return clientSortConfig.direction === 'asc'
       ? <FiChevronUp className="sort-icon" />

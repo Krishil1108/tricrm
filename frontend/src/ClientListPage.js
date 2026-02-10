@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaTrash } from 'react-icons/fa';
-import { FiChevronDown, FiChevronUp, FiChevronsUpDown } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp, FiMinus } from 'react-icons/fi';
 import useSortableData from './utils/useSortableData';
 import './PageContent.css';
 import './styles/ActionButtons.css';
@@ -60,7 +60,7 @@ const ClientListPage = () => {
 
   const renderSortIcon = (key) => {
     if (!clientSortConfig || clientSortConfig.key !== key) {
-      return <FiChevronsUpDown className="sort-icon" />;
+      return <FiMinus className="sort-icon" />;
     }
     return clientSortConfig.direction === 'asc'
       ? <FiChevronUp className="sort-icon" />
