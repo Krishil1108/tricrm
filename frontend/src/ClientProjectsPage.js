@@ -214,7 +214,9 @@ const ClientProjectsPage = () => {
       message += `*Associate Information:*\n`;
       message += `Total Associate Share: ${totalAssociatePercent}%\n`;
       selectedProject.projectAssociates.forEach(assoc => {
-        message += `- ${assoc.name} (${assoc.company || 'N/A'}): ${assoc.percentage}%\n`;
+        const associateName = assoc.associateName || assoc.name || assoc.associate?.name || 'Associate';
+        const associateCompany = assoc.associateCompany || assoc.company || assoc.associate?.company || '';
+        message += `- ${associateName} (${associateCompany || 'N/A'}): ${assoc.percentage}%\n`;
       });
       message += `\nNote: Associate share is deducted first, then expenses are calculated on remaining amount.\n\n`;
     }
@@ -245,9 +247,11 @@ const ClientProjectsPage = () => {
         message += `*Associate Share Deductions:*\n`;
         selectedProject.projectAssociates.forEach(assoc => {
           const assocAmount = Math.floor((amount * (parseFloat(assoc.percentage) || 0)) / 100);
-          message += `• ${assoc.name}`;
-          if (assoc.company) {
-            message += ` (${assoc.company})`;
+          const associateName = assoc.associateName || assoc.name || assoc.associate?.name || 'Associate';
+          const associateCompany = assoc.associateCompany || assoc.company || assoc.associate?.company || '';
+          message += `• ${associateName}`;
+          if (associateCompany) {
+            message += ` (${associateCompany})`;
           }
           message += `: ${assoc.percentage}% = ${formatCurrency(assocAmount)}\n`;
         });
@@ -958,48 +962,72 @@ const ClientProjectsPage = () => {
                             <h6>Distribution Breakdown</h6>
                             
                             {/* Associate Share Section */}
-                            {hasAssociates && (
-                              <div className="distribution-section associate-section" style={{
-                                backgroundColor: '#fff3cd',
-                                padding: '12px',
-                                borderRadius: '6px',
-                                marginBottom: '12px',
-                                border: '1px solid #ffc107'
-                              }}>
-                                <div style={{ fontWeight: '600', marginBottom: '8px', color: '#856404' }}>
-                                  Associate Share Deductions:
-                                </div>
-                                {selectedProject.projectAssociates.map((assoc, assocIdx) => {
-                                  const assocAmount = Math.floor((amount * (parseFloat(assoc.percentage) || 0)) / 100);
-                                  return (
-                                    <div key={assocIdx} style={{ 
-                                      display: 'flex',
-                                      justifyContent: 'space-between',
-                                      alignItems: 'center',
-                                      padding: '8px 12px',
-                                      marginBottom: '6px',
-                                      backgroundColor: 'transparent',
-                                      borderRadius: '4px'
-                                    }}>
-                                      <div style={{ 
-                                        fontSize: '13px',
-                                        fontWeight: '500',
-                                        color: '#856404',
-                                        flex: 1
+                            {hasAssociates && (() => {
+                              // Debug logging
+                              console.log('=== ASSOCIATE DEBUG INFO ===');
+                              console.log('selectedProject:', selectedProject);
+                              console.log('projectAssociates:', selectedProject.projectAssociates);
+                              selectedProject.projectAssociates.forEach((assoc, idx) => {
+                                console.log(`Associate ${idx}:`, assoc);
+                                console.log(`  - associateName:`, assoc.associateName);
+                                console.log(`  - name:`, assoc.name);
+                                console.log(`  - associateCompany:`, assoc.associateCompany);
+                                console.log(`  - company:`, assoc.company);
+                                console.log(`  - percentage:`, assoc.percentage);
+                              });
+                              console.log('=========================');
+                              
+                              return (
+                                <div className="distribution-section associate-section" style={{
+                                  backgroundColor: '#fff3cd',
+                                  padding: '12px',
+                                  borderRadius: '6px',
+                                  marginBottom: '12px',
+                                  border: '1px solid #ffc107'
+                                }}>
+                                  <div style={{ fontWeight: '600', marginBottom: '8px', color: '#856404' }}>
+                                    Associate Share Deductions:
+                                  </div>
+                                  {selectedProject.projectAssociates.map((assoc, assocIdx) => {
+                                    const assocAmount = Math.floor((amount * (parseFloat(assoc.percentage) || 0)) / 100);
+                                    // Try multiple possible field names
+                                    const associateName = assoc.associateName || assoc.name || assoc.associate?.name || 'Associate';
+                                    const associateCompany = assoc.associateCompany || assoc.company || assoc.associate?.company || '';
+                                    
+                                    console.log(`Rendering Associate ${assocIdx}:`, { associateName, associateCompany });
+                                    
+                                    return (
+                                      <div key={assocIdx} style={{ 
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        padding: '8px 12px',
+                                        marginBottom: '6px',
+                                        backgroundColor: 'transparent',
+                                        borderRadius: '4px'
                                       }}>
-                                        • {assoc.name} {assoc.company ? `(${assoc.company})` : ''}
+                                        <div style={{ 
+                                          fontSize: '14px',
+                                          fontWeight: '500',
+                                          color: '#856404',
+                                          flex: 1
+                                        }}>
+                                          • {associateName} {associateCompany ? `(${associateCompany})` : ''}
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                          <span style={{ fontWeight: '600', color: '#856404', fontSize: '13px', minWidth: '40px', textAlign: 'right' }}>
+                                            {assoc.percentage}%
+                                          </span>
+                                          <span style={{ fontWeight: '600', color: '#28a745', fontSize: '13px', minWidth: '80px', textAlign: 'right' }}>
+                                            {formatCurrency(assocAmount)}
+                                          </span>
+                                        </div>
                                       </div>
-                                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                        <span style={{ fontWeight: '600', color: '#856404', fontSize: '13px', minWidth: '40px', textAlign: 'right' }}>
-                                          {assoc.percentage}%
-                                        </span>
-                                        <span style={{ fontWeight: '600', color: '#28a745', fontSize: '13px', minWidth: '80px', textAlign: 'right' }}>
-                                          {formatCurrency(assocAmount)}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
+                                    );
+                                  })}
+                                </div>
+                              );
+                            })()}
                                 <div style={{
                                   borderTop: '1px solid #ffc107',
                                   marginTop: '8px',
