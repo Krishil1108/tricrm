@@ -1025,23 +1025,21 @@ const ClientProjectsPage = () => {
                                       </div>
                                     );
                                   })}
+                                  <div style={{
+                                    borderTop: '1px solid #ffc107',
+                                    marginTop: '8px',
+                                    paddingTop: '8px',
+                                    fontWeight: '600',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    color: '#856404'
+                                  }}>
+                                    <span>Total Associate Share:</span>
+                                    <span>{formatCurrency(associateShare)}</span>
+                                  </div>
                                 </div>
                               );
                             })()}
-                                <div style={{
-                                  borderTop: '1px solid #ffc107',
-                                  marginTop: '8px',
-                                  paddingTop: '8px',
-                                  fontWeight: '600',
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-                                  color: '#856404'
-                                }}>
-                                  <span>Total Associate Share:</span>
-                                  <span>{formatCurrency(associateShare)}</span>
-                                </div>
-                              </div>
-                            )}
                             
                             {/* Remaining Amount */}
                             {hasAssociates && (
