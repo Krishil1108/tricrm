@@ -972,13 +972,30 @@ const ClientProjectsPage = () => {
                                 {selectedProject.projectAssociates.map((assoc, assocIdx) => {
                                   const assocAmount = Math.floor((amount * (parseFloat(assoc.percentage) || 0)) / 100);
                                   return (
-                                    <div key={assocIdx} className="distribution-item" style={{ marginBottom: '6px' }}>
-                                      <div className="distribution-category" style={{ fontSize: '13px' }}>
+                                    <div key={assocIdx} style={{ 
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      alignItems: 'center',
+                                      padding: '8px 12px',
+                                      marginBottom: '6px',
+                                      backgroundColor: 'transparent',
+                                      borderRadius: '4px'
+                                    }}>
+                                      <div style={{ 
+                                        fontSize: '13px',
+                                        fontWeight: '500',
+                                        color: '#856404',
+                                        flex: 1
+                                      }}>
                                         • {assoc.name} {assoc.company ? `(${assoc.company})` : ''}
                                       </div>
-                                      <div className="distribution-values">
-                                        <span className="distribution-percent">{assoc.percentage}%</span>
-                                        <span className="distribution-amount">{formatCurrency(assocAmount)}</span>
+                                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                        <span style={{ fontWeight: '600', color: '#856404', fontSize: '13px', minWidth: '40px', textAlign: 'right' }}>
+                                          {assoc.percentage}%
+                                        </span>
+                                        <span style={{ fontWeight: '600', color: '#28a745', fontSize: '13px', minWidth: '80px', textAlign: 'right' }}>
+                                          {formatCurrency(assocAmount)}
+                                        </span>
                                       </div>
                                     </div>
                                   );
