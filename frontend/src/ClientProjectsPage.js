@@ -222,19 +222,53 @@ const ClientProjectsPage = () => {
     message += `*Payment History & Distribution:*\n\n`;
     
     selectedProject.payments.forEach((payment, index) => {
-      message += `Payment #${index + 1}\n`;
+      const amount = payment.amount || 0;
+      const hasAssociates = selectedProject.projectAssociates && selectedProject.projectAssociates.length > 0;
+      const totalAssociatePercent = hasAssociates
+        ? selectedProject.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+        : 0;
+      const associateShare = Math.floor((amount * totalAssociatePercent) / 100);
+      const amountAfterAssociate = amount - associateShare;
+      
+      message += `━━━━━━━━━━━━━━━━━━━━\n`;
+      message += `*Payment #${index + 1}*\n`;
       message += `Date: ${new Date(payment.date).toLocaleDateString()}\n`;
-      message += `Amount: ${formatCurrency(payment.amount)}\n`;
+      message += `Amount Received: ${formatCurrency(payment.amount)}\n`;
       message += `Mode: ${payment.mode}\n`;
       if (payment.chequeNeftNumber) {
         message += `Ref: ${payment.chequeNeftNumber}\n`;
       }
+      message += `\n`;
       
-      // Add distribution breakdown
-      const distribution = calculatePaymentDistribution(payment, selectedProject);
-      message += `\nDistribution Breakdown:\n`;
-      distribution.forEach(item => {
-        message += `- ${item.label}: ${item.percent}% = ${formatCurrency(item.amount)}\n`;
+      // Associate Share Breakdown
+      if (hasAssociates) {
+        message += `*Associate Share Deductions:*\n`;
+        selectedProject.projectAssociates.forEach(assoc => {
+          const assocAmount = Math.floor((amount * (parseFloat(assoc.percentage) || 0)) / 100);
+          message += `• ${assoc.name}`;
+          if (assoc.company) {
+            message += ` (${assoc.company})`;
+          }
+          message += `: ${assoc.percentage}% = ${formatCurrency(assocAmount)}\n`;
+        });
+        message += `Total Associate Share: ${formatCurrency(associateShare)}\n\n`;
+        message += `*Remaining Amount for Expenses:* ${formatCurrency(amountAfterAssociate)}\n\n`;
+      }
+      
+      // Expense Distribution
+      message += `*Expense Distribution${hasAssociates ? ` (on ${formatCurrency(amountAfterAssociate)})` : ''}:*\n`;
+      const expenses = [
+        { label: 'Profit Margin', percent: selectedProject.profitMarginPercent || 0 },
+        { label: 'Drawing', percent: selectedProject.drawingPercent || 0 },
+        { label: 'Documents', percent: selectedProject.documentsPercent || 0 },
+        { label: 'Site Visit', percent: selectedProject.siteVisitPercent || 0 },
+        { label: 'Marketing & Misc', percent: selectedProject.marketingAndMiscPercent || 0 },
+        { label: 'Office Management', percent: selectedProject.officeManagementPercent || 0 }
+      ];
+      
+      expenses.forEach(expense => {
+        const expenseAmount = Math.floor((amountAfterAssociate * expense.percent) / 100);
+        message += `• ${expense.label}: ${expense.percent}% = ${formatCurrency(expenseAmount)}\n`;
       });
       message += '\n';
     });
@@ -898,7 +932,14 @@ const ClientProjectsPage = () => {
                 {selectedProject.payments && selectedProject.payments.length > 0 ? (
                   <div className="payments-container">
                     {selectedProject.payments.map((payment, index) => {
-                      const distribution = calculatePaymentDistribution(payment, selectedProject);
+                      const amount = payment.amount || 0;
+                      const hasAssociates = selectedProject.projectAssociates && selectedProject.projectAssociates.length > 0;
+                      const totalAssociatePercent = hasAssociates
+                        ? selectedProject.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+                        : 0;
+                      const associateShare = Math.floor((amount * totalAssociatePercent) / 100);
+                      const amountAfterAssociate = amount - associateShare;
+                      
                       return (
                         <div key={index} className="payment-item">
                           <div className="payment-header">
@@ -906,7 +947,7 @@ const ClientProjectsPage = () => {
                               <h5>Payment #{index + 1}</h5>
                               <div className="payment-details">
                                 <span>Date: {new Date(payment.date).toLocaleDateString()}</span>
-                                <span>Amount: {formatCurrency(payment.amount)}</span>
+                                <span>Amount Received: {formatCurrency(payment.amount)}</span>
                                 <span>Mode: {payment.mode}</span>
                                 {payment.chequeNeftNumber && <span>Ref: {payment.chequeNeftNumber}</span>}
                               </div>
@@ -915,16 +956,97 @@ const ClientProjectsPage = () => {
                           
                           <div className="payment-distribution">
                             <h6>Distribution Breakdown</h6>
-                            <div className="distribution-grid">
-                              {distribution.map((item, idx) => (
-                                <div key={idx} className="distribution-item">
-                                  <div className="distribution-category">{item.label}</div>
-                                  <div className="distribution-values">
-                                    <span className="distribution-percent">{item.percent}%</span>
-                                    <span className="distribution-amount">{formatCurrency(item.amount)}</span>
-                                  </div>
+                            
+                            {/* Associate Share Section */}
+                            {hasAssociates && (
+                              <div className="distribution-section associate-section" style={{
+                                backgroundColor: '#fff3cd',
+                                padding: '12px',
+                                borderRadius: '6px',
+                                marginBottom: '12px',
+                                border: '1px solid #ffc107'
+                              }}>
+                                <div style={{ fontWeight: '600', marginBottom: '8px', color: '#856404' }}>
+                                  Associate Share Deductions:
                                 </div>
-                              ))}
+                                {selectedProject.projectAssociates.map((assoc, assocIdx) => {
+                                  const assocAmount = Math.floor((amount * (parseFloat(assoc.percentage) || 0)) / 100);
+                                  return (
+                                    <div key={assocIdx} className="distribution-item" style={{ marginBottom: '6px' }}>
+                                      <div className="distribution-category" style={{ fontSize: '13px' }}>
+                                        • {assoc.name} {assoc.company ? `(${assoc.company})` : ''}
+                                      </div>
+                                      <div className="distribution-values">
+                                        <span className="distribution-percent">{assoc.percentage}%</span>
+                                        <span className="distribution-amount">{formatCurrency(assocAmount)}</span>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                                <div style={{
+                                  borderTop: '1px solid #ffc107',
+                                  marginTop: '8px',
+                                  paddingTop: '8px',
+                                  fontWeight: '600',
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  color: '#856404'
+                                }}>
+                                  <span>Total Associate Share:</span>
+                                  <span>{formatCurrency(associateShare)}</span>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* Remaining Amount */}
+                            {hasAssociates && (
+                              <div style={{
+                                backgroundColor: '#d1ecf1',
+                                padding: '10px 12px',
+                                borderRadius: '6px',
+                                marginBottom: '12px',
+                                border: '1px solid #bee5eb',
+                                fontWeight: '600',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                color: '#0c5460'
+                              }}>
+                                <span>Remaining Amount for Expenses:</span>
+                                <span>{formatCurrency(amountAfterAssociate)}</span>
+                              </div>
+                            )}
+                            
+                            {/* Expense Distribution Section */}
+                            <div className="distribution-section expense-section" style={{
+                              backgroundColor: '#f8f9fa',
+                              padding: '12px',
+                              borderRadius: '6px',
+                              border: '1px solid #dee2e6'
+                            }}>
+                              <div style={{ fontWeight: '600', marginBottom: '8px', color: '#495057' }}>
+                                Expense Distribution {hasAssociates ? `(on ${formatCurrency(amountAfterAssociate)})` : ''}:
+                              </div>
+                              <div className="distribution-grid">
+                                {[
+                                  { label: 'Profit Margin', percent: selectedProject.profitMarginPercent || 0 },
+                                  { label: 'Drawing', percent: selectedProject.drawingPercent || 0 },
+                                  { label: 'Documents', percent: selectedProject.documentsPercent || 0 },
+                                  { label: 'Site Visit', percent: selectedProject.siteVisitPercent || 0 },
+                                  { label: 'Marketing & Misc', percent: selectedProject.marketingAndMiscPercent || 0 },
+                                  { label: 'Office Management', percent: selectedProject.officeManagementPercent || 0 }
+                                ].map((item, idx) => {
+                                  const expenseAmount = Math.floor((amountAfterAssociate * item.percent) / 100);
+                                  return (
+                                    <div key={idx} className="distribution-item">
+                                      <div className="distribution-category">{item.label}</div>
+                                      <div className="distribution-values">
+                                        <span className="distribution-percent">{item.percent}%</span>
+                                        <span className="distribution-amount">{formatCurrency(expenseAmount)}</span>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
                             </div>
                           </div>
                         </div>
