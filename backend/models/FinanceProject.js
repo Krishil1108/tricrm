@@ -322,10 +322,10 @@ financeProjectSchema.pre('findOneAndUpdate', function(next) {
         update.$set.siteVisit = Math.round((amountForExpenses * (update.$set.siteVisitPercent || 0)) / 100);
       }
       if (update.$set.marketingAndMiscPercent !== undefined) {
-        update.$set.marketingAndMisc = Math.round((receivedFees * (update.$set.marketingAndMiscPercent || 0)) / 100);
+        update.$set.marketingAndMisc = Math.round((amountForExpenses * (update.$set.marketingAndMiscPercent || 0)) / 100);
       }
       if (update.$set.officeManagementPercent !== undefined) {
-        update.$set.officeManagement = Math.round((receivedFees * (update.$set.officeManagementPercent || 0)) / 100);
+        update.$set.officeManagement = Math.round((amountForExpenses * (update.$set.officeManagementPercent || 0)) / 100);
       }
     }
   }

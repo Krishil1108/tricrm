@@ -229,19 +229,30 @@ const YearlyDistributionTable = ({
       '-'
     ];
     
+    // Calculate grand total with associate deduction
+    const totalReceived = projectData.totalReceivedFees || 0;
+    const totalAssociatePercent = projectData.projectAssociates && projectData.projectAssociates.length > 0
+      ? projectData.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+      : 0;
+    const associateShare = Math.floor((totalReceived * totalAssociatePercent) / 100);
+    const amountAfterAssociate = totalReceived - associateShare;
+    
     // Add visible default field grand totals
-    if (effectiveFieldVisibility.profitMargin) grandTotalRow.push(projectData.profitMargin || 0);
-    if (effectiveFieldVisibility.drawing) grandTotalRow.push(projectData.drawing || 0);
-    if (effectiveFieldVisibility.documents) grandTotalRow.push((projectData.documents && projectData.documents > 0) ? projectData.documents : '-');
-    if (effectiveFieldVisibility.siteVisit) grandTotalRow.push(projectData.siteVisit || 0);
-    if (effectiveFieldVisibility.marketingAndMisc) grandTotalRow.push(projectData.marketingAndMisc || 0);
-    if (effectiveFieldVisibility.officeManagement) grandTotalRow.push(projectData.officeManagement || 0);
+    if (effectiveFieldVisibility.profitMargin) grandTotalRow.push(Math.floor((amountAfterAssociate * (projectData.profitMarginPercent || 0)) / 100));
+    if (effectiveFieldVisibility.drawing) grandTotalRow.push(Math.floor((amountAfterAssociate * (projectData.drawingPercent || 0)) / 100));
+    if (effectiveFieldVisibility.documents) {
+      const documentsTotal = Math.floor((amountAfterAssociate * (projectData.documentsPercent || 0)) / 100);
+      grandTotalRow.push(documentsTotal > 0 ? documentsTotal : '-');
+    }
+    if (effectiveFieldVisibility.siteVisit) grandTotalRow.push(Math.floor((amountAfterAssociate * (projectData.siteVisitPercent || 0)) / 100));
+    if (effectiveFieldVisibility.marketingAndMisc) grandTotalRow.push(Math.floor((amountAfterAssociate * (projectData.marketingAndMiscPercent || 0)) / 100));
+    if (effectiveFieldVisibility.officeManagement) grandTotalRow.push(Math.floor((amountAfterAssociate * (projectData.officeManagementPercent || 0)) / 100));
     
     // Add visible custom field grand totals
     if (visibleCustomFields && visibleCustomFields.length > 0) {
       visibleCustomFields.forEach(field => {
         const percentage = getCustomFieldValue(field.fieldName, 'percentage');
-        const customGrandTotal = Math.floor(((projectData.totalReceivedFees || 0) * percentage) / 100);
+        const customGrandTotal = Math.floor((amountAfterAssociate * percentage) / 100);
         grandTotalRow.push(customGrandTotal > 0 ? customGrandTotal : '-');
       });
     }
@@ -323,12 +334,19 @@ const YearlyDistributionTable = ({
     if (projectData.payments && projectData.payments.length > 0) {
       projectData.payments.forEach((payment, index) => {
         const amount = parseInt(payment.amount) || 0; // Use parseInt to avoid decimal issues
-        const profitMarginAmount = Math.floor((amount * (projectData.profitMarginPercent || 0)) / 100);
-        const drawingAmount = Math.floor((amount * (projectData.drawingPercent || 0)) / 100);
-        const documentsAmount = Math.floor((amount * (projectData.documentsPercent || 0)) / 100);
-        const siteVisitAmount = Math.floor((amount * (projectData.siteVisitPercent || 0)) / 100);
-        const marketingAmount = Math.floor((amount * (projectData.marketingAndMiscPercent || 0)) / 100);
-        const officeAmount = Math.floor((amount * (projectData.officeManagementPercent || 0)) / 100);
+        // Calculate total associate percentage from all associates
+        const totalAssociatePercent = projectData.projectAssociates && projectData.projectAssociates.length > 0
+          ? projectData.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+          : 0;
+        // Deduct associate share before calculating expenses
+        const associateShare = Math.floor((amount * totalAssociatePercent) / 100);
+        const amountAfterAssociate = amount - associateShare;
+        const profitMarginAmount = Math.floor((amountAfterAssociate * (projectData.profitMarginPercent || 0)) / 100);
+        const drawingAmount = Math.floor((amountAfterAssociate * (projectData.drawingPercent || 0)) / 100);
+        const documentsAmount = Math.floor((amountAfterAssociate * (projectData.documentsPercent || 0)) / 100);
+        const siteVisitAmount = Math.floor((amountAfterAssociate * (projectData.siteVisitPercent || 0)) / 100);
+        const marketingAmount = Math.floor((amountAfterAssociate * (projectData.marketingAndMiscPercent || 0)) / 100);
+        const officeAmount = Math.floor((amountAfterAssociate * (projectData.officeManagementPercent || 0)) / 100);
         
         tableData.push([
           `Payment ${index + 1}`,
@@ -349,41 +367,58 @@ const YearlyDistributionTable = ({
     // Yearly totals with exact calculations
     Object.keys(yearlyDistribution).forEach(year => {
       const amount = parseInt(yearlyDistribution[year]) || 0;
+      // Calculate total associate percentage from all associates
+      const totalAssociatePercent = projectData.projectAssociates && projectData.projectAssociates.length > 0
+        ? projectData.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+        : 0;
+      // Deduct associate share before calculating expenses
+      const associateShare = Math.floor((amount * totalAssociatePercent) / 100);
+      const amountAfterAssociate = amount - associateShare;
       tableData.push([
         `${year} Total`,
         amount.toLocaleString('en-IN'),
         '-',
         '-',
         '-',
-        Math.floor((amount * (projectData.profitMarginPercent || 0)) / 100).toLocaleString('en-IN'),
-        Math.floor((amount * (projectData.drawingPercent || 0)) / 100).toLocaleString('en-IN'),
-        Math.floor((amount * (projectData.documentsPercent || 0)) / 100).toLocaleString('en-IN'),
-        Math.floor((amount * (projectData.siteVisitPercent || 0)) / 100).toLocaleString('en-IN'),
-        Math.floor((amount * (projectData.marketingAndMiscPercent || 0)) / 100).toLocaleString('en-IN'),
-        Math.floor((amount * (projectData.officeManagementPercent || 0)) / 100).toLocaleString('en-IN')
+        Math.floor((amountAfterAssociate * (projectData.profitMarginPercent || 0)) / 100).toLocaleString('en-IN'),
+        Math.floor((amountAfterAssociate * (projectData.drawingPercent || 0)) / 100).toLocaleString('en-IN'),
+        Math.floor((amountAfterAssociate * (projectData.documentsPercent || 0)) / 100).toLocaleString('en-IN'),
+        Math.floor((amountAfterAssociate * (projectData.siteVisitPercent || 0)) / 100).toLocaleString('en-IN'),
+        Math.floor((amountAfterAssociate * (projectData.marketingAndMiscPercent || 0)) / 100).toLocaleString('en-IN'),
+        Math.floor((amountAfterAssociate * (projectData.officeManagementPercent || 0)) / 100).toLocaleString('en-IN')
       ]);
     });
     
-    // Grand total
+    // Grand total with associate deduction
+    const totalReceived = projectData.totalReceivedFees || 0;
+    const totalAssociatePercent = projectData.projectAssociates && projectData.projectAssociates.length > 0
+      ? projectData.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+      : 0;
+    const associateShare = Math.floor((totalReceived * totalAssociatePercent) / 100);
+    const amountAfterAssociate = totalReceived - associateShare;
+    
     const grandTotalRow = [
       'Grand Total',
-      (projectData.totalReceivedFees || 0).toLocaleString('en-IN'),
+      totalReceived.toLocaleString('en-IN'),
       '-',
       '-',
       '-',
-      (projectData.profitMargin || 0).toLocaleString('en-IN'),
-      (projectData.drawing || 0).toLocaleString('en-IN'),
-      (projectData.documents && projectData.documents > 0) ? projectData.documents.toLocaleString('en-IN') : '-',
-      (projectData.siteVisit || 0).toLocaleString('en-IN'),
-      (projectData.marketingAndMisc || 0).toLocaleString('en-IN'),
-      (projectData.officeManagement || 0).toLocaleString('en-IN')
+      Math.floor((amountAfterAssociate * (projectData.profitMarginPercent || 0)) / 100).toLocaleString('en-IN'),
+      Math.floor((amountAfterAssociate * (projectData.drawingPercent || 0)) / 100).toLocaleString('en-IN'),
+      (() => {
+        const documentsTotal = Math.floor((amountAfterAssociate * (projectData.documentsPercent || 0)) / 100);
+        return documentsTotal > 0 ? documentsTotal.toLocaleString('en-IN') : '-';
+      })(),
+      Math.floor((amountAfterAssociate * (projectData.siteVisitPercent || 0)) / 100).toLocaleString('en-IN'),
+      Math.floor((amountAfterAssociate * (projectData.marketingAndMiscPercent || 0)) / 100).toLocaleString('en-IN'),
+      Math.floor((amountAfterAssociate * (projectData.officeManagementPercent || 0)) / 100).toLocaleString('en-IN')
     ];
     
     // Add custom field grand totals to PDF
     if (customFields && customFields.length > 0) {
       customFields.forEach(field => {
         const percentage = getCustomFieldValue(field.fieldName, 'percentage');
-        const customGrandTotal = Math.floor(((projectData.totalReceivedFees || 0) * percentage) / 100);
+        const customGrandTotal = Math.floor((amountAfterAssociate * percentage) / 100);
         grandTotalRow.push(customGrandTotal > 0 ? customGrandTotal.toLocaleString('en-IN') : '-');
       });
     }
@@ -685,17 +720,44 @@ const YearlyDistributionTable = ({
               <td><strong>-</strong></td>
               <td><strong>-</strong></td>
               <td><strong>-</strong></td>
-              {effectiveFieldVisibility.profitMargin && <td><strong>{projectData.profitMargin?.toLocaleString('en-IN') || '0'}</strong></td>}
-              {effectiveFieldVisibility.drawing && <td><strong>{projectData.drawing?.toLocaleString('en-IN') || '0'}</strong></td>}
-              {effectiveFieldVisibility.documents && <td><strong>{(projectData.documents && projectData.documents > 0) ? projectData.documents.toLocaleString('en-IN') : '-'}</strong></td>}
-              {effectiveFieldVisibility.siteVisit && <td><strong>{projectData.siteVisit?.toLocaleString('en-IN') || '0'}</strong></td>}
-              {effectiveFieldVisibility.marketingAndMisc && <td><strong>{projectData.marketingAndMisc?.toLocaleString('en-IN') || '0'}</strong></td>}
-              {effectiveFieldVisibility.officeManagement && <td><strong>{projectData.officeManagement?.toLocaleString('en-IN') || '0'}</strong></td>}
+              {(() => {
+                // Calculate grand total with associate deduction
+                const totalReceived = projectData.totalReceivedFees || 0;
+                const totalAssociatePercent = projectData.projectAssociates && projectData.projectAssociates.length > 0
+                  ? projectData.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+                  : 0;
+                const associateShare = Math.floor((totalReceived * totalAssociatePercent) / 100);
+                const amountAfterAssociate = totalReceived - associateShare;
+                
+                const profitMarginTotal = Math.floor((amountAfterAssociate * (projectData.profitMarginPercent || 0)) / 100);
+                const drawingTotal = Math.floor((amountAfterAssociate * (projectData.drawingPercent || 0)) / 100);
+                const documentsTotal = Math.floor((amountAfterAssociate * (projectData.documentsPercent || 0)) / 100);
+                const siteVisitTotal = Math.floor((amountAfterAssociate * (projectData.siteVisitPercent || 0)) / 100);
+                const marketingTotal = Math.floor((amountAfterAssociate * (projectData.marketingAndMiscPercent || 0)) / 100);
+                const officeTotal = Math.floor((amountAfterAssociate * (projectData.officeManagementPercent || 0)) / 100);
+                
+                return (
+                  <>
+                    {effectiveFieldVisibility.profitMargin && <td><strong>{profitMarginTotal.toLocaleString('en-IN')}</strong></td>}
+                    {effectiveFieldVisibility.drawing && <td><strong>{drawingTotal.toLocaleString('en-IN')}</strong></td>}
+                    {effectiveFieldVisibility.documents && <td><strong>{documentsTotal > 0 ? documentsTotal.toLocaleString('en-IN') : '-'}</strong></td>}
+                    {effectiveFieldVisibility.siteVisit && <td><strong>{siteVisitTotal.toLocaleString('en-IN')}</strong></td>}
+                    {effectiveFieldVisibility.marketingAndMisc && <td><strong>{marketingTotal.toLocaleString('en-IN')}</strong></td>}
+                    {effectiveFieldVisibility.officeManagement && <td><strong>{officeTotal.toLocaleString('en-IN')}</strong></td>}
+                  </>
+                );
+              })()}
               {/* Custom fields grand total columns */}
               {visibleCustomFields && visibleCustomFields.map((customField, customIndex) => {
-                // Calculate custom field grand total based on percentage and total received fees
+                // Calculate custom field grand total based on percentage and amount after associate deduction
+                const totalReceived = projectData.totalReceivedFees || 0;
+                const totalAssociatePercent = projectData.projectAssociates && projectData.projectAssociates.length > 0
+                  ? projectData.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+                  : 0;
+                const associateShare = Math.floor((totalReceived * totalAssociatePercent) / 100);
+                const amountAfterAssociate = totalReceived - associateShare;
                 const percentage = getCustomFieldValue(customField.fieldName, 'percentage');
-                const customGrandTotal = Math.floor(((projectData.totalReceivedFees || 0) * percentage) / 100);
+                const customGrandTotal = Math.floor((amountAfterAssociate * percentage) / 100);
                 return (
                   <td key={`grand-custom-${customIndex}`} style={{ backgroundColor: '#fff8e1', fontWeight: 'bold', border: '2px solid #ff8f00' }}>
                     <strong>{customGrandTotal > 0 ? customGrandTotal.toLocaleString('en-IN') : '-'}</strong>
