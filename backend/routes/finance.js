@@ -112,7 +112,8 @@ router.get('/clients/:clientId/projects', authenticate, async (req, res) => {
     
     const projects = await FinanceProject.find(query)
       .sort(sort)
-      .populate('createdBy', 'username email');
+      .populate('createdBy', 'username email')
+      .populate('projectAssociates.associateId', 'name company');
     
     res.json({
       success: true,
