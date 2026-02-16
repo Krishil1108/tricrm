@@ -10,7 +10,7 @@ import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { FaChartBar, FaCheckCircle, FaClock, FaCreditCard, FaEdit, FaFileExcel, FaFilePdf, FaLink, FaMoneyBillWave, FaTrash, FaWhatsapp } from 'react-icons/fa';
-import { FiAlertTriangle, FiChevronDown, FiChevronUp, FiMinus } from 'react-icons/fi';
+import { FiAlertTriangle, FiChevronDown, FiChevronUp, FiMinus, FiInfo } from 'react-icons/fi';
 import { FiBarChart2 } from 'react-icons/fi';
 import useSortableData from './utils/useSortableData';
 import './ClientProjectsPage.css';
@@ -103,7 +103,29 @@ const ClientProjectsPage = () => {
 
   const calculatePaymentDistribution = (payment, project) => {
     const amount = payment.amount || 0;
-    const allocations = [
+    
+    // Calculate total associate percentage from all associates
+    const totalAssociatePercent = project.projectAssociates && project.projectAssociates.length > 0
+      ? project.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+      : 0;
+    
+    // Deduct associate share before calculating expenses
+    const associateShare = Math.floor((amount * totalAssociatePercent) / 100);
+    const amountAfterAssociate = amount - associateShare;
+    
+    const allocations = [];
+    
+    // Add associate share first if applicable
+    if (totalAssociatePercent > 0) {
+      allocations.push({
+        label: 'Associate Share',
+        percent: totalAssociatePercent,
+        amount: associateShare
+      });
+    }
+    
+    // Calculate expense allocations on remaining amount after associate deduction
+    const expenseAllocations = [
       { label: 'Profit Margin', percent: project.profitMarginPercent || 0 },
       { label: 'Drawing', percent: project.drawingPercent || 0 },
       { label: 'Documents', percent: project.documentsPercent || 0 },
@@ -112,10 +134,12 @@ const ClientProjectsPage = () => {
       { label: 'Office Management', percent: project.officeManagementPercent || 0 }
     ];
     
-    return allocations.map(allocation => ({
+    const expenseAmounts = expenseAllocations.map(allocation => ({
       ...allocation,
-      amount: (amount * allocation.percent) / 100
+      amount: Math.floor((amountAfterAssociate * allocation.percent) / 100)
     }));
+    
+    return [...allocations, ...expenseAmounts];
   };
 
   const handleCloseDistribution = () => {
@@ -180,7 +204,22 @@ const ClientProjectsPage = () => {
     message += `Total Contract: ${totalContract}\n`;
     message += `Total Received: ${totalReceived}\n`;
     message += `Pending Amount: ${pending}\n\n`;
-    message += `*Payment History:*\n\n`;
+    
+    // Add associate info if applicable
+    const totalAssociatePercent = selectedProject.projectAssociates && selectedProject.projectAssociates.length > 0
+      ? selectedProject.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+      : 0;
+    
+    if (totalAssociatePercent > 0) {
+      message += `*Associate Information:*\n`;
+      message += `Total Associate Share: ${totalAssociatePercent}%\n`;
+      selectedProject.projectAssociates.forEach(assoc => {
+        message += `- ${assoc.name} (${assoc.company || 'N/A'}): ${assoc.percentage}%\n`;
+      });
+      message += `\nNote: Associate share is deducted first, then expenses are calculated on remaining amount.\n\n`;
+    }
+    
+    message += `*Payment History & Distribution:*\n\n`;
     
     selectedProject.payments.forEach((payment, index) => {
       message += `Payment #${index + 1}\n`;
@@ -190,6 +229,13 @@ const ClientProjectsPage = () => {
       if (payment.chequeNeftNumber) {
         message += `Ref: ${payment.chequeNeftNumber}\n`;
       }
+      
+      // Add distribution breakdown
+      const distribution = calculatePaymentDistribution(payment, selectedProject);
+      message += `\nDistribution Breakdown:\n`;
+      distribution.forEach(item => {
+        message += `- ${item.label}: ${item.percent}% = ${formatCurrency(item.amount)}\n`;
+      });
       message += '\n';
     });
 
@@ -835,6 +881,20 @@ const ClientProjectsPage = () => {
               {/* Payment History with Distribution */}
               <div className="payment-history">
                 <h4><FaCreditCard className="inline-icon" />Payment History & Distribution</h4>
+                {selectedProject.projectAssociates && selectedProject.projectAssociates.length > 0 && (
+                  <div className="associate-notice" style={{
+                    padding: '12px',
+                    marginBottom: '16px',
+                    backgroundColor: '#e8f4fd',
+                    borderLeft: '4px solid #0066cc',
+                    borderRadius: '4px'
+                  }}>
+                    <p style={{ margin: 0, fontSize: '13px', lineHeight: '1.5' }}>
+                      <FiInfo style={{ marginRight: '6px', verticalAlign: 'middle' }} />
+                      <strong>Note:</strong> Associate share ({selectedProject.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)}%) is deducted first from each payment, then expense distributions are calculated on the remaining amount.
+                    </p>
+                  </div>
+                )}
                 {selectedProject.payments && selectedProject.payments.length > 0 ? (
                   <div className="payments-container">
                     {selectedProject.payments.map((payment, index) => {
