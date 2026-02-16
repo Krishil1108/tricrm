@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FaEdit, FaTrash, FaChartPie, FaUsers } from 'react-icons/fa';
 import { FiAlertTriangle, FiBarChart2, FiCheckCircle, FiChevronDown, FiChevronUp, FiMinus, FiCreditCard, FiInfo } from 'react-icons/fi';
 import './ProjectPage.css';
@@ -19,7 +19,9 @@ import useSortableData from './utils/useSortableData';
 
 const ProjectPage = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const processedEditId = useRef(null);
+  const sourceClientId = useRef(null);
   const { 
     canViewProjectManagementPage,
     canAddNewProject,
@@ -71,6 +73,9 @@ const ProjectPage = () => {
   const [selectedProjectForAssociateDistribution, setSelectedProjectForAssociateDistribution] = useState(null);
   const [showAssociateDistributionModal, setShowAssociateDistributionModal] = useState(false);
   const [dropdownOpenId, setDropdownOpenId] = useState(null);
+  
+  // Navigation dialog after saving
+  const [showNavigationDialog, setShowNavigationDialog] = useState(false);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -149,6 +154,12 @@ const ProjectPage = () => {
   // Handle editProjectId from location state
   useEffect(() => {
     const editProjectId = location.state?.editProjectId;
+    const clientId = location.state?.clientId;
+    
+    // Store the clientId if provided (means we came from Client Management)
+    if (clientId) {
+      sourceClientId.current = clientId;
+    }
     
     // Only proceed if we have an editProjectId and haven't processed this ID before
     if (editProjectId && processedEditId.current !== editProjectId && !showModal) {
@@ -167,6 +178,13 @@ const ProjectPage = () => {
             // Set the active tab to projects
             setActiveTab('projects');
             
+            // Format payment dates for input fields
+            const paymentsWithFormattedDates = (projectData.payments || []).map((payment, index) => ({
+              ...payment,
+              id: payment._id || `existing_payment_${index}_${Date.now()}`,
+              date: formatDateForInput(payment.date) // Convert ISO date to yyyy-MM-dd
+            }));
+            
             // Prepare form data with proper structure and date formatting
             const formDataForEdit = {
               ...projectData,
@@ -184,7 +202,8 @@ const ProjectPage = () => {
               // Preserve other fields
               status: projectData.status || 'Active',
               projectAssociates: projectData.projectAssociates || [],
-              payments: projectData.payments || []
+              payments: paymentsWithFormattedDates,
+              yearlyDistribution: paymentsWithFormattedDates.length > 0 ? calculateYearlyDistribution(paymentsWithFormattedDates) : {}
             };
 
             // Set editing item first to prevent conflicts
@@ -765,9 +784,17 @@ const ProjectPage = () => {
         await FinanceService.saveExpense(cleanFormData);
       }
       showSuccess('Saved successfully');
-      handleCloseModal();
-      fetchData();
-      fetchStats();
+      
+      // Check if user came from Client Management
+      if (editingItem && sourceClientId.current) {
+        // Show navigation dialog
+        setShowNavigationDialog(true);
+      } else {
+        // Normal flow - just close modal and refresh
+        handleCloseModal();
+        fetchData();
+        fetchStats();
+      }
     } catch (error) {
       console.error('Full error object:', error);
       console.error('Error response:', error.response);
@@ -779,6 +806,22 @@ const ProjectPage = () => {
     } finally {
       hideLoading();
     }
+  };
+
+  const handleReturnToClientProjects = () => {
+    setShowNavigationDialog(false);
+    handleCloseModal();
+    // Navigate back to client projects page
+    navigate(`/clients/${sourceClientId.current}/projects`);
+    sourceClientId.current = null; // Clear the reference
+  };
+
+  const handleStayOnProjectsPage = () => {
+    setShowNavigationDialog(false);
+    handleCloseModal();
+    fetchData();
+    fetchStats();
+    sourceClientId.current = null; // Clear the reference
   };
 
   const handleKeyDown = (e) => {
@@ -1516,6 +1559,51 @@ const ProjectPage = () => {
               <button className="btn btn-secondary" onClick={() => setShowAssociateDistributionModal(false)}>
                 Close
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation Dialog after saving from Client Management */}
+      {showNavigationDialog && (
+        <div className="modal-overlay" style={{ zIndex: 1100 }}>
+          <div className="modal-content" style={{ maxWidth: '500px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Project Saved Successfully</h3>
+            </div>
+            <div className="modal-body">
+              <p style={{ fontSize: '16px', marginBottom: '24px', color: '#495057' }}>
+                Your project has been saved. Where would you like to go next?
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <button 
+                  className="btn btn-primary"
+                  onClick={handleReturnToClientProjects}
+                  style={{ 
+                    padding: '14px 24px', 
+                    fontSize: '16px',
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <FiChevronUp style={{ transform: 'rotate(-90deg)' }} />
+                  Return to Client Projects
+                </button>
+                <button 
+                  className="btn btn-secondary"
+                  onClick={handleStayOnProjectsPage}
+                  style={{ 
+                    padding: '14px 24px', 
+                    fontSize: '16px',
+                    width: '100%'
+                  }}
+                >
+                  Stay on Projects Page
+                </button>
+              </div>
             </div>
           </div>
         </div>
