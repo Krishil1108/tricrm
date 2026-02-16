@@ -965,23 +965,6 @@ const ClientProjectsPage = () => {
                             
                             {/* Associate Share Section */}
                             {hasAssociates && (() => {
-                              // Debug logging
-                              console.log('=== ASSOCIATE DEBUG INFO ===');
-                              console.log('selectedProject:', selectedProject);
-                              console.log('projectAssociates:', selectedProject.projectAssociates);
-                              selectedProject.projectAssociates.forEach((assoc, idx) => {
-                                console.log(`Associate ${idx}:`, assoc);
-                                console.log(`  - associateId:`, assoc.associateId);
-                                console.log(`  - associateId.name:`, assoc.associateId?.name);
-                                console.log(`  - associateId.company:`, assoc.associateId?.company);
-                                console.log(`  - associateName:`, assoc.associateName);
-                                console.log(`  - name:`, assoc.name);
-                                console.log(`  - associateCompany:`, assoc.associateCompany);
-                                console.log(`  - company:`, assoc.company);
-                                console.log(`  - percentage:`, assoc.percentage);
-                              });
-                              console.log('=========================');
-                              
                               return (
                                 <div className="distribution-section associate-section" style={{
                                   backgroundColor: '#fff3cd',
@@ -995,12 +978,10 @@ const ClientProjectsPage = () => {
                                   </div>
                                   {selectedProject.projectAssociates.map((assoc, assocIdx) => {
                                     const assocAmount = Math.floor((amount * (parseFloat(assoc.percentage) || 0)) / 100);
-                                    // Try multiple possible field names - associateId is populated from backend
+                                    // Get associate data from populated associateId field
                                     const associateData = assoc.associateId || assoc.associate || assoc;
                                     const associateName = associateData?.name || assoc.associateName || assoc.name || `Associate ${assocIdx + 1}`;
                                     const associateCompany = associateData?.company || assoc.associateCompany || assoc.company || '';
-                                    
-                                    console.log(`Rendering Associate ${assocIdx}:`, { associateName, associateCompany, associateData });
                                     
                                     return (
                                       <div key={assocIdx} style={{ 
