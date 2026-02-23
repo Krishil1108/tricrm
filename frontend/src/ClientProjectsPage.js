@@ -771,7 +771,12 @@ const ClientProjectsPage = () => {
                           <strong>{project.projectName}</strong>
                         </div>
                       </td>
-                      <td>{formatCurrency(project.finalizedFees)}</td>
+                      <td style={{ 
+                        color: (project.finalizedFees || 0) === 0 ? 'red' : 'inherit',
+                        fontWeight: (project.finalizedFees || 0) === 0 ? 'bold' : 'normal'
+                      }}>
+                        {formatCurrency(project.finalizedFees)}
+                      </td>
                       <td>{formatCurrency(project.totalReceivedFees)}</td>
                       <td className={pendingAmount > 0 ? 'pending-amount' : 'completed-amount'}>
                         {formatCurrency(pendingAmount)}

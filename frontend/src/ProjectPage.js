@@ -2021,7 +2021,12 @@ const ProjectsTable = ({
               <td>{project.projectNumber}</td>
               <td>{project.projectName}</td>
               <td>{project.projectLocation || '-'}</td>
-              <td>{formatCurrency(project.finalizedFees)}</td>
+              <td style={{ 
+                color: (project.finalizedFees || 0) === 0 ? 'red' : 'inherit',
+                fontWeight: (project.finalizedFees || 0) === 0 ? 'bold' : 'normal'
+              }}>
+                {formatCurrency(project.finalizedFees)}
+              </td>
               <td>{formatCurrency(project.totalReceivedFees)}</td>
               <td>
                 <span className={`status-badge status-${project.status.toLowerCase().replace(' ', '')}`}>

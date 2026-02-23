@@ -873,7 +873,12 @@ const AssociateProjectsPage = () => {
                             <strong>{project.projectName}</strong>
                           </div>
                         </td>
-                        <td>{formatCurrency(project.finalizedFees)}</td>
+                        <td style={{ 
+                          color: (project.finalizedFees || 0) === 0 ? 'red' : 'inherit',
+                          fontWeight: (project.finalizedFees || 0) === 0 ? 'bold' : 'normal'
+                        }}>
+                          {formatCurrency(project.finalizedFees)}
+                        </td>
                         <td>
                           {associatePercentage > 0 ? (
                             <span className="percentage-badge">{associatePercentage}%</span>
