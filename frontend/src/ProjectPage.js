@@ -2543,24 +2543,28 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
 
   return (
     <>
+      {/* Project Details Row */}
       <div className="form-row">
         <div className="form-group">
           <label>Project Number *</label>
           <input type="text" name="projectNumber" className="form-input" value={formData.projectNumber || ''} onChange={handleChange} required />
         </div>
+        <div className="form-group">
+          <label>Project Name *</label>
+          <input type="text" name="projectName" className="form-input" value={formData.projectName || ''} onChange={handleChange} required />
+        </div>
       </div>
 
-      <div className="form-group">
-        <label>Project Name *</label>
-        <input type="text" name="projectName" className="form-input" value={formData.projectName || ''} onChange={handleChange} required />
+      {/* Project Location Row */}
+      <div className="form-row">
+        <div className="form-group">
+          <label>Project Location</label>
+          <input type="text" name="projectLocation" className="form-input" value={formData.projectLocation || ''} onChange={handleChange} placeholder="Enter project location (e.g., Mumbai, Delhi, etc.)" />
+        </div>
+        <div className="form-group"></div>
       </div>
 
-      <div className="form-group">
-        <label>Project Location</label>
-        <input type="text" name="projectLocation" className="form-input" value={formData.projectLocation || ''} onChange={handleChange} placeholder="Enter project location (e.g., Mumbai, Delhi, etc.)" />
-      </div>
-
-      {/* Client Selection Field */}
+      {/* Client Selection Row */}
       <div className="form-row">
         <div className="form-group">
           <label>Choose Client</label>
@@ -2965,6 +2969,7 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
 
       </div>
 
+      {/* Status Row */}
       <div className="form-row">
         <div className="form-group">
           <label>Status</label>
@@ -2975,6 +2980,7 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
             <option value="Cancelled">Cancelled</option>
           </select>
         </div>
+        <div className="form-group"></div>
       </div>
     </>
   );
