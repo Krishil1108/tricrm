@@ -25,6 +25,9 @@ const YearlyDistributionTable = ({
     officeManagementPercent: projectData.officeManagementPercent || 0,
   });
 
+  // State for storing manually edited amounts (overrides calculated values)
+  const [editedAmounts, setEditedAmounts] = useState({});
+
   // Update editedData when projectData changes
   useEffect(() => {
     setEditedData({
@@ -35,6 +38,7 @@ const YearlyDistributionTable = ({
       marketingAndMiscPercent: projectData.marketingAndMiscPercent || 0,
       officeManagementPercent: projectData.officeManagementPercent || 0,
     });
+    setEditedAmounts({});
   }, [projectData]);
   
   // CRITICAL: Use project's config snapshot if available
@@ -573,7 +577,10 @@ const YearlyDistributionTable = ({
 
   // Expose save function to parent
   if (isEditable && onSave) {
-    window.saveDistributionChanges = () => onSave(editedData);
+    window.saveDistributionChanges = () => onSave({
+      ...editedData,
+      editedAmounts: editedAmounts
+    });
   }
 
   return (
@@ -843,6 +850,15 @@ const YearlyDistributionTable = ({
               const marketingAmount = Math.floor((amountAfterAssociate * (activePercentages.marketingAndMiscPercent || 0)) / 100);
               const officeAmount = Math.floor((amountAfterAssociate * (activePercentages.officeManagementPercent || 0)) / 100);
               
+              // Get edited amounts or use calculated ones
+              const paymentKey = `payment-${index}`;
+              const displayProfitAmount = editedAmounts[`${paymentKey}-profit`] ?? profitAmount;
+              const displayDrawingAmount = editedAmounts[`${paymentKey}-drawing`] ?? drawingAmount;
+              const displayDocumentsAmount = editedAmounts[`${paymentKey}-documents`] ?? documentsAmount;
+              const displaySiteVisitAmount = editedAmounts[`${paymentKey}-siteVisit`] ?? siteVisitAmount;
+              const displayMarketingAmount = editedAmounts[`${paymentKey}-marketing`] ?? marketingAmount;
+              const displayOfficeAmount = editedAmounts[`${paymentKey}-office`] ?? officeAmount;
+              
               return (
                 <tr key={`payment-${index}`} className="payment-row">
                   <td>Payment {index + 1}</td>
@@ -850,12 +866,138 @@ const YearlyDistributionTable = ({
                   <td>{paymentDate.toLocaleDateString('en-IN')}</td>
                   <td>{payment.chequeNeftNumber || '-'}</td>
                   <td>{payment.mode || '-'}</td>
-                  {effectiveFieldVisibility.profitMargin && <td>{profitAmount.toLocaleString('en-IN')}</td>}
-                  {effectiveFieldVisibility.drawing && <td>{drawingAmount.toLocaleString('en-IN')}</td>}
-                  {effectiveFieldVisibility.documents && <td>{documentsAmount > 0 ? documentsAmount.toLocaleString('en-IN') : '-'}</td>}
-                  {effectiveFieldVisibility.siteVisit && <td>{siteVisitAmount.toLocaleString('en-IN')}</td>}
-                  {effectiveFieldVisibility.marketingAndMisc && <td>{marketingAmount.toLocaleString('en-IN')}</td>}
-                  {effectiveFieldVisibility.officeManagement && <td>{officeAmount.toLocaleString('en-IN')}</td>}
+                  {effectiveFieldVisibility.profitMargin && (
+                    <td>
+                      {isEditable ? (
+                        <input 
+                          type="number" 
+                          value={displayProfitAmount}
+                          onChange={(e) => setEditedAmounts({...editedAmounts, [`${paymentKey}-profit`]: parseInt(e.target.value) || 0})}
+                          style={{ 
+                            width: '100%', 
+                            padding: '4px', 
+                            textAlign: 'right',
+                            border: '1px solid #4a90e2',
+                            borderRadius: '3px',
+                            backgroundColor: '#f0f8ff'
+                          }}
+                          min="0"
+                        />
+                      ) : (
+                        displayProfitAmount.toLocaleString('en-IN')
+                      )}
+                    </td>
+                  )}
+                  {effectiveFieldVisibility.drawing && (
+                    <td>
+                      {isEditable ? (
+                        <input 
+                          type="number" 
+                          value={displayDrawingAmount}
+                          onChange={(e) => setEditedAmounts({...editedAmounts, [`${paymentKey}-drawing`]: parseInt(e.target.value) || 0})}
+                          style={{ 
+                            width: '100%', 
+                            padding: '4px', 
+                            textAlign: 'right',
+                            border: '1px solid #4a90e2',
+                            borderRadius: '3px',
+                            backgroundColor: '#f0f8ff'
+                          }}
+                          min="0"
+                        />
+                      ) : (
+                        displayDrawingAmount.toLocaleString('en-IN')
+                      )}
+                    </td>
+                  )}
+                  {effectiveFieldVisibility.documents && (
+                    <td>
+                      {isEditable ? (
+                        <input 
+                          type="number" 
+                          value={displayDocumentsAmount}
+                          onChange={(e) => setEditedAmounts({...editedAmounts, [`${paymentKey}-documents`]: parseInt(e.target.value) || 0})}
+                          style={{ 
+                            width: '100%', 
+                            padding: '4px', 
+                            textAlign: 'right',
+                            border: '1px solid #4a90e2',
+                            borderRadius: '3px',
+                            backgroundColor: '#f0f8ff'
+                          }}
+                          min="0"
+                        />
+                      ) : (
+                        displayDocumentsAmount > 0 ? displayDocumentsAmount.toLocaleString('en-IN') : '-'
+                      )}
+                    </td>
+                  )}
+                  {effectiveFieldVisibility.siteVisit && (
+                    <td>
+                      {isEditable ? (
+                        <input 
+                          type="number" 
+                          value={displaySiteVisitAmount}
+                          onChange={(e) => setEditedAmounts({...editedAmounts, [`${paymentKey}-siteVisit`]: parseInt(e.target.value) || 0})}
+                          style={{ 
+                            width: '100%', 
+                            padding: '4px', 
+                            textAlign: 'right',
+                            border: '1px solid #4a90e2',
+                            borderRadius: '3px',
+                            backgroundColor: '#f0f8ff'
+                          }}
+                          min="0"
+                        />
+                      ) : (
+                        displaySiteVisitAmount.toLocaleString('en-IN')
+                      )}
+                    </td>
+                  )}
+                  {effectiveFieldVisibility.marketingAndMisc && (
+                    <td>
+                      {isEditable ? (
+                        <input 
+                          type="number" 
+                          value={displayMarketingAmount}
+                          onChange={(e) => setEditedAmounts({...editedAmounts, [`${paymentKey}-marketing`]: parseInt(e.target.value) || 0})}
+                          style={{ 
+                            width: '100%', 
+                            padding: '4px', 
+                            textAlign: 'right',
+                            border: '1px solid #4a90e2',
+                            borderRadius: '3px',
+                            backgroundColor: '#f0f8ff'
+                          }}
+                          min="0"
+                        />
+                      ) : (
+                        displayMarketingAmount.toLocaleString('en-IN')
+                      )}
+                    </td>
+                  )}
+                  {effectiveFieldVisibility.officeManagement && (
+                    <td>
+                      {isEditable ? (
+                        <input 
+                          type="number" 
+                          value={displayOfficeAmount}
+                          onChange={(e) => setEditedAmounts({...editedAmounts, [`${paymentKey}-office`]: parseInt(e.target.value) || 0})}
+                          style={{ 
+                            width: '100%', 
+                            padding: '4px', 
+                            textAlign: 'right',
+                            border: '1px solid #4a90e2',
+                            borderRadius: '3px',
+                            backgroundColor: '#f0f8ff'
+                          }}
+                          min="0"
+                        />
+                      ) : (
+                        displayOfficeAmount.toLocaleString('en-IN')
+                      )}
+                    </td>
+                  )}
                   {/* Custom fields amount columns */}
                   {visibleCustomFields && visibleCustomFields.map((customField, customIndex) => {
                     const customAmount = Math.floor((amountAfterAssociate * (getCustomFieldValue(customField.fieldName, 'percentage'))) / 100);
@@ -888,6 +1030,15 @@ const YearlyDistributionTable = ({
                 const marketingAmount = Math.floor((amountAfterAssociate * (activePercentages.marketingAndMiscPercent || 0)) / 100);
                 const officeAmount = Math.floor((amountAfterAssociate * (activePercentages.officeManagementPercent || 0)) / 100);
                 
+                // Get edited amounts or use calculated ones
+                const yearKey = `year-${year}`;
+                const displayYearProfitAmount = editedAmounts[`${yearKey}-profit`] ?? profitAmount;
+                const displayYearDrawingAmount = editedAmounts[`${yearKey}-drawing`] ?? drawingAmount;
+                const displayYearDocumentsAmount = editedAmounts[`${yearKey}-documents`] ?? documentsAmount;
+                const displayYearSiteVisitAmount = editedAmounts[`${yearKey}-siteVisit`] ?? siteVisitAmount;
+                const displayYearMarketingAmount = editedAmounts[`${yearKey}-marketing`] ?? marketingAmount;
+                const displayYearOfficeAmount = editedAmounts[`${yearKey}-office`] ?? officeAmount;
+                
                 return (
                   <tr key={year} className="year-summary-row">
                     <td><strong>{year} Total</strong></td>
@@ -895,12 +1046,144 @@ const YearlyDistributionTable = ({
                     <td><strong>-</strong></td>
                     <td><strong>-</strong></td>
                     <td><strong>-</strong></td>
-                    {effectiveFieldVisibility.profitMargin && <td><strong>{profitAmount.toLocaleString('en-IN')}</strong></td>}
-                    {effectiveFieldVisibility.drawing && <td><strong>{drawingAmount.toLocaleString('en-IN')}</strong></td>}
-                    {effectiveFieldVisibility.documents && <td><strong>{documentsAmount > 0 ? documentsAmount.toLocaleString('en-IN') : '-'}</strong></td>}
-                    {effectiveFieldVisibility.siteVisit && <td><strong>{siteVisitAmount.toLocaleString('en-IN')}</strong></td>}
-                    {effectiveFieldVisibility.marketingAndMisc && <td><strong>{marketingAmount.toLocaleString('en-IN')}</strong></td>}
-                    {effectiveFieldVisibility.officeManagement && <td><strong>{officeAmount.toLocaleString('en-IN')}</strong></td>}
+                    {effectiveFieldVisibility.profitMargin && (
+                      <td>
+                        {isEditable ? (
+                          <input 
+                            type="number" 
+                            value={displayYearProfitAmount}
+                            onChange={(e) => setEditedAmounts({...editedAmounts, [`${yearKey}-profit`]: parseInt(e.target.value) || 0})}
+                            style={{ 
+                              width: '100%', 
+                              padding: '4px', 
+                              textAlign: 'right',
+                              fontWeight: 'bold',
+                              border: '1px solid #4a90e2',
+                              borderRadius: '3px',
+                              backgroundColor: '#fff9e6'
+                            }}
+                            min="0"
+                          />
+                        ) : (
+                          <strong>{displayYearProfitAmount.toLocaleString('en-IN')}</strong>
+                        )}
+                      </td>
+                    )}
+                    {effectiveFieldVisibility.drawing && (
+                      <td>
+                        {isEditable ? (
+                          <input 
+                            type="number" 
+                            value={displayYearDrawingAmount}
+                            onChange={(e) => setEditedAmounts({...editedAmounts, [`${yearKey}-drawing`]: parseInt(e.target.value) || 0})}
+                            style={{ 
+                              width: '100%', 
+                              padding: '4px', 
+                              textAlign: 'right',
+                              fontWeight: 'bold',
+                              border: '1px solid #4a90e2',
+                              borderRadius: '3px',
+                              backgroundColor: '#fff9e6'
+                            }}
+                            min="0"
+                          />
+                        ) : (
+                          <strong>{displayYearDrawingAmount.toLocaleString('en-IN')}</strong>
+                        )}
+                      </td>
+                    )}
+                    {effectiveFieldVisibility.documents && (
+                      <td>
+                        {isEditable ? (
+                          <input 
+                            type="number" 
+                            value={displayYearDocumentsAmount}
+                            onChange={(e) => setEditedAmounts({...editedAmounts, [`${yearKey}-documents`]: parseInt(e.target.value) || 0})}
+                            style={{ 
+                              width: '100%', 
+                              padding: '4px', 
+                              textAlign: 'right',
+                              fontWeight: 'bold',
+                              border: '1px solid #4a90e2',
+                              borderRadius: '3px',
+                              backgroundColor: '#fff9e6'
+                            }}
+                            min="0"
+                          />
+                        ) : (
+                          <strong>{displayYearDocumentsAmount > 0 ? displayYearDocumentsAmount.toLocaleString('en-IN') : '-'}</strong>
+                        )}
+                      </td>
+                    )}
+                    {effectiveFieldVisibility.siteVisit && (
+                      <td>
+                        {isEditable ? (
+                          <input 
+                            type="number" 
+                            value={displayYearSiteVisitAmount}
+                            onChange={(e) => setEditedAmounts({...editedAmounts, [`${yearKey}-siteVisit`]: parseInt(e.target.value) || 0})}
+                            style={{ 
+                              width: '100%', 
+                              padding: '4px', 
+                              textAlign: 'right',
+                              fontWeight: 'bold',
+                              border: '1px solid #4a90e2',
+                              borderRadius: '3px',
+                              backgroundColor: '#fff9e6'
+                            }}
+                            min="0"
+                          />
+                        ) : (
+                          <strong>{displayYearSiteVisitAmount.toLocaleString('en-IN')}</strong>
+                        )}
+                      </td>
+                    )}
+                    {effectiveFieldVisibility.marketingAndMisc && (
+                      <td>
+                        {isEditable ? (
+                          <input 
+                            type="number" 
+                            value={displayYearMarketingAmount}
+                            onChange={(e) => setEditedAmounts({...editedAmounts, [`${yearKey}-marketing`]: parseInt(e.target.value) || 0})}
+                            style={{ 
+                              width: '100%', 
+                              padding: '4px', 
+                              textAlign: 'right',
+                              fontWeight: 'bold',
+                              border: '1px solid #4a90e2',
+                              borderRadius: '3px',
+                              backgroundColor: '#fff9e6'
+                            }}
+                            min="0"
+                          />
+                        ) : (
+                          <strong>{displayYearMarketingAmount.toLocaleString('en-IN')}</strong>
+                        )}
+                      </td>
+                    )}
+                    {effectiveFieldVisibility.officeManagement && (
+                      <td>
+                        {isEditable ? (
+                          <input 
+                            type="number" 
+                            value={displayYearOfficeAmount}
+                            onChange={(e) => setEditedAmounts({...editedAmounts, [`${yearKey}-office`]: parseInt(e.target.value) || 0})}
+                            style={{ 
+                              width: '100%', 
+                              padding: '4px', 
+                              textAlign: 'right',
+                              fontWeight: 'bold',
+                              border: '1px solid #4a90e2',
+                              borderRadius: '3px',
+                              backgroundColor: '#fff9e6'
+                            }}
+                            min="0"
+                          />
+                        ) : (
+                          <strong>{displayYearOfficeAmount.toLocaleString('en-IN')}</strong>
+                        )}
+                      </td>
+                    )}
                     {/* Custom fields total columns */}
                     {visibleCustomFields && visibleCustomFields.map((customField, customIndex) => {
                       const customTotalAmount = Math.floor((amountAfterAssociate * (projectData[customField.fieldName] || 0)) / 100);
@@ -937,14 +1220,154 @@ const YearlyDistributionTable = ({
                 const marketingTotal = Math.floor((amountAfterAssociate * (activePercentages.marketingAndMiscPercent || 0)) / 100);
                 const officeTotal = Math.floor((amountAfterAssociate * (activePercentages.officeManagementPercent || 0)) / 100);
                 
+                // Get edited amounts or use calculated ones
+                const displayGrandProfitAmount = editedAmounts['grand-profit'] ?? profitMarginTotal;
+                const displayGrandDrawingAmount = editedAmounts['grand-drawing'] ?? drawingTotal;
+                const displayGrandDocumentsAmount = editedAmounts['grand-documents'] ?? documentsTotal;
+                const displayGrandSiteVisitAmount = editedAmounts['grand-siteVisit'] ?? siteVisitTotal;
+                const displayGrandMarketingAmount = editedAmounts['grand-marketing'] ?? marketingTotal;
+                const displayGrandOfficeAmount = editedAmounts['grand-office'] ?? officeTotal;
+                
                 return (
                   <>
-                    {effectiveFieldVisibility.profitMargin && <td><strong>{profitMarginTotal.toLocaleString('en-IN')}</strong></td>}
-                    {effectiveFieldVisibility.drawing && <td><strong>{drawingTotal.toLocaleString('en-IN')}</strong></td>}
-                    {effectiveFieldVisibility.documents && <td><strong>{documentsTotal > 0 ? documentsTotal.toLocaleString('en-IN') : '-'}</strong></td>}
-                    {effectiveFieldVisibility.siteVisit && <td><strong>{siteVisitTotal.toLocaleString('en-IN')}</strong></td>}
-                    {effectiveFieldVisibility.marketingAndMisc && <td><strong>{marketingTotal.toLocaleString('en-IN')}</strong></td>}
-                    {effectiveFieldVisibility.officeManagement && <td><strong>{officeTotal.toLocaleString('en-IN')}</strong></td>}
+                    {effectiveFieldVisibility.profitMargin && (
+                      <td>
+                        {isEditable ? (
+                          <input 
+                            type="number" 
+                            value={displayGrandProfitAmount}
+                            onChange={(e) => setEditedAmounts({...editedAmounts, 'grand-profit': parseInt(e.target.value) || 0})}
+                            style={{ 
+                              width: '100%', 
+                              padding: '4px', 
+                              textAlign: 'right',
+                              fontWeight: 'bold',
+                              border: '2px solid #2ecc71',
+                              borderRadius: '3px',
+                              backgroundColor: '#e8f8f5'
+                            }}
+                            min="0"
+                          />
+                        ) : (
+                          <strong>{displayGrandProfitAmount.toLocaleString('en-IN')}</strong>
+                        )}
+                      </td>
+                    )}
+                    {effectiveFieldVisibility.drawing && (
+                      <td>
+                        {isEditable ? (
+                          <input 
+                            type="number" 
+                            value={displayGrandDrawingAmount}
+                            onChange={(e) => setEditedAmounts({...editedAmounts, 'grand-drawing': parseInt(e.target.value) || 0})}
+                            style={{ 
+                              width: '100%', 
+                              padding: '4px', 
+                              textAlign: 'right',
+                              fontWeight: 'bold',
+                              border: '2px solid #2ecc71',
+                              borderRadius: '3px',
+                              backgroundColor: '#e8f8f5'
+                            }}
+                            min="0"
+                          />
+                        ) : (
+                          <strong>{displayGrandDrawingAmount.toLocaleString('en-IN')}</strong>
+                        )}
+                      </td>
+                    )}
+                    {effectiveFieldVisibility.documents && (
+                      <td>
+                        {isEditable ? (
+                          <input 
+                            type="number" 
+                            value={displayGrandDocumentsAmount}
+                            onChange={(e) => setEditedAmounts({...editedAmounts, 'grand-documents': parseInt(e.target.value) || 0})}
+                            style={{ 
+                              width: '100%', 
+                              padding: '4px', 
+                              textAlign: 'right',
+                              fontWeight: 'bold',
+                              border: '2px solid #2ecc71',
+                              borderRadius: '3px',
+                              backgroundColor: '#e8f8f5'
+                            }}
+                            min="0"
+                          />
+                        ) : (
+                          <strong>{displayGrandDocumentsAmount > 0 ? displayGrandDocumentsAmount.toLocaleString('en-IN') : '-'}</strong>
+                        )}
+                      </td>
+                    )}
+                    {effectiveFieldVisibility.siteVisit && (
+                      <td>
+                        {isEditable ? (
+                          <input 
+                            type="number" 
+                            value={displayGrandSiteVisitAmount}
+                            onChange={(e) => setEditedAmounts({...editedAmounts, 'grand-siteVisit': parseInt(e.target.value) || 0})}
+                            style={{ 
+                              width: '100%', 
+                              padding: '4px', 
+                              textAlign: 'right',
+                              fontWeight: 'bold',
+                              border: '2px solid #2ecc71',
+                              borderRadius: '3px',
+                              backgroundColor: '#e8f8f5'
+                            }}
+                            min="0"
+                          />
+                        ) : (
+                          <strong>{displayGrandSiteVisitAmount.toLocaleString('en-IN')}</strong>
+                        )}
+                      </td>
+                    )}
+                    {effectiveFieldVisibility.marketingAndMisc && (
+                      <td>
+                        {isEditable ? (
+                          <input 
+                            type="number" 
+                            value={displayGrandMarketingAmount}
+                            onChange={(e) => setEditedAmounts({...editedAmounts, 'grand-marketing': parseInt(e.target.value) || 0})}
+                            style={{ 
+                              width: '100%', 
+                              padding: '4px', 
+                              textAlign: 'right',
+                              fontWeight: 'bold',
+                              border: '2px solid #2ecc71',
+                              borderRadius: '3px',
+                              backgroundColor: '#e8f8f5'
+                            }}
+                            min="0"
+                          />
+                        ) : (
+                          <strong>{displayGrandMarketingAmount.toLocaleString('en-IN')}</strong>
+                        )}
+                      </td>
+                    )}
+                    {effectiveFieldVisibility.officeManagement && (
+                      <td>
+                        {isEditable ? (
+                          <input 
+                            type="number" 
+                            value={displayGrandOfficeAmount}
+                            onChange={(e) => setEditedAmounts({...editedAmounts, 'grand-office': parseInt(e.target.value) || 0})}
+                            style={{ 
+                              width: '100%', 
+                              padding: '4px', 
+                              textAlign: 'right',
+                              fontWeight: 'bold',
+                              border: '2px solid #2ecc71',
+                              borderRadius: '3px',
+                              backgroundColor: '#e8f8f5'
+                            }}
+                            min="0"
+                          />
+                        ) : (
+                          <strong>{displayGrandOfficeAmount.toLocaleString('en-IN')}</strong>
+                        )}
+                      </td>
+                    )}
                   </>
                 );
               })()}

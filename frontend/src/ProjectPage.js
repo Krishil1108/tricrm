@@ -1438,19 +1438,19 @@ const ProjectPage = () => {
           <div className="modal-content distribution-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3><FiBarChart2 className="inline-icon" />Payment Distribution - {selectedProjectForDistribution.projectName}</h3>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginRight: '40px' }}>
                 <button 
-                  className={`project-btn ${isEditingDistribution ? 'project-btn-warning' : 'project-btn-primary'}`}
+                  className="btn btn-secondary"
                   onClick={() => setIsEditingDistribution(!isEditingDistribution)}
-                  style={{ fontSize: '14px', padding: '8px 16px' }}
+                  style={{ fontSize: '13px', padding: '6px 14px' }}
                 >
-                  {isEditingDistribution ? '🔒 Cancel Edit' : '✏️ Edit Percentages'}
+                  {isEditingDistribution ? 'Cancel Edit' : 'Edit'}
                 </button>
-                <button className="modal-close" onClick={() => {
-                  setShowDistributionModal(false);
-                  setIsEditingDistribution(false);
-                }}>×</button>
               </div>
+              <button className="modal-close" onClick={() => {
+                setShowDistributionModal(false);
+                setIsEditingDistribution(false);
+              }}>×</button>
             </div>
             <div className="modal-body distribution-modal-body">
               <YearlyDistributionTable 
