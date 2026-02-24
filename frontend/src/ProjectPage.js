@@ -2543,8 +2543,8 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
 
   return (
     <>
-      {/* Project Details Row */}
-      <div className="form-row">
+      {/* Project Details Row - All 5 fields in one row */}
+      <div className="form-row-5">
         <div className="form-group">
           <label>Project Number *</label>
           <input type="text" name="projectNumber" className="form-input" value={formData.projectNumber || ''} onChange={handleChange} required />
@@ -2553,19 +2553,10 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
           <label>Project Name *</label>
           <input type="text" name="projectName" className="form-input" value={formData.projectName || ''} onChange={handleChange} required />
         </div>
-      </div>
-
-      {/* Project Location Row */}
-      <div className="form-row">
         <div className="form-group">
           <label>Project Location</label>
-          <input type="text" name="projectLocation" className="form-input" value={formData.projectLocation || ''} onChange={handleChange} placeholder="Enter project location (e.g., Mumbai, Delhi, etc.)" />
+          <input type="text" name="projectLocation" className="form-input" value={formData.projectLocation || ''} onChange={handleChange} placeholder="Enter location" />
         </div>
-        <div className="form-group"></div>
-      </div>
-
-      {/* Client Selection Row */}
-      <div className="form-row">
         <div className="form-group">
           <label>Choose Client</label>
           <select 
@@ -2582,24 +2573,22 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
             ))}
           </select>
         </div>
-        <div className="form-group">
-          <button 
-            type="button" 
-            className="project-btn project-btn-success add-client-btn"
-            onClick={onAddClient}
-            style={{
-              marginTop: '24px',
-              padding: '8px 16px',
-              fontSize: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            <span style={{ fontSize: '18px', fontWeight: 'bold' }}>+</span>
-            Add New Client
-          </button>
-        </div>
+        <button 
+          type="button" 
+          className="project-btn project-btn-success add-client-btn"
+          onClick={onAddClient}
+          style={{
+            padding: '8px 16px',
+            fontSize: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          <span style={{ fontSize: '18px', fontWeight: 'bold' }}>+</span>
+          Add Client
+        </button>
       </div>
 
       <div className="form-row">
@@ -2652,7 +2641,8 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
                 </button>
               </div>
               
-              <div className="form-row">
+              {/* All 4 payment fields in one row */}
+              <div className="form-row-4">
                 <div className="form-group">
                   <label>Payment Date *</label>
                   <input 
@@ -2673,9 +2663,6 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
                     placeholder="Enter reference number"
                   />
                 </div>
-              </div>
-              
-              <div className="form-row">
                 <div className="form-group">
                   <label>Payment Mode</label>
                   <select 
@@ -2788,6 +2775,7 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
                   </button>
                 </div>
 
+                {/* Associate selection row */}
                 <div className="form-row" style={{ marginTop: '24px' }}>
                   <div className="form-group">
                     <label>Choose Associate *</label>
@@ -2855,81 +2843,76 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
                       );
                     })()}
                   </div>
-                  <div className="form-group">
+                  <div className="form-group" style={{ display: 'flex', alignItems: 'flex-end' }}>
                     <button 
                       type="button" 
                       className="project-btn project-btn-success add-client-btn"
                       onClick={onAddAssociate}
                       style={{
-                        marginTop: '24px',
                         padding: '8px 16px',
                         fontSize: '14px',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '8px'
+                        gap: '8px',
+                        whiteSpace: 'nowrap'
                       }}
                     >
                       <span style={{ fontSize: '18px', fontWeight: 'bold' }}>+</span>
-                      Add New Associate
+                      Add Associate
                     </button>
                   </div>
                 </div>
 
+                {/* All associate fields in one row when associate is selected */}
                 {assoc.associateId && (
-                  <>
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>Share Percentage * <span style={{fontSize: '12px', color: '#666'}}>(Amount will be deducted before expense distribution)</span></label>
-                        <input 
-                          type="number" 
-                          className="form-input" 
-                          value={assoc.percentage || ''} 
-                          onChange={(e) => {
-                            const newAssociates = [...formData.projectAssociates];
-                            newAssociates[index].percentage = parseFloat(e.target.value) || 0;
-                            handleChange({ target: { name: 'projectAssociates', value: newAssociates } });
-                          }}
-                          min="0"
-                          max="100"
-                          step="0.01"
-                          placeholder="Enter percentage (0-100)"
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>Amount Paid</label>
-                        <input 
-                          type="number" 
-                          className="form-input" 
-                          value={assoc.amountPaid || 0} 
-                          onChange={(e) => {
-                            const newAssociates = [...formData.projectAssociates];
-                            newAssociates[index].amountPaid = parseFloat(e.target.value) || 0;
-                            handleChange({ target: { name: 'projectAssociates', value: newAssociates } });
-                          }}
-                          min="0"
-                          placeholder="Amount already paid"
-                        />
-                      </div>
+                  <div className="form-row" style={{ marginTop: '12px' }}>
+                    <div className="form-group">
+                      <label>Share Percentage * <span style={{fontSize: '11px', color: '#666'}}>(Deducted before expense distribution)</span></label>
+                      <input 
+                        type="number" 
+                        className="form-input" 
+                        value={assoc.percentage || ''} 
+                        onChange={(e) => {
+                          const newAssociates = [...formData.projectAssociates];
+                          newAssociates[index].percentage = parseFloat(e.target.value) || 0;
+                          handleChange({ target: { name: 'projectAssociates', value: newAssociates } });
+                        }}
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        placeholder="Enter %"
+                        required
+                      />
                     </div>
-
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>Payment Given Date (Optional)</label>
-                        <input 
-                          type="date" 
-                          className="form-input" 
-                          value={assoc.paymentGivenDate || ''} 
-                          onChange={(e) => {
-                            const newAssociates = [...formData.projectAssociates];
-                            newAssociates[index].paymentGivenDate = e.target.value;
-                            handleChange({ target: { name: 'projectAssociates', value: newAssociates } });
-                          }}
-                        />
-                      </div>
-                      <div className="form-group"></div>
+                    <div className="form-group">
+                      <label>Amount Paid</label>
+                      <input 
+                        type="number" 
+                        className="form-input" 
+                        value={assoc.amountPaid || 0} 
+                        onChange={(e) => {
+                          const newAssociates = [...formData.projectAssociates];
+                          newAssociates[index].amountPaid = parseFloat(e.target.value) || 0;
+                          handleChange({ target: { name: 'projectAssociates', value: newAssociates } });
+                        }}
+                        min="0"
+                        placeholder="Amount paid"
+                      />
                     </div>
-                  </>
+                    <div className="form-group">
+                      <label>Payment Given Date</label>
+                      <input 
+                        type="date" 
+                        className="form-input" 
+                        value={assoc.paymentGivenDate || ''} 
+                        onChange={(e) => {
+                          const newAssociates = [...formData.projectAssociates];
+                          newAssociates[index].paymentGivenDate = e.target.value;
+                          handleChange({ target: { name: 'projectAssociates', value: newAssociates } });
+                        }}
+                      />
+                    </div>
+                  </div>
                 )}
               </div>
             ))}
