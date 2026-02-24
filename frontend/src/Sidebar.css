@@ -24,7 +24,7 @@
 
 /* Expanded state - full width */
 .sidebar.expanded {
-  width: 280px;
+  width: 240px;
 }
 
 .sidebar-header {
@@ -261,7 +261,7 @@
   }
   
   .sidebar.expanded {
-    width: 250px;
+    width: 240px;
   }
   
   .nav-item {

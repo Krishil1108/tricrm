@@ -708,15 +708,22 @@
 
 .form-row-5 {
   display: grid;
-  grid-template-columns: 1fr 1.5fr 1fr 1.5fr auto;
-  gap: 15px;
-  align-items: end;
+  grid-template-columns: 0.8fr 1.2fr 0.8fr 1fr auto;
+  gap: 12px;
+  align-items: flex-end;
 }
 
 .form-row-4 {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: 15px;
+}
+
+.form-row-associate {
+  display: grid;
+  grid-template-columns: 1.5fr auto 1fr 1fr 1fr;
+  gap: 12px;
+  align-items: flex-end;
 }
 
 .modal-actions {
