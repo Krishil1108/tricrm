@@ -27,7 +27,7 @@ import AnalyticsDashboard from './AnalyticsDashboard';
 import ExpenseDistribution from './ExpenseDistribution';
 
 function App() {
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
 
   const toggleSidebar = () => {
     setIsSidebarExpanded(!isSidebarExpanded);
