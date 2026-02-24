@@ -1183,7 +1183,7 @@ const ProjectPage = () => {
               </div>
               <div className="stat-content">
                 <div className="stat-value">{stats.projects?.total || 0}</div>
-                <div className="stat-label">Total Projects</div>
+                <div className="stat-label">Estimated Projects</div>
               </div>
             </div>
             <div className="stat-card-modern active">
@@ -1194,7 +1194,7 @@ const ProjectPage = () => {
               </div>
               <div className="stat-content">
                 <div className="stat-value">{formatCurrency(stats.revenue?.totalReceivedFees)}</div>
-                <div className="stat-label">Total Revenue</div>
+                <div className="stat-label">Estimated Revenue</div>
               </div>
             </div>
             <div className="stat-card-modern pending">
@@ -1205,7 +1205,7 @@ const ProjectPage = () => {
               </div>
               <div className="stat-content">
                 <div className="stat-value">{formatCurrency(stats.revenue?.totalExpenses)}</div>
-                <div className="stat-label">Total Expenses</div>
+                <div className="stat-label">Estimated Expenses</div>
               </div>
             </div>
             <div className={`stat-card-modern ${stats.revenue?.netProfit >= 0 ? 'active' : 'inactive'}`}>
@@ -1216,7 +1216,7 @@ const ProjectPage = () => {
               </div>
               <div className="stat-content">
                 <div className="stat-value">{formatCurrency(stats.revenue?.netProfit)}</div>
-                <div className="stat-label">Net Profit</div>
+                <div className="stat-label">Estimated Profit</div>
               </div>
             </div>
           </div>

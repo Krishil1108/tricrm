@@ -60,7 +60,7 @@ const SummaryCards = ({ data }) => {
       changeLabel: 'vs last period'
     },
     {
-      title: 'Total Projects',
+      title: 'Estimated Projects',
       value: formatNumber(data.totalProjects?.current),
       icon: <FaProjectDiagram />,
       className: 'projects',
@@ -68,7 +68,7 @@ const SummaryCards = ({ data }) => {
       changeLabel: 'vs last period'
     },
     {
-      title: 'Total Revenue',
+      title: 'Estimated Revenue',
       value: formatCurrency(data.totalRevenue?.current),
       icon: <FaDollarSign />,
       className: 'revenue',
@@ -92,7 +92,7 @@ const SummaryCards = ({ data }) => {
       changeLabel: 'vs last period'
     },
     {
-      title: 'Total Expenses',
+      title: 'Estimated Expenses',
       value: formatCurrency(data.totalExpenses?.current),
       icon: <FaMinusCircle />,
       className: 'expenses',
@@ -100,7 +100,7 @@ const SummaryCards = ({ data }) => {
       changeLabel: 'vs last period'
     },
     {
-      title: 'Net Profit',
+      title: 'Estimated Profit',
       value: formatCurrency(data.totalProfit?.current),
       icon: <FaChartLine />,
       className: 'profit',
