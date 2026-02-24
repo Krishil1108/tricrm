@@ -565,8 +565,8 @@
 .modal-content {
   background: white;
   border-radius: 12px;
-  max-width: 1200px;
-  width: 95%;
+  max-width: 1500px;
+  width: 98%;
   max-height: 90vh;
   overflow: hidden;
   display: flex;
@@ -619,7 +619,7 @@
 }
 
 .project-page .modal-body {
-  padding: 28px 32px;
+  padding: 32px 40px;
   overflow-y: auto;
   flex: 1;
 }
@@ -703,26 +703,26 @@
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 20px;
 }
 
 .form-row-5 {
   display: grid;
-  grid-template-columns: 0.9fr 1.4fr 0.9fr 1.1fr 180px;
-  gap: 16px;
+  grid-template-columns: 1fr 1.5fr 1fr 1.3fr 200px;
+  gap: 20px;
   align-items: flex-end;
 }
 
 .form-row-4 {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 16px;
+  gap: 20px;
 }
 
 .form-row-associate {
   display: grid;
-  grid-template-columns: 1.8fr 180px 1fr 1fr 1fr;
-  gap: 16px;
+  grid-template-columns: 2fr 200px 1fr 1fr 1fr;
+  gap: 20px;
   align-items: flex-end;
 }
 
