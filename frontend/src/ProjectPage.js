@@ -70,6 +70,7 @@ const ProjectPage = () => {
   const [showPercentageConfig, setShowPercentageConfig] = useState(false);
   const [selectedProjectForDistribution, setSelectedProjectForDistribution] = useState(null);
   const [showDistributionModal, setShowDistributionModal] = useState(false);
+  const [isEditingDistribution, setIsEditingDistribution] = useState(false);
   const [selectedProjectForAssociateDistribution, setSelectedProjectForAssociateDistribution] = useState(null);
   const [showAssociateDistributionModal, setShowAssociateDistributionModal] = useState(false);
   const [dropdownOpenId, setDropdownOpenId] = useState(null);
@@ -666,6 +667,46 @@ const ProjectPage = () => {
   const handleViewAssociateDistribution = (project) => {
     setSelectedProjectForAssociateDistribution(project);
     setShowAssociateDistributionModal(true);
+  };
+
+  const handleSaveDistributionChanges = async (editedData) => {
+    try {
+      showLoading('Saving distribution changes...');
+      
+      // Update the project with new percentages
+      await FinanceService.updateProject(selectedProjectForDistribution._id, editedData);
+      
+      showSuccess('Distribution percentages updated successfully');
+      
+      // Refresh data
+      await fetchData();
+      await fetchStats();
+      
+      // Update the selected project with new data
+      const updatedProject = projects.find(p => p._id === selectedProjectForDistribution._id);
+      if (updatedProject) {
+        const paymentsWithIds = (updatedProject.payments || []).map((payment, index) => ({
+          ...payment,
+          id: payment.id || `payment-${index}`
+        }));
+        
+        const projectWithPayments = {
+          ...updatedProject,
+          payments: paymentsWithIds,
+          yearlyDistribution: paymentsWithIds.length > 0 ? calculateYearlyDistribution(paymentsWithIds) : {},
+          ...editedData // Apply the edited percentages
+        };
+        
+        setSelectedProjectForDistribution(projectWithPayments);
+      }
+      
+      setIsEditingDistribution(false);
+      hideLoading();
+    } catch (error) {
+      console.error('Error saving distribution changes:', error);
+      showError('Failed to save distribution changes: ' + (error.message || error.response?.data?.error || 'Unknown error'));
+      hideLoading();
+    }
   };
 
   const handleSave = async () => {
@@ -1390,11 +1431,26 @@ const ProjectPage = () => {
 
       {/* Distribution View Modal */}
       {showDistributionModal && selectedProjectForDistribution && (
-        <div className="modal-overlay" onClick={() => setShowDistributionModal(false)}>
+        <div className="modal-overlay" onClick={() => {
+          setShowDistributionModal(false);
+          setIsEditingDistribution(false);
+        }}>
           <div className="modal-content distribution-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3><FiBarChart2 className="inline-icon" />Payment Distribution - {selectedProjectForDistribution.projectName}</h3>
-              <button className="modal-close" onClick={() => setShowDistributionModal(false)}>×</button>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <button 
+                  className={`project-btn ${isEditingDistribution ? 'project-btn-warning' : 'project-btn-primary'}`}
+                  onClick={() => setIsEditingDistribution(!isEditingDistribution)}
+                  style={{ fontSize: '14px', padding: '8px 16px' }}
+                >
+                  {isEditingDistribution ? '🔒 Cancel Edit' : '✏️ Edit Percentages'}
+                </button>
+                <button className="modal-close" onClick={() => {
+                  setShowDistributionModal(false);
+                  setIsEditingDistribution(false);
+                }}>×</button>
+              </div>
             </div>
             <div className="modal-body distribution-modal-body">
               <YearlyDistributionTable 
@@ -1404,9 +1460,24 @@ const ProjectPage = () => {
                 associateConfig={percentageConfig}
                 customFields={percentageConfig.customFields || []}
                 fieldVisibility={percentageConfig.fieldVisibility || {}}
+                isEditable={isEditingDistribution}
+                onSave={handleSaveDistributionChanges}
               />
             </div>
             <div className="modal-footer">
+              {isEditingDistribution && (
+                <button 
+                  className="btn btn-success" 
+                  onClick={() => {
+                    if (window.saveDistributionChanges) {
+                      window.saveDistributionChanges();
+                    }
+                  }}
+                  style={{ fontWeight: 'bold' }}
+                >
+                  💾 Save Changes
+                </button>
+              )}
               <button className="btn btn-secondary" onClick={() => {
                 if (window.exportDistributionExcel) {
                   window.exportDistributionExcel();
@@ -1421,7 +1492,10 @@ const ProjectPage = () => {
               }}>
                 Export PDF
               </button>
-              <button className="btn btn-secondary" onClick={() => setShowDistributionModal(false)}>
+              <button className="btn btn-secondary" onClick={() => {
+                setShowDistributionModal(false);
+                setIsEditingDistribution(false);
+              }}>
                 Close
               </button>
             </div>

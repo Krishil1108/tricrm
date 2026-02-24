@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './YearlyDistributionTable.css';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
@@ -10,8 +10,32 @@ const YearlyDistributionTable = ({
   compact = false,
   associateConfig = null,
   customFields = [],
-  fieldVisibility = {}
+  fieldVisibility = {},
+  isEditable = false,
+  onSave = null
 }) => {
+  
+  // State for edit mode
+  const [editedData, setEditedData] = useState({
+    profitMarginPercent: projectData.profitMarginPercent || 0,
+    drawingPercent: projectData.drawingPercent || 0,
+    documentsPercent: projectData.documentsPercent || 0,
+    siteVisitPercent: projectData.siteVisitPercent || 0,
+    marketingAndMiscPercent: projectData.marketingAndMiscPercent || 0,
+    officeManagementPercent: projectData.officeManagementPercent || 0,
+  });
+
+  // Update editedData when projectData changes
+  useEffect(() => {
+    setEditedData({
+      profitMarginPercent: projectData.profitMarginPercent || 0,
+      drawingPercent: projectData.drawingPercent || 0,
+      documentsPercent: projectData.documentsPercent || 0,
+      siteVisitPercent: projectData.siteVisitPercent || 0,
+      marketingAndMiscPercent: projectData.marketingAndMiscPercent || 0,
+      officeManagementPercent: projectData.officeManagementPercent || 0,
+    });
+  }, [projectData]);
   
   // CRITICAL: Use project's config snapshot if available
   // For projects without snapshot (legacy projects before versioning):
@@ -537,6 +561,21 @@ const YearlyDistributionTable = ({
 
   const tableClass = compact ? 'distribution-table compact' : 'distribution-table';
 
+  // Use edited percentages when in edit mode, otherwise use project data
+  const activePercentages = isEditable ? editedData : {
+    profitMarginPercent: projectData.profitMarginPercent || 0,
+    drawingPercent: projectData.drawingPercent || 0,
+    documentsPercent: projectData.documentsPercent || 0,
+    siteVisitPercent: projectData.siteVisitPercent || 0,
+    marketingAndMiscPercent: projectData.marketingAndMiscPercent || 0,
+    officeManagementPercent: projectData.officeManagementPercent || 0,
+  };
+
+  // Expose save function to parent
+  if (isEditable && onSave) {
+    window.saveDistributionChanges = () => onSave(editedData);
+  }
+
   return (
     <div className="yearly-distribution-wrapper">
       {/* Associate Share Notice - Always visible when project has associates */}
@@ -610,12 +649,174 @@ const YearlyDistributionTable = ({
               <td><strong>-</strong></td>
               <td><strong>-</strong></td>
               <td><strong>-</strong></td>
-              {effectiveFieldVisibility.profitMargin && <td><strong>{projectData.profitMarginPercent || 0}%</strong></td>}
-              {effectiveFieldVisibility.drawing && <td><strong>{projectData.drawingPercent || 0}%</strong></td>}
-              {effectiveFieldVisibility.documents && <td><strong>{projectData.documentsPercent || 0}%</strong></td>}
-              {effectiveFieldVisibility.siteVisit && <td><strong>{projectData.siteVisitPercent || 0}%</strong></td>}
-              {effectiveFieldVisibility.marketingAndMisc && <td><strong>{projectData.marketingAndMiscPercent || 0}%</strong></td>}
-              {effectiveFieldVisibility.officeManagement && <td><strong>{projectData.officeManagementPercent || 0}%</strong></td>}
+              {effectiveFieldVisibility.profitMargin && (
+                <td>
+                  {isEditable ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                      <input 
+                        type="number" 
+                        value={editedData.profitMarginPercent}
+                        onChange={(e) => setEditedData({...editedData, profitMarginPercent: parseFloat(e.target.value) || 0})}
+                        style={{ 
+                          width: '70px', 
+                          padding: '6px', 
+                          fontWeight: 'bold', 
+                          textAlign: 'center',
+                          border: '2px solid #4a90e2',
+                          borderRadius: '4px',
+                          backgroundColor: '#f0f8ff'
+                        }}
+                        step="0.01"
+                        min="0"
+                        max="100"
+                      />
+                      <span style={{ fontWeight: 'bold' }}>%</span>
+                    </div>
+                  ) : (
+                    <strong>{projectData.profitMarginPercent || 0}%</strong>
+                  )}
+                </td>
+              )}
+              {effectiveFieldVisibility.drawing && (
+                <td>
+                  {isEditable ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                      <input 
+                        type="number" 
+                        value={editedData.drawingPercent}
+                        onChange={(e) => setEditedData({...editedData, drawingPercent: parseFloat(e.target.value) || 0})}
+                        style={{ 
+                          width: '70px', 
+                          padding: '6px', 
+                          fontWeight: 'bold', 
+                          textAlign: 'center',
+                          border: '2px solid #4a90e2',
+                          borderRadius: '4px',
+                          backgroundColor: '#f0f8ff'
+                        }}
+                        step="0.01"
+                        min="0"
+                        max="100"
+                      />
+                      <span style={{ fontWeight: 'bold' }}>%</span>
+                    </div>
+                  ) : (
+                    <strong>{projectData.drawingPercent || 0}%</strong>
+                  )}
+                </td>
+              )}
+              {effectiveFieldVisibility.documents && (
+                <td>
+                  {isEditable ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                      <input 
+                        type="number" 
+                        value={editedData.documentsPercent}
+                        onChange={(e) => setEditedData({...editedData, documentsPercent: parseFloat(e.target.value) || 0})}
+                        style={{ 
+                          width: '70px', 
+                          padding: '6px', 
+                          fontWeight: 'bold', 
+                          textAlign: 'center',
+                          border: '2px solid #4a90e2',
+                          borderRadius: '4px',
+                          backgroundColor: '#f0f8ff'
+                        }}
+                        step="0.01"
+                        min="0"
+                        max="100"
+                      />
+                      <span style={{ fontWeight: 'bold' }}>%</span>
+                    </div>
+                  ) : (
+                    <strong>{projectData.documentsPercent || 0}%</strong>
+                  )}
+                </td>
+              )}
+              {effectiveFieldVisibility.siteVisit && (
+                <td>
+                  {isEditable ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                      <input 
+                        type="number" 
+                        value={editedData.siteVisitPercent}
+                        onChange={(e) => setEditedData({...editedData, siteVisitPercent: parseFloat(e.target.value) || 0})}
+                        style={{ 
+                          width: '70px', 
+                          padding: '6px', 
+                          fontWeight: 'bold', 
+                          textAlign: 'center',
+                          border: '2px solid #4a90e2',
+                          borderRadius: '4px',
+                          backgroundColor: '#f0f8ff'
+                        }}
+                        step="0.01"
+                        min="0"
+                        max="100"
+                      />
+                      <span style={{ fontWeight: 'bold' }}>%</span>
+                    </div>
+                  ) : (
+                    <strong>{projectData.siteVisitPercent || 0}%</strong>
+                  )}
+                </td>
+              )}
+              {effectiveFieldVisibility.marketingAndMisc && (
+                <td>
+                  {isEditable ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                      <input 
+                        type="number" 
+                        value={editedData.marketingAndMiscPercent}
+                        onChange={(e) => setEditedData({...editedData, marketingAndMiscPercent: parseFloat(e.target.value) || 0})}
+                        style={{ 
+                          width: '70px', 
+                          padding: '6px', 
+                          fontWeight: 'bold', 
+                          textAlign: 'center',
+                          border: '2px solid #4a90e2',
+                          borderRadius: '4px',
+                          backgroundColor: '#f0f8ff'
+                        }}
+                        step="0.01"
+                        min="0"
+                        max="100"
+                      />
+                      <span style={{ fontWeight: 'bold' }}>%</span>
+                    </div>
+                  ) : (
+                    <strong>{projectData.marketingAndMiscPercent || 0}%</strong>
+                  )}
+                </td>
+              )}
+              {effectiveFieldVisibility.officeManagement && (
+                <td>
+                  {isEditable ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                      <input 
+                        type="number" 
+                        value={editedData.officeManagementPercent}
+                        onChange={(e) => setEditedData({...editedData, officeManagementPercent: parseFloat(e.target.value) || 0})}
+                        style={{ 
+                          width: '70px', 
+                          padding: '6px', 
+                          fontWeight: 'bold', 
+                          textAlign: 'center',
+                          border: '2px solid #4a90e2',
+                          borderRadius: '4px',
+                          backgroundColor: '#f0f8ff'
+                        }}
+                        step="0.01"
+                        min="0"
+                        max="100"
+                      />
+                      <span style={{ fontWeight: 'bold' }}>%</span>
+                    </div>
+                  ) : (
+                    <strong>{projectData.officeManagementPercent || 0}%</strong>
+                  )}
+                </td>
+              )}
               {/* Custom fields percentage columns */}
               {visibleCustomFields && visibleCustomFields.map((customField, index) => (
                 <td key={`custom-percent-${index}`} style={{ backgroundColor: '#fff3cd', fontWeight: 'bold' }}>
@@ -635,12 +836,12 @@ const YearlyDistributionTable = ({
               // Deduct associate share before calculating expenses
               const associateShare = Math.floor((amount * totalAssociatePercent) / 100);
               const amountAfterAssociate = amount - associateShare;
-              const profitAmount = Math.floor((amountAfterAssociate * (projectData.profitMarginPercent || 0)) / 100);
-              const drawingAmount = Math.floor((amountAfterAssociate * (projectData.drawingPercent || 0)) / 100);
-              const documentsAmount = Math.floor((amountAfterAssociate * (projectData.documentsPercent || 0)) / 100);
-              const siteVisitAmount = Math.floor((amountAfterAssociate * (projectData.siteVisitPercent || 0)) / 100);
-              const marketingAmount = Math.floor((amountAfterAssociate * (projectData.marketingAndMiscPercent || 0)) / 100);
-              const officeAmount = Math.floor((amountAfterAssociate * (projectData.officeManagementPercent || 0)) / 100);
+              const profitAmount = Math.floor((amountAfterAssociate * (activePercentages.profitMarginPercent || 0)) / 100);
+              const drawingAmount = Math.floor((amountAfterAssociate * (activePercentages.drawingPercent || 0)) / 100);
+              const documentsAmount = Math.floor((amountAfterAssociate * (activePercentages.documentsPercent || 0)) / 100);
+              const siteVisitAmount = Math.floor((amountAfterAssociate * (activePercentages.siteVisitPercent || 0)) / 100);
+              const marketingAmount = Math.floor((amountAfterAssociate * (activePercentages.marketingAndMiscPercent || 0)) / 100);
+              const officeAmount = Math.floor((amountAfterAssociate * (activePercentages.officeManagementPercent || 0)) / 100);
               
               return (
                 <tr key={`payment-${index}`} className="payment-row">
@@ -680,12 +881,12 @@ const YearlyDistributionTable = ({
                 // Deduct associate share before calculating expenses
                 const associateShare = Math.floor((yearAmount * totalAssociatePercent) / 100);
                 const amountAfterAssociate = yearAmount - associateShare;
-                const profitAmount = Math.floor((amountAfterAssociate * (projectData.profitMarginPercent || 0)) / 100);
-                const drawingAmount = Math.floor((amountAfterAssociate * (projectData.drawingPercent || 0)) / 100);
-                const documentsAmount = Math.floor((amountAfterAssociate * (projectData.documentsPercent || 0)) / 100);
-                const siteVisitAmount = Math.floor((amountAfterAssociate * (projectData.siteVisitPercent || 0)) / 100);
-                const marketingAmount = Math.floor((amountAfterAssociate * (projectData.marketingAndMiscPercent || 0)) / 100);
-                const officeAmount = Math.floor((amountAfterAssociate * (projectData.officeManagementPercent || 0)) / 100);
+                const profitAmount = Math.floor((amountAfterAssociate * (activePercentages.profitMarginPercent || 0)) / 100);
+                const drawingAmount = Math.floor((amountAfterAssociate * (activePercentages.drawingPercent || 0)) / 100);
+                const documentsAmount = Math.floor((amountAfterAssociate * (activePercentages.documentsPercent || 0)) / 100);
+                const siteVisitAmount = Math.floor((amountAfterAssociate * (activePercentages.siteVisitPercent || 0)) / 100);
+                const marketingAmount = Math.floor((amountAfterAssociate * (activePercentages.marketingAndMiscPercent || 0)) / 100);
+                const officeAmount = Math.floor((amountAfterAssociate * (activePercentages.officeManagementPercent || 0)) / 100);
                 
                 return (
                   <tr key={year} className="year-summary-row">
@@ -729,12 +930,12 @@ const YearlyDistributionTable = ({
                 const associateShare = Math.floor((totalReceived * totalAssociatePercent) / 100);
                 const amountAfterAssociate = totalReceived - associateShare;
                 
-                const profitMarginTotal = Math.floor((amountAfterAssociate * (projectData.profitMarginPercent || 0)) / 100);
-                const drawingTotal = Math.floor((amountAfterAssociate * (projectData.drawingPercent || 0)) / 100);
-                const documentsTotal = Math.floor((amountAfterAssociate * (projectData.documentsPercent || 0)) / 100);
-                const siteVisitTotal = Math.floor((amountAfterAssociate * (projectData.siteVisitPercent || 0)) / 100);
-                const marketingTotal = Math.floor((amountAfterAssociate * (projectData.marketingAndMiscPercent || 0)) / 100);
-                const officeTotal = Math.floor((amountAfterAssociate * (projectData.officeManagementPercent || 0)) / 100);
+                const profitMarginTotal = Math.floor((amountAfterAssociate * (activePercentages.profitMarginPercent || 0)) / 100);
+                const drawingTotal = Math.floor((amountAfterAssociate * (activePercentages.drawingPercent || 0)) / 100);
+                const documentsTotal = Math.floor((amountAfterAssociate * (activePercentages.documentsPercent || 0)) / 100);
+                const siteVisitTotal = Math.floor((amountAfterAssociate * (activePercentages.siteVisitPercent || 0)) / 100);
+                const marketingTotal = Math.floor((amountAfterAssociate * (activePercentages.marketingAndMiscPercent || 0)) / 100);
+                const officeTotal = Math.floor((amountAfterAssociate * (activePercentages.officeManagementPercent || 0)) / 100);
                 
                 return (
                   <>
