@@ -786,7 +786,12 @@ const ClientsPage = () => {
               </thead>
               <tbody>
                 {currentClients.map(client => (
-                  <tr key={client._id}>
+                  <tr 
+                    key={client._id}
+                    onDoubleClick={() => canViewClientProjects() && handleViewProjects(client)}
+                    style={{ cursor: canViewClientProjects() ? 'pointer' : 'default' }}
+                    title={canViewClientProjects() ? 'Double-click to view projects' : ''}
+                  >
                     <td>
                       <div className="client-name">
                         <div className="client-avatar">
