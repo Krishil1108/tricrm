@@ -2023,7 +2023,7 @@ const ProjectsTable = ({
   }
 
   return (
-    <div className="project-table-container" style={{ position: 'relative', overflow: 'visible' }}>
+    <div className="project-table-container" style={{ position: 'relative', overflowY: 'visible' }}>
       <table className="project-table table-sticky">
         <thead>
           <tr>
