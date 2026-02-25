@@ -376,146 +376,15 @@ const ProjectDetailPage = () => {
       </div>
 
       {/* Payment Distribution Table */}
-      <div style={{
-        background: 'white',
-        borderRadius: '10px',
-        padding: '24px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        marginBottom: '30px'
-      }}>
-        <YearlyDistributionTable 
-          projectData={project}
-          showTitle={true}
-          compact={false}
-          associateConfig={percentageConfig}
-          customFields={percentageConfig.customFields || []}
-          fieldVisibility={percentageConfig.fieldVisibility || {}}
-          isEditable={false}
-        />
-      </div>
-
-      {/* Expense Distribution Table */}
-      <div style={{
-        background: 'white',
-        borderRadius: '10px',
-        padding: '24px',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
-      }}>
-        <h3 style={{ 
-          margin: '0 0 20px 0', 
-          fontSize: '18px', 
-          fontWeight: '600',
-          color: '#1f2937',
-          borderBottom: '2px solid #667eea',
-          paddingBottom: '10px'
-        }}>
-          Expense Distribution
-        </h3>
-        {expenses.length > 0 ? (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              fontSize: '14px'
-            }}>
-              <thead>
-                <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #e5e7eb' }}>
-                  <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Financial Year</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600', color: '#374151' }}>Month</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600', color: '#374151' }}>Bank</th>
-                  <th style={{ padding: '12px', textAlign: 'right', fontWeight: '600', color: '#374151' }}>Amount</th>
-                  <th style={{ padding: '12px', textAlign: 'right', fontWeight: '600', color: '#374151' }}>Drawing</th>
-                  <th style={{ padding: '12px', textAlign: 'right', fontWeight: '600', color: '#374151' }}>Site Visit</th>
-                  <th style={{ padding: '12px', textAlign: 'right', fontWeight: '600', color: '#374151' }}>Office Mgmt</th>
-                  <th style={{ padding: '12px', textAlign: 'right', fontWeight: '600', color: '#374151' }}>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {expenses.map((expense, index) => {
-                  const total = (expense.amount || 0) + (expense.drawing || 0) + 
-                               (expense.siteVisit || 0) + (expense.officeManagement || 0);
-                  return (
-                    <tr key={index} style={{ 
-                      borderBottom: '1px solid #e5e7eb',
-                      transition: 'background 0.2s'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = '#f8f9fa'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
-                    >
-                      <td style={{ padding: '12px', fontWeight: '500', color: '#1f2937' }}>
-                        FY {expense.year}
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'center', color: '#6b7280' }}>
-                        {expense.month}
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'center' }}>
-                        <span style={{
-                          padding: '4px 10px',
-                          background: '#dbeafe',
-                          color: '#1e40af',
-                          borderRadius: '12px',
-                          fontSize: '12px',
-                          fontWeight: '500'
-                        }}>
-                          {expense.bankName}
-                        </span>
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'right', color: '#6b7280' }}>
-                        {formatCurrency(expense.amount || 0)}
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'right', color: '#6b7280' }}>
-                        {formatCurrency(expense.drawing || 0)}
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'right', color: '#6b7280' }}>
-                        {formatCurrency(expense.siteVisit || 0)}
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'right', color: '#6b7280' }}>
-                        {formatCurrency(expense.officeManagement || 0)}
-                      </td>
-                      <td style={{ padding: '12px', textAlign: 'right', fontWeight: '600', color: '#059669' }}>
-                        {formatCurrency(total)}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-              <tfoot>
-                <tr style={{ background: '#fef3c7', borderTop: '2px solid #f59e0b' }}>
-                  <td colSpan="3" style={{ padding: '14px', fontWeight: '700', color: '#92400e' }}>
-                    Total Expenses
-                  </td>
-                  <td style={{ padding: '14px', textAlign: 'right', fontWeight: '600', color: '#92400e' }}>
-                    {formatCurrency(expenses.reduce((sum, e) => sum + (e.amount || 0), 0))}
-                  </td>
-                  <td style={{ padding: '14px', textAlign: 'right', fontWeight: '600', color: '#92400e' }}>
-                    {formatCurrency(expenses.reduce((sum, e) => sum + (e.drawing || 0), 0))}
-                  </td>
-                  <td style={{ padding: '14px', textAlign: 'right', fontWeight: '600', color: '#92400e' }}>
-                    {formatCurrency(expenses.reduce((sum, e) => sum + (e.siteVisit || 0), 0))}
-                  </td>
-                  <td style={{ padding: '14px', textAlign: 'right', fontWeight: '600', color: '#92400e' }}>
-                    {formatCurrency(expenses.reduce((sum, e) => sum + (e.officeManagement || 0), 0))}
-                  </td>
-                  <td style={{ padding: '14px', textAlign: 'right', fontWeight: '700', color: '#92400e', fontSize: '16px' }}>
-                    {formatCurrency(expenses.reduce((sum, e) => {
-                      return sum + (e.amount || 0) + (e.drawing || 0) + 
-                             (e.siteVisit || 0) + (e.officeManagement || 0);
-                    }, 0))}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        ) : (
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '60px 20px', 
-            color: '#9ca3af'
-          }}>
-            <p style={{ margin: 0, fontSize: '14px' }}>No expense records available for this project</p>
-          </div>
-        )}
-      </div>
+      <YearlyDistributionTable 
+        projectData={project}
+        showTitle={true}
+        compact={false}
+        associateConfig={percentageConfig}
+        customFields={percentageConfig.customFields || []}
+        fieldVisibility={percentageConfig.fieldVisibility || {}}
+        isEditable={false}
+      />
     </div>
     </div>
   );
