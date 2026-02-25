@@ -42,34 +42,16 @@ const HomePage = () => {
         const token = localStorage.getItem('token');
         const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
         
-        // Fetch all stats in parallel
-        const [projectsRes, clientsRes, associatesRes, expensesRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/finance/projects`, {
-            headers: { Authorization: `Bearer ${token}` }
-          }),
-          axios.get(`${API_BASE_URL}/clients`, {
-            headers: { Authorization: `Bearer ${token}` }
-          }),
-          axios.get(`${API_BASE_URL}/associates`, {
-            headers: { Authorization: `Bearer ${token}` }
-          }),
-          axios.get(`${API_BASE_URL}/analytics/expense-distribution`, {
-            headers: { Authorization: `Bearer ${token}` }
-          })
-        ]);
-
-        const totalExpenses = expensesRes.data.summary.drawing +
-                             expensesRes.data.summary.documents +
-                             expensesRes.data.summary.siteVisit +
-                             expensesRes.data.summary.marketingAndMisc +
-                             expensesRes.data.summary.officeManagement +
-                             Object.values(expensesRes.data.summary.customFields).reduce((sum, val) => sum + val, 0);
+        // Use optimized dashboard-stats endpoint - one call instead of four!
+        const response = await axios.get(`${API_BASE_URL}/dashboard-stats`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
 
         setStats({
-          totalProjects: projectsRes.data.data?.length || 0,
-          totalClients: clientsRes.data.data?.length || 0,
-          totalAssociates: associatesRes.data.data?.length || 0,
-          totalExpenses: totalExpenses,
+          totalProjects: response.data.data.totalProjects || 0,
+          totalClients: response.data.data.totalClients || 0,
+          totalAssociates: response.data.data.totalAssociates || 0,
+          totalExpenses: response.data.data.totalExpenses || 0,
           loading: false
         });
       } catch (error) {
@@ -92,41 +74,16 @@ const HomePage = () => {
       const token = localStorage.getItem('token');
       const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
 
-      const [clientsRes, projectsRes, associatesRes] = await Promise.all([
-        axios.get(`${API_BASE_URL}/clients`, {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        axios.get(`${API_BASE_URL}/finance/projects`, {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        axios.get(`${API_BASE_URL}/associates`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-      ]);
-
-      const searchLower = searchTerm.toLowerCase();
-      
-      const filteredClients = (clientsRes.data.data || []).filter(client =>
-        client.name?.toLowerCase().includes(searchLower) ||
-        client.email?.toLowerCase().includes(searchLower) ||
-        client.company?.toLowerCase().includes(searchLower)
-      );
-
-      const filteredProjects = (projectsRes.data.data || []).filter(project =>
-        project.projectName?.toLowerCase().includes(searchLower) ||
-        project.projectNumber?.toLowerCase().includes(searchLower)
-      );
-
-      const filteredAssociates = (associatesRes.data.data || []).filter(associate =>
-        associate.name?.toLowerCase().includes(searchLower) ||
-        associate.email?.toLowerCase().includes(searchLower) ||
-        associate.company?.toLowerCase().includes(searchLower)
-      );
+      // Use optimized search endpoint - searches on backend instead of fetching all data
+      const response = await axios.get(`${API_BASE_URL}/search`, {
+        params: { q: searchTerm },
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
       setSearchResults({
-        clients: filteredClients.slice(0, 5),
-        projects: filteredProjects.slice(0, 5),
-        associates: filteredAssociates.slice(0, 5)
+        clients: response.data.data.clients || [],
+        projects: response.data.data.projects || [],
+        associates: response.data.data.associates || []
       });
       setShowSearchResults(true);
     } catch (error) {

@@ -319,6 +319,113 @@ app.get('/api/system/stats', authenticate, async (req, res) => {
   }
 });
 
+// Lightweight dashboard stats endpoint - OPTIMIZED for HomePage
+app.get('/api/dashboard-stats', authenticate, async (req, res) => {
+  try {
+    const Client = require('./models/Client');
+    const Associate = require('./models/Associate');
+    const FinanceProject = require('./models/FinanceProject');
+    
+    // Get counts only - super fast, no data fetching
+    const [clientCount, associateCount, projectCount, expenseDistribution] = await Promise.all([
+      Client.countDocuments(),
+      Associate.countDocuments(),
+      FinanceProject.countDocuments(),
+      // Calculate total expenses from existing projects
+      FinanceProject.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalDrawing: { $sum: '$drawing' },
+            totalDocuments: { $sum: '$documents' },
+            totalSiteVisit: { $sum: '$siteVisit' },
+            totalMarketingMisc: { $sum: '$marketingAndMisc' },
+            totalOfficeManagement: { $sum: '$officeManagement' }
+          }
+        }
+      ])
+    ]);
+
+    const expenseData = expenseDistribution[0] || {};
+    const totalExpenses = (expenseData.totalDrawing || 0) +
+                         (expenseData.totalDocuments || 0) +
+                         (expenseData.totalSiteVisit || 0) +
+                         (expenseData.totalMarketingMisc || 0) +
+                         (expenseData.totalOfficeManagement || 0);
+
+    res.sendSuccess({
+      totalClients: clientCount,
+      totalAssociates: associateCount,
+      totalProjects: projectCount,
+      totalExpenses: totalExpenses
+    }, 'Dashboard statistics retrieved successfully');
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    res.status(500).json({ error: 'Failed to fetch dashboard statistics' });
+  }
+});
+
+// Global search endpoint - OPTIMIZED for HomePage search
+app.get('/api/search', authenticate, async (req, res) => {
+  try {
+    const Client = require('./models/Client');
+    const Associate = require('./models/Associate');
+    const FinanceProject = require('./models/FinanceProject');
+    
+    const { q } = req.query;
+    
+    if (!q || q.trim().length === 0) {
+      return res.sendSuccess({ clients: [], projects: [], associates: [] }, 'Empty search query');
+    }
+
+    const searchRegex = new RegExp(q.trim(), 'i');
+    
+    // Run searches in parallel with field projection (only return necessary fields)
+    const [clients, projects, associates] = await Promise.all([
+      Client.find({
+        $or: [
+          { name: searchRegex },
+          { email: searchRegex },
+          { company: searchRegex }
+        ]
+      })
+      .select('name email company phone')
+      .limit(5)
+      .lean(),
+      
+      FinanceProject.find({
+        $or: [
+          { projectName: searchRegex },
+          { projectNumber: searchRegex }
+        ]
+      })
+      .select('projectName projectNumber clientName finalizedFees')
+      .limit(5)
+      .lean(),
+      
+      Associate.find({
+        $or: [
+          { name: searchRegex },
+          { email: searchRegex },
+          { company: searchRegex }
+        ]
+      })
+      .select('name email company phone')
+      .limit(5)
+      .lean()
+    ]);
+
+    res.sendSuccess({
+      clients,
+      projects,
+      associates
+    }, 'Search results retrieved successfully');
+  } catch (error) {
+    console.error('Error performing search:', error);
+    res.status(500).json({ error: 'Failed to perform search' });
+  }
+});
+
 // Helper function to calculate time ago
 function getTimeAgo(date) {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
