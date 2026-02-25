@@ -154,7 +154,39 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
             <span className="hamburger-line"></span>
             <span className="hamburger-line"></span>
           </button>
-          <span className="logo-text">Menu</span>
+          {isExpanded && (
+            <div className="logo-container">
+              <svg className="trimity-logo" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <rect width="32" height="32" rx="6" fill="url(#gradient1)"/>
+                <path d="M8 10h16v2H8z" fill="white"/>
+                <path d="M12 14h12v2H12z" fill="white" opacity="0.9"/>
+                <path d="M8 18h16v2H8z" fill="white" opacity="0.8"/>
+                <path d="M12 22h12v2H12z" fill="white" opacity="0.7"/>
+                <defs>
+                  <linearGradient id="gradient1" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#007bff"/>
+                    <stop offset="1" stopColor="#0056b3"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <span className="logo-text">Trimity CRM</span>
+            </div>
+          )}
+          {!isExpanded && (
+            <svg className="trimity-logo-small" width="28" height="28" viewBox="0 0 32 32" fill="none">
+              <rect width="32" height="32" rx="6" fill="url(#gradient2)"/>
+              <path d="M8 10h16v2H8z" fill="white"/>
+              <path d="M12 14h12v2H12z" fill="white" opacity="0.9"/>
+              <path d="M8 18h16v2H8z" fill="white" opacity="0.8"/>
+              <path d="M12 22h12v2H12z" fill="white" opacity="0.7"/>
+              <defs>
+                <linearGradient id="gradient2" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#007bff"/>
+                  <stop offset="1" stopColor="#0056b3"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          )}
         </div>
       </div>
 

@@ -71,13 +71,37 @@
   transition: all 0.3s ease;
 }
 
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 5px;
+  flex: 1;
+  min-width: 0;
+}
+
+.trimity-logo {
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.trimity-logo-small {
+  flex-shrink: 0;
+  margin-left: 5px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+  cursor: pointer;
+}
+
 .logo-text {
-  font-size: 1.3rem;
-  font-weight: 600;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a202c;
+  letter-spacing: -0.02em;
   opacity: 1;
   transition: all 0.3s ease;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
   flex: 1;
   min-width: 0;
 }
