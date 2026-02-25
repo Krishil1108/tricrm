@@ -6,9 +6,11 @@ import './ProjectPage.css';
 import FinanceService from './services/FinanceService';
 import ClientService from './services/ClientService';
 import AssociateService from './services/AssociateService';
+import ConfigurationVersionService from './services/ConfigurationVersionService';
 import { useAuth } from './contexts/AuthContext';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
+import YearlyDistributionTable from './components/YearlyDistributionTable';
 
 const ProjectDetailPage = () => {
   const { projectId } = useParams();
@@ -21,6 +23,16 @@ const ProjectDetailPage = () => {
   const [clients, setClients] = useState([]);
   const [associates, setAssociates] = useState([]);
   const [expenses, setExpenses] = useState([]);
+  const [percentageConfig, setPercentageConfig] = useState({
+    profitMarginPercent: 0,
+    drawingPercent: 0,
+    documentsPercent: 0,
+    siteVisitPercent: 0,
+    marketingAndMiscPercent: 0,
+    officeManagementPercent: 0,
+    customFields: [],
+    fieldVisibility: {}
+  });
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
@@ -32,6 +44,7 @@ const ProjectDetailPage = () => {
 
   useEffect(() => {
     loadProjectData();
+    loadPercentageConfig();
   }, [projectId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadProjectData = async () => {
@@ -67,6 +80,28 @@ const ProjectDetailPage = () => {
     }
   };
 
+  const loadPercentageConfig = async () => {
+    try {
+      const currentConfigData = await ConfigurationVersionService.getCurrentConfiguration();
+      if (currentConfigData && currentConfigData.data) {
+        const config = currentConfigData.data.configuration;
+        const configWithDefaults = {
+          profitMarginPercent: config.profitMarginPercent || 0,
+          drawingPercent: config.drawingPercent || 0,
+          documentsPercent: config.documentsPercent || 0,
+          siteVisitPercent: config.siteVisitPercent || 0,
+          marketingAndMiscPercent: config.marketingAndMiscPercent || 0,
+          officeManagementPercent: config.officeManagementPercent || 0,
+          customFields: config.customFields || [],
+          fieldVisibility: config.fieldVisibility || {}
+        };
+        setPercentageConfig(configWithDefaults);
+      }
+    } catch (error) {
+      console.error('Error loading percentage configuration:', error);
+    }
+  };
+
   const handleEdit = () => {
     navigate('/projects', { state: { editProjectId: project._id } });
   };
@@ -94,7 +129,14 @@ const ProjectDetailPage = () => {
   const client = clients.find(c => c._id === project.clientId);
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1600px', margin: '0 auto' }}>
+    <div style={{ 
+      minHeight: '100vh',
+      width: '100%',
+      padding: '0',
+      margin: '0',
+      background: '#f8f9fa'
+    }}>
+      <div style={{ padding: '20px' }}>
       {/* Header with Action Buttons */}
       <div style={{
         padding: '30px',
@@ -333,7 +375,7 @@ const ProjectDetailPage = () => {
         </div>
       </div>
 
-      {/* Financial Year Payment Distribution Table */}
+      {/* Payment Distribution Table */}
       <div style={{
         background: 'white',
         borderRadius: '10px',
@@ -341,99 +383,15 @@ const ProjectDetailPage = () => {
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
         marginBottom: '30px'
       }}>
-        <h3 style={{ 
-          margin: '0 0 20px 0', 
-          fontSize: '18px', 
-          fontWeight: '600',
-          color: '#1f2937',
-          borderBottom: '2px solid #667eea',
-          paddingBottom: '10px'
-        }}>
-          Financial Year - Payment Distribution
-        </h3>
-        {project.payments && project.payments.length > 0 ? (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              fontSize: '14px'
-            }}>
-              <thead>
-                <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #e5e7eb' }}>
-                  <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Financial Year</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600', color: '#374151' }}>Payment Date</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600', color: '#374151' }}>Payment Mode</th>
-                  <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600', color: '#374151' }}>Reference Number</th>
-                  <th style={{ padding: '12px', textAlign: 'right', fontWeight: '600', color: '#374151' }}>Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {project.payments
-                  .sort((a, b) => new Date(b.date) - new Date(a.date))
-                  .map((payment, index) => {
-                    const paymentDate = new Date(payment.date);
-                    const financialYear = paymentDate.getMonth() >= 3 
-                      ? `${paymentDate.getFullYear()}-${paymentDate.getFullYear() + 1}`
-                      : `${paymentDate.getFullYear() - 1}-${paymentDate.getFullYear()}`;
-                    
-                    return (
-                      <tr key={index} style={{ 
-                        borderBottom: '1px solid #e5e7eb',
-                        transition: 'background 0.2s'
-                      }}
-                      onMouseEnter={(e) => e.currentTarget.style.background = '#f8f9fa'}
-                      onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
-                      >
-                        <td style={{ padding: '12px', fontWeight: '500', color: '#1f2937' }}>
-                          FY {financialYear}
-                        </td>
-                        <td style={{ padding: '12px', textAlign: 'center', color: '#6b7280' }}>
-                          {new Date(payment.date).toLocaleDateString('en-IN')}
-                        </td>
-                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                          <span style={{
-                            padding: '4px 10px',
-                            background: '#e0e7ff',
-                            color: '#4338ca',
-                            borderRadius: '12px',
-                            fontSize: '12px',
-                            fontWeight: '500'
-                          }}>
-                            {payment.mode || 'N/A'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '12px', textAlign: 'center', color: '#6b7280', fontFamily: 'monospace' }}>
-                          {payment.chequeNeftNumber || '-'}
-                        </td>
-                        <td style={{ padding: '12px', textAlign: 'right', fontWeight: '600', color: '#059669' }}>
-                          {formatCurrency(payment.amount)}
-                        </td>
-                      </tr>
-                    );
-                  })}
-              </tbody>
-              <tfoot>
-                <tr style={{ background: '#f0fdf4', borderTop: '2px solid #10b981' }}>
-                  <td colSpan="4" style={{ padding: '14px', fontWeight: '700', color: '#065f46' }}>
-                    Total Received
-                  </td>
-                  <td style={{ padding: '14px', textAlign: 'right', fontWeight: '700', color: '#065f46', fontSize: '16px' }}>
-                    {formatCurrency(project.totalReceivedFees)}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        ) : (
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '60px 20px', 
-            color: '#9ca3af'
-          }}>
-            <FiCreditCard style={{ fontSize: '48px', marginBottom: '12px', opacity: 0.3 }} />
-            <p style={{ margin: 0, fontSize: '14px' }}>No payment records available</p>
-          </div>
-        )}
+        <YearlyDistributionTable 
+          projectData={project}
+          showTitle={true}
+          compact={false}
+          associateConfig={percentageConfig}
+          customFields={percentageConfig.customFields || []}
+          fieldVisibility={percentageConfig.fieldVisibility || {}}
+          isEditable={false}
+        />
       </div>
 
       {/* Expense Distribution Table */}
@@ -558,6 +516,7 @@ const ProjectDetailPage = () => {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 };
