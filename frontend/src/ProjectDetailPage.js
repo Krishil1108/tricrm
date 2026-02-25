@@ -122,6 +122,48 @@ const ProjectDetailPage = () => {
     }
   };
 
+  const handleAddPayment = async (newPayment, percentages) => {
+    try {
+      showLoading();
+      
+      // Add the new payment to the project's payments array
+      const updatedPayments = [...(project.payments || []), newPayment];
+      
+      // Calculate new total received fees
+      const newTotalReceived = updatedPayments.reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
+      
+      // Prepare the update data
+      const updateData = {
+        ...project,
+        payments: updatedPayments,
+        totalReceivedFees: newTotalReceived,
+        // Update percentages if custom ones were provided
+        ...(percentages && {
+          profitMarginPercent: percentages.profitMarginPercent,
+          drawingPercent: percentages.drawingPercent,
+          documentsPercent: percentages.documentsPercent,
+          siteVisitPercent: percentages.siteVisitPercent,
+          marketingAndMiscPercent: percentages.marketingAndMiscPercent,
+          officeManagementPercent: percentages.officeManagementPercent
+        })
+      };
+      
+      // Update the project
+      await FinanceService.updateProject(project._id, updateData);
+      
+      // Reload the project data
+      await loadProjectData();
+      
+      showSuccess('Payment added successfully');
+    } catch (error) {
+      console.error('Error adding payment:', error);
+      showError('Failed to add payment: ' + (error.response?.data?.message || error.message));
+    } finally {
+      hideLoading();
+    }
+  };
+
+
   if (!project) {
     return <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>;
   }
@@ -361,6 +403,7 @@ const ProjectDetailPage = () => {
         customFields={percentageConfig.customFields || []}
         fieldVisibility={percentageConfig.fieldVisibility || {}}
         isEditable={false}
+        onAddPayment={handleAddPayment}
       />
     </div>
     </div>
