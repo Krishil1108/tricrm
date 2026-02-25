@@ -13,7 +13,9 @@ const YearlyDistributionTable = ({
   fieldVisibility = {},
   isEditable = false,
   onSave = null,
-  onAddPayment = null
+  onAddPayment = null,
+  onEditPayment = null,
+  onDeletePayment = null
 }) => {
   
   // State for edit mode
@@ -46,6 +48,10 @@ const YearlyDistributionTable = ({
     marketingAndMiscPercent: projectData.marketingAndMiscPercent || 0,
     officeManagementPercent: projectData.officeManagementPercent || 0,
   });
+
+  // State for Edit Payment Modal
+  const [showEditPaymentModal, setShowEditPaymentModal] = useState(false);
+  const [editingPaymentIndex, setEditingPaymentIndex] = useState(null);
 
   // Update editedData when projectData changes
   useEffect(() => {
@@ -195,6 +201,82 @@ const YearlyDistributionTable = ({
 
       onAddPayment(newPayment, percentagesToUse);
       handleCloseAddPaymentModal();
+    }
+  };
+
+  // Handler to open Edit Payment Modal
+  const handleOpenEditPaymentModal = (index) => {
+    const payment = projectData.payments[index];
+    setEditingPaymentIndex(index);
+    setPaymentFormData({
+      amount: payment.amount.toString(),
+      date: new Date(payment.date).toISOString().split('T')[0],
+      chequeNeftNumber: payment.chequeNeftNumber || '',
+      mode: payment.mode || 'Cash',
+      useDefaultPercentages: true
+    });
+    setCustomPercentages({
+      profitMarginPercent: projectData.profitMarginPercent || 0,
+      drawingPercent: projectData.drawingPercent || 0,
+      documentsPercent: projectData.documentsPercent || 0,
+      siteVisitPercent: projectData.siteVisitPercent || 0,
+      marketingAndMiscPercent: projectData.marketingAndMiscPercent || 0,
+      officeManagementPercent: projectData.officeManagementPercent || 0,
+    });
+    setShowEditPaymentModal(true);
+  };
+
+  // Handler to close Edit Payment Modal
+  const handleCloseEditPaymentModal = () => {
+    setShowEditPaymentModal(false);
+    setEditingPaymentIndex(null);
+  };
+
+  // Handler to submit edited payment
+  const handleSubmitEditPayment = () => {
+    if (!paymentFormData.amount || parseFloat(paymentFormData.amount) <= 0) {
+      alert('Please enter a valid payment amount');
+      return;
+    }
+
+    if (!paymentFormData.date) {
+      alert('Please select a payment date');
+      return;
+    }
+
+    // Construct the updated payment object
+    const updatedPayment = {
+      amount: parseFloat(paymentFormData.amount),
+      date: paymentFormData.date,
+      chequeNeftNumber: paymentFormData.chequeNeftNumber,
+      mode: paymentFormData.mode
+    };
+
+    // Pass the payment, index, and percentages to parent component
+    if (onEditPayment) {
+      const percentagesToUse = paymentFormData.useDefaultPercentages 
+        ? {
+            profitMarginPercent: projectData.profitMarginPercent || 0,
+            drawingPercent: projectData.drawingPercent || 0,
+            documentsPercent: projectData.documentsPercent || 0,
+            siteVisitPercent: projectData.siteVisitPercent || 0,
+            marketingAndMiscPercent: projectData.marketingAndMiscPercent || 0,
+            officeManagementPercent: projectData.officeManagementPercent || 0,
+          }
+        : customPercentages;
+
+      onEditPayment(editingPaymentIndex, updatedPayment, percentagesToUse);
+      handleCloseEditPaymentModal();
+    }
+  };
+
+  // Handler to delete payment
+  const handleDeletePayment = (index) => {
+    const payment = projectData.payments[index];
+    if (window.confirm(`Are you sure you want to delete Payment ${index + 1} (${formatCurrency(payment.amount)})?`)) {
+      if (onDeletePayment) {
+        onDeletePayment(index);
+      }
     }
   };
 
@@ -778,6 +860,7 @@ const YearlyDistributionTable = ({
                   {customField.name}
                 </th>
               ))}
+              {(onEditPayment || onDeletePayment) && <th style={{ width: '100px' }}>Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -1138,6 +1221,54 @@ const YearlyDistributionTable = ({
                       </td>
                     );
                   })}
+                  {(onEditPayment || onDeletePayment) && (
+                    <td style={{ textAlign: 'center' }}>
+                      <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                        {onEditPayment && (
+                          <button
+                            onClick={() => handleOpenEditPaymentModal(index)}
+                            style={{
+                              background: '#3b82f6',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              padding: '6px 10px',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                              fontWeight: '600',
+                              transition: 'background 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.target.style.background = '#2563eb'}
+                            onMouseLeave={(e) => e.target.style.background = '#3b82f6'}
+                            title="Edit Payment"
+                          >
+                            ✏️
+                          </button>
+                        )}
+                        {onDeletePayment && (
+                          <button
+                            onClick={() => handleDeletePayment(index)}
+                            style={{
+                              background: '#dc2626',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '4px',
+                              padding: '6px 10px',
+                              cursor: 'pointer',
+                              fontSize: '12px',
+                              fontWeight: '600',
+                              transition: 'background 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.target.style.background = '#b91c1c'}
+                            onMouseLeave={(e) => e.target.style.background = '#dc2626'}
+                            title="Delete Payment"
+                          >
+                            🗑️
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  )}
                 </tr>
               );
             })}
@@ -1904,6 +2035,391 @@ const YearlyDistributionTable = ({
                 </button>
                 <button
                   onClick={handleCloseAddPaymentModal}
+                  style={{
+                    flex: 1,
+                    padding: '12px 20px',
+                    background: '#e5e7eb',
+                    color: '#374151',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '15px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.target.style.background = '#d1d5db'}
+                  onMouseLeave={(e) => e.target.style.background = '#e5e7eb'}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Payment Modal */}
+      {showEditPaymentModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '30px',
+            maxWidth: '600px',
+            width: '90%',
+            maxHeight: '90vh',
+            overflow: 'auto',
+            boxShadow: '0 10px 40px rgba(0, 0, 0, 0.2)'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '20px',
+              paddingBottom: '15px',
+              borderBottom: '2px solid #e5e7eb'
+            }}>
+              <h2 style={{ margin: 0, fontSize: '22px', color: '#1f2937' }}>Edit Payment {editingPaymentIndex !== null ? editingPaymentIndex + 1 : ''}</h2>
+              <button
+                onClick={handleCloseEditPaymentModal}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '28px',
+                  cursor: 'pointer',
+                  color: '#6b7280',
+                  lineHeight: '1',
+                  padding: '0 5px'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* Amount Field */}
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
+                  Payment Amount <span style={{ color: '#dc2626' }}>*</span>
+                </label>
+                <input
+                  type="number"
+                  value={paymentFormData.amount}
+                  onChange={(e) => handlePaymentFormChange('amount', e.target.value)}
+                  placeholder="Enter amount"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '2px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#2c5282'}
+                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                />
+              </div>
+
+              {/* Date Field */}
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
+                  Payment Date <span style={{ color: '#dc2626' }}>*</span>
+                </label>
+                <input
+                  type="date"
+                  value={paymentFormData.date}
+                  onChange={(e) => handlePaymentFormChange('date', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '2px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#2c5282'}
+                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                />
+              </div>
+
+              {/* Cheque/NEFT Number Field */}
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
+                  Cheque Number / NEFT Number
+                </label>
+                <input
+                  type="text"
+                  value={paymentFormData.chequeNeftNumber}
+                  onChange={(e) => handlePaymentFormChange('chequeNeftNumber', e.target.value)}
+                  placeholder="Enter cheque or NEFT number"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '2px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    outline: 'none'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#2c5282'}
+                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                />
+              </div>
+
+              {/* Payment Mode Field */}
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
+                  Payment Mode <span style={{ color: '#dc2626' }}>*</span>
+                </label>
+                <select
+                  value={paymentFormData.mode}
+                  onChange={(e) => handlePaymentFormChange('mode', e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '2px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    outline: 'none',
+                    backgroundColor: 'white'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#2c5282'}
+                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                >
+                  <option value="Cash">Cash</option>
+                  <option value="Cheque">Cheque</option>
+                  <option value="NEFT">NEFT</option>
+                  <option value="RTGS">RTGS</option>
+                  <option value="UPI">UPI</option>
+                </select>
+              </div>
+
+              {/* Use Default Percentages Checkbox */}
+              <div style={{
+                padding: '15px',
+                background: '#f9fafb',
+                borderRadius: '8px',
+                border: '2px solid #e5e7eb'
+              }}>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#374151'
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={paymentFormData.useDefaultPercentages}
+                    onChange={(e) => handlePaymentFormChange('useDefaultPercentages', e.target.checked)}
+                    style={{
+                      width: '18px',
+                      height: '18px',
+                      cursor: 'pointer'
+                    }}
+                  />
+                  Use default configured percentage-wise distribution
+                </label>
+                <p style={{ margin: '8px 0 0 28px', fontSize: '12px', color: '#6b7280' }}>
+                  {paymentFormData.useDefaultPercentages 
+                    ? 'Distribution will be calculated using the project\'s default percentages'
+                    : 'You can configure custom percentages for this payment below'}
+                </p>
+              </div>
+
+              {/* Custom Percentages Configuration (shown when checkbox is unchecked) */}
+              {!paymentFormData.useDefaultPercentages && (
+                <div style={{
+                  padding: '20px',
+                  background: '#fff7ed',
+                  borderRadius: '8px',
+                  border: '2px solid #fed7aa'
+                }}>
+                  <h4 style={{ margin: '0 0 15px 0', fontSize: '16px', color: '#9a3412' }}>
+                    Configure Custom Percentages
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                    {effectiveFieldVisibility.profitMargin && (
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
+                          Profit Margin %
+                        </label>
+                        <input
+                          type="number"
+                          value={customPercentages.profitMarginPercent}
+                          onChange={(e) => handleCustomPercentageChange('profitMarginPercent', e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '8px 10px',
+                            border: '2px solid #fed7aa',
+                            borderRadius: '6px',
+                            fontSize: '14px'
+                          }}
+                          step="0.01"
+                          min="0"
+                          max="100"
+                        />
+                      </div>
+                    )}
+                    {effectiveFieldVisibility.drawing && (
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
+                          Drawing %
+                        </label>
+                        <input
+                          type="number"
+                          value={customPercentages.drawingPercent}
+                          onChange={(e) => handleCustomPercentageChange('drawingPercent', e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '8px 10px',
+                            border: '2px solid #fed7aa',
+                            borderRadius: '6px',
+                            fontSize: '14px'
+                          }}
+                          step="0.01"
+                          min="0"
+                          max="100"
+                        />
+                      </div>
+                    )}
+                    {effectiveFieldVisibility.documents && (
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
+                          Documents %
+                        </label>
+                        <input
+                          type="number"
+                          value={customPercentages.documentsPercent}
+                          onChange={(e) => handleCustomPercentageChange('documentsPercent', e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '8px 10px',
+                            border: '2px solid #fed7aa',
+                            borderRadius: '6px',
+                            fontSize: '14px'
+                          }}
+                          step="0.01"
+                          min="0"
+                          max="100"
+                        />
+                      </div>
+                    )}
+                    {effectiveFieldVisibility.siteVisit && (
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
+                          Site Visit %
+                        </label>
+                        <input
+                          type="number"
+                          value={customPercentages.siteVisitPercent}
+                          onChange={(e) => handleCustomPercentageChange('siteVisitPercent', e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '8px 10px',
+                            border: '2px solid #fed7aa',
+                            borderRadius: '6px',
+                            fontSize: '14px'
+                          }}
+                          step="0.01"
+                          min="0"
+                          max="100"
+                        />
+                      </div>
+                    )}
+                    {effectiveFieldVisibility.marketingAndMisc && (
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
+                          Marketing & Misc %
+                        </label>
+                        <input
+                          type="number"
+                          value={customPercentages.marketingAndMiscPercent}
+                          onChange={(e) => handleCustomPercentageChange('marketingAndMiscPercent', e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '8px 10px',
+                            border: '2px solid #fed7aa',
+                            borderRadius: '6px',
+                            fontSize: '14px'
+                          }}
+                          step="0.01"
+                          min="0"
+                          max="100"
+                        />
+                      </div>
+                    )}
+                    {effectiveFieldVisibility.officeManagement && (
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
+                          Office Management %
+                        </label>
+                        <input
+                          type="number"
+                          value={customPercentages.officeManagementPercent}
+                          onChange={(e) => handleCustomPercentageChange('officeManagementPercent', e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '8px 10px',
+                            border: '2px solid #fed7aa',
+                            borderRadius: '6px',
+                            fontSize: '14px'
+                          }}
+                          step="0.01"
+                          min="0"
+                          max="100"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <p style={{ margin: '12px 0 0 0', fontSize: '12px', color: '#9a3412', fontStyle: 'italic' }}>
+                    Total: {(
+                      customPercentages.profitMarginPercent +
+                      customPercentages.drawingPercent +
+                      customPercentages.documentsPercent +
+                      customPercentages.siteVisitPercent +
+                      customPercentages.marketingAndMiscPercent +
+                      customPercentages.officeManagementPercent
+                    ).toFixed(2)}%
+                  </p>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
+                <button
+                  onClick={handleSubmitEditPayment}
+                  style={{
+                    flex: 1,
+                    padding: '12px 20px',
+                    background: '#2c5282',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '15px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.target.style.background = '#1e3a5f'}
+                  onMouseLeave={(e) => e.target.style.background = '#2c5282'}
+                >
+                  Save Changes
+                </button>
+                <button
+                  onClick={handleCloseEditPaymentModal}
                   style={{
                     flex: 1,
                     padding: '12px 20px',

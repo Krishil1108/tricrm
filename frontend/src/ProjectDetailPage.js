@@ -163,6 +163,80 @@ const ProjectDetailPage = () => {
     }
   };
 
+  const handleEditPayment = async (paymentIndex, updatedPayment, percentages) => {
+    try {
+      showLoading();
+      
+      // Update the payment in the payments array
+      const updatedPayments = [...project.payments];
+      updatedPayments[paymentIndex] = updatedPayment;
+      
+      // Calculate new total received fees
+      const newTotalReceived = updatedPayments.reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
+      
+      // Prepare the update data
+      const updateData = {
+        ...project,
+        payments: updatedPayments,
+        totalReceivedFees: newTotalReceived,
+        // Update percentages if custom ones were provided
+        ...(percentages && {
+          profitMarginPercent: percentages.profitMarginPercent,
+          drawingPercent: percentages.drawingPercent,
+          documentsPercent: percentages.documentsPercent,
+          siteVisitPercent: percentages.siteVisitPercent,
+          marketingAndMiscPercent: percentages.marketingAndMiscPercent,
+          officeManagementPercent: percentages.officeManagementPercent
+        })
+      };
+      
+      // Update the project
+      await FinanceService.updateProject(project._id, updateData);
+      
+      // Reload the project data
+      await loadProjectData();
+      
+      showSuccess('Payment updated successfully');
+    } catch (error) {
+      console.error('Error updating payment:', error);
+      showError('Failed to update payment: ' + (error.response?.data?.message || error.message));
+    } finally {
+      hideLoading();
+    }
+  };
+
+  const handleDeletePayment = async (paymentIndex) => {
+    try {
+      showLoading();
+      
+      // Remove the payment from the payments array
+      const updatedPayments = project.payments.filter((_, index) => index !== paymentIndex);
+      
+      // Calculate new total received fees
+      const newTotalReceived = updatedPayments.reduce((sum, payment) => sum + (parseFloat(payment.amount) || 0), 0);
+      
+      // Prepare the update data
+      const updateData = {
+        ...project,
+        payments: updatedPayments,
+        totalReceivedFees: newTotalReceived
+      };
+      
+      // Update the project
+      await FinanceService.updateProject(project._id, updateData);
+      
+      // Reload the project data
+      await loadProjectData();
+      
+      showSuccess('Payment deleted successfully');
+    } catch (error) {
+      console.error('Error deleting payment:', error);
+      showError('Failed to delete payment: ' + (error.response?.data?.message || error.message));
+    } finally {
+      hideLoading();
+    }
+  };
+
 
   if (!project) {
     return <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>;
@@ -404,6 +478,8 @@ const ProjectDetailPage = () => {
         fieldVisibility={percentageConfig.fieldVisibility || {}}
         isEditable={false}
         onAddPayment={handleAddPayment}
+        onEditPayment={handleEditPayment}
+        onDeletePayment={handleDeletePayment}
       />
     </div>
     </div>
