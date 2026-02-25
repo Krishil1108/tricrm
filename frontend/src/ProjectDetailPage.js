@@ -37,21 +37,24 @@ const ProjectDetailPage = () => {
   const loadProjectData = async () => {
     try {
       showLoading();
-      const [projectData, clientsData, associatesData, expensesData] = await Promise.all([
-        FinanceService.getProjects(),
+      const [projectResponse, clientsData, associatesData, expensesResponse] = await Promise.all([
+        FinanceService.getProject(projectId),
         ClientService.getClients(),
         AssociateService.getAssociates(),
-        FinanceService.getExpenses()
+        FinanceService.getAllExpenses()
       ]);
       
-      const selectedProject = projectData.find(p => p._id === projectId);
-      if (!selectedProject) {
+      // Handle both direct data and nested response structure
+      const projectData = projectResponse.data || projectResponse;
+      const expensesData = expensesResponse.data || expensesResponse;
+      
+      if (!projectData) {
         showError('Project not found');
         navigate('/projects');
         return;
       }
       
-      setProject(selectedProject);
+      setProject(projectData);
       setClients(clientsData);
       setAssociates(associatesData);
       setExpenses(expensesData.filter(exp => exp.projectId === projectId));
@@ -65,7 +68,7 @@ const ProjectDetailPage = () => {
   };
 
   const handleEdit = () => {
-    navigate('/projects', { state: { editProject: project } });
+    navigate('/projects', { state: { editProjectId: project._id } });
   };
 
   const handleDelete = async () => {
