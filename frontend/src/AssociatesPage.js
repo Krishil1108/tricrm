@@ -467,7 +467,6 @@ const AssociatesPage = () => {
         {/* Loading State */}
         {loading && (
           <div className="loading-message">
-            <div className="loading-spinner" aria-hidden="true"></div>
             Loading associates...
           </div>
         )}
