@@ -87,6 +87,26 @@ function App() {
                         </ProtectedRoute>
                       } 
                     />
+
+                    {/* Full-screen client projects page - No sidebar */}
+                    <Route
+                      path="/clients/:clientId/projects"
+                      element={
+                        <ProtectedRoute requireModule="clients">
+                          <ClientProjectsPage />
+                        </ProtectedRoute>
+                      }
+                    />
+
+                    {/* Full-screen associate projects page - No sidebar */}
+                    <Route
+                      path="/associates/:associateId/projects"
+                      element={
+                        <ProtectedRoute requireModule="associates">
+                          <AssociateProjectsPage />
+                        </ProtectedRoute>
+                      }
+                    />
                     
                     {/* Protected routes with layout */}
                     <Route
@@ -122,28 +142,10 @@ function App() {
                             />
                             
                             <Route 
-                              path="/clients/:clientId/projects" 
-                              element={
-                                <ProtectedRoute requireModule="clients">
-                                  <ClientProjectsPage />
-                                </ProtectedRoute>
-                              } 
-                            />
-                            
-                            <Route 
                               path="/associates" 
                               element={
                                 <ProtectedRoute requireModule="associates">
                                   <AssociatesPage />
-                                </ProtectedRoute>
-                              } 
-                            />
-                            
-                            <Route 
-                              path="/associates/:associateId/projects" 
-                              element={
-                                <ProtectedRoute requireModule="associates">
-                                  <AssociateProjectsPage />
                                 </ProtectedRoute>
                               } 
                             />
