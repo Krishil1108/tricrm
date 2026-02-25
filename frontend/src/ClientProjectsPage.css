@@ -491,68 +491,61 @@
 }
 
 .project-table {
-  width: auto;
+  width: 100%;
   border-collapse: collapse;
   font-size: 14px;
-  table-layout: auto;
-  min-width: 1300px !important;
+  table-layout: fixed;
+  min-width: 860px; /* triggers horizontal scroll only on very small screens */
 }
 
-/* Column width specifications for better alignment */
+/* Column widths — proportional percentages that fill 100% */
 /* Project Number */
 .project-table th:nth-child(1),
 .project-table td:nth-child(1) {
-  width: 140px;
-  min-width: 140px;
+  width: 11%;
 }
 
 /* Project Name */
 .project-table th:nth-child(2),
 .project-table td:nth-child(2) {
-  width: 250px;
-  min-width: 250px;
+  width: 22%;
 }
 
 /* Finalized Fees */
 .project-table th:nth-child(3),
 .project-table td:nth-child(3) {
-  width: 140px;
-  min-width: 140px;
+  width: 12%;
 }
 
 /* Received Fees */
 .project-table th:nth-child(4),
 .project-table td:nth-child(4) {
-  width: 140px;
-  min-width: 140px;
+  width: 12%;
 }
 
 /* Pending Amount */
 .project-table th:nth-child(5),
 .project-table td:nth-child(5) {
-  width: 140px;
-  min-width: 140px;
+  width: 12%;
 }
 
 /* Payments */
 .project-table th:nth-child(6),
 .project-table td:nth-child(6) {
-  width: 120px;
-  min-width: 120px;
+  width: 10%;
 }
 
 /* Status */
 .project-table th:nth-child(7),
 .project-table td:nth-child(7) {
-  width: 120px;
-  min-width: 120px;
+  width: 10%;
 }
 
 /* Actions */
 .project-table th:nth-child(8),
 .project-table td:nth-child(8) {
-  width: 180px;
-  min-width: 180px;
+  width: 11%;
+  text-align: center;
 }
 
 .project-table th {
@@ -568,12 +561,24 @@
   position: sticky;
   top: 0;
   z-index: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .project-table td {
   padding: 13px 12px;
   border-bottom: 1px solid #f0f4f8;
   vertical-align: middle;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Project Name cell: allow wrapping so long names are readable */
+.project-table td:nth-child(2) {
+  white-space: normal;
+  word-break: break-word;
 }
 
 .project-table tr:hover td {
