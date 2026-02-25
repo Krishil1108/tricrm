@@ -630,19 +630,22 @@ const ProjectPage = () => {
     if (!window.confirm('Are you sure you want to delete this item?')) return;
 
     try {
-      showLoading('Deleting...');
       if (activeTab === 'projects') {
+        // Optimistically remove from UI
+        setProjects(projects.filter(p => p._id !== id));
         await FinanceService.deleteProject(id);
       } else {
+        // Optimistically remove from UI
+        setExpenses(expenses.filter(e => e._id !== id));
         await FinanceService.deleteExpense(id);
       }
       showSuccess('Deleted successfully');
-      fetchData();
+      // Refresh stats in background
       fetchStats();
     } catch (error) {
       showError('Delete failed');
-    } finally {
-      hideLoading();
+      // Restore data on error
+      fetchData();
     }
   };
 
@@ -671,53 +674,46 @@ const ProjectPage = () => {
 
   const handleSaveDistributionChanges = async (editedData) => {
     try {
-      showLoading('Saving distribution changes...');
-      
       // Update the project with new percentages
       await FinanceService.updateProject(selectedProjectForDistribution._id, editedData);
       
       showSuccess('Distribution percentages updated successfully');
       
-      // Refresh data
-      await fetchData();
-      await fetchStats();
+      // Update local state optimistically
+      const updatedProjects = projects.map(p => 
+        p._id === selectedProjectForDistribution._id ? { ...p, ...editedData } : p
+      );
+      setProjects(updatedProjects);
       
-      // Update the selected project with new data
-      const updatedProject = projects.find(p => p._id === selectedProjectForDistribution._id);
-      if (updatedProject) {
-        const paymentsWithIds = (updatedProject.payments || []).map((payment, index) => ({
-          ...payment,
-          id: payment.id || `payment-${index}`
-        }));
-        
-        const projectWithPayments = {
-          ...updatedProject,
-          payments: paymentsWithIds,
-          yearlyDistribution: paymentsWithIds.length > 0 ? calculateYearlyDistribution(paymentsWithIds) : {},
-          ...editedData // Apply the edited percentages
-        };
-        
-        setSelectedProjectForDistribution(projectWithPayments);
-      }
+      // Update the selected project
+      const paymentsWithIds = (editedData.payments || selectedProjectForDistribution.payments || []).map((payment, index) => ({
+        ...payment,
+        id: payment.id || `payment-${index}`
+      }));
       
+      const projectWithPayments = {
+        ...selectedProjectForDistribution,
+        ...editedData,
+        payments: paymentsWithIds,
+        yearlyDistribution: paymentsWithIds.length > 0 ? calculateYearlyDistribution(paymentsWithIds) : {}
+      };
+      
+      setSelectedProjectForDistribution(projectWithPayments);
       setIsEditingDistribution(false);
-      hideLoading();
     } catch (error) {
       console.error('Error saving distribution changes:', error);
       showError('Failed to save distribution changes: ' + (error.message || error.response?.data?.error || 'Unknown error'));
-      hideLoading();
+      // Restore data on error
+      fetchData();
     }
   };
 
   const handleSave = async () => {
     try {
-      showLoading('Saving...');
-      
-      // Validate required fields
+      // Validate required fields (no loader for instant validation)
       if (activeTab === 'projects') {
         if (!formData.projectNumber || !formData.projectName) {
           showError('Project Number and Project Name are required');
-          hideLoading();
           return;
         }
         
@@ -730,7 +726,6 @@ const ProjectPage = () => {
           const uniqueIds = new Set(associateIds);
           if (associateIds.length !== uniqueIds.size) {
             showError('You cannot select the same associate multiple times in one project');
-            hideLoading();
             return;
           }
           
@@ -741,7 +736,6 @@ const ProjectPage = () => {
           
           if (hasInvalidAssociate) {
             showError('All selected associates must have a valid share percentage');
-            hideLoading();
             return;
           }
         }
@@ -844,8 +838,6 @@ const ProjectPage = () => {
       console.error('Error data:', error.response?.data);
       
       showError('Save failed: ' + (error.response?.data?.message || error.message));
-    } finally {
-      hideLoading();
     }
   };
 

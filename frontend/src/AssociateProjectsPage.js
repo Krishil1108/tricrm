@@ -328,8 +328,6 @@ const AssociateProjectsPage = () => {
     e.preventDefault();
     
     try {
-      showLoading(editingTransactionId ? 'Updating payment transaction...' : 'Adding payment transaction...');
-      
       const paymentData = {
         projectId: selectedProject._id,
         associateId: associateId,
@@ -356,13 +354,13 @@ const AssociateProjectsPage = () => {
         showSuccess('Payment transaction added successfully!');
       }
       
-      // Refresh the projects list and payment history
-      await fetchAssociateProjects();
+      // Refresh the projects list and payment history in background
+      fetchAssociateProjects();
       if (showPaymentHistoryModal) {
-        await handleViewPayments(selectedProject, selectedAssociate);
+        handleViewPayments(selectedProject, selectedAssociate);
       }
       
-      // Close modal and reset form
+      // Close modal and reset form immediately
       setShowPaymentModal(false);
       setSelectedProject(null);
       setSelectedAssociate(null);
@@ -372,8 +370,6 @@ const AssociateProjectsPage = () => {
     } catch (error) {
       console.error('Error adding payment:', error);
       showError('Failed to add payment transaction');
-    } finally {
-      hideLoading();
     }
   };
 
@@ -405,7 +401,10 @@ const AssociateProjectsPage = () => {
   const handleDeleteTransaction = async (index, payment) => {
     if (window.confirm('Are you sure you want to delete this payment transaction?')) {
       try {
-        showLoading('Deleting payment transaction...');
+        // Optimistically remove from UI
+        const updatedHistory = paymentHistory.filter((_, i) => i !== index);
+        setPaymentHistory(updatedHistory);
+        
         const response = await FinanceService.deleteAssociatePaymentTransaction(
           selectedProject._id, 
           associateId, 
@@ -413,20 +412,15 @@ const AssociateProjectsPage = () => {
         );
 
         if (response.success) {
-          // Remove the transaction from local state
-          const updatedHistory = paymentHistory.filter((_, i) => i !== index);
-          setPaymentHistory(updatedHistory);
-          
-          // Update the project data
+          // Update the project data in background
           fetchAssociateProjects();
-          
           showSuccess('Payment transaction deleted successfully!');
         }
       } catch (error) {
         console.error('Error deleting payment transaction:', error);
         showError('Failed to delete payment transaction. Please try again.');
-      } finally {
-        hideLoading();
+        // Restore on error
+        handleViewPayments(selectedProject, selectedAssociate);
       }
     }
   };

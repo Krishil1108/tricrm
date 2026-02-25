@@ -155,8 +155,6 @@ const ProjectDetailPage = () => {
 
   const handleAddPayment = async (newPayment, percentages) => {
     try {
-      showLoading();
-      
       // Add the new payment to the project's payments array
       const updatedPayments = [...(project.payments || []), newPayment];
       
@@ -179,25 +177,23 @@ const ProjectDetailPage = () => {
         })
       };
       
-      // Update the project
-      await FinanceService.updateProject(project._id, updateData);
+      // Optimistically update local state
+      setProject(updateData);
       
-      // Reload the project data
-      await loadAllData();
+      // Update the project in backend
+      await FinanceService.updateProject(project._id, updateData);
       
       showSuccess('Payment added successfully');
     } catch (error) {
       console.error('Error adding payment:', error);
       showError('Failed to add payment: ' + (error.response?.data?.message || error.message));
-    } finally {
-      hideLoading();
+      // Reload on error to restore correct state
+      await loadAllData();
     }
   };
 
   const handleEditPayment = async (paymentIndex, updatedPayment, percentages) => {
     try {
-      showLoading();
-      
       // Update the payment in the payments array
       const updatedPayments = [...project.payments];
       updatedPayments[paymentIndex] = updatedPayment;
@@ -221,25 +217,23 @@ const ProjectDetailPage = () => {
         })
       };
       
-      // Update the project
-      await FinanceService.updateProject(project._id, updateData);
+      // Optimistically update local state
+      setProject(updateData);
       
-      // Reload the project data
-      await loadAllData();
+      // Update the project in backend
+      await FinanceService.updateProject(project._id, updateData);
       
       showSuccess('Payment updated successfully');
     } catch (error) {
       console.error('Error updating payment:', error);
       showError('Failed to update payment: ' + (error.response?.data?.message || error.message));
-    } finally {
-      hideLoading();
+      // Reload on error to restore correct state
+      await loadAllData();
     }
   };
 
   const handleDeletePayment = async (paymentIndex) => {
     try {
-      showLoading();
-      
       // Remove the payment from the payments array
       const updatedPayments = project.payments.filter((_, index) => index !== paymentIndex);
       
@@ -253,18 +247,18 @@ const ProjectDetailPage = () => {
         totalReceivedFees: newTotalReceived
       };
       
-      // Update the project
-      await FinanceService.updateProject(project._id, updateData);
+      // Optimistically update local state
+      setProject(updateData);
       
-      // Reload the project data
-      await loadAllData();
+      // Update the project in backend
+      await FinanceService.updateProject(project._id, updateData);
       
       showSuccess('Payment deleted successfully');
     } catch (error) {
       console.error('Error deleting payment:', error);
       showError('Failed to delete payment: ' + (error.response?.data?.message || error.message));
-    } finally {
-      hideLoading();
+      // Reload on error to restore correct state
+      await loadAllData();
     }
   };
 
