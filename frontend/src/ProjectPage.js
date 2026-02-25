@@ -1467,13 +1467,12 @@ const ProjectPage = () => {
             <div className="modal-footer">
               {isEditingDistribution && (
                 <button 
-                  className="btn btn-success" 
+                  className="btn btn-secondary" 
                   onClick={() => {
                     if (window.saveDistributionChanges) {
                       window.saveDistributionChanges();
                     }
                   }}
-                  style={{ fontWeight: 'bold' }}
                 >
                   💾 Save Changes
                 </button>
