@@ -53,6 +53,15 @@ const YearlyDistributionTable = ({
   const [showEditPaymentModal, setShowEditPaymentModal] = useState(false);
   const [editingPaymentIndex, setEditingPaymentIndex] = useState(null);
 
+  // State for Inline Editing
+  const [inlineEditingIndex, setInlineEditingIndex] = useState(null);
+  const [inlineEditData, setInlineEditData] = useState({
+    amount: '',
+    date: '',
+    chequeNeftNumber: '',
+    mode: 'Cash'
+  });
+
   // Update editedData when projectData changes
   useEffect(() => {
     setEditedData({
@@ -224,6 +233,44 @@ const YearlyDistributionTable = ({
       officeManagementPercent: projectData.officeManagementPercent || 0,
     });
     setShowEditPaymentModal(true);
+  };
+
+  // Handler to start inline editing
+  const handleStartInlineEdit = (index) => {
+    const payment = projectData.payments[index];
+    setInlineEditingIndex(index);
+    setInlineEditData({
+      amount: payment.amount.toString(),
+      date: new Date(payment.date).toISOString().split('T')[0],
+      chequeNeftNumber: payment.chequeNeftNumber || '',
+      mode: payment.mode || 'Cash'
+    });
+  };
+
+  // Handler to save inline edit
+  const handleSaveInlineEdit = () => {
+    if (inlineEditingIndex !== null && onEditPayment) {
+      const updatedPayment = {
+        amount: parseFloat(inlineEditData.amount) || 0,
+        date: inlineEditData.date,
+        chequeNeftNumber: inlineEditData.chequeNeftNumber,
+        mode: inlineEditData.mode,
+        percentages: projectData.payments[inlineEditingIndex].percentages || {}
+      };
+      onEditPayment(inlineEditingIndex, updatedPayment);
+      setInlineEditingIndex(null);
+    }
+  };
+
+  // Handler to cancel inline edit
+  const handleCancelInlineEdit = () => {
+    setInlineEditingIndex(null);
+    setInlineEditData({
+      amount: '',
+      date: '',
+      chequeNeftNumber: '',
+      mode: 'Cash'
+    });
   };
 
   // Handler to close Edit Payment Modal
@@ -860,7 +907,7 @@ const YearlyDistributionTable = ({
                   {customField.name}
                 </th>
               ))}
-              {(onEditPayment || onDeletePayment) && <th style={{ width: '70px' }}>Actions</th>}
+              {(onEditPayment || onDeletePayment) && <th style={{ width: '50px' }}>Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -1076,10 +1123,83 @@ const YearlyDistributionTable = ({
               return (
                 <tr key={`payment-${index}`} className="payment-row">
                   <td>Payment {index + 1}</td>
-                  <td>{amount?.toLocaleString('en-IN')}</td>
-                  <td>{paymentDate.toLocaleDateString('en-IN')}</td>
-                  <td>{payment.chequeNeftNumber || '-'}</td>
-                  <td>{payment.mode || '-'}</td>
+                  <td>
+                    {inlineEditingIndex === index ? (
+                      <input
+                        type="number"
+                        value={inlineEditData.amount}
+                        onChange={(e) => setInlineEditData({...inlineEditData, amount: e.target.value})}
+                        style={{
+                          width: '100%',
+                          padding: '6px',
+                          border: '2px solid #3b82f6',
+                          borderRadius: '4px',
+                          fontSize: '14px'
+                        }}
+                      />
+                    ) : (
+                      amount?.toLocaleString('en-IN')
+                    )}
+                  </td>
+                  <td>
+                    {inlineEditingIndex === index ? (
+                      <input
+                        type="date"
+                        value={inlineEditData.date}
+                        onChange={(e) => setInlineEditData({...inlineEditData, date: e.target.value})}
+                        style={{
+                          width: '100%',
+                          padding: '6px',
+                          border: '2px solid #3b82f6',
+                          borderRadius: '4px',
+                          fontSize: '14px'
+                        }}
+                      />
+                    ) : (
+                      paymentDate.toLocaleDateString('en-IN')
+                    )}
+                  </td>
+                  <td>
+                    {inlineEditingIndex === index ? (
+                      <input
+                        type="text"
+                        value={inlineEditData.chequeNeftNumber}
+                        onChange={(e) => setInlineEditData({...inlineEditData, chequeNeftNumber: e.target.value})}
+                        style={{
+                          width: '100%',
+                          padding: '6px',
+                          border: '2px solid #3b82f6',
+                          borderRadius: '4px',
+                          fontSize: '14px'
+                        }}
+                      />
+                    ) : (
+                      payment.chequeNeftNumber || '-'
+                    )}
+                  </td>
+                  <td>
+                    {inlineEditingIndex === index ? (
+                      <select
+                        value={inlineEditData.mode}
+                        onChange={(e) => setInlineEditData({...inlineEditData, mode: e.target.value})}
+                        style={{
+                          width: '100%',
+                          padding: '6px',
+                          border: '2px solid #3b82f6',
+                          borderRadius: '4px',
+                          fontSize: '14px'
+                        }}
+                      >
+                        <option value="Cash">Cash</option>
+                        <option value="Cheque">Cheque</option>
+                        <option value="NEFT">NEFT</option>
+                        <option value="RTGS">RTGS</option>
+                        <option value="UPI">UPI</option>
+                      </select>
+                    ) : (
+                      payment.mode || '-'
+                    )}
+                  </td>
                   {effectiveFieldVisibility.profitMargin && (
                     <td>
                       {isEditable ? (
@@ -1223,62 +1343,108 @@ const YearlyDistributionTable = ({
                   })}
                   {(onEditPayment || onDeletePayment) && (
                     <td style={{ textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '4px', justifyContent: 'center' }}>
-                        {onEditPayment && (
-                          <button
-                            onClick={() => handleOpenEditPaymentModal(index)}
-                            style={{
-                              background: '#3b82f6',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '4px',
-                              padding: '6px 8px',
-                              cursor: 'pointer',
-                              fontSize: '12px',
-                              fontWeight: '600',
-                              transition: 'background 0.2s',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }}
-                            onMouseEnter={(e) => e.target.style.background = '#2563eb'}
-                            onMouseLeave={(e) => e.target.style.background = '#3b82f6'}
-                            title="Edit Payment"
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                          </button>
-                        )}
-                        {onDeletePayment && (
-                          <button
-                            onClick={() => handleDeletePayment(index)}
-                            style={{
-                              background: '#dc2626',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '4px',
-                              padding: '6px 8px',
-                              cursor: 'pointer',
-                              fontSize: '12px',
-                              fontWeight: '600',
-                              transition: 'background 0.2s',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }}
-                            onMouseEnter={(e) => e.target.style.background = '#b91c1c'}
-                            onMouseLeave={(e) => e.target.style.background = '#dc2626'}
-                            title="Delete Payment"
-                          >
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="3 6 5 6 21 6"></polyline>
-                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                              <line x1="10" y1="11" x2="10" y2="17"></line>
-                              <line x1="14" y1="11" x2="14" y2="17"></line>
-                            </svg>
-                          </button>
+                      <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexDirection: 'column' }}>
+                        {inlineEditingIndex === index ? (
+                          <>
+                            {/* Save Button */}
+                            <button
+                              onClick={handleSaveInlineEdit}
+                              style={{
+                                background: '#059669',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                padding: '4px 6px',
+                                cursor: 'pointer',
+                                fontSize: '11px',
+                                fontWeight: '600'
+                              }}
+                              title="Save"
+                            >
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                              </svg>
+                            </button>
+                            {/* Cancel Button */}
+                            <button
+                              onClick={handleCancelInlineEdit}
+                              style={{
+                                background: '#6b7280',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                padding: '4px 6px',
+                                cursor: 'pointer',
+                                fontSize: '11px',
+                                fontWeight: '600'
+                              }}
+                              title="Cancel"
+                            >
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                              </svg>
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            {onEditPayment && (
+                              <button
+                                onClick={() => handleStartInlineEdit(index)}
+                                style={{
+                                  background: '#3b82f6',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  padding: '4px 6px',
+                                  cursor: 'pointer',
+                                  fontSize: '11px',
+                                  fontWeight: '600',
+                                  transition: 'background 0.2s',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}
+                                onMouseEnter={(e) => e.target.style.background = '#2563eb'}
+                                onMouseLeave={(e) => e.target.style.background = '#3b82f6'}
+                                title="Edit Payment"
+                              >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                              </button>
+                            )}
+                            {onDeletePayment && (
+                              <button
+                                onClick={() => handleDeletePayment(index)}
+                                style={{
+                                  background: '#dc2626',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  padding: '4px 6px',
+                                  cursor: 'pointer',
+                                  fontSize: '11px',
+                                  fontWeight: '600',
+                                  transition: 'background 0.2s',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}
+                                onMouseEnter={(e) => e.target.style.background = '#b91c1c'}
+                                onMouseLeave={(e) => e.target.style.background = '#dc2626'}
+                                title="Delete Payment"
+                              >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="3 6 5 6 21 6"></polyline>
+                                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                              </button>
+                            )}
+                          </>
                         )}
                       </div>
                     </td>
