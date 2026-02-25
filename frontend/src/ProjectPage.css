@@ -1751,3 +1751,69 @@ button.finance-btn-secondary:hover:not(:disabled), .finance-btn-secondary:hover:
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 8px rgba(108, 117, 125, 0.25) !important;
 }
+/* Project Detail View Styles */
+.project-detail-container {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.project-detail-container h2,
+.project-detail-container h3 {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* Responsive Design for Project Details */
+@media (max-width: 1024px) {
+  .project-detail-container {
+    width: 98% !important;
+    height: 95vh !important;
+  }
+  
+  .project-detail-container > div:nth-child(2) > div:first-child {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .project-detail-container {
+    width: 100% !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+  }
+  
+  .project-detail-container > div:first-child {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 15px;
+  }
+  
+  .project-detail-container > div:first-child > div:last-child {
+    width: 100%;
+    flex-direction: column;
+  }
+  
+  .project-detail-container > div:first-child > div:last-child button {
+    width: 100%;
+  }
+}
+
+/* Enhanced Table Row Hover for Double Click Indication */
+.project-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.project-table tbody tr:hover {
+  background: #f8f9fa !important;
+  transform: scale(1.001);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}

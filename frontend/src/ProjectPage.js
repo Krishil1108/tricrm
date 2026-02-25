@@ -75,6 +75,10 @@ const ProjectPage = () => {
   const [showAssociateDistributionModal, setShowAssociateDistributionModal] = useState(false);
   const [dropdownOpenId, setDropdownOpenId] = useState(null);
   
+  // Project Detail View State
+  const [showProjectDetail, setShowProjectDetail] = useState(false);
+  const [selectedProjectDetail, setSelectedProjectDetail] = useState(null);
+  
   // Navigation dialog after saving
   const [showNavigationDialog, setShowNavigationDialog] = useState(false);
   
@@ -1637,6 +1641,376 @@ const ProjectPage = () => {
         </div>
       )}
 
+      {/* Project Detail View */}
+      {showProjectDetail && selectedProjectDetail && (
+        <div className="modal-overlay" onClick={() => setShowProjectDetail(false)}>
+          <div 
+            className="project-detail-container" 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '95%',
+              maxWidth: '1400px',
+              height: '90vh',
+              background: 'white',
+              borderRadius: '12px',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
+            }}
+          >
+            {/* Header with Action Buttons */}
+            <div style={{
+              padding: '20px 30px',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              borderBottom: '1px solid #e5e7eb'
+            }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '600' }}>
+                  {selectedProjectDetail.projectName}
+                </h2>
+                <p style={{ margin: '4px 0 0 0', opacity: 0.9, fontSize: '14px' }}>
+                  Project #{selectedProjectDetail.projectNumber}
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                {canEditProject && (
+                  <button
+                    onClick={() => {
+                      setShowProjectDetail(false);
+                      handleEdit(selectedProjectDetail);
+                    }}
+                    style={{
+                      padding: '10px 20px',
+                      background: 'rgba(255, 255, 255, 0.2)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      borderRadius: '8px',
+                      color: 'white',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+                  >
+                    <FaEdit /> Edit Details
+                  </button>
+                )}
+                {canDeleteProject && (
+                  <button
+                    onClick={() => {
+                      setShowProjectDetail(false);
+                      handleDelete(selectedProjectDetail._id);
+                    }}
+                    style={{
+                      padding: '10px 20px',
+                      background: 'rgba(220, 38, 38, 0.9)',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      borderRadius: '8px',
+                      color: 'white',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(220, 38, 38, 1)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(220, 38, 38, 0.9)'}
+                  >
+                    <FaTrash /> Delete
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowProjectDetail(false)}
+                  style={{
+                    padding: '10px 20px',
+                    background: 'rgba(255, 255, 255, 0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    borderRadius: '8px',
+                    color: 'white',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+
+            {/* Content Area */}
+            <div style={{ 
+              flex: 1, 
+              overflow: 'auto', 
+              padding: '30px',
+              background: '#f8f9fa'
+            }}>
+              {/* Top Section: Client Info, Fees, Associates */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '20px',
+                marginBottom: '30px'
+              }}>
+                {/* Client & Fees Card */}
+                <div style={{
+                  background: 'white',
+                  borderRadius: '10px',
+                  padding: '24px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                }}>
+                  <h3 style={{ 
+                    margin: '0 0 20px 0', 
+                    fontSize: '18px', 
+                    fontWeight: '600',
+                    color: '#1f2937',
+                    borderBottom: '2px solid #667eea',
+                    paddingBottom: '10px'
+                  }}>
+                    Client & Financial Details
+                  </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: '#6b7280', fontSize: '14px' }}>Client:</span>
+                      <span style={{ fontWeight: '600', color: '#1f2937', fontSize: '14px' }}>
+                        {clients.find(c => c._id === selectedProjectDetail.clientId)?.name || 'N/A'}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: '#6b7280', fontSize: '14px' }}>Company:</span>
+                      <span style={{ fontWeight: '600', color: '#1f2937', fontSize: '14px' }}>
+                        {clients.find(c => c._id === selectedProjectDetail.clientId)?.company || 'N/A'}
+                      </span>
+                    </div>
+                    <div style={{ height: '1px', background: '#e5e7eb', margin: '6px 0' }}></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: '#6b7280', fontSize: '14px' }}>Location:</span>
+                      <span style={{ fontWeight: '600', color: '#1f2937', fontSize: '14px' }}>
+                        {selectedProjectDetail.projectLocation || 'N/A'}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: '#6b7280', fontSize: '14px' }}>Status:</span>
+                      <span className={`status-badge status-${selectedProjectDetail.status.toLowerCase().replace(' ', '')}`}>
+                        {selectedProjectDetail.status}
+                      </span>
+                    </div>
+                    <div style={{ height: '1px', background: '#e5e7eb', margin: '6px 0' }}></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: '#6b7280', fontSize: '14px' }}>Finalized Fees:</span>
+                      <span style={{ fontWeight: '700', color: '#059669', fontSize: '16px' }}>
+                        {formatCurrency(selectedProjectDetail.finalizedFees)}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: '#6b7280', fontSize: '14px' }}>Total Received:</span>
+                      <span style={{ fontWeight: '700', color: '#2563eb', fontSize: '16px' }}>
+                        {formatCurrency(selectedProjectDetail.totalReceivedFees)}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: '#6b7280', fontSize: '14px' }}>Pending:</span>
+                      <span style={{ 
+                        fontWeight: '700', 
+                        color: (selectedProjectDetail.finalizedFees - selectedProjectDetail.totalReceivedFees) > 0 ? '#dc2626' : '#059669',
+                        fontSize: '16px'
+                      }}>
+                        {formatCurrency(selectedProjectDetail.finalizedFees - selectedProjectDetail.totalReceivedFees)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Associates Card */}
+                <div style={{
+                  background: 'white',
+                  borderRadius: '10px',
+                  padding: '24px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                }}>
+                  <h3 style={{ 
+                    margin: '0 0 20px 0', 
+                    fontSize: '18px', 
+                    fontWeight: '600',
+                    color: '#1f2937',
+                    borderBottom: '2px solid #667eea',
+                    paddingBottom: '10px'
+                  }}>
+                    Associate Information
+                  </h3>
+                  {selectedProjectDetail.projectAssociates && selectedProjectDetail.projectAssociates.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                      {selectedProjectDetail.projectAssociates.map((assoc, index) => {
+                        const associateInfo = associates.find(a => a._id === assoc.associateId);
+                        return (
+                          <div key={index} style={{
+                            padding: '14px',
+                            background: '#f8f9fa',
+                            borderRadius: '8px',
+                            border: '1px solid #e5e7eb'
+                          }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                              <span style={{ fontWeight: '600', color: '#1f2937', fontSize: '14px' }}>
+                                {associateInfo?.name || 'Unknown'}
+                              </span>
+                              <span style={{ 
+                                background: '#667eea', 
+                                color: 'white', 
+                                padding: '2px 10px', 
+                                borderRadius: '12px',
+                                fontSize: '12px',
+                                fontWeight: '600'
+                              }}>
+                                {assoc.percentage}%
+                              </span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#6b7280' }}>
+                              <span>Amount Paid:</span>
+                              <span style={{ fontWeight: '600', color: '#059669' }}>
+                                {formatCurrency(assoc.amountPaid || 0)}
+                              </span>
+                            </div>
+                            {assoc.paymentGivenDate && (
+                              <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '4px' }}>
+                                Date: {new Date(assoc.paymentGivenDate).toLocaleDateString()}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div style={{ 
+                      textAlign: 'center', 
+                      padding: '40px 20px', 
+                      color: '#9ca3af'
+                    }}>
+                      <FaUsers style={{ fontSize: '48px', marginBottom: '12px', opacity: 0.3 }} />
+                      <p style={{ margin: 0, fontSize: '14px' }}>No associates assigned</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Financial Year Distribution Table */}
+              <div style={{
+                background: 'white',
+                borderRadius: '10px',
+                padding: '24px',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+              }}>
+                <h3 style={{ 
+                  margin: '0 0 20px 0', 
+                  fontSize: '18px', 
+                  fontWeight: '600',
+                  color: '#1f2937',
+                  borderBottom: '2px solid #667eea',
+                  paddingBottom: '10px'
+                }}>
+                  Financial Year - Expense Distribution
+                </h3>
+                {selectedProjectDetail.payments && selectedProjectDetail.payments.length > 0 ? (
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                      fontSize: '14px'
+                    }}>
+                      <thead>
+                        <tr style={{ background: '#f8f9fa', borderBottom: '2px solid #e5e7eb' }}>
+                          <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Financial Year</th>
+                          <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600', color: '#374151' }}>Payment Date</th>
+                          <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600', color: '#374151' }}>Payment Mode</th>
+                          <th style={{ padding: '12px', textAlign: 'center', fontWeight: '600', color: '#374151' }}>Reference Number</th>
+                          <th style={{ padding: '12px', textAlign: 'right', fontWeight: '600', color: '#374151' }}>Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedProjectDetail.payments
+                          .sort((a, b) => new Date(b.date) - new Date(a.date))
+                          .map((payment, index) => {
+                            const paymentDate = new Date(payment.date);
+                            const financialYear = paymentDate.getMonth() >= 3 
+                              ? `${paymentDate.getFullYear()}-${paymentDate.getFullYear() + 1}`
+                              : `${paymentDate.getFullYear() - 1}-${paymentDate.getFullYear()}`;
+                            
+                            return (
+                              <tr key={index} style={{ 
+                                borderBottom: '1px solid #e5e7eb',
+                                transition: 'background 0.2s'
+                              }}
+                              onMouseEnter={(e) => e.currentTarget.style.background = '#f8f9fa'}
+                              onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+                              >
+                                <td style={{ padding: '12px', fontWeight: '500', color: '#1f2937' }}>
+                                  FY {financialYear}
+                                </td>
+                                <td style={{ padding: '12px', textAlign: 'center', color: '#6b7280' }}>
+                                  {new Date(payment.date).toLocaleDateString('en-IN')}
+                                </td>
+                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                  <span style={{
+                                    padding: '4px 10px',
+                                    background: '#e0e7ff',
+                                    color: '#4338ca',
+                                    borderRadius: '12px',
+                                    fontSize: '12px',
+                                    fontWeight: '500'
+                                  }}>
+                                    {payment.mode || 'N/A'}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '12px', textAlign: 'center', color: '#6b7280', fontFamily: 'monospace' }}>
+                                  {payment.chequeNeftNumber || '-'}
+                                </td>
+                                <td style={{ padding: '12px', textAlign: 'right', fontWeight: '600', color: '#059669' }}>
+                                  {formatCurrency(payment.amount)}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                      </tbody>
+                      <tfoot>
+                        <tr style={{ background: '#f0fdf4', borderTop: '2px solid #10b981' }}>
+                          <td colSpan="4" style={{ padding: '14px', fontWeight: '700', color: '#065f46' }}>
+                            Total Received
+                          </td>
+                          <td style={{ padding: '14px', textAlign: 'right', fontWeight: '700', color: '#065f46', fontSize: '16px' }}>
+                            {formatCurrency(selectedProjectDetail.totalReceivedFees)}
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+                ) : (
+                  <div style={{ 
+                    textAlign: 'center', 
+                    padding: '60px 20px', 
+                    color: '#9ca3af'
+                  }}>
+                    <FiCreditCard style={{ fontSize: '48px', marginBottom: '12px', opacity: 0.3 }} />
+                    <p style={{ margin: 0, fontSize: '14px' }}>No payment records available</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Navigation Dialog after saving from Client Management */}
       {showNavigationDialog && (
         <div className="modal-overlay" style={{ zIndex: 1100 }}>
@@ -2090,7 +2464,15 @@ const ProjectsTable = ({
         </thead>
         <tbody>
           {projects.map((project) => (
-            <tr key={project._id}>
+            <tr 
+              key={project._id}
+              onDoubleClick={() => {
+                setSelectedProjectDetail(project);
+                setShowProjectDetail(true);
+              }}
+              style={{ cursor: 'pointer' }}
+              title="Double-click to view project details"
+            >
               <td>{project.projectNumber}</td>
               <td>{project.projectName}</td>
               <td>{project.projectLocation || '-'}</td>
