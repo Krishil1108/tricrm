@@ -264,7 +264,36 @@ const ProjectDetailPage = () => {
 
 
   if (!project) {
-    return <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>;
+    return (
+      <div style={{ minHeight: '100vh', background: '#f8f9fa', padding: '20px' }}>
+        {/* Skeleton header - gives browser an early LCP candidate */}
+        <div style={{
+          padding: '16px 20px',
+          background: '#2c5282',
+          borderRadius: '6px',
+          marginBottom: '20px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        }}>
+          <h3 style={{ margin: 0, color: 'rgba(255,255,255,0.4)', fontSize: '20px', fontWeight: 600 }}>
+            Loading project...
+          </h3>
+        </div>
+        {/* Skeleton cards */}
+        {[1, 2].map(i => (
+          <div key={i} style={{
+            background: 'white',
+            borderRadius: '10px',
+            padding: '24px',
+            marginBottom: '16px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+          }}>
+            <div style={{ height: 16, width: '40%', background: '#e5e7eb', borderRadius: 4, marginBottom: 12 }} />
+            <div style={{ height: 12, width: '80%', background: '#f3f4f6', borderRadius: 4, marginBottom: 8 }} />
+            <div style={{ height: 12, width: '60%', background: '#f3f4f6', borderRadius: 4 }} />
+          </div>
+        ))}
+      </div>
+    );
   }
 
   return (
