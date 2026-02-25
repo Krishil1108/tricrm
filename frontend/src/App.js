@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import './styles/theme.css';
@@ -10,22 +10,38 @@ import { ToastProvider } from './context/ToastContext';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
 import DefaultRoute from './DefaultRoute';
-import LoginPage from './LoginPage';
-import ForgotPasswordPage from './ForgotPasswordPage';
-import ResetPasswordPage from './ResetPasswordPage';
-import Sidebar from './Sidebar';
-import HomePage from './HomePage';
-import ClientsPage from './ClientsPage';
-import ClientProjectsPage from './ClientProjectsPage';
-import AssociatesPage from './AssociatesPage';
-import AssociateProjectsPage from './AssociateProjectsPage';
-import SettingsPage from './SettingsPage';
-import ProjectPage from './ProjectPage';
-import ProjectDetailPage from './ProjectDetailPage';
-import UserManagementPage from './UserManagementPage';
-import RoleManagementPage from './RoleManagementPage';
-import AnalyticsDashboard from './AnalyticsDashboard';
-import ExpenseDistribution from './ExpenseDistribution';
+
+// Lazy load all route components for code splitting and faster initial load
+const LoginPage = lazy(() => import('./LoginPage'));
+const ForgotPasswordPage = lazy(() => import('./ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./ResetPasswordPage'));
+const Sidebar = lazy(() => import('./Sidebar'));
+const HomePage = lazy(() => import('./HomePage'));
+const ClientsPage = lazy(() => import('./ClientsPage'));
+const ClientProjectsPage = lazy(() => import('./ClientProjectsPage'));
+const AssociatesPage = lazy(() => import('./AssociatesPage'));
+const AssociateProjectsPage = lazy(() => import('./AssociateProjectsPage'));
+const SettingsPage = lazy(() => import('./SettingsPage'));
+const ProjectPage = lazy(() => import('./ProjectPage'));
+const ProjectDetailPage = lazy(() => import('./ProjectDetailPage'));
+const UserManagementPage = lazy(() => import('./UserManagementPage'));
+const RoleManagementPage = lazy(() => import('./RoleManagementPage'));
+const AnalyticsDashboard = lazy(() => import('./AnalyticsDashboard'));
+const ExpenseDistribution = lazy(() => import('./ExpenseDistribution'));
+
+// Lightweight loading fallback
+const PageLoader = () => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100vh',
+    fontSize: '14px',
+    color: '#666'
+  }}>
+    Loading...
+  </div>
+);
 
 function App() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
@@ -41,49 +57,50 @@ function App() {
           <CompanyProvider>
             <AppModeProvider>
               <ToastProvider>
-                <Routes>
-                  {/* Public routes - Login and Password Reset */}
-                  <Route path="/login" element={
-                    <PublicRoute>
-                      <LoginPage />
-                    </PublicRoute>
-                  } />
-                  
-                  <Route path="/forgot-password" element={
-                    <PublicRoute>
-                      <ForgotPasswordPage />
-                    </PublicRoute>
-                  } />
-                  
-                  <Route path="/reset-password/:token" element={
-                    <PublicRoute>
-                      <ResetPasswordPage />
-                    </PublicRoute>
-                  } />
-                  
-                  {/* Full-screen project detail page - No sidebar */}
-                  <Route 
-                    path="/projects/:projectId" 
-                    element={
-                      <ProtectedRoute requireModule="finance">
-                        <ProjectDetailPage />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  
-                  {/* Protected routes with layout */}
-                  <Route
-                    path="/*"
-                    element={
-                      <ProtectedRoute>
-                        <div className="App">
-                          <Sidebar 
-                            isExpanded={isSidebarExpanded} 
-                            toggleSidebar={toggleSidebar}
-                          />
-                          
-                          <div className={`main-content ${isSidebarExpanded ? 'sidebar-expanded' : 'sidebar-collapsed'}`}>
-                          <Routes>
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
+                    {/* Public routes - Login and Password Reset */}
+                    <Route path="/login" element={
+                      <PublicRoute>
+                        <LoginPage />
+                      </PublicRoute>
+                    } />
+                    
+                    <Route path="/forgot-password" element={
+                      <PublicRoute>
+                        <ForgotPasswordPage />
+                      </PublicRoute>
+                    } />
+                    
+                    <Route path="/reset-password/:token" element={
+                      <PublicRoute>
+                        <ResetPasswordPage />
+                      </PublicRoute>
+                    } />
+                    
+                    {/* Full-screen project detail page - No sidebar */}
+                    <Route 
+                      path="/projects/:projectId" 
+                      element={
+                        <ProtectedRoute requireModule="finance">
+                          <ProjectDetailPage />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    
+                    {/* Protected routes with layout */}
+                    <Route
+                      path="/*"
+                      element={
+                        <ProtectedRoute>
+                          <div className="App">
+                            <Sidebar 
+                              isExpanded={isSidebarExpanded} 
+                              toggleSidebar={toggleSidebar}
+                            />
+                            
+                            <div className={`main-content ${isSidebarExpanded ? 'sidebar-expanded' : 'sidebar-collapsed'}`}>
+                            <Routes>
                             <Route path="/" element={<DefaultRoute />} />
                             
                             <Route 
@@ -193,6 +210,7 @@ function App() {
                   }
                 />
               </Routes>
+            </Suspense>
             </ToastProvider>
           </AppModeProvider>
         </CompanyProvider>
