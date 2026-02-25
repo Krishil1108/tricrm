@@ -684,7 +684,12 @@ const AssociatesPage = () => {
               </thead>
               <tbody>
                 {currentAssociates.map(associate => (
-                  <tr key={associate._id}>
+                  <tr
+                    key={associate._id}
+                    onDoubleClick={() => canViewAssociatedProjects() && handleViewProjects(associate)}
+                    style={{ cursor: canViewAssociatedProjects() ? 'pointer' : 'default' }}
+                    title={canViewAssociatedProjects() ? 'Double-click to view projects' : ''}
+                  >
                     <td>
                       <div className="client-name">
                         <div className="client-avatar">
@@ -715,20 +720,6 @@ const AssociatesPage = () => {
                     <td>{formatDate(associate.createdAt)}</td>
                     <td style={{ textAlign: 'center' }}>
                       <div className="flex items-center gap-2" style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                        {/* View Projects */}
-                        {canViewAssociatedProjects() && (
-                          <button
-                            onClick={() => handleViewProjects(associate)}
-                            className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                            style={{ padding: '8px', color: '#9333ea', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
-                            title="View Projects"
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#faf5ff'}
-                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                          >
-                            <FaFolder className="w-5 h-5" style={{ width: '20px', height: '20px' }} />
-                          </button>
-                        )}
-                        
                         {/* Edit Associate */}
                         {canEditAssociate() && (
                           <button

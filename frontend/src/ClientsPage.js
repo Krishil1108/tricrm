@@ -850,20 +850,6 @@ const ClientsPage = () => {
                           </button>
                         )}
 
-                        {/* View Projects */}
-                        {canViewClientProjects() && (
-                          <button
-                            onClick={() => handleViewProjects(client)}
-                            className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                            style={{ padding: '8px', color: '#9333ea', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
-                            title="View Projects"
-                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#faf5ff'}
-                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                          >
-                            <FaFolder className="w-5 h-5" style={{ width: '20px', height: '20px' }} />
-                          </button>
-                        )}
-                        
                         {/* Delete Client */}
                         {canDeleteClient() && (
                           <button
