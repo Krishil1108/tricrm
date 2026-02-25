@@ -21,6 +21,7 @@ import AssociatesPage from './AssociatesPage';
 import AssociateProjectsPage from './AssociateProjectsPage';
 import SettingsPage from './SettingsPage';
 import ProjectPage from './ProjectPage';
+import ProjectDetailPage from './ProjectDetailPage';
 import UserManagementPage from './UserManagementPage';
 import RoleManagementPage from './RoleManagementPage';
 import AnalyticsDashboard from './AnalyticsDashboard';
@@ -125,6 +126,15 @@ function App() {
                               element={
                                 <ProtectedRoute requireModule="finance">
                                   <ProjectPage />
+                                </ProtectedRoute>
+                              } 
+                            />
+                            
+                            <Route 
+                              path="/projects/:projectId" 
+                              element={
+                                <ProtectedRoute requireModule="finance">
+                                  <ProjectDetailPage />
                                 </ProtectedRoute>
                               } 
                             />
