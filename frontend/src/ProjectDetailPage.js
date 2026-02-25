@@ -139,41 +139,41 @@ const ProjectDetailPage = () => {
       <div style={{ padding: '20px' }}>
       {/* Header with Action Buttons */}
       <div style={{
-        padding: '30px',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        padding: '16px 20px',
+        background: '#2c5282',
         color: 'white',
-        borderRadius: '12px',
-        marginBottom: '30px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+        borderRadius: '6px',
+        marginBottom: '20px',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ flex: 1 }}>
             <button
               onClick={() => navigate('/projects')}
               style={{
-                padding: '10px 20px',
-                background: 'rgba(255, 255, 255, 0.2)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                borderRadius: '8px',
+                padding: '6px 14px',
+                background: 'rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                borderRadius: '6px',
                 color: 'white',
                 cursor: 'pointer',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: '500',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px',
-                marginBottom: '15px',
+                gap: '6px',
+                marginBottom: '10px',
                 transition: 'all 0.2s'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
             >
               <FaArrowLeft /> Back to Projects
             </button>
-            <h1 style={{ margin: '0 0 8px 0', fontSize: '32px', fontWeight: '600' }}>
+            <h1 style={{ margin: '0 0 4px 0', fontSize: '24px', fontWeight: '600' }}>
               {project.projectName}
             </h1>
-            <p style={{ margin: 0, opacity: 0.9, fontSize: '16px' }}>
+            <p style={{ margin: 0, opacity: 0.85, fontSize: '14px' }}>
               Project #{project.projectNumber}
             </p>
           </div>
@@ -182,10 +182,10 @@ const ProjectDetailPage = () => {
               <button
                 onClick={handleEdit}
                 style={{
-                  padding: '12px 24px',
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  borderRadius: '8px',
+                  padding: '8px 16px',
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  border: '1px solid rgba(255, 255, 255, 0.25)',
+                  borderRadius: '6px',
                   color: 'white',
                   cursor: 'pointer',
                   fontSize: '14px',
@@ -195,8 +195,8 @@ const ProjectDetailPage = () => {
                   gap: '8px',
                   transition: 'all 0.2s'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
               >
                 <FaEdit /> Edit Details
               </button>
@@ -205,10 +205,10 @@ const ProjectDetailPage = () => {
               <button
                 onClick={handleDelete}
                 style={{
-                  padding: '12px 24px',
-                  background: 'rgba(220, 38, 38, 0.9)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  borderRadius: '8px',
+                  padding: '8px 16px',
+                  background: '#dc2626',
+                  border: '1px solid rgba(255, 255, 255, 0.25)',
+                  borderRadius: '6px',
                   color: 'white',
                   cursor: 'pointer',
                   fontSize: '14px',
@@ -218,8 +218,8 @@ const ProjectDetailPage = () => {
                   gap: '8px',
                   transition: 'all 0.2s'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(220, 38, 38, 1)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(220, 38, 38, 0.9)'}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#b91c1c'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#dc2626'}
               >
                 <FaTrash /> Delete
               </button>
