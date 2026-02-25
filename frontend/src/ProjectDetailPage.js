@@ -11,6 +11,7 @@ import { useAuth } from './contexts/AuthContext';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
 import YearlyDistributionTable from './components/YearlyDistributionTable';
+import AssociateDistributionTable from './components/AssociateDistributionTable';
 
 const ProjectDetailPage = () => {
   const { projectId } = useParams();
@@ -480,6 +481,12 @@ const ProjectDetailPage = () => {
         onAddPayment={handleAddPayment}
         onEditPayment={handleEditPayment}
         onDeletePayment={handleDeletePayment}
+      />
+
+      {/* Associate Distribution Table */}
+      <AssociateDistributionTable 
+        projectData={project}
+        associates={associates}
       />
     </div>
     </div>

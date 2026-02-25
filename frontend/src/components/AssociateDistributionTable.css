@@ -1,0 +1,196 @@
+.associate-distribution-container {
+  margin-top: 30px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.associate-distribution-header {
+  background: #2c5282;
+  color: white;
+  padding: 16px 20px;
+  border-radius: 6px 6px 0 0;
+}
+
+.associate-distribution-header h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.associate-summary {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.associate-distribution-content {
+  padding: 0;
+}
+
+.associate-distribution-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.associate-distribution-table thead {
+  background: #f3f4f6;
+}
+
+.associate-distribution-table th {
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.associate-distribution-table tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.associate-distribution-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.associate-distribution-table td {
+  padding: 14px 16px;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.percentage-badge {
+  background: #667eea;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.total-row {
+  background: #f3f4f6 !important;
+  font-weight: 600;
+}
+
+.total-row td {
+  border-top: 2px solid #d1d5db;
+  padding: 16px;
+}
+
+/* Payment Details Section */
+.associate-payment-details {
+  padding: 24px;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
+
+.associate-payment-details h4 {
+  margin: 0 0 20px 0;
+  font-size: 1rem;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.associate-payment-section {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #e5e7eb;
+}
+
+.associate-payment-section:last-child {
+  margin-bottom: 0;
+}
+
+.associate-payment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.associate-payment-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: #1f2937;
+}
+
+.associate-payment-percentage {
+  background: #667eea;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.payment-breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.payment-breakdown-table thead {
+  background: #f9fafb;
+}
+
+.payment-breakdown-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #6b7280;
+  font-size: 13px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.payment-breakdown-table td {
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #374151;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.payment-breakdown-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.no-payments {
+  text-align: center;
+  color: #9ca3af;
+  padding: 20px;
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .associate-distribution-table {
+    font-size: 12px;
+  }
+
+  .associate-distribution-table th,
+  .associate-distribution-table td {
+    padding: 10px 8px;
+  }
+
+  .associate-distribution-header {
+    padding: 12px 16px;
+  }
+
+  .associate-payment-details {
+    padding: 16px;
+  }
+
+  .payment-breakdown-table {
+    font-size: 12px;
+  }
+}
