@@ -2,9 +2,16 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Role = require('../models/Role');
 
-// JWT Secret - In production, move to environment variable
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this-in-production';
-const JWT_EXPIRE = process.env.JWT_EXPIRE || '24h';
+// Validate that JWT_SECRET is properly configured - crash on startup if not
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET || JWT_SECRET === 'your-secret-key-change-this-in-production' || JWT_SECRET.length < 32) {
+  console.error('FATAL: JWT_SECRET is not set or is insecure. Set a strong secret in your .env file.');
+  console.error('Generate one with: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"');
+  process.exit(1);
+}
+
+// Use 8h expiry - short enough to limit damage from stolen tokens
+const JWT_EXPIRE = process.env.JWT_EXPIRE || '8h';
 
 // Generate JWT Token
 const generateToken = (userId) => {

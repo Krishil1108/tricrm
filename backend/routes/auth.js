@@ -9,13 +9,14 @@ const emailService = require('../utils/emailService');
 const { authLimiter, strictLimiter } = require('../middleware/sanitization');
 const { ValidationError, NotFoundError } = require('../errors/AppError');
 const { asyncHandler } = require('../errors/asyncHandler');
+const { auditLog, auditLogEvent } = require('../middleware/auditLog');
 
 // @route   POST /api/auth/login
 // @desc    Login user
 // @access  Public
-router.post('/login', [
+router.post('/login', authLimiter, auditLog('LOGIN', 'User'), [
   body('username').trim().notEmpty().withMessage('Username is required'),
-  body('password').notEmpty().withMessage('Password is required')
+  body('password').notEmpty().withMessage('Password is required').isLength({ min: 1, max: 128 }).withMessage('Password too long')
 ], async (req, res) => {
   try {
     // Check validation errors
@@ -35,6 +36,7 @@ router.post('/login', [
     }).populate('role');
 
     if (!user) {
+      await auditLogEvent(req, 'LOGIN_FAILED', 'User', { reason: 'User not found', username });
       return res.status(401).json({ 
         success: false, 
         message: 'Invalid username or password' 
@@ -43,6 +45,7 @@ router.post('/login', [
 
     // Check if user is active
     if (!user.isActive) {
+      await auditLogEvent(req, 'LOGIN_FAILED', 'User', { reason: 'Account inactive', username });
       return res.status(403).json({ 
         success: false, 
         message: 'Account is inactive. Please contact administrator.' 
@@ -52,6 +55,7 @@ router.post('/login', [
     // Check password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
+      await auditLogEvent(req, 'LOGIN_FAILED', 'User', { reason: 'Wrong password', username });
       return res.status(401).json({ 
         success: false, 
         message: 'Invalid username or password' 
@@ -78,8 +82,7 @@ router.post('/login', [
     console.error('Login error:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Server error during login', 
-      error: error.message 
+      message: 'Server error during login'
     });
   }
 });
@@ -101,8 +104,7 @@ router.get('/me', authenticate, async (req, res) => {
     console.error('Get user error:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Server error', 
-      error: error.message 
+      message: 'Server error'
     });
   }
 });
@@ -110,7 +112,7 @@ router.get('/me', authenticate, async (req, res) => {
 // @route   POST /api/auth/logout
 // @desc    Logout user (client-side token removal)
 // @access  Private
-router.post('/logout', authenticate, async (req, res) => {
+router.post('/logout', authenticate, auditLog('LOGOUT', 'User'), async (req, res) => {
   try {
     // In a JWT system, logout is primarily handled client-side by removing the token
     // You could add token blacklisting here if needed
@@ -122,8 +124,7 @@ router.post('/logout', authenticate, async (req, res) => {
     console.error('Logout error:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Server error during logout', 
-      error: error.message 
+      message: 'Server error during logout'
     });
   }
 });
@@ -133,8 +134,11 @@ router.post('/logout', authenticate, async (req, res) => {
 // @access  Private
 router.post('/change-password', [
   authenticate,
+  auditLog('PASSWORD_CHANGE', 'User'),
   body('currentPassword').notEmpty().withMessage('Current password is required'),
-  body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters')
+  body('newPassword')
+    .isLength({ min: 8 }).withMessage('New password must be at least 8 characters')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/).withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -172,8 +176,7 @@ router.post('/change-password', [
     console.error('Change password error:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Server error', 
-      error: error.message 
+      message: 'Server error'
     });
   }
 });
@@ -201,8 +204,7 @@ router.get('/permissions', authenticate, async (req, res) => {
     console.error('Get permissions error:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Server error', 
-      error: error.message 
+      message: 'Server error'
     });
   }
 });

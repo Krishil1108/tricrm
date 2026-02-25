@@ -3,8 +3,21 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
+const hpp = require('hpp');
 const path = require('path');
 require('dotenv').config();
+
+// ============================================
+// STARTUP ENVIRONMENT VALIDATION
+// Crash fast if critical environment variables are missing
+// ============================================
+const REQUIRED_ENV_VARS = ['JWT_SECRET', 'MONGODB_URI'];
+const missingVars = REQUIRED_ENV_VARS.filter(v => !process.env[v]);
+if (missingVars.length > 0) {
+  console.error(`FATAL: Missing required environment variables: ${missingVars.join(', ')}`);
+  console.error('Please set these in your .env file before starting the server.');
+  process.exit(1);
+}
 
 // Import error handling
 const { globalErrorHandler } = require('./middleware/errorHandler');
@@ -66,7 +79,10 @@ app.use(cors(corsOptions));
 
 // Handle preflight requests explicitly
 app.options('*', cors(corsOptions));
-app.use(express.json());
+
+// Limit request body to 10kb to prevent large payload attacks
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // Response compression middleware (use early for better performance)
 app.use(compression({
@@ -107,6 +123,9 @@ app.use(mongoSanitize());
 
 // Data sanitization against XSS attacks
 app.use(sanitizeInput);
+
+// Prevent HTTP Parameter Pollution attacks
+app.use(hpp());
 
 // Attach response helper methods to res object
 app.use(attachResponseHelpers);

@@ -4,15 +4,23 @@
  */
 
 const isDevelopment = process.env.NODE_ENV === 'development';
+const isProduction = process.env.NODE_ENV === 'production';
 
 class ErrorResponse {
   constructor(error, req = null) {
     this.statusCode = error.statusCode || 500;
     this.errorCode = error.errorCode || 'INTERNAL_SERVER_ERROR';
-    this.message = error.message || 'An error occurred';
     this.timestamp = error.timestamp || new Date().toISOString();
     
-    // Additional fields for development
+    // In production, mask internal server error messages to avoid leaking implementation details
+    // Only safe, intentional app errors (4xx or AppError instances) reveal their message
+    if (isProduction && this.statusCode >= 500 && !error.isOperational) {
+      this.message = 'An internal server error occurred. Please try again later.';
+    } else {
+      this.message = error.message || 'An error occurred';
+    }
+    
+    // Stack trace and request details only in development
     if (isDevelopment) {
       this.stack = error.stack;
       this.path = req?.originalUrl || null;
@@ -24,7 +32,7 @@ class ErrorResponse {
       this.field = error.field;
     }
     
-    // Additional details
+    // Validation errors array (safe to expose - they're user-facing field errors)
     this.errors = error.errors || null;
   }
 
