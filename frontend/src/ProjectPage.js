@@ -2039,7 +2039,7 @@ const ProjectsTable = ({
                 {renderSortIcon('projectName', sortConfig)}
               </button>
             </th>
-            <th aria-sort={sortConfig?.key === 'projectLocation' ? sortConfig.direction : 'none'}>
+            <th style={{ width: '150px' }} aria-sort={sortConfig?.key === 'projectLocation' ? sortConfig.direction : 'none'}>
               <button
                 type="button"
                 className={`sortable-header ${sortConfig?.key === 'projectLocation' ? 'active' : ''}`}
@@ -2094,7 +2094,7 @@ const ProjectsTable = ({
             >
               <td>{project.projectNumber}</td>
               <td>{project.projectName}</td>
-              <td>{project.projectLocation || '-'}</td>
+              <td style={{ width: '150px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{project.projectLocation || '-'}</td>
               <td style={{ 
                 color: (project.finalizedFees || 0) === 0 ? 'red' : 'inherit',
                 fontWeight: (project.finalizedFees || 0) === 0 ? 'bold' : 'normal'
