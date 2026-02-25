@@ -94,19 +94,5 @@
       <div class="loading-spinner"></div>
     </div>
     <div id="root"></div>
-    <script>
-      // Hide loading screen when React app loads
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          const loadingScreen = document.getElementById('loading-screen');
-          if (loadingScreen) {
-            loadingScreen.classList.add('hidden');
-            setTimeout(function() {
-              loadingScreen.style.display = 'none';
-            }, 300);
-          }
-        }, 500);
-      });
-    </script>
   </body>
 </html>

@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import './styles/theme.css';
@@ -29,22 +29,17 @@ const RoleManagementPage = lazy(() => import('./RoleManagementPage'));
 const AnalyticsDashboard = lazy(() => import('./AnalyticsDashboard'));
 const ExpenseDistribution = lazy(() => import('./ExpenseDistribution'));
 
-// Lightweight loading fallback
-const PageLoader = () => (
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh',
-    fontSize: '14px',
-    color: '#666'
-  }}>
-    Loading...
-  </div>
-);
-
 function App() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+
+  // Hide the HTML loading screen the moment React mounts — no overlap with Suspense
+  useEffect(() => {
+    const el = document.getElementById('loading-screen');
+    if (el) {
+      el.classList.add('hidden');
+      setTimeout(() => { el.style.display = 'none'; }, 300);
+    }
+  }, []);
 
   const toggleSidebar = () => {
     setIsSidebarExpanded(!isSidebarExpanded);
@@ -57,7 +52,7 @@ function App() {
           <CompanyProvider>
             <AppModeProvider>
               <ToastProvider>
-                <Suspense fallback={<PageLoader />}>
+                <Suspense fallback={null}>
                   <Routes>
                     {/* Public routes - Login and Password Reset */}
                     <Route path="/login" element={
