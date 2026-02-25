@@ -536,97 +536,56 @@ const AssociateProjectsPage = () => {
 
   return (
     <div className="project-page">
-      {/* Breadcrumb Navigation */}
-      <div className="breadcrumb">
-        <button 
-          className="breadcrumb-link" 
-          onClick={handleBackToAssociates}
-          style={{ 
-            background: 'none', 
-            border: 'none', 
-            color: '#007bff', 
-            textDecoration: 'underline',
-            cursor: 'pointer',
-            padding: 0,
-            font: 'inherit'
-          }}
-        >
-          Associates
-        </button>
-        <span className="breadcrumb-separator"> &gt; </span>
-        <span className="breadcrumb-current">
-          {associateInfo.name} {associateInfo.company ? `(${associateInfo.company})` : ''} - Projects
-        </span>
-      </div>
-
-      {/* Header */}
-      <div className="project-header">
-        <div className="header-left">
-          <h1>Associate Projects</h1>
-          <p className="client-info">
-            <strong>{associateInfo.name}</strong>
-            {associateInfo.company && <span> - {associateInfo.company}</span>}
+      {/* Hero Header */}
+      <div className="project-hero">
+        <div className="hero-left">
+          <div className="hero-breadcrumb">
+            <button className="hero-breadcrumb-btn" onClick={handleBackToAssociates}>
+              Associates
+            </button>
+            <span className="hero-breadcrumb-sep">›</span>
+            <span style={{ color: 'rgba(255,255,255,0.85)' }}>
+              {associateInfo.name}{associateInfo.company ? ` (${associateInfo.company})` : ''}
+            </span>
+          </div>
+          <h1 className="hero-title">Associate Projects</h1>
+          <p className="hero-subtitle">
+            <strong style={{ color: '#fff' }}>{associateInfo.name}</strong>
+            {associateInfo.company && <span> · {associateInfo.company}</span>}
+            {stats.totalProjects > 0 && <span> · {stats.totalProjects} project{stats.totalProjects !== 1 ? 's' : ''}</span>}
           </p>
         </div>
-        <div className="header-actions">
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <div style={{ display: 'flex', gap: '4px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e5e7eb' }}>
-              <button 
-                className="project-btn"
-                onClick={exportToExcel}
-                style={{ 
-                  padding: '8px 12px',
-                  backgroundColor: '#10b981',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '0',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontSize: '14px',
-                  fontWeight: '500'
-                }}
-                title="Download Excel"
-              >
-                <FaFileExcel /> Excel
-              </button>
-              <button 
-                className="project-btn"
-                onClick={exportToPDF}
-                style={{ 
-                  padding: '8px 12px',
-                  backgroundColor: '#ef4444',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '0',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontSize: '14px',
-                  fontWeight: '500'
-                }}
-                title="Download PDF"
-              >
-                <FaFilePdf /> PDF
-              </button>
-            </div>
-          </div>
-          <button 
+        <div className="hero-actions">
+          <button
+            className="project-btn project-btn-success"
+            onClick={exportToExcel}
+            title="Download Excel"
+          >
+            <FaFileExcel /> Export Excel
+          </button>
+          <button
+            className="project-btn project-btn-danger"
+            onClick={exportToPDF}
+            title="Download PDF"
+          >
+            <FaFilePdf /> Export PDF
+          </button>
+          <button
             className="project-btn project-btn-primary"
             onClick={() => navigate('/projects', { state: { associateId: associateId } })}
           >
-            <i className="bi bi-plus-lg"></i> Add New Project
+            <i className="bi bi-plus-lg"></i> Add Project
           </button>
-          <button 
+          <button
             className="project-btn project-btn-secondary"
             onClick={handleBackToAssociates}
           >
-            <i className="bi bi-arrow-left"></i> Back to Associates
+            <i className="bi bi-arrow-left"></i> Back
           </button>
         </div>
       </div>
+
+      <div className="page-body">
 
       {/* Stats Cards - Role-based visibility */}
       {canViewStats('associates') && (
@@ -1148,6 +1107,7 @@ const AssociateProjectsPage = () => {
           </div>
         )}
       </div>
+      </div>{/* end page-body */}
 
       {/* Payment Modal */}
       {showPaymentModal && (

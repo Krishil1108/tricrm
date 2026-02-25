@@ -547,67 +547,59 @@ const ClientProjectsPage = () => {
 
   return (
     <div className="project-page">
-      {/* Breadcrumb Navigation */}
-      <div className="breadcrumb">
-        <button 
-          className="breadcrumb-link" 
-          onClick={handleBackToClients}
-          style={{ 
-            background: 'none', 
-            border: 'none', 
-            color: '#007bff', 
-            textDecoration: 'underline',
-            cursor: 'pointer',
-            padding: 0,
-            font: 'inherit'
-          }}
-        >
-          Clients
-        </button>
-        <span className="breadcrumb-separator"> &gt; </span>
-        <span className="breadcrumb-current">
-          {clientInfo.name} {clientInfo.company ? `(${clientInfo.company})` : ''} - Projects
-        </span>
-      </div>
-
-      {/* Header */}
-      <div className="project-header">
-        <div className="header-left">
-          <h1>Client Projects</h1>
-          <p className="client-info">
-            <strong>{clientInfo.name}</strong>
-            {clientInfo.company && <span> - {clientInfo.company}</span>}
+      {/* Hero Header — full-width gradient banner with breadcrumb */}
+      <div className="project-hero">
+        <div className="hero-left">
+          <div className="hero-breadcrumb">
+            <button
+              className="hero-breadcrumb-btn"
+              onClick={handleBackToClients}
+            >
+              Clients
+            </button>
+            <span className="hero-breadcrumb-sep">›</span>
+            <span style={{ color: 'rgba(255,255,255,0.85)' }}>
+              {clientInfo.name}{clientInfo.company ? ` (${clientInfo.company})` : ''}
+            </span>
+          </div>
+          <h1 className="hero-title">Client Projects</h1>
+          <p className="hero-subtitle">
+            <strong style={{ color: '#fff' }}>{clientInfo.name}</strong>
+            {clientInfo.company && <span> · {clientInfo.company}</span>}
+            {stats.totalProjects > 0 && <span> · {stats.totalProjects} project{stats.totalProjects !== 1 ? 's' : ''}</span>}
           </p>
         </div>
-        <div className="header-actions">
-          <button 
+        <div className="hero-actions">
+          <button
             className="project-btn project-btn-success"
             onClick={handleExportToExcel}
             title="Export projects to Excel spreadsheet"
           >
-            <FaFileExcel className="inline-icon" />Export to Excel
+            <FaFileExcel className="inline-icon" />Export Excel
           </button>
-          <button 
+          <button
             className="project-btn project-btn-danger"
             onClick={handleExportToPDF}
             title="Export projects to PDF document"
           >
-            <FaFilePdf className="inline-icon" />Export to PDF
+            <FaFilePdf className="inline-icon" />Export PDF
           </button>
-          <button 
+          <button
             className="project-btn project-btn-primary"
             onClick={() => navigate('/projects', { state: { clientId: clientId } })}
           >
-            <i className="bi bi-plus-lg"></i> Add New Project
+            <i className="bi bi-plus-lg"></i> Add Project
           </button>
-          <button 
+          <button
             className="project-btn project-btn-secondary"
             onClick={handleBackToClients}
           >
-            <i className="bi bi-arrow-left"></i> Back to Clients
+            <i className="bi bi-arrow-left"></i> Back
           </button>
         </div>
       </div>
+
+      <div className="page-body">
 
       {/* Stats Cards - Role-based visibility */}
       {canViewStats('clients') && (
@@ -887,6 +879,7 @@ const ClientProjectsPage = () => {
           </div>
         )}
       </div>
+      </div>{/* end page-body */}
 
       {/* Payment Distribution Modal */}
       {showDistributionModal && selectedProject && (
