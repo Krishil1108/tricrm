@@ -59,7 +59,14 @@ const YearlyDistributionTable = ({
     amount: '',
     date: '',
     chequeNeftNumber: '',
-    mode: 'Cash'
+    mode: 'Cash',
+    profitAmount: 0,
+    drawingAmount: 0,
+    documentsAmount: 0,
+    siteVisitAmount: 0,
+    marketingAmount: 0,
+    officeAmount: 0,
+    customFieldAmounts: {}
   });
 
   // Update editedData when projectData changes
@@ -238,24 +245,74 @@ const YearlyDistributionTable = ({
   // Handler to start inline editing
   const handleStartInlineEdit = (index) => {
     const payment = projectData.payments[index];
+    const amount = parseInt(payment.amount) || 0;
+    
+    // Calculate distribution amounts based on current percentages
+    const totalAssociatePercent = projectData.projectAssociates && projectData.projectAssociates.length > 0
+      ? projectData.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+      : 0;
+    const associateShare = Math.floor((amount * totalAssociatePercent) / 100);
+    const amountAfterAssociate = amount - associateShare;
+    
+    const profitAmount = Math.floor((amountAfterAssociate * (projectData.profitMarginPercent || 0)) / 100);
+    const drawingAmount = Math.floor((amountAfterAssociate * (projectData.drawingPercent || 0)) / 100);
+    const documentsAmount = Math.floor((amountAfterAssociate * (projectData.documentsPercent || 0)) / 100);
+    const siteVisitAmount = Math.floor((amountAfterAssociate * (projectData.siteVisitPercent || 0)) / 100);
+    const marketingAmount = Math.floor((amountAfterAssociate * (projectData.marketingAndMiscPercent || 0)) / 100);
+    const officeAmount = Math.floor((amountAfterAssociate * (projectData.officeManagementPercent || 0)) / 100);
+    
+    // Calculate custom field amounts
+    const customFieldAmounts = {};
+    if (visibleCustomFields && visibleCustomFields.length > 0) {
+      visibleCustomFields.forEach(customField => {
+        const percentage = getCustomFieldValue(customField.fieldName, 'percentage');
+        customFieldAmounts[customField.fieldName] = Math.floor((amountAfterAssociate * percentage) / 100);
+      });
+    }
+    
     setInlineEditingIndex(index);
     setInlineEditData({
       amount: payment.amount.toString(),
       date: new Date(payment.date).toISOString().split('T')[0],
       chequeNeftNumber: payment.chequeNeftNumber || '',
-      mode: payment.mode || 'Cash'
+      mode: payment.mode || 'Cash',
+      profitAmount,
+      drawingAmount,
+      documentsAmount,
+      siteVisitAmount,
+      marketingAmount,
+      officeAmount,
+      customFieldAmounts
     });
   };
 
   // Handler to save inline edit
   const handleSaveInlineEdit = () => {
     if (inlineEditingIndex !== null && onEditPayment) {
+      // Calculate back-computed percentages from the edited amounts
+      const amount = parseFloat(inlineEditData.amount) || 0;
+      const totalAssociatePercent = projectData.projectAssociates && projectData.projectAssociates.length > 0
+        ? projectData.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+        : 0;
+      const associateShare = Math.floor((amount * totalAssociatePercent) / 100);
+      const amountAfterAssociate = amount - associateShare;
+      
+      // Calculate percentages from edited amounts
+      const percentages = {
+        profitMarginPercent: amountAfterAssociate > 0 ? (inlineEditData.profitAmount / amountAfterAssociate) * 100 : 0,
+        drawingPercent: amountAfterAssociate > 0 ? (inlineEditData.drawingAmount / amountAfterAssociate) * 100 : 0,
+        documentsPercent: amountAfterAssociate > 0 ? (inlineEditData.documentsAmount / amountAfterAssociate) * 100 : 0,
+        siteVisitPercent: amountAfterAssociate > 0 ? (inlineEditData.siteVisitAmount / amountAfterAssociate) * 100 : 0,
+        marketingAndMiscPercent: amountAfterAssociate > 0 ? (inlineEditData.marketingAmount / amountAfterAssociate) * 100 : 0,
+        officeManagementPercent: amountAfterAssociate > 0 ? (inlineEditData.officeAmount / amountAfterAssociate) * 100 : 0
+      };
+      
       const updatedPayment = {
-        amount: parseFloat(inlineEditData.amount) || 0,
+        amount: amount,
         date: inlineEditData.date,
         chequeNeftNumber: inlineEditData.chequeNeftNumber,
         mode: inlineEditData.mode,
-        percentages: projectData.payments[inlineEditingIndex].percentages || {}
+        percentages: percentages
       };
       onEditPayment(inlineEditingIndex, updatedPayment);
       setInlineEditingIndex(null);
@@ -1113,12 +1170,13 @@ const YearlyDistributionTable = ({
               
               // Get edited amounts or use calculated ones
               const paymentKey = `payment-${index}`;
-              const displayProfitAmount = editedAmounts[`${paymentKey}-profit`] ?? profitAmount;
-              const displayDrawingAmount = editedAmounts[`${paymentKey}-drawing`] ?? drawingAmount;
-              const displayDocumentsAmount = editedAmounts[`${paymentKey}-documents`] ?? documentsAmount;
-              const displaySiteVisitAmount = editedAmounts[`${paymentKey}-siteVisit`] ?? siteVisitAmount;
-              const displayMarketingAmount = editedAmounts[`${paymentKey}-marketing`] ?? marketingAmount;
-              const displayOfficeAmount = editedAmounts[`${paymentKey}-office`] ?? officeAmount;
+              // Use inline edit data if this row is being edited inline, otherwise use calculated amounts
+              const displayProfitAmount = inlineEditingIndex === index ? inlineEditData.profitAmount : (editedAmounts[`${paymentKey}-profit`] ?? profitAmount);
+              const displayDrawingAmount = inlineEditingIndex === index ? inlineEditData.drawingAmount : (editedAmounts[`${paymentKey}-drawing`] ?? drawingAmount);
+              const displayDocumentsAmount = inlineEditingIndex === index ? inlineEditData.documentsAmount : (editedAmounts[`${paymentKey}-documents`] ?? documentsAmount);
+              const displaySiteVisitAmount = inlineEditingIndex === index ? inlineEditData.siteVisitAmount : (editedAmounts[`${paymentKey}-siteVisit`] ?? siteVisitAmount);
+              const displayMarketingAmount = inlineEditingIndex === index ? inlineEditData.marketingAmount : (editedAmounts[`${paymentKey}-marketing`] ?? marketingAmount);
+              const displayOfficeAmount = inlineEditingIndex === index ? inlineEditData.officeAmount : (editedAmounts[`${paymentKey}-office`] ?? officeAmount);
               
               return (
                 <tr key={`payment-${index}`} className="payment-row">
@@ -1202,18 +1260,18 @@ const YearlyDistributionTable = ({
                   </td>
                   {effectiveFieldVisibility.profitMargin && (
                     <td>
-                      {isEditable ? (
+                      {inlineEditingIndex === index ? (
                         <input 
                           type="number" 
-                          value={displayProfitAmount}
-                          onChange={(e) => setEditedAmounts({...editedAmounts, [`${paymentKey}-profit`]: parseInt(e.target.value) || 0})}
+                          value={inlineEditData.profitAmount}
+                          onChange={(e) => setInlineEditData({...inlineEditData, profitAmount: parseInt(e.target.value) || 0})}
                           style={{ 
                             width: '100%', 
-                            padding: '4px', 
+                            padding: '6px', 
                             textAlign: 'right',
-                            border: '1px solid #4a90e2',
-                            borderRadius: '3px',
-                            backgroundColor: '#f0f8ff'
+                            border: '2px solid #3b82f6',
+                            borderRadius: '4px',
+                            fontSize: '14px'
                           }}
                           min="0"
                         />
@@ -1224,18 +1282,18 @@ const YearlyDistributionTable = ({
                   )}
                   {effectiveFieldVisibility.drawing && (
                     <td>
-                      {isEditable ? (
+                      {inlineEditingIndex === index ? (
                         <input 
                           type="number" 
-                          value={displayDrawingAmount}
-                          onChange={(e) => setEditedAmounts({...editedAmounts, [`${paymentKey}-drawing`]: parseInt(e.target.value) || 0})}
+                          value={inlineEditData.drawingAmount}
+                          onChange={(e) => setInlineEditData({...inlineEditData, drawingAmount: parseInt(e.target.value) || 0})}
                           style={{ 
                             width: '100%', 
-                            padding: '4px', 
+                            padding: '6px', 
                             textAlign: 'right',
-                            border: '1px solid #4a90e2',
-                            borderRadius: '3px',
-                            backgroundColor: '#f0f8ff'
+                            border: '2px solid #3b82f6',
+                            borderRadius: '4px',
+                            fontSize: '14px'
                           }}
                           min="0"
                         />
@@ -1246,18 +1304,18 @@ const YearlyDistributionTable = ({
                   )}
                   {effectiveFieldVisibility.documents && (
                     <td>
-                      {isEditable ? (
+                      {inlineEditingIndex === index ? (
                         <input 
                           type="number" 
-                          value={displayDocumentsAmount}
-                          onChange={(e) => setEditedAmounts({...editedAmounts, [`${paymentKey}-documents`]: parseInt(e.target.value) || 0})}
+                          value={inlineEditData.documentsAmount}
+                          onChange={(e) => setInlineEditData({...inlineEditData, documentsAmount: parseInt(e.target.value) || 0})}
                           style={{ 
                             width: '100%', 
-                            padding: '4px', 
+                            padding: '6px', 
                             textAlign: 'right',
-                            border: '1px solid #4a90e2',
-                            borderRadius: '3px',
-                            backgroundColor: '#f0f8ff'
+                            border: '2px solid #3b82f6',
+                            borderRadius: '4px',
+                            fontSize: '14px'
                           }}
                           min="0"
                         />
@@ -1268,18 +1326,18 @@ const YearlyDistributionTable = ({
                   )}
                   {effectiveFieldVisibility.siteVisit && (
                     <td>
-                      {isEditable ? (
+                      {inlineEditingIndex === index ? (
                         <input 
                           type="number" 
-                          value={displaySiteVisitAmount}
-                          onChange={(e) => setEditedAmounts({...editedAmounts, [`${paymentKey}-siteVisit`]: parseInt(e.target.value) || 0})}
+                          value={inlineEditData.siteVisitAmount}
+                          onChange={(e) => setInlineEditData({...inlineEditData, siteVisitAmount: parseInt(e.target.value) || 0})}
                           style={{ 
                             width: '100%', 
-                            padding: '4px', 
+                            padding: '6px', 
                             textAlign: 'right',
-                            border: '1px solid #4a90e2',
-                            borderRadius: '3px',
-                            backgroundColor: '#f0f8ff'
+                            border: '2px solid #3b82f6',
+                            borderRadius: '4px',
+                            fontSize: '14px'
                           }}
                           min="0"
                         />
@@ -1290,18 +1348,18 @@ const YearlyDistributionTable = ({
                   )}
                   {effectiveFieldVisibility.marketingAndMisc && (
                     <td>
-                      {isEditable ? (
+                      {inlineEditingIndex === index ? (
                         <input 
                           type="number" 
-                          value={displayMarketingAmount}
-                          onChange={(e) => setEditedAmounts({...editedAmounts, [`${paymentKey}-marketing`]: parseInt(e.target.value) || 0})}
+                          value={inlineEditData.marketingAmount}
+                          onChange={(e) => setInlineEditData({...inlineEditData, marketingAmount: parseInt(e.target.value) || 0})}
                           style={{ 
                             width: '100%', 
-                            padding: '4px', 
+                            padding: '6px', 
                             textAlign: 'right',
-                            border: '1px solid #4a90e2',
-                            borderRadius: '3px',
-                            backgroundColor: '#f0f8ff'
+                            border: '2px solid #3b82f6',
+                            borderRadius: '4px',
+                            fontSize: '14px'
                           }}
                           min="0"
                         />
@@ -1312,18 +1370,18 @@ const YearlyDistributionTable = ({
                   )}
                   {effectiveFieldVisibility.officeManagement && (
                     <td>
-                      {isEditable ? (
+                      {inlineEditingIndex === index ? (
                         <input 
                           type="number" 
-                          value={displayOfficeAmount}
-                          onChange={(e) => setEditedAmounts({...editedAmounts, [`${paymentKey}-office`]: parseInt(e.target.value) || 0})}
+                          value={inlineEditData.officeAmount}
+                          onChange={(e) => setInlineEditData({...inlineEditData, officeAmount: parseInt(e.target.value) || 0})}
                           style={{ 
                             width: '100%', 
-                            padding: '4px', 
+                            padding: '6px', 
                             textAlign: 'right',
-                            border: '1px solid #4a90e2',
-                            borderRadius: '3px',
-                            backgroundColor: '#f0f8ff'
+                            border: '2px solid #3b82f6',
+                            borderRadius: '4px',
+                            fontSize: '14px'
                           }}
                           min="0"
                         />
@@ -1337,7 +1395,31 @@ const YearlyDistributionTable = ({
                     const customAmount = Math.floor((amountAfterAssociate * (getCustomFieldValue(customField.fieldName, 'percentage'))) / 100);
                     return (
                       <td key={`payment-custom-${index}-${customIndex}`} style={{ backgroundColor: '#fffbf0' }}>
-                        {customAmount > 0 ? customAmount.toLocaleString('en-IN') : '-'}
+                        {inlineEditingIndex === index ? (
+                          <input 
+                            type="number" 
+                            value={inlineEditData.customFieldAmounts[customField.fieldName] || 0}
+                            onChange={(e) => setInlineEditData({
+                              ...inlineEditData, 
+                              customFieldAmounts: {
+                                ...inlineEditData.customFieldAmounts,
+                                [customField.fieldName]: parseInt(e.target.value) || 0
+                              }
+                            })}
+                            style={{ 
+                              width: '100%', 
+                              padding: '6px', 
+                              textAlign: 'right',
+                              border: '2px solid #3b82f6',
+                              borderRadius: '4px',
+                              fontSize: '14px',
+                              backgroundColor: '#fffbf0'
+                            }}
+                            min="0"
+                          />
+                        ) : (
+                          customAmount > 0 ? customAmount.toLocaleString('en-IN') : '-'
+                        )}
                       </td>
                     );
                   })}
@@ -1398,21 +1480,14 @@ const YearlyDistributionTable = ({
                                   borderRadius: '4px',
                                   padding: '4px 6px',
                                   cursor: 'pointer',
-                                  fontSize: '11px',
-                                  fontWeight: '600',
-                                  transition: 'background 0.2s',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center'
+                                  fontSize: '14px',
+                                  fontWeight: '600'
                                 }}
                                 onMouseEnter={(e) => e.target.style.background = '#2563eb'}
                                 onMouseLeave={(e) => e.target.style.background = '#3b82f6'}
-                                title="Edit Payment"
+                                title="Edit"
                               >
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                </svg>
+                                ✏️
                               </button>
                             )}
                             {onDeletePayment && (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FaEdit, FaTrash, FaUsers, FaArrowLeft } from 'react-icons/fa';
 import { FiCreditCard } from 'react-icons/fi';
@@ -13,6 +13,10 @@ import { useToast } from './context/ToastContext';
 import YearlyDistributionTable from './components/YearlyDistributionTable';
 import AssociateDistributionTable from './components/AssociateDistributionTable';
 
+// Memoized components for better performance
+const MemoizedYearlyDistributionTable = React.memo(YearlyDistributionTable);
+const MemoizedAssociateDistributionTable = React.memo(AssociateDistributionTable);
+
 const ProjectDetailPage = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
@@ -21,9 +25,8 @@ const ProjectDetailPage = () => {
   const { showSuccess, showError } = useToast();
   
   const [project, setProject] = useState(null);
-  const [clients, setClients] = useState([]);
+  const [client, setClient] = useState(null);
   const [associates, setAssociates] = useState([]);
-  const [expenses, setExpenses] = useState([]);
   const [percentageConfig, setPercentageConfig] = useState({
     profitMarginPercent: 0,
     drawingPercent: 0,
@@ -44,23 +47,16 @@ const ProjectDetailPage = () => {
   };
 
   useEffect(() => {
-    loadProjectData();
-    loadPercentageConfig();
+    loadAllData();
   }, [projectId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const loadProjectData = async () => {
+  const loadAllData = async () => {
     try {
       showLoading();
-      const [projectResponse, clientsData, associatesData, expensesResponse] = await Promise.all([
-        FinanceService.getProject(projectId),
-        ClientService.getAllClients(),
-        AssociateService.getAllAssociates(),
-        FinanceService.getAllExpenses()
-      ]);
       
-      // Handle both direct data and nested response structure
+      // First fetch project data
+      const projectResponse = await FinanceService.getProject(projectId);
       const projectData = projectResponse.data || projectResponse;
-      const expensesData = expensesResponse.data || expensesResponse;
       
       if (!projectData) {
         showError('Project not found');
@@ -69,37 +65,71 @@ const ProjectDetailPage = () => {
       }
       
       setProject(projectData);
-      setClients(clientsData);
+      
+      // Fetch related data in parallel
+      const relatedDataPromises = [];
+      
+      // Fetch client if exists
+      if (projectData.clientId) {
+        relatedDataPromises.push(
+          ClientService.getClient(projectData.clientId)
+            .then(data => ({ type: 'client', data }))
+            .catch(() => ({ type: 'client', data: null }))
+        );
+      }
+      
+      // Fetch associates if exists
+      if (projectData.projectAssociates && projectData.projectAssociates.length > 0) {
+        const associateIds = projectData.projectAssociates.map(a => a.associateId);
+        relatedDataPromises.push(
+          ...associateIds.map(id =>
+            AssociateService.getAssociate(id)
+              .then(data => ({ type: 'associate', data }))
+              .catch(() => ({ type: 'associate', data: null }))
+          )
+        );
+      }
+      
+      // Fetch configuration
+      relatedDataPromises.push(
+        ConfigurationVersionService.getCurrentConfiguration()
+          .then(data => ({ type: 'config', data }))
+          .catch(() => ({ type: 'config', data: null }))
+      );
+      
+      // Wait for all related data
+      const results = await Promise.all(relatedDataPromises);
+      
+      // Process results
+      const associatesData = [];
+      results.forEach(result => {
+        if (result.type === 'client' && result.data) {
+          setClient(result.data);
+        } else if (result.type === 'associate' && result.data) {
+          associatesData.push(result.data);
+        } else if (result.type === 'config' && result.data && result.data.data) {
+          const config = result.data.data.configuration;
+          setPercentageConfig({
+            profitMarginPercent: config.profitMarginPercent || 0,
+            drawingPercent: config.drawingPercent || 0,
+            documentsPercent: config.documentsPercent || 0,
+            siteVisitPercent: config.siteVisitPercent || 0,
+            marketingAndMiscPercent: config.marketingAndMiscPercent || 0,
+            officeManagementPercent: config.officeManagementPercent || 0,
+            customFields: config.customFields || [],
+            fieldVisibility: config.fieldVisibility || {}
+          });
+        }
+      });
+      
       setAssociates(associatesData);
-      setExpenses(expensesData.filter(exp => exp.projectId === projectId));
+      
     } catch (error) {
       console.error('Error loading project:', error);
       showError('Failed to load project details');
       navigate('/projects');
     } finally {
       hideLoading();
-    }
-  };
-
-  const loadPercentageConfig = async () => {
-    try {
-      const currentConfigData = await ConfigurationVersionService.getCurrentConfiguration();
-      if (currentConfigData && currentConfigData.data) {
-        const config = currentConfigData.data.configuration;
-        const configWithDefaults = {
-          profitMarginPercent: config.profitMarginPercent || 0,
-          drawingPercent: config.drawingPercent || 0,
-          documentsPercent: config.documentsPercent || 0,
-          siteVisitPercent: config.siteVisitPercent || 0,
-          marketingAndMiscPercent: config.marketingAndMiscPercent || 0,
-          officeManagementPercent: config.officeManagementPercent || 0,
-          customFields: config.customFields || [],
-          fieldVisibility: config.fieldVisibility || {}
-        };
-        setPercentageConfig(configWithDefaults);
-      }
-    } catch (error) {
-      console.error('Error loading percentage configuration:', error);
     }
   };
 
@@ -153,7 +183,7 @@ const ProjectDetailPage = () => {
       await FinanceService.updateProject(project._id, updateData);
       
       // Reload the project data
-      await loadProjectData();
+      await loadAllData();
       
       showSuccess('Payment added successfully');
     } catch (error) {
@@ -195,7 +225,7 @@ const ProjectDetailPage = () => {
       await FinanceService.updateProject(project._id, updateData);
       
       // Reload the project data
-      await loadProjectData();
+      await loadAllData();
       
       showSuccess('Payment updated successfully');
     } catch (error) {
@@ -227,7 +257,7 @@ const ProjectDetailPage = () => {
       await FinanceService.updateProject(project._id, updateData);
       
       // Reload the project data
-      await loadProjectData();
+      await loadAllData();
       
       showSuccess('Payment deleted successfully');
     } catch (error) {
@@ -242,8 +272,6 @@ const ProjectDetailPage = () => {
   if (!project) {
     return <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>;
   }
-
-  const client = clients.find(c => c._id === project.clientId);
 
   return (
     <div style={{ 
@@ -470,7 +498,7 @@ const ProjectDetailPage = () => {
       </div>
 
       {/* Payment Distribution Table */}
-      <YearlyDistributionTable 
+      <MemoizedYearlyDistributionTable 
         projectData={project}
         showTitle={true}
         compact={false}
@@ -484,7 +512,7 @@ const ProjectDetailPage = () => {
       />
 
       {/* Associate Distribution Table */}
-      <AssociateDistributionTable 
+      <MemoizedAssociateDistributionTable 
         projectData={project}
         associates={associates}
       />
