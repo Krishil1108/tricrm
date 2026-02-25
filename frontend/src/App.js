@@ -61,6 +61,16 @@ function App() {
                     </PublicRoute>
                   } />
                   
+                  {/* Full-screen project detail page - No sidebar */}
+                  <Route 
+                    path="/projects/:projectId" 
+                    element={
+                      <ProtectedRoute requireModule="finance">
+                        <ProjectDetailPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  
                   {/* Protected routes with layout */}
                   <Route
                     path="/*"
@@ -126,15 +136,6 @@ function App() {
                               element={
                                 <ProtectedRoute requireModule="finance">
                                   <ProjectPage />
-                                </ProtectedRoute>
-                              } 
-                            />
-                            
-                            <Route 
-                              path="/projects/:projectId" 
-                              element={
-                                <ProtectedRoute requireModule="finance">
-                                  <ProjectDetailPage />
                                 </ProtectedRoute>
                               } 
                             />
