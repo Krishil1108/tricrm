@@ -83,94 +83,6 @@
   padding: 16px;
 }
 
-/* Payment Details Section */
-.associate-payment-details {
-  padding: 24px;
-  background: #f9fafb;
-  border-top: 1px solid #e5e7eb;
-}
-
-.associate-payment-details h4 {
-  margin: 0 0 20px 0;
-  font-size: 1rem;
-  color: #1f2937;
-  font-weight: 600;
-}
-
-.associate-payment-section {
-  background: white;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
-  border: 1px solid #e5e7eb;
-}
-
-.associate-payment-section:last-child {
-  margin-bottom: 0;
-}
-
-.associate-payment-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.associate-payment-name {
-  font-weight: 600;
-  font-size: 15px;
-  color: #1f2937;
-}
-
-.associate-payment-percentage {
-  background: #667eea;
-  color: white;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.payment-breakdown-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 8px;
-}
-
-.payment-breakdown-table thead {
-  background: #f9fafb;
-}
-
-.payment-breakdown-table th {
-  padding: 10px 12px;
-  text-align: left;
-  font-weight: 600;
-  color: #6b7280;
-  font-size: 13px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.payment-breakdown-table td {
-  padding: 10px 12px;
-  font-size: 13px;
-  color: #374151;
-  border-bottom: 1px solid #f3f4f6;
-}
-
-.payment-breakdown-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.no-payments {
-  text-align: center;
-  color: #9ca3af;
-  padding: 20px;
-  margin: 0;
-  font-size: 14px;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .associate-distribution-table {
@@ -184,13 +96,5 @@
 
   .associate-distribution-header {
     padding: 12px 16px;
-  }
-
-  .associate-payment-details {
-    padding: 16px;
-  }
-
-  .payment-breakdown-table {
-    font-size: 12px;
   }
 }

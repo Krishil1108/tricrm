@@ -81,12 +81,12 @@ const AssociateDistributionTable = ({ projectData, associates = [] }) => {
         <table className="associate-distribution-table">
           <thead>
             <tr>
-              <th style={{ width: '200px' }}>Associate Name</th>
-              <th style={{ width: '100px' }}>Share %</th>
+              <th style={{ width: '200px', textAlign: 'left' }}>Associate Name</th>
+              <th style={{ width: '100px', textAlign: 'center' }}>Share %</th>
               {allYears.map(year => (
-                <th key={year} style={{ width: '150px' }}>{year}</th>
+                <th key={year} style={{ width: '150px', textAlign: 'right' }}>{year}</th>
               ))}
-              <th style={{ width: '150px' }}>Total Amount</th>
+              <th style={{ width: '150px', textAlign: 'right' }}>Total Amount</th>
             </tr>
           </thead>
           <tbody>
@@ -137,48 +137,6 @@ const AssociateDistributionTable = ({ projectData, associates = [] }) => {
             </tr>
           </tbody>
         </table>
-
-        {/* Payment Details Section */}
-        <div className="associate-payment-details">
-          <h4>Payment Breakdown by Associate</h4>
-          {Object.entries(associateDistribution).map(([associateId, data]) => (
-            <div key={associateId} className="associate-payment-section">
-              <div className="associate-payment-header">
-                <span className="associate-payment-name">{data.name}</span>
-                <span className="associate-payment-percentage">{data.percentage}% Share</span>
-              </div>
-              
-              {data.payments.length > 0 ? (
-                <table className="payment-breakdown-table">
-                  <thead>
-                    <tr>
-                      <th>Date</th>
-                      <th>Payment Amount</th>
-                      <th>Associate Share</th>
-                      <th>Mode</th>
-                      <th>Reference</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.payments.map((payment, idx) => (
-                      <tr key={idx}>
-                        <td>{new Date(payment.date).toLocaleDateString('en-IN')}</td>
-                        <td style={{ textAlign: 'right' }}>{formatCurrency(payment.amount)}</td>
-                        <td style={{ textAlign: 'right', fontWeight: '600', color: '#059669' }}>
-                          {formatCurrency(payment.share)}
-                        </td>
-                        <td>{payment.mode}</td>
-                        <td>{payment.chequeNeftNumber || '-'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="no-payments">No payments received yet</p>
-              )}
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
