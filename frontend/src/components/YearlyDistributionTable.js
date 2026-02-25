@@ -1723,100 +1723,106 @@ const YearlyDistributionTable = ({
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {/* Amount Field */}
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
-                  Payment Amount <span style={{ color: '#dc2626' }}>*</span>
-                </label>
-                <input
-                  type="number"
-                  value={paymentFormData.amount}
-                  onChange={(e) => handlePaymentFormChange('amount', e.target.value)}
-                  placeholder="Enter amount"
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '2px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    outline: 'none'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#2c5282'}
-                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                />
+              {/* Row 1: Amount and Date */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                {/* Amount Field */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
+                    Payment Amount <span style={{ color: '#dc2626' }}>*</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={paymentFormData.amount}
+                    onChange={(e) => handlePaymentFormChange('amount', e.target.value)}
+                    placeholder="Enter amount"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '2px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#2c5282'}
+                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                  />
+                </div>
+
+                {/* Date Field */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
+                    Payment Date <span style={{ color: '#dc2626' }}>*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={paymentFormData.date}
+                    onChange={(e) => handlePaymentFormChange('date', e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '2px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#2c5282'}
+                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                  />
+                </div>
               </div>
 
-              {/* Date Field */}
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
-                  Payment Date <span style={{ color: '#dc2626' }}>*</span>
-                </label>
-                <input
-                  type="date"
-                  value={paymentFormData.date}
-                  onChange={(e) => handlePaymentFormChange('date', e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '2px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    outline: 'none'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#2c5282'}
-                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                />
-              </div>
+              {/* Row 2: Cheque/NEFT Number and Payment Mode */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                {/* Cheque/NEFT Number Field */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
+                    Cheque / NEFT Number
+                  </label>
+                  <input
+                    type="text"
+                    value={paymentFormData.chequeNeftNumber}
+                    onChange={(e) => handlePaymentFormChange('chequeNeftNumber', e.target.value)}
+                    placeholder="Enter cheque or NEFT number"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '2px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#2c5282'}
+                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                  />
+                </div>
 
-              {/* Cheque/NEFT Number Field */}
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
-                  Cheque Number / NEFT Number
-                </label>
-                <input
-                  type="text"
-                  value={paymentFormData.chequeNeftNumber}
-                  onChange={(e) => handlePaymentFormChange('chequeNeftNumber', e.target.value)}
-                  placeholder="Enter cheque or NEFT number"
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '2px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    outline: 'none'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#2c5282'}
-                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                />
-              </div>
-
-              {/* Payment Mode Field */}
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
-                  Payment Mode <span style={{ color: '#dc2626' }}>*</span>
-                </label>
-                <select
-                  value={paymentFormData.mode}
-                  onChange={(e) => handlePaymentFormChange('mode', e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '2px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    backgroundColor: 'white'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#2c5282'}
-                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                >
-                  <option value="Cash">Cash</option>
-                  <option value="Cheque">Cheque</option>
-                  <option value="NEFT">NEFT</option>
-                  <option value="RTGS">RTGS</option>
-                  <option value="UPI">UPI</option>
-                </select>
+                {/* Payment Mode Field */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
+                    Payment Mode <span style={{ color: '#dc2626' }}>*</span>
+                  </label>
+                  <select
+                    value={paymentFormData.mode}
+                    onChange={(e) => handlePaymentFormChange('mode', e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '2px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      outline: 'none',
+                      backgroundColor: 'white'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#2c5282'}
+                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                  >
+                    <option value="Cash">Cash</option>
+                    <option value="Cheque">Cheque</option>
+                    <option value="NEFT">NEFT</option>
+                    <option value="RTGS">RTGS</option>
+                    <option value="UPI">UPI</option>
+                  </select>
+                </div>
               </div>
 
               {/* Use Default Percentages Checkbox */}
@@ -2108,100 +2114,106 @@ const YearlyDistributionTable = ({
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {/* Amount Field */}
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
-                  Payment Amount <span style={{ color: '#dc2626' }}>*</span>
-                </label>
-                <input
-                  type="number"
-                  value={paymentFormData.amount}
-                  onChange={(e) => handlePaymentFormChange('amount', e.target.value)}
-                  placeholder="Enter amount"
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '2px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    outline: 'none'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#2c5282'}
-                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                />
+              {/* Row 1: Amount and Date */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                {/* Amount Field */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
+                    Payment Amount <span style={{ color: '#dc2626' }}>*</span>
+                  </label>
+                  <input
+                    type="number"
+                    value={paymentFormData.amount}
+                    onChange={(e) => handlePaymentFormChange('amount', e.target.value)}
+                    placeholder="Enter amount"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '2px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#2c5282'}
+                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                  />
+                </div>
+
+                {/* Date Field */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
+                    Payment Date <span style={{ color: '#dc2626' }}>*</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={paymentFormData.date}
+                    onChange={(e) => handlePaymentFormChange('date', e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '2px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#2c5282'}
+                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                  />
+                </div>
               </div>
 
-              {/* Date Field */}
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
-                  Payment Date <span style={{ color: '#dc2626' }}>*</span>
-                </label>
-                <input
-                  type="date"
-                  value={paymentFormData.date}
-                  onChange={(e) => handlePaymentFormChange('date', e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '2px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    outline: 'none'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#2c5282'}
-                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                />
-              </div>
+              {/* Row 2: Cheque/NEFT Number and Payment Mode */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                {/* Cheque/NEFT Number Field */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
+                    Cheque / NEFT Number
+                  </label>
+                  <input
+                    type="text"
+                    value={paymentFormData.chequeNeftNumber}
+                    onChange={(e) => handlePaymentFormChange('chequeNeftNumber', e.target.value)}
+                    placeholder="Enter cheque or NEFT number"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '2px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      outline: 'none'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#2c5282'}
+                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                  />
+                </div>
 
-              {/* Cheque/NEFT Number Field */}
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
-                  Cheque Number / NEFT Number
-                </label>
-                <input
-                  type="text"
-                  value={paymentFormData.chequeNeftNumber}
-                  onChange={(e) => handlePaymentFormChange('chequeNeftNumber', e.target.value)}
-                  placeholder="Enter cheque or NEFT number"
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '2px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    outline: 'none'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#2c5282'}
-                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                />
-              </div>
-
-              {/* Payment Mode Field */}
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
-                  Payment Mode <span style={{ color: '#dc2626' }}>*</span>
-                </label>
-                <select
-                  value={paymentFormData.mode}
-                  onChange={(e) => handlePaymentFormChange('mode', e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    border: '2px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    outline: 'none',
-                    backgroundColor: 'white'
-                  }}
-                  onFocus={(e) => e.target.style.borderColor = '#2c5282'}
-                  onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-                >
-                  <option value="Cash">Cash</option>
-                  <option value="Cheque">Cheque</option>
-                  <option value="NEFT">NEFT</option>
-                  <option value="RTGS">RTGS</option>
-                  <option value="UPI">UPI</option>
-                </select>
+                {/* Payment Mode Field */}
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#374151', fontSize: '14px' }}>
+                    Payment Mode <span style={{ color: '#dc2626' }}>*</span>
+                  </label>
+                  <select
+                    value={paymentFormData.mode}
+                    onChange={(e) => handlePaymentFormChange('mode', e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '2px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      outline: 'none',
+                      backgroundColor: 'white'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#2c5282'}
+                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                  >
+                    <option value="Cash">Cash</option>
+                    <option value="Cheque">Cheque</option>
+                    <option value="NEFT">NEFT</option>
+                    <option value="RTGS">RTGS</option>
+                    <option value="UPI">UPI</option>
+                  </select>
+                </div>
               </div>
 
               {/* Use Default Percentages Checkbox */}
