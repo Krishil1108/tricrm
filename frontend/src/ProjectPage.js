@@ -1381,6 +1381,8 @@ const ProjectPage = () => {
           onRequestSort={requestProjectSort}
           sortConfig={projectSortConfig}
           renderSortIcon={renderSortIcon}
+          setSelectedProjectDetail={setSelectedProjectDetail}
+          setShowProjectDetail={setShowProjectDetail}
         />
       ) : (
         <ExpensesTable
@@ -2382,7 +2384,9 @@ const ProjectsTable = ({
   canAssociateDistribution,
   onRequestSort,
   sortConfig,
-  renderSortIcon
+  renderSortIcon,
+  setSelectedProjectDetail,
+  setShowProjectDetail
 }) => {
   if (projects.length === 0) {
     return (
