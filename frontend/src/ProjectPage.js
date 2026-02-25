@@ -2617,21 +2617,48 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
 
   return (
     <>
-      {/* Project Details Row - All 5 fields in one row */}
-      <div className="form-row-5">
+      {/* Row 1: Project Number, Project Name, Project Location - 3 equal fields */}
+      <div className="form-row-3">
         <div className="form-group">
           <label>Project Number *</label>
-          <input type="text" name="projectNumber" className="form-input" value={formData.projectNumber || ''} onChange={handleChange} required />
+          <input 
+            type="text" 
+            name="projectNumber" 
+            className="form-input" 
+            value={formData.projectNumber || ''} 
+            onChange={handleChange} 
+            placeholder="Enter project number"
+            required 
+          />
         </div>
         <div className="form-group">
           <label>Project Name *</label>
-          <input type="text" name="projectName" className="form-input" value={formData.projectName || ''} onChange={handleChange} required />
+          <input 
+            type="text" 
+            name="projectName" 
+            className="form-input" 
+            value={formData.projectName || ''} 
+            onChange={handleChange} 
+            placeholder="Enter project name"
+            required 
+          />
         </div>
         <div className="form-group">
           <label>Project Location</label>
-          <input type="text" name="projectLocation" className="form-input" value={formData.projectLocation || ''} onChange={handleChange} placeholder="Enter location" />
+          <input 
+            type="text" 
+            name="projectLocation" 
+            className="form-input" 
+            value={formData.projectLocation || ''} 
+            onChange={handleChange} 
+            placeholder="Enter location" 
+          />
         </div>
-        <div className="form-group">
+      </div>
+
+      {/* Row 2: Client Selection with Add Client Button */}
+      <div className="form-row-client">
+        <div className="form-group" style={{ flex: '1 1 auto' }}>
           <label>Choose Client</label>
           <select 
             name="clientId" 
@@ -2649,26 +2676,37 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
         </div>
         <button 
           type="button" 
-          className="project-btn project-btn-success add-client-btn"
+          className="project-btn project-btn-success"
           onClick={onAddClient}
           style={{
-            padding: '8px 16px',
+            padding: '10px 20px',
             fontSize: '14px',
             display: 'flex',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: '8px',
-            whiteSpace: 'nowrap'
+            whiteSpace: 'nowrap',
+            alignSelf: 'flex-end',
+            marginBottom: '0'
           }}
         >
-          <span style={{ fontSize: '18px', fontWeight: 'bold' }}>+</span>
+          <span style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: '1' }}>+</span>
           Add Client
         </button>
       </div>
 
+      {/* Row 3: Finalized Fees and Total Received Fees */}
       <div className="form-row">
         <div className="form-group">
           <label>Finalized Fees</label>
-          <input type="number" name="finalizedFees" className="form-input" value={formData.finalizedFees || ''} onChange={handleChange} />
+          <input 
+            type="number" 
+            name="finalizedFees" 
+            className="form-input" 
+            value={formData.finalizedFees || ''} 
+            onChange={handleChange} 
+            placeholder="Enter finalized fees"
+          />
         </div>
         <div className="form-group">
           <label>Total Received Fees (Auto-calculated from payments)</label>
@@ -2692,7 +2730,6 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
             type="button" 
             className="project-btn project-btn-success"
             onClick={addPayment}
-            style={{marginLeft: 'auto'}}
           >
             + Add Payment
           </button>

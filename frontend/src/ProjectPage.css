@@ -645,13 +645,18 @@
 
 .form-group {
   margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   font-weight: 500;
   color: #495057;
+  font-size: 14px;
+  min-height: 20px;
+  line-height: 20px;
 }
 
 /* Modal and Form Input Overrides */
@@ -706,6 +711,22 @@
   gap: 20px;
 }
 
+/* Form Row with 3 equal columns */
+.form-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+/* Client row with dropdown and button */
+.form-row-client {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
 .form-row-5 {
   display: grid;
   grid-template-columns: 1fr 1.5fr 1fr 1.3fr 200px;
@@ -728,6 +749,8 @@
 
 /* Remove bottom margin from form-groups inside grid rows for perfect alignment */
 .form-row .form-group,
+.form-row-3 .form-group,
+.form-row-client .form-group,
 .form-row-5 .form-group,
 .form-row-4 .form-group,
 .form-row-associate .form-group {
@@ -828,6 +851,9 @@
 
 /* Percentage-based Form Styles */
 .form-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin: 24px 0 16px 0;
   padding-bottom: 12px;
   border-bottom: 2px solid #e5e7eb;
@@ -837,13 +863,18 @@
   font-size: 18px;
   font-weight: 600;
   color: #1a1a1a;
-  margin: 0 0 4px 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .form-helper-text {
-  font-size: 13px;
+  font-size: 12px;
   color: #6b7280;
-  margin: 0;
+  margin: 6px 0 0 0;
+  line-height: 1.4;
+  display: block;
 }
 
 .percentage-row {
@@ -917,6 +948,31 @@
   pointer-events: none;
 }
 
+/* Tablet Responsive Styles (769px to 1024px) */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .form-row-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-row-5,
+  .form-row-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-row-associate {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .modal-content {
+    max-width: 95%;
+  }
+
+  .project-page .modal-body {
+    padding: 24px;
+  }
+}
+
+/* Mobile Responsive Styles (up to 768px) */
 @media (max-width: 768px) {
   .finance-page .page-header {
     flex-direction: column;
@@ -997,8 +1053,31 @@
     grid-template-columns: 1fr;
   }
 
-  .form-row {
+  .form-row,
+  .form-row-3,
+  .form-row-4,
+  .form-row-5 {
     grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .form-row-client {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-row-client .form-group {
+    flex: 1 1 auto;
+  }
+
+  .form-row-client button {
+    align-self: stretch !important;
+    margin-top: 10px;
+  }
+
+  .form-row-associate {
+    grid-template-columns: 1fr;
+    gap: 15px;
   }
 
   .project-table {
