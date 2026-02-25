@@ -2087,7 +2087,7 @@ const ProjectsTable = ({
             <tr 
               key={project._id}
               onDoubleClick={() => {
-                navigate(`/projects/${project._id}`);
+                navigate(`/projects/${project._id}`, { state: { projectName: project.projectName } });
               }}
               style={{ cursor: 'pointer' }}
               title="Double-click to view project details"

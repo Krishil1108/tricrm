@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './YearlyDistributionTable.css';
-import * as XLSX from 'xlsx';
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
+// xlsx, jsPDF and jspdf-autotable are loaded on-demand inside exportToExcel / exportToPDF
+// to avoid adding ~250 KiB to the initial JS bundle.
 
 const YearlyDistributionTable = ({ 
   projectData, 
@@ -385,7 +384,8 @@ const YearlyDistributionTable = ({
   };
 
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
+    const XLSX = (await import('xlsx')).default || await import('xlsx');
     const yearlyDistribution = projectData.yearlyDistribution || 
       calculateYearlyDistribution(projectData.payments);
 
@@ -600,7 +600,9 @@ const YearlyDistributionTable = ({
     XLSX.writeFile(wb, filename);
   };
 
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
+    const { jsPDF } = await import('jspdf');
+    const { default: autoTable } = await import('jspdf-autotable');
     const doc = new jsPDF('landscape', 'pt', 'a4');
     const pageWidth = doc.internal.pageSize.getWidth();
     

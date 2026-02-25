@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FaEdit, FaTrash, FaUsers, FaArrowLeft } from 'react-icons/fa';
 import { FiCreditCard } from 'react-icons/fi';
 import './ProjectPage.css';
@@ -20,6 +20,9 @@ const MemoizedAssociateDistributionTable = React.memo(AssociateDistributionTable
 const ProjectDetailPage = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  // Use name passed via navigation state for instant LCP render (before API responds)
+  const cachedProjectName = location.state?.projectName || null;
   const { canEditProject, canDeleteProject } = useAuth();
   const { showLoading, hideLoading } = useLoading();
   const { showSuccess, showError } = useToast();
@@ -275,7 +278,7 @@ const ProjectDetailPage = () => {
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
         }}>
           <h3 style={{ margin: 0, color: 'rgba(255,255,255,0.4)', fontSize: '20px', fontWeight: 600 }}>
-            Loading project...
+            {cachedProjectName || 'Loading project...'}
           </h3>
         </div>
         {/* Skeleton cards */}
