@@ -794,9 +794,6 @@ const ClientsPage = () => {
                   >
                     <td>
                       <div className="client-name">
-                        <div className="client-avatar">
-                          {client.name.charAt(0).toUpperCase()}
-                        </div>
                         <span>{client.name}</span>
                       </div>
                     </td>

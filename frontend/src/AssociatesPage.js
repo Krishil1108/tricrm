@@ -692,9 +692,6 @@ const AssociatesPage = () => {
                   >
                     <td>
                       <div className="client-name">
-                        <div className="client-avatar">
-                          {associate.name.charAt(0).toUpperCase()}
-                        </div>
                         <span>{associate.name}</span>
                       </div>
                     </td>
