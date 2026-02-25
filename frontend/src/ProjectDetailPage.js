@@ -250,7 +250,7 @@ const ProjectDetailPage = () => {
             borderBottom: '2px solid #667eea',
             paddingBottom: '10px'
           }}>
-            Client & Financial Details
+            Client & Project Details
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -276,29 +276,6 @@ const ProjectDetailPage = () => {
               <span style={{ color: '#6b7280', fontSize: '14px' }}>Status:</span>
               <span className={`status-badge status-${project.status.toLowerCase().replace(' ', '')}`}>
                 {project.status}
-              </span>
-            </div>
-            <div style={{ height: '1px', background: '#e5e7eb', margin: '6px 0' }}></div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#6b7280', fontSize: '14px' }}>Finalized Fees:</span>
-              <span style={{ fontWeight: '700', color: '#059669', fontSize: '16px' }}>
-                {formatCurrency(project.finalizedFees)}
-              </span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#6b7280', fontSize: '14px' }}>Total Received:</span>
-              <span style={{ fontWeight: '700', color: '#2563eb', fontSize: '16px' }}>
-                {formatCurrency(project.totalReceivedFees)}
-              </span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#6b7280', fontSize: '14px' }}>Pending:</span>
-              <span style={{ 
-                fontWeight: '700', 
-                color: (project.finalizedFees - project.totalReceivedFees) > 0 ? '#dc2626' : '#059669',
-                fontSize: '16px'
-              }}>
-                {formatCurrency(project.finalizedFees - project.totalReceivedFees)}
               </span>
             </div>
           </div>
