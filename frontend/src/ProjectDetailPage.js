@@ -39,8 +39,8 @@ const ProjectDetailPage = () => {
       showLoading();
       const [projectResponse, clientsData, associatesData, expensesResponse] = await Promise.all([
         FinanceService.getProject(projectId),
-        ClientService.getClients(),
-        AssociateService.getAssociates(),
+        ClientService.getAllClients(),
+        AssociateService.getAllAssociates(),
         FinanceService.getAllExpenses()
       ]);
       
