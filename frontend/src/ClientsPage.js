@@ -696,24 +696,6 @@ const ClientsPage = () => {
                         {renderSortIcon('name')}
                       </button>
                     </th>
-                    <th className="th-email" style={{ textAlign: 'center' }} aria-sort={clientSortConfig?.key === 'email' ? clientSortConfig.direction : 'none'}>
-                      <button
-                        type="button"
-                        className={`sortable-header ${clientSortConfig?.key === 'email' ? 'active' : ''}`}
-                        onClick={() => {
-                          requestClientSort('email');
-                          setSortBy('email');
-                        }}
-                      >
-                        <span className="th-content" style={{ justifyContent: 'center' }}>
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="th-icon">
-                            <path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z"/>
-                          </svg>
-                          <span>Email</span>
-                        </span>
-                        {renderSortIcon('email')}
-                      </button>
-                    </th>
                     <th className="th-company" style={{ textAlign: 'center' }} aria-sort={clientSortConfig?.key === 'company' ? clientSortConfig.direction : 'none'}>
                       <button
                         type="button"
@@ -797,7 +779,6 @@ const ClientsPage = () => {
                         <span>{client.name}</span>
                       </div>
                     </td>
-                    <td>{client.email}</td>
                     <td>{client.company || '-'}</td>
                     <td>{client.phone || '-'}</td>
                     <td style={{ textAlign: 'center' }}>

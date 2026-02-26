@@ -181,19 +181,6 @@ const ClientListPage = () => {
                       {renderSortIcon('name')}
                     </button>
                   </th>
-                  <th aria-sort={clientSortConfig?.key === 'email' ? clientSortConfig.direction : 'none'}>
-                    <button
-                      type="button"
-                      className={`sortable-header ${clientSortConfig?.key === 'email' ? 'active' : ''}`}
-                      onClick={() => {
-                        requestClientSort('email');
-                        setSortBy('email');
-                      }}
-                    >
-                      Email
-                      {renderSortIcon('email')}
-                    </button>
-                  </th>
                   <th aria-sort={clientSortConfig?.key === 'company' ? clientSortConfig.direction : 'none'}>
                     <button
                       type="button"
@@ -233,7 +220,6 @@ const ClientListPage = () => {
                         <span>{client.name}</span>
                       </div>
                     </td>
-                    <td>{client.email}</td>
                     <td>{client.company || '-'}</td>
                     <td>{client.phone || '-'}</td>
                     <td>
