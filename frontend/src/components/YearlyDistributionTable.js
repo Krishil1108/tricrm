@@ -120,12 +120,6 @@ const YearlyDistributionTable = ({
   const effectiveConfig = hasSnapshot ? projectData.configSnapshot : {};
   const effectiveCustomFields = effectiveConfig.customFields || [];
 
-  // DEBUG - remove after confirming fix
-  console.log('[YDT] projectId:', projectData._id, 'hasSnapshot:', hasSnapshot);
-  console.log('[YDT] configSnapshot:', JSON.stringify(projectData.configSnapshot));
-  console.log('[YDT] _snapshotFV:', JSON.stringify(_snapshotFV));
-  console.log('[YDT] effectiveFieldVisibility:', JSON.stringify(effectiveFieldVisibility));
-  
   // Filter visible custom fields based on visibility flag
   const visibleCustomFields = effectiveCustomFields.filter(field => field.visible);
   
@@ -2181,138 +2175,30 @@ const YearlyDistributionTable = ({
                     Configure Custom Percentages
                   </h4>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                    {effectiveFieldVisibility.profitMargin && (
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
-                          Profit Margin %
-                        </label>
-                        <input
-                          type="number"
-                          value={customPercentages.profitMarginPercent}
-                          onChange={(e) => handleCustomPercentageChange('profitMarginPercent', e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px 10px',
-                            border: '2px solid #fed7aa',
-                            borderRadius: '6px',
-                            fontSize: '14px'
-                          }}
-                          step="0.01"
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-                    )}
-                    {effectiveFieldVisibility.drawing && (
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
-                          Drawing %
-                        </label>
-                        <input
-                          type="number"
-                          value={customPercentages.drawingPercent}
-                          onChange={(e) => handleCustomPercentageChange('drawingPercent', e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px 10px',
-                            border: '2px solid #fed7aa',
-                            borderRadius: '6px',
-                            fontSize: '14px'
-                          }}
-                          step="0.01"
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-                    )}
-                    {effectiveFieldVisibility.documents && (
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
-                          Documents %
-                        </label>
-                        <input
-                          type="number"
-                          value={customPercentages.documentsPercent}
-                          onChange={(e) => handleCustomPercentageChange('documentsPercent', e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px 10px',
-                            border: '2px solid #fed7aa',
-                            borderRadius: '6px',
-                            fontSize: '14px'
-                          }}
-                          step="0.01"
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-                    )}
-                    {effectiveFieldVisibility.siteVisit && (
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
-                          Site Visit %
-                        </label>
-                        <input
-                          type="number"
-                          value={customPercentages.siteVisitPercent}
-                          onChange={(e) => handleCustomPercentageChange('siteVisitPercent', e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px 10px',
-                            border: '2px solid #fed7aa',
-                            borderRadius: '6px',
-                            fontSize: '14px'
-                          }}
-                          step="0.01"
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-                    )}
-                    {effectiveFieldVisibility.marketingAndMisc && (
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
-                          Marketing & Misc %
-                        </label>
-                        <input
-                          type="number"
-                          value={customPercentages.marketingAndMiscPercent}
-                          onChange={(e) => handleCustomPercentageChange('marketingAndMiscPercent', e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px 10px',
-                            border: '2px solid #fed7aa',
-                            borderRadius: '6px',
-                            fontSize: '14px'
-                          }}
-                          step="0.01"
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-                    )}
-                    {effectiveFieldVisibility.officeManagement && (
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
-                          Office Management %
-                        </label>
-                        <input
-                          type="number"
-                          value={customPercentages.officeManagementPercent}
-                          onChange={(e) => handleCustomPercentageChange('officeManagementPercent', e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px 10px',
-                            border: '2px solid #fed7aa',
-                            borderRadius: '6px',
-                            fontSize: '14px'
-                          }}
-                          step="0.01"
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-                    )}
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>Profit Margin %</label>
+                      <input type="number" value={customPercentages.profitMarginPercent} onChange={(e) => handleCustomPercentageChange('profitMarginPercent', e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '2px solid #fed7aa', borderRadius: '6px', fontSize: '14px' }} step="0.01" min="0" max="100" />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>Drawing %</label>
+                      <input type="number" value={customPercentages.drawingPercent} onChange={(e) => handleCustomPercentageChange('drawingPercent', e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '2px solid #fed7aa', borderRadius: '6px', fontSize: '14px' }} step="0.01" min="0" max="100" />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>Documents %</label>
+                      <input type="number" value={customPercentages.documentsPercent} onChange={(e) => handleCustomPercentageChange('documentsPercent', e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '2px solid #fed7aa', borderRadius: '6px', fontSize: '14px' }} step="0.01" min="0" max="100" />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>Site Visit %</label>
+                      <input type="number" value={customPercentages.siteVisitPercent} onChange={(e) => handleCustomPercentageChange('siteVisitPercent', e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '2px solid #fed7aa', borderRadius: '6px', fontSize: '14px' }} step="0.01" min="0" max="100" />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>Marketing & Misc %</label>
+                      <input type="number" value={customPercentages.marketingAndMiscPercent} onChange={(e) => handleCustomPercentageChange('marketingAndMiscPercent', e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '2px solid #fed7aa', borderRadius: '6px', fontSize: '14px' }} step="0.01" min="0" max="100" />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>Office Management %</label>
+                      <input type="number" value={customPercentages.officeManagementPercent} onChange={(e) => handleCustomPercentageChange('officeManagementPercent', e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '2px solid #fed7aa', borderRadius: '6px', fontSize: '14px' }} step="0.01" min="0" max="100" />
+                    </div>
                   </div>
                   <p style={{ margin: '12px 0 0 0', fontSize: '12px', color: '#9a3412', fontStyle: 'italic' }}>
                     Total: {(
@@ -2572,138 +2458,30 @@ const YearlyDistributionTable = ({
                     Configure Custom Percentages
                   </h4>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                    {effectiveFieldVisibility.profitMargin && (
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
-                          Profit Margin %
-                        </label>
-                        <input
-                          type="number"
-                          value={customPercentages.profitMarginPercent}
-                          onChange={(e) => handleCustomPercentageChange('profitMarginPercent', e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px 10px',
-                            border: '2px solid #fed7aa',
-                            borderRadius: '6px',
-                            fontSize: '14px'
-                          }}
-                          step="0.01"
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-                    )}
-                    {effectiveFieldVisibility.drawing && (
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
-                          Drawing %
-                        </label>
-                        <input
-                          type="number"
-                          value={customPercentages.drawingPercent}
-                          onChange={(e) => handleCustomPercentageChange('drawingPercent', e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px 10px',
-                            border: '2px solid #fed7aa',
-                            borderRadius: '6px',
-                            fontSize: '14px'
-                          }}
-                          step="0.01"
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-                    )}
-                    {effectiveFieldVisibility.documents && (
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
-                          Documents %
-                        </label>
-                        <input
-                          type="number"
-                          value={customPercentages.documentsPercent}
-                          onChange={(e) => handleCustomPercentageChange('documentsPercent', e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px 10px',
-                            border: '2px solid #fed7aa',
-                            borderRadius: '6px',
-                            fontSize: '14px'
-                          }}
-                          step="0.01"
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-                    )}
-                    {effectiveFieldVisibility.siteVisit && (
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
-                          Site Visit %
-                        </label>
-                        <input
-                          type="number"
-                          value={customPercentages.siteVisitPercent}
-                          onChange={(e) => handleCustomPercentageChange('siteVisitPercent', e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px 10px',
-                            border: '2px solid #fed7aa',
-                            borderRadius: '6px',
-                            fontSize: '14px'
-                          }}
-                          step="0.01"
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-                    )}
-                    {effectiveFieldVisibility.marketingAndMisc && (
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
-                          Marketing & Misc %
-                        </label>
-                        <input
-                          type="number"
-                          value={customPercentages.marketingAndMiscPercent}
-                          onChange={(e) => handleCustomPercentageChange('marketingAndMiscPercent', e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px 10px',
-                            border: '2px solid #fed7aa',
-                            borderRadius: '6px',
-                            fontSize: '14px'
-                          }}
-                          step="0.01"
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-                    )}
-                    {effectiveFieldVisibility.officeManagement && (
-                      <div>
-                        <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>
-                          Office Management %
-                        </label>
-                        <input
-                          type="number"
-                          value={customPercentages.officeManagementPercent}
-                          onChange={(e) => handleCustomPercentageChange('officeManagementPercent', e.target.value)}
-                          style={{
-                            width: '100%',
-                            padding: '8px 10px',
-                            border: '2px solid #fed7aa',
-                            borderRadius: '6px',
-                            fontSize: '14px'
-                          }}
-                          step="0.01"
-                          min="0"
-                          max="100"
-                        />
-                      </div>
-                    )}
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>Profit Margin %</label>
+                      <input type="number" value={customPercentages.profitMarginPercent} onChange={(e) => handleCustomPercentageChange('profitMarginPercent', e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '2px solid #fed7aa', borderRadius: '6px', fontSize: '14px' }} step="0.01" min="0" max="100" />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>Drawing %</label>
+                      <input type="number" value={customPercentages.drawingPercent} onChange={(e) => handleCustomPercentageChange('drawingPercent', e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '2px solid #fed7aa', borderRadius: '6px', fontSize: '14px' }} step="0.01" min="0" max="100" />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>Documents %</label>
+                      <input type="number" value={customPercentages.documentsPercent} onChange={(e) => handleCustomPercentageChange('documentsPercent', e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '2px solid #fed7aa', borderRadius: '6px', fontSize: '14px' }} step="0.01" min="0" max="100" />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>Site Visit %</label>
+                      <input type="number" value={customPercentages.siteVisitPercent} onChange={(e) => handleCustomPercentageChange('siteVisitPercent', e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '2px solid #fed7aa', borderRadius: '6px', fontSize: '14px' }} step="0.01" min="0" max="100" />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>Marketing & Misc %</label>
+                      <input type="number" value={customPercentages.marketingAndMiscPercent} onChange={(e) => handleCustomPercentageChange('marketingAndMiscPercent', e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '2px solid #fed7aa', borderRadius: '6px', fontSize: '14px' }} step="0.01" min="0" max="100" />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '5px', fontSize: '13px', fontWeight: '600', color: '#374151' }}>Office Management %</label>
+                      <input type="number" value={customPercentages.officeManagementPercent} onChange={(e) => handleCustomPercentageChange('officeManagementPercent', e.target.value)} style={{ width: '100%', padding: '8px 10px', border: '2px solid #fed7aa', borderRadius: '6px', fontSize: '14px' }} step="0.01" min="0" max="100" />
+                    </div>
                   </div>
                   <p style={{ margin: '12px 0 0 0', fontSize: '12px', color: '#9a3412', fontStyle: 'italic' }}>
                     Total: {(
