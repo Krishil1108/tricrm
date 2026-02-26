@@ -264,6 +264,32 @@ const YearlyDistributionTable = ({
     setShowEditPaymentModal(true);
   };
 
+  // Helper: recalculate all distribution amounts from a new total amount
+  // using the project's configured percentages
+  const recalcDistributionFromAmount = (newAmountStr) => {
+    const newAmount = parseFloat(newAmountStr) || 0;
+    const totalAssocPct = projectData.projectAssociates && projectData.projectAssociates.length > 0
+      ? projectData.projectAssociates.reduce((sum, a) => sum + (parseFloat(a.percentage) || 0), 0)
+      : 0;
+    const assocShare = Math.floor((newAmount * totalAssocPct) / 100);
+    const afterAssoc = newAmount - assocShare;
+    const cfAmounts = {};
+    if (visibleCustomFields && visibleCustomFields.length > 0) {
+      visibleCustomFields.forEach(cf => {
+        cfAmounts[cf.fieldName] = Math.floor((afterAssoc * (getCustomFieldValue(cf.fieldName, 'percentage') || 0)) / 100);
+      });
+    }
+    return {
+      profitAmount: Math.floor((afterAssoc * (projectData.profitMarginPercent || 0)) / 100),
+      drawingAmount: Math.floor((afterAssoc * (projectData.drawingPercent || 0)) / 100),
+      documentsAmount: Math.floor((afterAssoc * (projectData.documentsPercent || 0)) / 100),
+      siteVisitAmount: Math.floor((afterAssoc * (projectData.siteVisitPercent || 0)) / 100),
+      marketingAmount: Math.floor((afterAssoc * (projectData.marketingAndMiscPercent || 0)) / 100),
+      officeAmount: Math.floor((afterAssoc * (projectData.officeManagementPercent || 0)) / 100),
+      customFieldAmounts: cfAmounts
+    };
+  };
+
   // Handler to start inline editing
   const handleStartInlineEdit = (index) => {
     const payment = projectData.payments[index];
@@ -329,6 +355,31 @@ const YearlyDistributionTable = ({
         officeManagementPercent: amountAfterAssociate > 0 ? (inlineEditData.officeAmount / amountAfterAssociate) * 100 : 0
       };
       
+      // Validate total percentage does not exceed 100%
+      const totalPercent = (
+        (percentages.profitMarginPercent || 0) +
+        (percentages.drawingPercent || 0) +
+        (percentages.documentsPercent || 0) +
+        (percentages.siteVisitPercent || 0) +
+        (percentages.marketingAndMiscPercent || 0) +
+        (percentages.officeManagementPercent || 0)
+      );
+      if (totalPercent > 100) {
+        alert(
+          `⚠️ Total distribution is ${totalPercent.toFixed(2)}% which exceeds 100%.\n\n` +
+          `Please adjust the distribution amounts so they total no more than the payment amount after associate deductions.\n\n` +
+          `Current distribution:\n` +
+          `  Profit Margin: ${percentages.profitMarginPercent.toFixed(2)}%\n` +
+          `  Drawing: ${percentages.drawingPercent.toFixed(2)}%\n` +
+          `  Documents: ${percentages.documentsPercent.toFixed(2)}%\n` +
+          `  Site Visit: ${percentages.siteVisitPercent.toFixed(2)}%\n` +
+          `  Marketing & Misc: ${percentages.marketingAndMiscPercent.toFixed(2)}%\n` +
+          `  Office Management: ${percentages.officeManagementPercent.toFixed(2)}%\n` +
+          `  Total: ${totalPercent.toFixed(2)}%`
+        );
+        return;
+      }
+
       const updatedPayment = {
         amount: amount,
         date: inlineEditData.date,
@@ -336,7 +387,8 @@ const YearlyDistributionTable = ({
         mode: inlineEditData.mode,
         percentages: percentages
       };
-      onEditPayment(inlineEditingIndex, updatedPayment);
+      // Pass back-computed percentages so the project updates its distribution %s
+      onEditPayment(inlineEditingIndex, updatedPayment, percentages);
       setInlineEditingIndex(null);
     }
   };
@@ -1217,6 +1269,11 @@ const YearlyDistributionTable = ({
               const marketingAmount = Math.floor((amountAfterAssociate * (activePercentages.marketingAndMiscPercent || 0)) / 100);
               const officeAmount = Math.floor((amountAfterAssociate * (activePercentages.officeManagementPercent || 0)) / 100);
               
+              // Compute amount-after-associate using current inline amount (for live % display)
+              const inlineRawAmount = inlineEditingIndex === index ? (parseFloat(inlineEditData.amount) || 0) : amount;
+              const inlineAssocShare = Math.floor((inlineRawAmount * totalAssociatePercent) / 100);
+              const inlineAmountAfterAssoc = inlineRawAmount - inlineAssocShare;
+
               // Get edited amounts or use calculated ones
               const paymentKey = `payment-${index}`;
               // Use inline edit data if this row is being edited inline, otherwise use calculated amounts
@@ -1235,7 +1292,10 @@ const YearlyDistributionTable = ({
                       <input
                         type="number"
                         value={inlineEditData.amount}
-                        onChange={(e) => setInlineEditData({...inlineEditData, amount: e.target.value})}
+                        onChange={(e) => {
+                          const dist = recalcDistributionFromAmount(e.target.value);
+                          setInlineEditData({ ...inlineEditData, amount: e.target.value, ...dist });
+                        }}
                         style={{
                           width: '100%',
                           padding: '6px',
@@ -1310,20 +1370,24 @@ const YearlyDistributionTable = ({
                   {effectiveFieldVisibility.profitMargin && (
                     <td>
                       {inlineEditingIndex === index ? (
-                        <input 
-                          type="number" 
-                          value={inlineEditData.profitAmount}
-                          onChange={(e) => setInlineEditData({...inlineEditData, profitAmount: parseInt(e.target.value) || 0})}
-                          style={{ 
-                            width: '100%', 
-                            padding: '6px', 
-                            textAlign: 'right',
-                            border: '2px solid #3b82f6',
-                            borderRadius: '4px',
-                            fontSize: '14px'
-                          }}
-                          min="0"
-                        />
+                        <div>
+                          <input 
+                            type="number" 
+                            value={inlineEditData.profitAmount}
+                            onChange={(e) => {
+                              const v = parseInt(e.target.value) || 0;
+                              const proposed = v + (inlineEditData.drawingAmount||0) + (inlineEditData.documentsAmount||0) + (inlineEditData.siteVisitAmount||0) + (inlineEditData.marketingAmount||0) + (inlineEditData.officeAmount||0);
+                              if (inlineAmountAfterAssoc > 0 && proposed > inlineAmountAfterAssoc) {
+                                alert(`⚠️ Total distribution (₹${proposed.toLocaleString('en-IN')}) exceeds amount after associate share (₹${inlineAmountAfterAssoc.toLocaleString('en-IN')}). Adjust percentages properly.`);
+                                return;
+                              }
+                              setInlineEditData({...inlineEditData, profitAmount: v});
+                            }}
+                            style={{ width: '100%', padding: '6px', textAlign: 'right', border: '2px solid #3b82f6', borderRadius: '4px', fontSize: '14px' }}
+                            min="0"
+                          />
+                          {inlineAmountAfterAssoc > 0 && <div style={{fontSize:'10px',color:'#2563eb',textAlign:'right',marginTop:'2px'}}>{((inlineEditData.profitAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                        </div>
                       ) : (
                         displayProfitAmount.toLocaleString('en-IN')
                       )}
@@ -1332,20 +1396,24 @@ const YearlyDistributionTable = ({
                   {effectiveFieldVisibility.drawing && (
                     <td>
                       {inlineEditingIndex === index ? (
-                        <input 
-                          type="number" 
-                          value={inlineEditData.drawingAmount}
-                          onChange={(e) => setInlineEditData({...inlineEditData, drawingAmount: parseInt(e.target.value) || 0})}
-                          style={{ 
-                            width: '100%', 
-                            padding: '6px', 
-                            textAlign: 'right',
-                            border: '2px solid #3b82f6',
-                            borderRadius: '4px',
-                            fontSize: '14px'
-                          }}
-                          min="0"
-                        />
+                        <div>
+                          <input 
+                            type="number" 
+                            value={inlineEditData.drawingAmount}
+                            onChange={(e) => {
+                              const v = parseInt(e.target.value) || 0;
+                              const proposed = (inlineEditData.profitAmount||0) + v + (inlineEditData.documentsAmount||0) + (inlineEditData.siteVisitAmount||0) + (inlineEditData.marketingAmount||0) + (inlineEditData.officeAmount||0);
+                              if (inlineAmountAfterAssoc > 0 && proposed > inlineAmountAfterAssoc) {
+                                alert(`⚠️ Total distribution (₹${proposed.toLocaleString('en-IN')}) exceeds amount after associate share (₹${inlineAmountAfterAssoc.toLocaleString('en-IN')}). Adjust percentages properly.`);
+                                return;
+                              }
+                              setInlineEditData({...inlineEditData, drawingAmount: v});
+                            }}
+                            style={{ width: '100%', padding: '6px', textAlign: 'right', border: '2px solid #3b82f6', borderRadius: '4px', fontSize: '14px' }}
+                            min="0"
+                          />
+                          {inlineAmountAfterAssoc > 0 && <div style={{fontSize:'10px',color:'#2563eb',textAlign:'right',marginTop:'2px'}}>{((inlineEditData.drawingAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                        </div>
                       ) : (
                         displayDrawingAmount.toLocaleString('en-IN')
                       )}
@@ -1354,20 +1422,24 @@ const YearlyDistributionTable = ({
                   {effectiveFieldVisibility.documents && (
                     <td>
                       {inlineEditingIndex === index ? (
-                        <input 
-                          type="number" 
-                          value={inlineEditData.documentsAmount}
-                          onChange={(e) => setInlineEditData({...inlineEditData, documentsAmount: parseInt(e.target.value) || 0})}
-                          style={{ 
-                            width: '100%', 
-                            padding: '6px', 
-                            textAlign: 'right',
-                            border: '2px solid #3b82f6',
-                            borderRadius: '4px',
-                            fontSize: '14px'
-                          }}
-                          min="0"
-                        />
+                        <div>
+                          <input 
+                            type="number" 
+                            value={inlineEditData.documentsAmount}
+                            onChange={(e) => {
+                              const v = parseInt(e.target.value) || 0;
+                              const proposed = (inlineEditData.profitAmount||0) + (inlineEditData.drawingAmount||0) + v + (inlineEditData.siteVisitAmount||0) + (inlineEditData.marketingAmount||0) + (inlineEditData.officeAmount||0);
+                              if (inlineAmountAfterAssoc > 0 && proposed > inlineAmountAfterAssoc) {
+                                alert(`⚠️ Total distribution (₹${proposed.toLocaleString('en-IN')}) exceeds amount after associate share (₹${inlineAmountAfterAssoc.toLocaleString('en-IN')}). Adjust percentages properly.`);
+                                return;
+                              }
+                              setInlineEditData({...inlineEditData, documentsAmount: v});
+                            }}
+                            style={{ width: '100%', padding: '6px', textAlign: 'right', border: '2px solid #3b82f6', borderRadius: '4px', fontSize: '14px' }}
+                            min="0"
+                          />
+                          {inlineAmountAfterAssoc > 0 && <div style={{fontSize:'10px',color:'#2563eb',textAlign:'right',marginTop:'2px'}}>{((inlineEditData.documentsAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                        </div>
                       ) : (
                         displayDocumentsAmount > 0 ? displayDocumentsAmount.toLocaleString('en-IN') : '-'
                       )}
@@ -1376,20 +1448,24 @@ const YearlyDistributionTable = ({
                   {effectiveFieldVisibility.siteVisit && (
                     <td>
                       {inlineEditingIndex === index ? (
-                        <input 
-                          type="number" 
-                          value={inlineEditData.siteVisitAmount}
-                          onChange={(e) => setInlineEditData({...inlineEditData, siteVisitAmount: parseInt(e.target.value) || 0})}
-                          style={{ 
-                            width: '100%', 
-                            padding: '6px', 
-                            textAlign: 'right',
-                            border: '2px solid #3b82f6',
-                            borderRadius: '4px',
-                            fontSize: '14px'
-                          }}
-                          min="0"
-                        />
+                        <div>
+                          <input 
+                            type="number" 
+                            value={inlineEditData.siteVisitAmount}
+                            onChange={(e) => {
+                              const v = parseInt(e.target.value) || 0;
+                              const proposed = (inlineEditData.profitAmount||0) + (inlineEditData.drawingAmount||0) + (inlineEditData.documentsAmount||0) + v + (inlineEditData.marketingAmount||0) + (inlineEditData.officeAmount||0);
+                              if (inlineAmountAfterAssoc > 0 && proposed > inlineAmountAfterAssoc) {
+                                alert(`⚠️ Total distribution (₹${proposed.toLocaleString('en-IN')}) exceeds amount after associate share (₹${inlineAmountAfterAssoc.toLocaleString('en-IN')}). Adjust percentages properly.`);
+                                return;
+                              }
+                              setInlineEditData({...inlineEditData, siteVisitAmount: v});
+                            }}
+                            style={{ width: '100%', padding: '6px', textAlign: 'right', border: '2px solid #3b82f6', borderRadius: '4px', fontSize: '14px' }}
+                            min="0"
+                          />
+                          {inlineAmountAfterAssoc > 0 && <div style={{fontSize:'10px',color:'#2563eb',textAlign:'right',marginTop:'2px'}}>{((inlineEditData.siteVisitAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                        </div>
                       ) : (
                         displaySiteVisitAmount.toLocaleString('en-IN')
                       )}
@@ -1398,20 +1474,24 @@ const YearlyDistributionTable = ({
                   {effectiveFieldVisibility.marketingAndMisc && (
                     <td>
                       {inlineEditingIndex === index ? (
-                        <input 
-                          type="number" 
-                          value={inlineEditData.marketingAmount}
-                          onChange={(e) => setInlineEditData({...inlineEditData, marketingAmount: parseInt(e.target.value) || 0})}
-                          style={{ 
-                            width: '100%', 
-                            padding: '6px', 
-                            textAlign: 'right',
-                            border: '2px solid #3b82f6',
-                            borderRadius: '4px',
-                            fontSize: '14px'
-                          }}
-                          min="0"
-                        />
+                        <div>
+                          <input 
+                            type="number" 
+                            value={inlineEditData.marketingAmount}
+                            onChange={(e) => {
+                              const v = parseInt(e.target.value) || 0;
+                              const proposed = (inlineEditData.profitAmount||0) + (inlineEditData.drawingAmount||0) + (inlineEditData.documentsAmount||0) + (inlineEditData.siteVisitAmount||0) + v + (inlineEditData.officeAmount||0);
+                              if (inlineAmountAfterAssoc > 0 && proposed > inlineAmountAfterAssoc) {
+                                alert(`⚠️ Total distribution (₹${proposed.toLocaleString('en-IN')}) exceeds amount after associate share (₹${inlineAmountAfterAssoc.toLocaleString('en-IN')}). Adjust percentages properly.`);
+                                return;
+                              }
+                              setInlineEditData({...inlineEditData, marketingAmount: v});
+                            }}
+                            style={{ width: '100%', padding: '6px', textAlign: 'right', border: '2px solid #3b82f6', borderRadius: '4px', fontSize: '14px' }}
+                            min="0"
+                          />
+                          {inlineAmountAfterAssoc > 0 && <div style={{fontSize:'10px',color:'#2563eb',textAlign:'right',marginTop:'2px'}}>{((inlineEditData.marketingAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                        </div>
                       ) : (
                         displayMarketingAmount.toLocaleString('en-IN')
                       )}
@@ -1420,20 +1500,24 @@ const YearlyDistributionTable = ({
                   {effectiveFieldVisibility.officeManagement && (
                     <td>
                       {inlineEditingIndex === index ? (
-                        <input 
-                          type="number" 
-                          value={inlineEditData.officeAmount}
-                          onChange={(e) => setInlineEditData({...inlineEditData, officeAmount: parseInt(e.target.value) || 0})}
-                          style={{ 
-                            width: '100%', 
-                            padding: '6px', 
-                            textAlign: 'right',
-                            border: '2px solid #3b82f6',
-                            borderRadius: '4px',
-                            fontSize: '14px'
-                          }}
-                          min="0"
-                        />
+                        <div>
+                          <input 
+                            type="number" 
+                            value={inlineEditData.officeAmount}
+                            onChange={(e) => {
+                              const v = parseInt(e.target.value) || 0;
+                              const proposed = (inlineEditData.profitAmount||0) + (inlineEditData.drawingAmount||0) + (inlineEditData.documentsAmount||0) + (inlineEditData.siteVisitAmount||0) + (inlineEditData.marketingAmount||0) + v;
+                              if (inlineAmountAfterAssoc > 0 && proposed > inlineAmountAfterAssoc) {
+                                alert(`⚠️ Total distribution (₹${proposed.toLocaleString('en-IN')}) exceeds amount after associate share (₹${inlineAmountAfterAssoc.toLocaleString('en-IN')}). Adjust percentages properly.`);
+                                return;
+                              }
+                              setInlineEditData({...inlineEditData, officeAmount: v});
+                            }}
+                            style={{ width: '100%', padding: '6px', textAlign: 'right', border: '2px solid #3b82f6', borderRadius: '4px', fontSize: '14px' }}
+                            min="0"
+                          />
+                          {inlineAmountAfterAssoc > 0 && <div style={{fontSize:'10px',color:'#2563eb',textAlign:'right',marginTop:'2px'}}>{((inlineEditData.officeAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                        </div>
                       ) : (
                         displayOfficeAmount.toLocaleString('en-IN')
                       )}
@@ -1999,7 +2083,7 @@ const YearlyDistributionTable = ({
           justifyContent: 'center',
           zIndex: 9999
         }}>
-          <div style={{
+          <div className="payment-form-modal" style={{
             background: 'white',
             borderRadius: '12px',
             padding: '30px',
@@ -2282,7 +2366,7 @@ const YearlyDistributionTable = ({
           justifyContent: 'center',
           zIndex: 9999
         }}>
-          <div style={{
+          <div className="payment-form-modal" style={{
             background: 'white',
             borderRadius: '12px',
             padding: '30px',

@@ -359,3 +359,28 @@
     justify-content: center;
   }
 }
+
+/* Payment modal - override dark mode label color so text stays readable on white background */
+.payment-form-modal label,
+[data-theme="dark"] .payment-form-modal label,
+[data-theme="dark"] .payment-form-modal .form-group label,
+[data-theme="dark"] .payment-form-modal .form-label {
+  color: #374151 !important;
+}
+
+.payment-form-modal h2,
+.payment-form-modal h4,
+[data-theme="dark"] .payment-form-modal h2,
+[data-theme="dark"] .payment-form-modal h4 {
+  color: #1f2937 !important;
+}
+
+.payment-form-modal p,
+[data-theme="dark"] .payment-form-modal p {
+  color: #6b7280 !important;
+}
+
+.payment-form-modal {
+  background: white !important;
+  color: #374151 !important;
+}
