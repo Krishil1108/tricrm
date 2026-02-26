@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { authenticate } = require('../middleware/auth');
 const analyticsController = require('../controllers/analyticsController');
-const expenseDistributionController = require('../controllers/expenseDistributionController');
 
 // Debug logging for route registration
 console.log('📊 [ANALYTICS] Registering analytics routes...');
@@ -156,9 +155,6 @@ router.get('/payments', analyticsController.getPaymentAnalytics);
 router.get('/profit-margins', analyticsController.getProfitMarginAnalytics);
 router.get('/percentage-config', analyticsController.getPercentageConfigAnalytics);
 router.get('/cross-comparisons', analyticsController.getCrossComparisonAnalytics);
-
-// Expense distribution endpoint
-router.get('/expense-distribution', authenticate, expenseDistributionController.getExpenseDistribution);
 
 // Export endpoints
 router.post('/export/chart', analyticsController.exportChartData);
