@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import './YearlyDistributionTable.css';
 // xlsx, jsPDF and jspdf-autotable are loaded on-demand inside exportToExcel / exportToPDF
 // to avoid adding ~250 KiB to the initial JS bundle.
@@ -17,6 +18,9 @@ const YearlyDistributionTable = ({
   onDeletePayment = null,
   autoOpenAddPayment = false
 }) => {
+  const location = useLocation();
+  const shouldAutoOpen = autoOpenAddPayment || new URLSearchParams(location.search).get('addPayment') === 'true';
+  const autoOpenFiredRef = useRef(false);
   
   // State for edit mode
   const [editedData, setEditedData] = useState({
@@ -84,14 +88,12 @@ const YearlyDistributionTable = ({
 
   // Auto-open Add Payment modal when navigated with ?addPayment=true
   useEffect(() => {
-    if (autoOpenAddPayment && onAddPayment && projectData && projectData._id) {
-      const timer = setTimeout(() => {
-        handleOpenAddPaymentModal();
-      }, 150);
-      return () => clearTimeout(timer);
+    if (shouldAutoOpen && onAddPayment && projectData && projectData._id && !autoOpenFiredRef.current) {
+      autoOpenFiredRef.current = true;
+      handleOpenAddPaymentModal();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoOpenAddPayment, projectData?._id]);
+  }, [shouldAutoOpen, onAddPayment, projectData?._id]);
   
   // CRITICAL: Use project's config snapshot if available
   // For projects without snapshot (legacy projects before versioning):
