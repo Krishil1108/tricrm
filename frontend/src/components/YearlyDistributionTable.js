@@ -105,7 +105,17 @@ const YearlyDistributionTable = ({
     // Project has snapshot: use its configuration exactly as it was
     var effectiveConfig = projectData.configSnapshot;
     var effectiveCustomFields = effectiveConfig.customFields || [];
-    var effectiveFieldVisibility = effectiveConfig.fieldVisibility || {};
+    // Use !== false so that missing keys default to true (visible).
+    // Only fields explicitly set to false are hidden.
+    const _snapshotFV = effectiveConfig.fieldVisibility || {};
+    var effectiveFieldVisibility = {
+      profitMargin:       _snapshotFV.profitMargin       !== false,
+      drawing:            _snapshotFV.drawing            !== false,
+      documents:          _snapshotFV.documents          !== false,
+      siteVisit:          _snapshotFV.siteVisit          !== false,
+      marketingAndMisc:   _snapshotFV.marketingAndMisc   !== false,
+      officeManagement:   _snapshotFV.officeManagement   !== false,
+    };
   } else {
     // Legacy project without snapshot: show all default fields, no custom fields
     var effectiveConfig = {};
