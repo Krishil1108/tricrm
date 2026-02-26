@@ -856,13 +856,7 @@ const YearlyDistributionTable = ({
   const yearlyDistribution = projectData.yearlyDistribution || 
     calculateYearlyDistribution(projectData.payments);
 
-  if (!yearlyDistribution || Object.keys(yearlyDistribution).length === 0) {
-    return (
-      <div className="empty-distribution">
-        <p>No payment data available for yearly distribution.</p>
-      </div>
-    );
-  }
+  const hasNoPayments = !yearlyDistribution || Object.keys(yearlyDistribution).length === 0;
 
   const tableClass = compact ? 'distribution-table compact' : 'distribution-table';
 
@@ -958,7 +952,37 @@ const YearlyDistributionTable = ({
           </div>
         </div>
       )}
-      
+
+      {/* Empty state when no payments yet */}
+      {hasNoPayments && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 0' }}>
+          <div className="empty-distribution" style={{ margin: 0, flex: 1 }}>
+            <p>No payment data available for yearly distribution.</p>
+          </div>
+          {onAddPayment && (
+            <button
+              onClick={handleOpenAddPaymentModal}
+              style={{
+                padding: '8px 16px',
+                background: '#2c5282',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                marginLeft: '12px',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              + Add Payment
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Distribution table - only when payments exist */}
+      {!hasNoPayments && (
       <div className="yearly-distribution">
         <table className={tableClass}>
           <thead>
@@ -1950,6 +1974,7 @@ const YearlyDistributionTable = ({
           </tfoot>
         </table>
       </div>
+      )}
 
       {/* Add Payment Modal */}
       {showAddPaymentModal && (
