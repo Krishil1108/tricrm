@@ -182,13 +182,21 @@ const ExpenseDistribution = () => {
 
             // Track unique projects
             if (!fyAggregation[paymentFY].projects.has(project._id)) {
+              const totalAssociatePercent = project.projectAssociates && project.projectAssociates.length > 0
+                ? project.projectAssociates.reduce((sum, assoc) => sum + (parseFloat(assoc.percentage) || 0), 0)
+                : 0;
               fyAggregation[paymentFY].projects.set(project._id, {
                 projectNumber: project.projectNumber,
                 projectName: project.projectName,
                 clientName: project.clientName,
                 finalizedFees: project.finalizedFees || 0,
                 totalPaid: 0,
-                expenses: project.expenses || {},
+                totalAssociatePercent,
+                drawingPercent: project.drawingPercent || 0,
+                documentsPercent: project.documentsPercent || 0,
+                siteVisitPercent: project.siteVisitPercent || 0,
+                marketingAndMiscPercent: project.marketingAndMiscPercent || 0,
+                officeManagementPercent: project.officeManagementPercent || 0,
                 paymentsInFY: []
               });
             }
@@ -215,15 +223,17 @@ const ExpenseDistribution = () => {
         }
       });
 
-      // Calculate expense distribution for selected FY
+      // Calculate expense distribution for selected FY based on payments received in that FY
       if (fyAggregation[selectedFinancialYear]) {
         fyAggregation[selectedFinancialYear].projects.forEach(project => {
-          const expenses = project.expenses || {};
-          fyAggregation[selectedFinancialYear].totalExpenses.drawing += expenses.drawing || 0;
-          fyAggregation[selectedFinancialYear].totalExpenses.documents += expenses.documents || 0;
-          fyAggregation[selectedFinancialYear].totalExpenses.siteVisit += expenses.siteVisit || 0;
-          fyAggregation[selectedFinancialYear].totalExpenses.marketingAndMisc += expenses.marketingAndMisc || 0;
-          fyAggregation[selectedFinancialYear].totalExpenses.officeManagement += expenses.officeManagement || 0;
+          const totalPaidInFY = project.totalPaid || 0;
+          const assocShare = Math.floor((totalPaidInFY * (project.totalAssociatePercent || 0)) / 100);
+          const amountAfterAssociate = totalPaidInFY - assocShare;
+          fyAggregation[selectedFinancialYear].totalExpenses.drawing += Math.floor((amountAfterAssociate * (project.drawingPercent || 0)) / 100);
+          fyAggregation[selectedFinancialYear].totalExpenses.documents += Math.floor((amountAfterAssociate * (project.documentsPercent || 0)) / 100);
+          fyAggregation[selectedFinancialYear].totalExpenses.siteVisit += Math.floor((amountAfterAssociate * (project.siteVisitPercent || 0)) / 100);
+          fyAggregation[selectedFinancialYear].totalExpenses.marketingAndMisc += Math.floor((amountAfterAssociate * (project.marketingAndMiscPercent || 0)) / 100);
+          fyAggregation[selectedFinancialYear].totalExpenses.officeManagement += Math.floor((amountAfterAssociate * (project.officeManagementPercent || 0)) / 100);
         });
       }
 
@@ -331,23 +341,27 @@ const ExpenseDistribution = () => {
       ];
 
       const projectRows = fyProjects.map(project => {
-        const totalExpenses = (project.expenses?.drawing || 0) +
-                             (project.expenses?.documents || 0) +
-                             (project.expenses?.siteVisit || 0) +
-                             (project.expenses?.marketingAndMisc || 0) +
-                             (project.expenses?.officeManagement || 0);
+        const totalPaidInFY = project.totalPaid || 0;
+        const assocShare = Math.floor((totalPaidInFY * (project.totalAssociatePercent || 0)) / 100);
+        const amountAfterAssociate = totalPaidInFY - assocShare;
+        const drawingAmt = Math.floor((amountAfterAssociate * (project.drawingPercent || 0)) / 100);
+        const documentsAmt = Math.floor((amountAfterAssociate * (project.documentsPercent || 0)) / 100);
+        const siteVisitAmt = Math.floor((amountAfterAssociate * (project.siteVisitPercent || 0)) / 100);
+        const marketingAmt = Math.floor((amountAfterAssociate * (project.marketingAndMiscPercent || 0)) / 100);
+        const officeAmt = Math.floor((amountAfterAssociate * (project.officeManagementPercent || 0)) / 100);
+        const totalExpenses = drawingAmt + documentsAmt + siteVisitAmt + marketingAmt + officeAmt;
         
         return [
           project.projectNumber || '',
           project.projectName || '',
           project.clientName || '',
           project.finalizedFees || 0,
-          project.totalPaid || 0,
-          project.expenses?.drawing || 0,
-          project.expenses?.documents || 0,
-          project.expenses?.siteVisit || 0,
-          project.expenses?.marketingAndMisc || 0,
-          project.expenses?.officeManagement || 0,
+          totalPaidInFY,
+          drawingAmt,
+          documentsAmt,
+          siteVisitAmt,
+          marketingAmt,
+          officeAmt,
           totalExpenses,
           project.paymentsInFY?.length || 0
         ];
@@ -1064,9 +1078,6 @@ const ExpenseDistribution = () => {
           <div className="card-content">
             <h3>Drawing</h3>
             <p className="card-amount">{formatCurrency(summary.drawing)}</p>
-            <p className="card-percentage">
-              {totalExpenses > 0 ? ((summary.drawing / totalExpenses) * 100).toFixed(1) : 0}%
-            </p>
           </div>
         </div>
 
@@ -1083,9 +1094,6 @@ const ExpenseDistribution = () => {
           <div className="card-content">
             <h3>Documents</h3>
             <p className="card-amount">{formatCurrency(summary.documents)}</p>
-            <p className="card-percentage">
-              {totalExpenses > 0 ? ((summary.documents / totalExpenses) * 100).toFixed(1) : 0}%
-            </p>
           </div>
         </div>
 
@@ -1099,9 +1107,6 @@ const ExpenseDistribution = () => {
           <div className="card-content">
             <h3>Site Visit</h3>
             <p className="card-amount">{formatCurrency(summary.siteVisit)}</p>
-            <p className="card-percentage">
-              {totalExpenses > 0 ? ((summary.siteVisit / totalExpenses) * 100).toFixed(1) : 0}%
-            </p>
           </div>
         </div>
 
@@ -1115,9 +1120,6 @@ const ExpenseDistribution = () => {
           <div className="card-content">
             <h3>Marketing & Misc</h3>
             <p className="card-amount">{formatCurrency(summary.marketingAndMisc)}</p>
-            <p className="card-percentage">
-              {totalExpenses > 0 ? ((summary.marketingAndMisc / totalExpenses) * 100).toFixed(1) : 0}%
-            </p>
           </div>
         </div>
 
@@ -1134,9 +1136,6 @@ const ExpenseDistribution = () => {
           <div className="card-content">
             <h3>Office Management</h3>
             <p className="card-amount">{formatCurrency(summary.officeManagement)}</p>
-            <p className="card-percentage">
-              {totalExpenses > 0 ? ((summary.officeManagement / totalExpenses) * 100).toFixed(1) : 0}%
-            </p>
           </div>
         </div>
 
@@ -1151,9 +1150,6 @@ const ExpenseDistribution = () => {
             <div className="card-content">
               <h3>{getFieldLabel(fieldKey)}</h3>
               <p className="card-amount">{formatCurrency(amount)}</p>
-              <p className="card-percentage">
-                {totalExpenses > 0 ? ((amount / totalExpenses) * 100).toFixed(1) : 0}%
-              </p>
             </div>
           </div>
         ))}

@@ -8,9 +8,10 @@ const Client = require('../models/Client');
 const getExpenseDistribution = async (req, res) => {
   try {
     // Get all projects with populated client data
+    // Include payments and percentage fields so we can compute expenses per-payment (matching YearlyDistributionTable)
     const projects = await FinanceProject.find()
       .populate('clientId', 'name')
-      .select('projectNumber projectName drawing documents siteVisit marketingAndMisc officeManagement clientId')
+      .select('projectNumber projectName clientId projectAssociates payments drawingPercent documentsPercent siteVisitPercent marketingAndMiscPercent officeManagementPercent')
       .lean();
 
     // Initialize summary totals
@@ -28,12 +29,24 @@ const getExpenseDistribution = async (req, res) => {
 
     // Process each project
     const processedProjects = projects.map(project => {
-      // Standard expense fields
-      const drawing = project.drawing || 0;
-      const documents = project.documents || 0;
-      const siteVisit = project.siteVisit || 0;
-      const marketingAndMisc = project.marketingAndMisc || 0;
-      const officeManagement = project.officeManagement || 0;
+      // Compute expenses by summing per-payment distributions (matches YearlyDistributionTable exactly)
+      const totalAssociatePercent = project.projectAssociates && project.projectAssociates.length > 0
+        ? project.projectAssociates.reduce((sum, assoc) => sum + (assoc.percentage || 0), 0)
+        : 0;
+
+      let drawing = 0, documents = 0, siteVisit = 0, marketingAndMisc = 0, officeManagement = 0;
+      if (project.payments && project.payments.length > 0) {
+        project.payments.forEach(payment => {
+          const amount = payment.amount || 0;
+          const assocShare = Math.floor((amount * totalAssociatePercent) / 100);
+          const amountAfterAssociate = amount - assocShare;
+          drawing       += Math.floor((amountAfterAssociate * (project.drawingPercent || 0)) / 100);
+          documents     += Math.floor((amountAfterAssociate * (project.documentsPercent || 0)) / 100);
+          siteVisit     += Math.floor((amountAfterAssociate * (project.siteVisitPercent || 0)) / 100);
+          marketingAndMisc += Math.floor((amountAfterAssociate * (project.marketingAndMiscPercent || 0)) / 100);
+          officeManagement += Math.floor((amountAfterAssociate * (project.officeManagementPercent || 0)) / 100);
+        });
+      }
 
       // Add to summary
       summary.drawing += drawing;
@@ -42,20 +55,9 @@ const getExpenseDistribution = async (req, res) => {
       summary.marketingAndMisc += marketingAndMisc;
       summary.officeManagement += officeManagement;
 
-      // Extract custom expense fields (any field not in the standard schema)
+      // Custom fields are not currently computed per-payment via this endpoint
+      // (custom field support requires percentage fields stored per custom field)
       const customExpenses = {};
-      const standardFields = ['_id', 'projectNumber', 'projectName', 'drawing', 'documents', 
-                              'siteVisit', 'marketingAndMisc', 'officeManagement', 'clientId'];
-      
-      Object.keys(project).forEach(key => {
-        if (!standardFields.includes(key) && typeof project[key] === 'number' && project[key] > 0) {
-          customExpenses[key] = project[key];
-          if (!summary.customFields[key]) {
-            summary.customFields[key] = 0;
-          }
-          summary.customFields[key] += project[key];
-        }
-      });
 
       // Aggregate by client
       if (project.clientId && project.clientId._id) {
