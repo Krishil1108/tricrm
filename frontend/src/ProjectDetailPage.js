@@ -8,7 +8,6 @@ import ClientService from './services/ClientService';
 import AssociateService from './services/AssociateService';
 import ConfigurationVersionService from './services/ConfigurationVersionService';
 import { useAuth } from './contexts/AuthContext';
-import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
 import YearlyDistributionTable from './components/YearlyDistributionTable';
 import AssociateDistributionTable from './components/AssociateDistributionTable';
@@ -25,7 +24,6 @@ const ProjectDetailPage = () => {
   const cachedProjectName = location.state?.projectName || null;
   const autoOpenAddPayment = new URLSearchParams(location.search).get('addPayment') === 'true';
   const { canEditProject, canDeleteProject } = useAuth();
-  const { showLoading, hideLoading } = useLoading();
   const { showSuccess, showError } = useToast();
   
   const [project, setProject] = useState(null);
@@ -56,84 +54,76 @@ const ProjectDetailPage = () => {
 
   const loadAllData = async () => {
     try {
-      showLoading();
-      
-      // First fetch project data
-      const projectResponse = await FinanceService.getProject(projectId);
+      // Fetch project and global config in parallel (no dependency between them)
+      const [projectResponse, configResponse] = await Promise.all([
+        FinanceService.getProject(projectId),
+        ConfigurationVersionService.getCurrentConfiguration().catch(() => null)
+      ]);
+
       const projectData = projectResponse.data || projectResponse;
-      
+
       if (!projectData) {
         showError('Project not found');
         navigate('/projects');
         return;
       }
-      
+
+      // Apply config immediately
+      if (configResponse && configResponse.data) {
+        const config = configResponse.data.configuration;
+        setPercentageConfig({
+          profitMarginPercent: config.profitMarginPercent || 0,
+          drawingPercent: config.drawingPercent || 0,
+          documentsPercent: config.documentsPercent || 0,
+          siteVisitPercent: config.siteVisitPercent || 0,
+          marketingAndMiscPercent: config.marketingAndMiscPercent || 0,
+          officeManagementPercent: config.officeManagementPercent || 0,
+          customFields: config.customFields || [],
+          fieldVisibility: config.fieldVisibility || {}
+        });
+      }
+
+      // Render project immediately — removes one full round-trip delay
       setProject(projectData);
-      
-      // Fetch related data in parallel
-      const relatedDataPromises = [];
-      
-      // Fetch client if exists
+
+      // Fetch client + all associates in parallel (depends on projectData)
+      const secondaryPromises = [];
+
       if (projectData.clientId) {
-        relatedDataPromises.push(
+        secondaryPromises.push(
           ClientService.getClient(projectData.clientId)
             .then(data => ({ type: 'client', data }))
             .catch(() => ({ type: 'client', data: null }))
         );
       }
-      
-      // Fetch associates if exists
+
       if (projectData.projectAssociates && projectData.projectAssociates.length > 0) {
-        const associateIds = projectData.projectAssociates.map(a => a.associateId);
-        relatedDataPromises.push(
-          ...associateIds.map(id =>
-            AssociateService.getAssociate(id)
+        projectData.projectAssociates.forEach(a => {
+          secondaryPromises.push(
+            AssociateService.getAssociate(a.associateId)
               .then(data => ({ type: 'associate', data }))
               .catch(() => ({ type: 'associate', data: null }))
-          )
-        );
+          );
+        });
       }
-      
-      // Fetch configuration
-      relatedDataPromises.push(
-        ConfigurationVersionService.getCurrentConfiguration()
-          .then(data => ({ type: 'config', data }))
-          .catch(() => ({ type: 'config', data: null }))
-      );
-      
-      // Wait for all related data
-      const results = await Promise.all(relatedDataPromises);
-      
-      // Process results
-      const associatesData = [];
-      results.forEach(result => {
-        if (result.type === 'client' && result.data) {
-          setClient(result.data);
-        } else if (result.type === 'associate' && result.data) {
-          associatesData.push(result.data);
-        } else if (result.type === 'config' && result.data && result.data.data) {
-          const config = result.data.data.configuration;
-          setPercentageConfig({
-            profitMarginPercent: config.profitMarginPercent || 0,
-            drawingPercent: config.drawingPercent || 0,
-            documentsPercent: config.documentsPercent || 0,
-            siteVisitPercent: config.siteVisitPercent || 0,
-            marketingAndMiscPercent: config.marketingAndMiscPercent || 0,
-            officeManagementPercent: config.officeManagementPercent || 0,
-            customFields: config.customFields || [],
-            fieldVisibility: config.fieldVisibility || {}
-          });
-        }
-      });
-      
-      setAssociates(associatesData);
-      
+
+      if (secondaryPromises.length > 0) {
+        const results = await Promise.all(secondaryPromises);
+        const associatesData = [];
+        results.forEach(result => {
+          if (result.type === 'client' && result.data) {
+            setClient(result.data);
+          } else if (result.type === 'associate' && result.data) {
+            associatesData.push(result.data);
+          }
+        });
+        setAssociates(associatesData);
+      }
+
     } catch (error) {
       console.error('Error loading project:', error);
       showError('Failed to load project details');
       navigate('/projects');
-    } finally {
-      hideLoading();
     }
   };
 
@@ -144,15 +134,12 @@ const ProjectDetailPage = () => {
   const handleDelete = async () => {
     if (window.confirm(`Are you sure you want to delete project "${project.projectName}"?`)) {
       try {
-        showLoading();
         await FinanceService.deleteProject(project._id);
         showSuccess('Project deleted successfully');
         navigate('/projects');
       } catch (error) {
         console.error('Error deleting project:', error);
         showError('Failed to delete project');
-      } finally {
-        hideLoading();
       }
     }
   };
