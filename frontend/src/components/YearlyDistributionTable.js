@@ -100,35 +100,31 @@ const YearlyDistributionTable = ({
   // - Show ALL default fields (all visible by default for backward compatibility)
   // - Don't show any custom fields (they didn't exist when project was created)
   const hasSnapshot = projectData.configSnapshot && Object.keys(projectData.configSnapshot).length > 0;
-  
-  if (hasSnapshot) {
-    // Project has snapshot: use its configuration exactly as it was
-    var effectiveConfig = projectData.configSnapshot;
-    var effectiveCustomFields = effectiveConfig.customFields || [];
-    // Use !== false so that missing keys default to true (visible).
-    // Only fields explicitly set to false are hidden.
-    const _snapshotFV = effectiveConfig.fieldVisibility || {};
-    var effectiveFieldVisibility = {
-      profitMargin:       _snapshotFV.profitMargin       !== false,
-      drawing:            _snapshotFV.drawing            !== false,
-      documents:          _snapshotFV.documents          !== false,
-      siteVisit:          _snapshotFV.siteVisit          !== false,
-      marketingAndMisc:   _snapshotFV.marketingAndMisc   !== false,
-      officeManagement:   _snapshotFV.officeManagement   !== false,
-    };
-  } else {
-    // Legacy project without snapshot: show all default fields, no custom fields
-    var effectiveConfig = {};
-    var effectiveCustomFields = [];
-    var effectiveFieldVisibility = {
-      profitMargin: true,
-      drawing: true,
-      documents: true,
-      siteVisit: true,
-      marketingAndMisc: true,
-      officeManagement: true
-    };
-  }
+
+  const _snapshotFV = hasSnapshot ? (projectData.configSnapshot.fieldVisibility || {}) : {};
+  const effectiveFieldVisibility = hasSnapshot ? {
+    profitMargin:     _snapshotFV.profitMargin     !== false,
+    drawing:          _snapshotFV.drawing          !== false,
+    documents:        _snapshotFV.documents        !== false,
+    siteVisit:        _snapshotFV.siteVisit        !== false,
+    marketingAndMisc: _snapshotFV.marketingAndMisc !== false,
+    officeManagement: _snapshotFV.officeManagement !== false,
+  } : {
+    profitMargin: true,
+    drawing: true,
+    documents: true,
+    siteVisit: true,
+    marketingAndMisc: true,
+    officeManagement: true,
+  };
+  const effectiveConfig = hasSnapshot ? projectData.configSnapshot : {};
+  const effectiveCustomFields = effectiveConfig.customFields || [];
+
+  // DEBUG - remove after confirming fix
+  console.log('[YDT] projectId:', projectData._id, 'hasSnapshot:', hasSnapshot);
+  console.log('[YDT] configSnapshot:', JSON.stringify(projectData.configSnapshot));
+  console.log('[YDT] _snapshotFV:', JSON.stringify(_snapshotFV));
+  console.log('[YDT] effectiveFieldVisibility:', JSON.stringify(effectiveFieldVisibility));
   
   // Filter visible custom fields based on visibility flag
   const visibleCustomFields = effectiveCustomFields.filter(field => field.visible);
