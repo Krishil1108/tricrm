@@ -84,11 +84,14 @@ const YearlyDistributionTable = ({
 
   // Auto-open Add Payment modal when navigated with ?addPayment=true
   useEffect(() => {
-    if (autoOpenAddPayment && onAddPayment) {
-      handleOpenAddPaymentModal();
+    if (autoOpenAddPayment && onAddPayment && projectData && projectData._id) {
+      const timer = setTimeout(() => {
+        handleOpenAddPaymentModal();
+      }, 150);
+      return () => clearTimeout(timer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoOpenAddPayment]);
+  }, [autoOpenAddPayment, projectData?._id]);
   
   // CRITICAL: Use project's config snapshot if available
   // For projects without snapshot (legacy projects before versioning):
