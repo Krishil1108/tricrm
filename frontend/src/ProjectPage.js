@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FaEdit, FaTrash, FaChartPie, FaUsers } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaChartPie, FaUsers, FaPlus } from 'react-icons/fa';
 import { FiAlertTriangle, FiBarChart2, FiCheckCircle, FiChevronDown, FiChevronUp, FiMinus, FiCreditCard, FiInfo } from 'react-icons/fi';
 import './ProjectPage.css';
 import './styles/ClientsPageEnhanced.css';
@@ -2109,6 +2109,15 @@ const ProjectsTable = ({
               </td>
               <td>
                 <div className="flex items-center gap-2" style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', position: 'relative' }}>
+                  <button
+                    onClick={() => navigate(`/projects/${project._id}?addPayment=true`, { state: { projectName: project.projectName } })}
+                    style={{ padding: '8px', color: '#16a34a', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
+                    title="Add Payment"
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                  >
+                    <FaPlus style={{ width: '18px', height: '18px' }} />
+                  </button>
                   {canEdit() && (
                     <button
                       onClick={() => onEdit(project)}

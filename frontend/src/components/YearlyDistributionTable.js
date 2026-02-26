@@ -14,7 +14,8 @@ const YearlyDistributionTable = ({
   onSave = null,
   onAddPayment = null,
   onEditPayment = null,
-  onDeletePayment = null
+  onDeletePayment = null,
+  autoOpenAddPayment = false
 }) => {
   
   // State for edit mode
@@ -80,6 +81,14 @@ const YearlyDistributionTable = ({
     });
     setEditedAmounts({});
   }, [projectData]);
+
+  // Auto-open Add Payment modal when navigated with ?addPayment=true
+  useEffect(() => {
+    if (autoOpenAddPayment && onAddPayment) {
+      handleOpenAddPaymentModal();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoOpenAddPayment]);
   
   // CRITICAL: Use project's config snapshot if available
   // For projects without snapshot (legacy projects before versioning):

@@ -23,6 +23,7 @@ const ProjectDetailPage = () => {
   const location = useLocation();
   // Use name passed via navigation state for instant LCP render (before API responds)
   const cachedProjectName = location.state?.projectName || null;
+  const autoOpenAddPayment = new URLSearchParams(location.search).get('addPayment') === 'true';
   const { canEditProject, canDeleteProject } = useAuth();
   const { showLoading, hideLoading } = useLoading();
   const { showSuccess, showError } = useToast();
@@ -535,6 +536,7 @@ const ProjectDetailPage = () => {
         onAddPayment={handleAddPayment}
         onEditPayment={handleEditPayment}
         onDeletePayment={handleDeletePayment}
+        autoOpenAddPayment={autoOpenAddPayment}
       />
 
       {/* Associate Distribution Table */}
