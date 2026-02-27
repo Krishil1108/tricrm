@@ -28,6 +28,7 @@ const UserManagementPage = lazy(() => import('./UserManagementPage'));
 const RoleManagementPage = lazy(() => import('./RoleManagementPage'));
 const AnalyticsDashboard = lazy(() => import('./AnalyticsDashboard'));
 const FinanceDashboard   = lazy(() => import('./FinanceDashboard'));
+const AIAssistant        = lazy(() => import('./components/AIAssistant/AIAssistant'));
 
 function App() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
@@ -202,6 +203,8 @@ function App() {
                             <Route path="*" element={<DefaultRoute />} />
                           </Routes>
                         </div>
+                        {/* Global AI Assistant — fixed overlay, visible on all authenticated pages */}
+                        <AIAssistant />
                       </div>
                     </ProtectedRoute>
                   }
