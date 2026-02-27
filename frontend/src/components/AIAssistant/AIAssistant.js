@@ -17,11 +17,19 @@ import {
   FIELD_DEFS,
   detectIntent,
   extractEntities,
+  extractProjectQuery,
+  detectExpenseCategory,
   parseNaturalDate,
   formatDateTime,
+  formatDate,
   getNavigationPath,
   isSkip,
   validateField,
+  parseAmount,
+  fmtINR,
+  formatProjectSummary,
+  formatPaymentList,
+  formatFinanceStats,
 } from './intentEngine';
 import { executeAction } from './actionHandlers';
 import './AIAssistant.css';
@@ -35,27 +43,40 @@ function msg(role, text, extras = {}) {
 // ─── HELP text ─────────────────────────────────────────────
 const HELP_TEXT = `Here's what I can do for you:
 
-**Add Records**
+**📋 Add Records**
 • "Add client named Ravi Sharma"
 • "Create associate named Priya, email priya@ex.com"
 • "Schedule a meeting about Design Review"
 • "Add a note titled Follow-up"
 
-**Search**
+**🔍 Search**
 • "Find client Ravi"
 • "Search associate Priya"
+• "Find project TRI-001" / "Show project house design"
 
-**Navigate**
-• "Go to Projects"
-• "Open Finance"
-• "Take me to Analytics"
+**💰 Finance & Projects**
+• "Payment history for project X"
+• "Add payment ₹50000 NEFT to project X"
+• "Update drawing percent to 15% for project X"
+• "Set yearly distribution to 1.5L for project X"
 
-Just type naturally — I'll guide you through the rest!`;
+**📊 Finance Analytics**
+• "Total drawing" / "Total expenses" / "Net profit"
+• "Finance summary" / "Give me totals"
+
+**📤 Export**
+• "Export to Excel" / "Export to PDF"
+
+**🧭 Navigate**
+• "Go to Projects" / "Open Finance" / "Analytics"
+
+Just type naturally — I'll guide you!`;
 
 // ─── Stage constants ────────────────────────────────────────
 const STAGE = {
   IDLE: 'idle',
   COLLECTING: 'collecting',
+  CHOOSING_PROJECT: 'choosing_project',
   CONFIRMING: 'confirming',
   EXECUTING: 'executing',
 };
@@ -167,7 +188,12 @@ export default function AIAssistant() {
   const [currentField, setCurrentField] = useState(null);
   const [currentOptions, setCurrentOptions] = useState([]);
   const [isExecuting, setIsExecuting] = useState(false);
-
+  // ── Finance / project context state ───────────────────────────
+  // contextProject persists in conversation so follow-up commands reuse it
+  const [contextProject, setContextProject] = useState(null); // {_id, projectName, projectNumber}
+  const [projectChoices, setProjectChoices] = useState([]);   // list when multiple matches
+  const [pendingIntentAfterProject, setPendingIntentAfterProject] = useState(null); // intent waiting for project
+  const [pendingCollected, setPendingCollected] = useState({}); // pre-collected data for pending intent
   // ── Scroll to bottom on new messages ─────────────────────
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -208,6 +234,9 @@ export default function AIAssistant() {
     setFieldQueue([]);
     setCurrentField(null);
     setCurrentOptions([]);
+    setProjectChoices([]);
+    setPendingIntentAfterProject(null);
+    setPendingCollected({});
   }
 
   // ── Ask the next field in the queue ──────────────────────
@@ -242,25 +271,28 @@ export default function AIAssistant() {
   }
 
   // ── Move to confirmation stage ────────────────────────────
-  function goToConfirm(intentDef, collectedData) {
+  function goToConfirm(intentDef, collectedData, ctx) {
     setStage(STAGE.CONFIRMING);
     setCurrentField(null);
-    const text = buildConfirmText(intentDef, collectedData);
-    addAssistantMsg(text, ['Yes, create it!', 'Cancel']);
+    const rows = intentDef.summaryRows(collectedData, ctx)
+      .map(([k, v]) => `  • **${k}:** ${v}`)
+      .join('\n');
+    const text = `Ready to submit **${intentDef.confirmLabel}**:\n\n${rows}\n\nShall I go ahead?`;
+    addAssistantMsg(text, ['Yes, confirm!', 'Cancel']);
   }
 
   // ── Execute the confirmed action ──────────────────────────
-  async function runAction(intentDef, collectedData) {
+  async function runAction(intentDef, collectedData, ctx) {
     setStage(STAGE.EXECUTING);
     setIsExecuting(true);
     setCurrentOptions([]);
     setIsTyping(true);
 
     try {
-      const result = await executeAction(intentDef.action, collectedData);
+      await executeAction(intentDef.action, collectedData, ctx);
       setIsTyping(false);
 
-      const successText = intentDef.successMessage(collectedData);
+      const successText = intentDef.successMessage(collectedData, ctx);
       addAssistantMsg(successText, ['Do something else', 'Close']);
     } catch (err) {
       setIsTyping(false);
@@ -289,17 +321,88 @@ export default function AIAssistant() {
 
     // ── IDLE: detect new intent ──────────────────────────────
     if (stage === STAGE.IDLE) {
-      // Help shortcut / direct quick-reply
+      // Global quick replies
       if (/^help$/i.test(text) || text === 'Help') {
-        addAssistantMsg(HELP_TEXT, ['Add Client', 'Schedule Meeting', 'Add Note', 'Find Client']);
+        addAssistantMsg(HELP_TEXT, ['Add Client', 'Finance Stats', 'Find Project', 'Export Excel']);
         return;
       }
       if (text === 'Do something else') {
-        addAssistantMsg("Sure! What would you like to do?", ['Add Client', 'Schedule Meeting', 'Add Note', 'Help']);
+        addAssistantMsg("Sure! What would you like to do?", ['Add Client', 'Finance Stats', 'Find Project', 'Help']);
         return;
       }
       if (text === 'Close') {
         setIsOpen(false);
+        return;
+      }
+      if (text === 'View Payments' && contextProject) {
+        // Shortcut: view payments for currently contextual project
+        setIsTyping(true);
+        await new Promise(r => setTimeout(r, 400));
+        setIsTyping(false);
+        try {
+          const proj = await executeAction('view_project_payments', {}, { projectId: contextProject._id });
+          addAssistantMsg(formatPaymentList(contextProject.projectName, proj.payments || []),
+            ['Add Payment', 'Update Expenses', 'Export Excel', 'Do something else']);
+        } catch (err) {
+          addAssistantMsg(`❌ ${err?.response?.data?.message || err.message}`, ['Try again']);
+        }
+        return;
+      }
+      if (text === 'Add Payment' && contextProject) {
+        const foundIntent = INTENTS.ADD_PROJECT_PAYMENT;
+        setIntent(foundIntent);
+        setCollected({});
+        askNextField(foundIntent.fields, {}, foundIntent);
+        return;
+      }
+      if (text === 'Update Expenses' && contextProject) {
+        const foundIntent = INTENTS.UPDATE_EXPENSE_PCT;
+        setIntent(foundIntent);
+        setCollected({});
+        askNextField(foundIntent.fields, {}, foundIntent);
+        return;
+      }
+      if (text === 'Export Excel') {
+        setIsTyping(true);
+        await new Promise(r => setTimeout(r, 400));
+        setIsTyping(false);
+        try {
+          await executeAction('export_excel', {});
+          addAssistantMsg('✅ Excel file downloaded!', ['Export PDF', 'Finance Stats', 'Do something else']);
+        } catch (err) {
+          addAssistantMsg(`❌ Export failed: ${err?.message}`, ['Try again']);
+        }
+        return;
+      }
+      if (text === 'Export PDF') {
+        setIsTyping(true);
+        await new Promise(r => setTimeout(r, 400));
+        setIsTyping(false);
+        try {
+          await executeAction('export_pdf', {});
+          addAssistantMsg('✅ PDF report downloaded!', ['Export Excel', 'Finance Stats', 'Do something else']);
+        } catch (err) {
+          addAssistantMsg(`❌ PDF export failed: ${err?.message}`, ['Try again']);
+        }
+        return;
+      }
+      if (text === 'Finance Stats') {
+        setIsTyping(true);
+        await new Promise(r => setTimeout(r, 500));
+        setIsTyping(false);
+        try {
+          const stats = await executeAction('finance_stats', {});
+          addAssistantMsg(formatFinanceStats(stats), ['Export Excel', 'Export PDF', 'Find Project', 'Do something else']);
+        } catch (err) {
+          addAssistantMsg(`❌ Could not fetch stats: ${err?.message}`, ['Try again']);
+        }
+        return;
+      }
+      if (text === 'Find Project') {
+        setIntent(INTENTS.FIND_PROJECT);
+        setStage(STAGE.COLLECTING);
+        setCurrentField('projectQuery');
+        addAssistantMsg("Which project are you looking for? Enter a name, number or keyword.");
         return;
       }
 
@@ -329,15 +432,15 @@ export default function AIAssistant() {
       const foundIntent = detectIntent(effectiveText);
       if (!foundIntent) {
         addAssistantMsg(
-          "I'm not sure what you mean. Try saying something like **\"Add client named Ravi\"** or type **Help** to see what I can do.",
-          ['Add Client', 'Schedule Meeting', 'Help']
+          "I'm not sure what you mean. Try **\"Add client\"**, **\"Finance stats\"**, **\"Find project TRI-001\"**, or type **Help**.",
+          ['Add Client', 'Finance Stats', 'Find Project', 'Help']
         );
         return;
       }
 
-      // Immediate intents (help, navigate with no nav detected)
+      // ── Help / Navigate ──────────────────────────────────
       if (foundIntent.action === 'help') {
-        addAssistantMsg(HELP_TEXT, ['Add Client', 'Schedule Meeting', 'Add Note', 'Find Client']);
+        addAssistantMsg(HELP_TEXT, ['Add Client', 'Finance Stats', 'Find Project', 'Export Excel']);
         return;
       }
       if (foundIntent.action === 'navigate') {
@@ -351,16 +454,167 @@ export default function AIAssistant() {
         return;
       }
 
-      // Search intent
-      if (foundIntent.isSearch) {
-        // Extract query from text by removing the intent keywords
-        const queryMatch = effectiveText.match(
-          /(?:find|search|look\s*up|show|get|list)\s+(client|associate)s?\s*(.*)/i
-        );
-        const preQuery = queryMatch ? queryMatch[2].trim() : '';
+      // ── Immediate intents (no collection needed) ─────────
+      if (foundIntent.isImmediate) {
+        setIsTyping(true);
+        await new Promise(r => setTimeout(r, 500));
+        setIsTyping(false);
+        try {
+          if (foundIntent.action === 'finance_stats') {
+            const stats = await executeAction('finance_stats', {});
+            addAssistantMsg(formatFinanceStats(stats), ['Export Excel', 'Export PDF', 'Find Project', 'Do something else']);
+          } else if (foundIntent.action === 'export_excel') {
+            await executeAction('export_excel', {});
+            addAssistantMsg('✅ **Excel file downloaded!** All projects exported.', ['Export PDF', 'Finance Stats', 'Do something else']);
+          } else if (foundIntent.action === 'export_pdf') {
+            await executeAction('export_pdf', {});
+            addAssistantMsg('✅ **PDF report downloaded!**', ['Export Excel', 'Finance Stats', 'Do something else']);
+          } else if (foundIntent.action === 'project_detail' && foundIntent.needsProject) {
+            // handled below via needsProject
+          }
+        } catch (err) {
+          addAssistantMsg(`❌ ${err?.response?.data?.message || err.message}`, ['Try again']);
+        }
+        if (!foundIntent.needsProject) return;
+      }
+
+      // ── Project search intent ─────────────────────────────
+      if (foundIntent.action === 'find_project') {
+        const preQuery = extractProjectQuery(effectiveText) || '';
         setIntent(foundIntent);
         if (preQuery) {
-          // Execute search directly
+          setIsTyping(true);
+          await new Promise(r => setTimeout(r, 500));
+          setIsTyping(false);
+          try {
+            const results = await executeAction('find_project', { projectQuery: preQuery });
+            const arr = Array.isArray(results) ? results : [];
+            if (arr.length === 0) {
+              addAssistantMsg(`No projects found matching **"${preQuery}"**. Try a different name or number.`, ['Do something else']);
+            } else if (arr.length === 1) {
+              const p = arr[0];
+              setContextProject({ _id: p._id, projectName: p.projectName, projectNumber: p.projectNumber });
+              addAssistantMsg(formatProjectSummary(p), ['Add Payment', 'View Payments', 'Update Expenses', 'Export Excel']);
+            } else {
+              const list = arr.slice(0, 5).map((p, i) => `  ${i + 1}. **${p.projectNumber}** — ${p.projectName} (${p.status || '—'})`).join('\n');
+              setProjectChoices(arr.slice(0, 5));
+              setPendingIntentAfterProject(foundIntent);
+              setPendingCollected({});
+              setStage(STAGE.CHOOSING_PROJECT);
+              addAssistantMsg(`Found **${arr.length}** matching projects. Pick one:\n\n${list}`, arr.slice(0, 5).map((_, i) => String(i + 1)));
+            }
+          } catch (err) {
+            addAssistantMsg(`❌ Search failed: ${err?.message}`, ['Try again']);
+          }
+        } else {
+          setStage(STAGE.COLLECTING);
+          setCurrentField('projectQuery');
+          addAssistantMsg("Which project are you looking for? Enter a name, number or keyword.");
+        }
+        return;
+      }
+
+      // ── needsProject intents (payments, expense %, yearly) ─
+      if (foundIntent.needsProject) {
+        setIntent(foundIntent);
+        // Pre-extract entity values from the message
+        const preEntities = extractEntities(effectiveText);
+
+        // If we already have a contextProject, use it directly
+        if (contextProject) {
+          setCollected(preEntities);
+          if (foundIntent.action === 'view_project_payments' || foundIntent.action === 'project_detail') {
+            // Immediate: show payments/detail
+            setIsTyping(true);
+            await new Promise(r => setTimeout(r, 500));
+            setIsTyping(false);
+            try {
+              const proj = await executeAction('view_project_payments', {}, { projectId: contextProject._id });
+              if (foundIntent.action === 'view_project_payments') {
+                addAssistantMsg(formatPaymentList(contextProject.projectName, proj.payments || []),
+                  ['Add Payment', 'Update Expenses', 'Do something else']);
+              } else {
+                addAssistantMsg(formatProjectSummary(proj),
+                  ['Add Payment', 'View Payments', 'Update Expenses', 'Do something else']);
+              }
+            } catch (err) {
+              addAssistantMsg(`❌ ${err?.message}`, ['Try again']);
+            }
+            return;
+          }
+          // Else: collect fields
+          const remaining = foundIntent.fields.filter(f => preEntities[f] == null);
+          if (remaining.length === 0) {
+            goToConfirm(foundIntent, preEntities, { projectId: contextProject._id, projectName: contextProject.projectName });
+          } else {
+            askNextField(remaining, preEntities, foundIntent);
+          }
+          return;
+        }
+
+        // Try to extract project query from message
+        const projQuery = extractProjectQuery(effectiveText);
+        if (projQuery) {
+          setIsTyping(true);
+          await new Promise(r => setTimeout(r, 500));
+          setIsTyping(false);
+          try {
+            const results = await executeAction('find_project', { projectQuery: projQuery });
+            const arr = Array.isArray(results) ? results : [];
+            if (arr.length === 0) {
+              addAssistantMsg(`No project found matching **"${projQuery}"**.\nWhich project is this for?`, []);
+              setStage(STAGE.COLLECTING);
+              setCurrentField('projectQuery');
+              setPendingIntentAfterProject(foundIntent);
+              setPendingCollected(preEntities);
+            } else if (arr.length === 1) {
+              const p = arr[0];
+              const ctx = { _id: p._id, projectName: p.projectName, projectNumber: p.projectNumber };
+              setContextProject(ctx);
+              if (foundIntent.action === 'view_project_payments') {
+                addAssistantMsg(formatPaymentList(p.projectName, p.payments || []),
+                  ['Add Payment', 'Update Expenses', 'Do something else']);
+              } else {
+                const remaining = foundIntent.fields.filter(f => preEntities[f] == null);
+                setCollected(preEntities);
+                if (remaining.length === 0) {
+                  goToConfirm(foundIntent, preEntities, { projectId: p._id, projectName: p.projectName });
+                } else {
+                  addAssistantMsg(`✅ Project identified: **${p.projectNumber}** — ${p.projectName}`);
+                  await new Promise(r => setTimeout(r, 300));
+                  askNextField(remaining, preEntities, foundIntent);
+                }
+              }
+            } else {
+              const list = arr.slice(0, 5).map((p, i) => `  ${i + 1}. **${p.projectNumber}** — ${p.projectName} (${p.status || '—'})`).join('\n');
+              setProjectChoices(arr.slice(0, 5));
+              setPendingIntentAfterProject(foundIntent);
+              setPendingCollected(preEntities);
+              setStage(STAGE.CHOOSING_PROJECT);
+              addAssistantMsg(`Found **${arr.length}** projects. Pick one:\n\n${list}`, arr.slice(0, 5).map((_, i) => String(i + 1)));
+            }
+          } catch (err) {
+            addAssistantMsg(`❌ Search failed: ${err?.message}`, ['Try again']);
+          }
+        } else {
+          // Ask for project name
+          setPendingIntentAfterProject(foundIntent);
+          setPendingCollected(preEntities);
+          setStage(STAGE.COLLECTING);
+          setCurrentField('projectQuery');
+          addAssistantMsg(`Which project is this for? Enter a name, number, or keyword.`);
+        }
+        return;
+      }
+
+      // ── Search intent (client/associate) ──────────────────
+      if (foundIntent.isSearch) {
+        const queryMatch = effectiveText.match(
+          /(?:find|search|look\s*up|show|get|list)\s+(?:client|associate)s?\s*(.*)/i
+        );
+        const preQuery = queryMatch ? queryMatch[1].trim() : '';
+        setIntent(foundIntent);
+        if (preQuery) {
           try {
             const results = await executeAction(foundIntent.action, { query: preQuery });
             const type = foundIntent.action === 'find_client' ? 'client' : 'associate';
@@ -377,12 +631,11 @@ export default function AIAssistant() {
         return;
       }
 
-      // Create intent — extract known entities from the initial message
+      // ── Create intent ─────────────────────────────────────
       const entities = extractEntities(effectiveText);
       setIntent(foundIntent);
       setCollected(entities);
 
-      // Ask for unknown required fields first, then optional
       const allFields = foundIntent.fields;
       const remaining = allFields.filter(f => entities[f] == null);
 
@@ -394,10 +647,95 @@ export default function AIAssistant() {
             .map(k => `**${FIELD_DEFS[k]?.label || k}:** ${entities[k]}`)
             .join(', ');
           addAssistantMsg(`Got it — I've noted ${prefilled}. Let me gather a few more details.`);
-          // Short pause before first question
           await new Promise(r => setTimeout(r, 300));
         }
         askNextField(remaining, entities, foundIntent);
+      }
+      return;
+    }
+
+    // ── CHOOSING_PROJECT stage ───────────────────────────────
+    if (stage === STAGE.CHOOSING_PROJECT) {
+      const num = parseInt(text, 10);
+      if (!isNaN(num) && num >= 1 && num <= projectChoices.length) {
+        const chosen = projectChoices[num - 1];
+        const ctx = { _id: chosen._id, projectName: chosen.projectName, projectNumber: chosen.projectNumber };
+        setContextProject(ctx);
+        setStage(STAGE.IDLE);
+
+        // Now resume the pending intent with the chosen project
+        const pendingIntent = pendingIntentAfterProject;
+        const preEntities = pendingCollected || {};
+        setProjectChoices([]);
+        setPendingIntentAfterProject(null);
+        setPendingCollected({});
+
+        if (!pendingIntent || pendingIntent.action === 'find_project') {
+          // Just showing project detail
+          setIsTyping(true);
+          await new Promise(r => setTimeout(r, 400));
+          setIsTyping(false);
+          try {
+            const proj = await executeAction('view_project_payments', {}, { projectId: chosen._id });
+            addAssistantMsg(formatProjectSummary(proj), ['Add Payment', 'View Payments', 'Update Expenses', 'Export Excel']);
+          } catch (err) {
+            addAssistantMsg(`❌ ${err?.message}`, ['Try again']);
+          }
+          return;
+        }
+
+        if (pendingIntent.action === 'view_project_payments') {
+          setIsTyping(true);
+          await new Promise(r => setTimeout(r, 400));
+          setIsTyping(false);
+          try {
+            const proj = await executeAction('view_project_payments', {}, { projectId: chosen._id });
+            addAssistantMsg(formatPaymentList(chosen.projectName, proj.payments || []),
+              ['Add Payment', 'Update Expenses', 'Do something else']);
+          } catch (err) {
+            addAssistantMsg(`❌ ${err?.message}`, ['Try again']);
+          }
+          return;
+        }
+
+        // For other needsProject intents, collect remaining fields
+        setIntent(pendingIntent);
+        setCollected(preEntities);
+        addAssistantMsg(`✅ Project: **${chosen.projectNumber}** — ${chosen.projectName}`);
+        await new Promise(r => setTimeout(r, 300));
+        const remaining = pendingIntent.fields.filter(f => preEntities[f] == null);
+        if (remaining.length === 0) {
+          goToConfirm(pendingIntent, preEntities, { projectId: chosen._id, projectName: chosen.projectName });
+        } else {
+          askNextField(remaining, preEntities, pendingIntent);
+        }
+        return;
+      }
+
+      // User typed something other than a number — retry search
+      setIsTyping(true);
+      await new Promise(r => setTimeout(r, 400));
+      setIsTyping(false);
+      try {
+        const results = await executeAction('find_project', { projectQuery: text });
+        const arr = Array.isArray(results) ? results : [];
+        if (arr.length === 0) {
+          addAssistantMsg(`No projects found for **"${text}"**. Please try again.`);
+        } else if (arr.length === 1) {
+          const p = arr[0];
+          const ctx = { _id: p._id, projectName: p.projectName, projectNumber: p.projectNumber };
+          setContextProject(ctx);
+          setStage(STAGE.IDLE);
+          setProjectChoices([]);
+          addAssistantMsg(formatProjectSummary(p), ['Add Payment', 'View Payments', 'Update Expenses', 'Export Excel']);
+        } else {
+          const list = arr.slice(0, 5).map((p, i) => `  ${i + 1}. **${p.projectNumber}** — ${p.projectName}`).join('\n');
+          setProjectChoices(arr.slice(0, 5));
+          addAssistantMsg(`Found ${arr.length} projects:\n\n${list}`, arr.slice(0, 5).map((_, i) => String(i + 1)));
+        }
+      } catch (err) {
+        addAssistantMsg(`❌ Search failed: ${err?.message}`, ['Try again']);
+        setStage(STAGE.IDLE);
       }
       return;
     }
@@ -420,7 +758,57 @@ export default function AIAssistant() {
         return;
       }
 
-      // Search field
+      // Project search field (for needsProject intents)
+      if (currentField === 'projectQuery') {
+        setIsTyping(true);
+        await new Promise(r => setTimeout(r, 400));
+        setIsTyping(false);
+        try {
+          const results = await executeAction('find_project', { projectQuery: text });
+          const arr = Array.isArray(results) ? results : [];
+          if (arr.length === 0) {
+            addAssistantMsg(`No projects found for **"${text}"**. Please try a different name or code.`);
+          } else if (arr.length === 1) {
+            const p = arr[0];
+            const ctx = { _id: p._id, projectName: p.projectName, projectNumber: p.projectNumber };
+            setContextProject(ctx);
+            // Now: was this a find-project intent or a project-dependent intent?
+            const resumeIntent = pendingIntentAfterProject || intent;
+            if (!resumeIntent || resumeIntent.action === 'find_project') {
+              setStage(STAGE.IDLE);
+              addAssistantMsg(formatProjectSummary(p), ['Add Payment', 'View Payments', 'Update Expenses', 'Export Excel']);
+            } else if (resumeIntent.action === 'view_project_payments') {
+              setStage(STAGE.IDLE);
+              addAssistantMsg(formatPaymentList(p.projectName, p.payments || []),
+                ['Add Payment', 'Update Expenses', 'Do something else']);
+            } else {
+              const preEntities = pendingCollected || {};
+              setIntent(resumeIntent);
+              setCollected(preEntities);
+              setPendingIntentAfterProject(null);
+              setPendingCollected({});
+              addAssistantMsg(`✅ Project: **${p.projectNumber}** — ${p.projectName}`);
+              await new Promise(r => setTimeout(r, 300));
+              const remaining = resumeIntent.fields.filter(f => preEntities[f] == null);
+              if (remaining.length === 0) {
+                goToConfirm(resumeIntent, preEntities, { projectId: p._id, projectName: p.projectName });
+              } else {
+                askNextField(remaining, preEntities, resumeIntent);
+              }
+            }
+          } else {
+            const list = arr.slice(0, 5).map((p, i) => `  ${i + 1}. **${p.projectNumber}** — ${p.projectName}`).join('\n');
+            setProjectChoices(arr.slice(0, 5));
+            setStage(STAGE.CHOOSING_PROJECT);
+            addAssistantMsg(`Found ${arr.length} projects. Pick one:\n\n${list}`, arr.slice(0, 5).map((_, i) => String(i + 1)));
+          }
+        } catch (err) {
+          addAssistantMsg(`❌ Search failed: ${err?.message}`, ['Try again']);
+        }
+        return;
+      }
+
+      // Regular search field (client/associate)
       if (currentField === 'query') {
         try {
           const results = await executeAction(intent.action, { query: text });
@@ -456,8 +844,17 @@ export default function AIAssistant() {
           return;
         }
         value = parsed.toISOString();
-        // Store formatted version for display
         setCollected(prev => ({ ...prev, _dateFormatted: formatDateTime(parsed) }));
+      }
+
+      // Amount field: parse human amounts like "50k", "1.5L"
+      if (currentField === 'paymentAmount' || currentField === 'yearlyAmount') {
+        const parsed = parseAmount(text);
+        if (isNaN(parsed) || parsed <= 0) {
+          addAssistantMsg('Please enter a valid amount (e.g. **50000**, **50k**, **1.5L**).');
+          return;
+        }
+        value = String(parsed);
       }
 
       // Number field
@@ -486,23 +883,24 @@ export default function AIAssistant() {
 
     // ── CONFIRMING: yes/no ────────────────────────────────────
     if (stage === STAGE.CONFIRMING) {
-      const yes = /^(yes|yeah|yep|y|confirm|go ahead|sure|ok|proceed|create it!?|yes,?\s*create\s*it!?)/i.test(text);
+      const yes = /^(yes|yeah|yep|y|confirm|go ahead|sure|ok|proceed|yes,?\s*confirm!?)/i.test(text);
       const no = /^(no|nope|cancel|stop|abort|don't|do not|nevermind|never mind)/i.test(text);
 
       if (no) {
         addAssistantMsg('Cancelled. Anything else I can help with?', [
-          'Add Client',
-          'Schedule Meeting',
-          'Help',
+          'Add Client', 'Finance Stats', 'Help',
         ]);
         resetConversation();
         return;
       }
       if (yes) {
-        await runAction(intent, collected);
+        const ctx = contextProject
+          ? { projectId: contextProject._id, projectName: contextProject.projectName }
+          : null;
+        await runAction(intent, collected, ctx);
         return;
       }
-      addAssistantMsg('Please confirm with **Yes** or **No**.', ['Yes, create it!', 'Cancel']);
+      addAssistantMsg('Please confirm with **Yes** or **No**.', ['Yes, confirm!', 'Cancel']);
       return;
     }
 
@@ -525,19 +923,14 @@ export default function AIAssistant() {
     if (text === 'Try again') {
       resetConversation();
       addAssistantMsg("Let's try again. What would you like to do?", [
-        'Add Client',
-        'Schedule Meeting',
-        'Help',
+        'Add Client', 'Finance Stats', 'Find Project', 'Help',
       ]);
       return;
     }
     if (text === 'Do something else') {
       resetConversation();
       addAssistantMsg("Sure! What would you like to do?", [
-        'Add Client',
-        'Add Associate',
-        'Schedule Meeting',
-        'Add Note',
+        'Add Client', 'Add Associate', 'Finance Stats', 'Find Project',
       ]);
       return;
     }
@@ -627,6 +1020,14 @@ export default function AIAssistant() {
             </button>
           </div>
         </div>
+
+        {/* Context project banner */}
+        {contextProject && (
+          <div className="aia-ctx-banner">
+            <span>📁 Working on: <strong>{contextProject.projectNumber}</strong> — {contextProject.projectName}</span>
+            <button className="aia-ctx-clear" onClick={() => setContextProject(null)} title="Clear project context">✕</button>
+          </div>
+        )}
 
         {/* Messages */}
         <div className="aia-messages">

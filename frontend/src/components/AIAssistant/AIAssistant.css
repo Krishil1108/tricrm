@@ -358,3 +358,64 @@
     border-radius: 14px;
   }
 }
+
+/* ── Context project banner ──────────────────────────────── */
+.aia-ctx-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(37, 99, 235, 0.18);
+  border-top: 1px solid rgba(37, 99, 235, 0.35);
+  border-bottom: 1px solid rgba(37, 99, 235, 0.18);
+  padding: 6px 14px;
+  font-size: 11px;
+  color: #bfdbfe;
+  flex-shrink: 0;
+  min-height: 30px;
+}
+.aia-ctx-banner span {
+  flex: 1;
+}
+.aia-ctx-banner strong {
+  color: #93c5fd;
+}
+.aia-ctx-clear {
+  background: none;
+  border: none;
+  color: #93c5fd;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0 3px;
+  line-height: 1;
+  border-radius: 3px;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+.aia-ctx-clear:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+/* ── Project chooser numbered items ──────────────────────── */
+.aia-project-item {
+  background: rgba(37, 99, 235, 0.08);
+  border-left: 3px solid #2563eb;
+  border-radius: 6px;
+  padding: 7px 11px;
+  margin: 3px 0;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.aia-project-item:hover {
+  background: rgba(37, 99, 235, 0.18);
+}
+
+/* ── Finance stat display (monospace look for numbers) ───── */
+.aia-bubble code {
+  font-family: 'Courier New', monospace;
+  background: rgba(255, 255, 255, 0.07);
+  padding: 0 3px;
+  border-radius: 3px;
+  font-size: 11.5px;
+}
