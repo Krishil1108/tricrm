@@ -304,6 +304,22 @@ const FinanceService = {
     }
   },
 
+  // ==================== FINANCIAL OVERVIEW METHOD ====================
+
+  // Get consolidated financial overview (used by FinanceDashboard)
+  getFinancialOverview: async (filters = {}) => {
+    try {
+      const response = await axios.get(`${API_URL}/finance/overview`, {
+        headers: getAuthHeader(),
+        params: filters
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching financial overview:', error);
+      throw error;
+    }
+  },
+
   // ==================== UTILITY METHODS ====================
   
   // Apply default expense percentages to projects without configuration

@@ -817,4 +817,132 @@ router.delete('/projects/:projectId/associate/:associateId/payments/:transaction
   }
 });
 
+// ==================== FINANCIAL OVERVIEW ROUTE ====================
+
+/**
+ * GET /api/finance/overview
+ * Consolidated financial overview with optional filters:
+ *   clientId      – filter by client ObjectId (or "all")
+ *   financialYear – e.g. "2024-25"  (India April-March FY)
+ *   search        – text search on projectName / projectNumber
+ *
+ * Returns:
+ *   { projects[], summary{}, filterOptions{ financialYears[], clients[] } }
+ */
+router.get('/overview', authenticate, async (req, res) => {
+  try {
+    const { clientId, financialYear, search } = req.query;
+    const Client = require('../models/Client');
+
+    // ── Build base query ──────────────────────────────────────────────────────
+    let query = {};
+    if (clientId && clientId !== 'all') query.clientId = clientId;
+    if (search) {
+      query.$or = [
+        { projectName: { $regex: search, $options: 'i' } },
+        { projectNumber: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // ── Financial-year date bounds (April 1 → March 31) ───────────────────────
+    let fyStartDate = null;
+    let fyEndDate   = null;
+    if (financialYear && financialYear !== 'all') {
+      const startYear = parseInt(financialYear.split('-')[0], 10);
+      fyStartDate = new Date(`${startYear}-04-01T00:00:00.000Z`);
+      fyEndDate   = new Date(`${startYear + 1}-03-31T23:59:59.999Z`);
+      // Restrict to projects that have ≥1 payment in this FY
+      query['payments'] = {
+        $elemMatch: { date: { $gte: fyStartDate, $lte: fyEndDate } }
+      };
+    }
+
+    // ── Fetch projects ────────────────────────────────────────────────────────
+    const projects = await FinanceProject.find(query)
+      .sort({ srNo: 1 })
+      .populate('clientId', 'name company email phone')
+      .populate('projectAssociates.associateId', 'name company');
+
+    // ── Enrich each project with FY-scoped payment data ───────────────────────
+    const enrichedProjects = projects.map(p => {
+      const proj = p.toObject({ virtuals: true });
+
+      const allPayments = proj.payments || [];
+      const fyPayments  = (fyStartDate && fyEndDate)
+        ? allPayments.filter(pay => {
+            const d = new Date(pay.date);
+            return d >= fyStartDate && d <= fyEndDate;
+          })
+        : allPayments;
+
+      proj.fyReceivedFees = fyPayments.reduce((s, pay) => s + (pay.amount || 0), 0);
+      proj.fyPayments     = fyPayments;
+
+      // Pending = finalized – all-time received (not FY-scoped, by design)
+      proj.pendingFees = (proj.finalizedFees || 0) - (proj.totalReceivedFees || 0);
+
+      return proj;
+    });
+
+    // ── Compute aggregate summary ─────────────────────────────────────────────
+    const summary = enrichedProjects.reduce((acc, p) => {
+      acc.totalFinalizedFees   += p.finalizedFees        || 0;
+      acc.totalReceivedFees    += p.fyReceivedFees       || 0;
+      acc.totalProfitMargin    += p.profitMargin         || 0;
+      acc.totalDrawing         += p.drawing              || 0;
+      acc.totalDocuments       += p.documents            || 0;
+      acc.totalSiteVisit       += p.siteVisit            || 0;
+      acc.totalMarketingMisc   += p.marketingAndMisc     || 0;
+      acc.totalOfficeManagement+= p.officeManagement     || 0;
+      acc.totalAssociatePaid   += p.totalAssociatePaid   || 0;
+      acc.totalAssociateAmount += p.totalAssociateAmount || 0;
+      return acc;
+    }, {
+      totalFinalizedFees: 0, totalReceivedFees: 0,
+      totalProfitMargin: 0, totalDrawing: 0, totalDocuments: 0,
+      totalSiteVisit: 0, totalMarketingMisc: 0, totalOfficeManagement: 0,
+      totalAssociatePaid: 0, totalAssociateAmount: 0
+    });
+
+    summary.totalExpenses = summary.totalDrawing + summary.totalDocuments +
+                            summary.totalSiteVisit + summary.totalMarketingMisc +
+                            summary.totalOfficeManagement;
+    summary.pendingFees   = summary.totalFinalizedFees - summary.totalReceivedFees;
+    summary.netProfit     = summary.totalReceivedFees  - summary.totalExpenses - summary.totalAssociatePaid;
+    summary.projectCount  = enrichedProjects.length;
+
+    // ── Build financial-year options from all payment dates ───────────────────
+    const allRaw = await FinanceProject.find({}, 'payments.date').lean();
+    const fySet  = new Set();
+    allRaw.forEach(p => {
+      (p.payments || []).forEach(pay => {
+        const d = new Date(pay.date);
+        if (isNaN(d)) return;
+        const mo     = d.getUTCMonth(); // 0-indexed
+        const yr     = d.getUTCFullYear();
+        const fyYear = mo >= 3 ? yr : yr - 1; // April = month 3
+        fySet.add(`${fyYear}-${String(fyYear + 1).slice(-2)}`);
+      });
+    });
+
+    // ── Clients list for filter dropdown ─────────────────────────────────────
+    const clients = await Client.find({}, 'name company').sort({ name: 1 }).lean();
+
+    res.json({
+      success: true,
+      data: {
+        projects: enrichedProjects,
+        summary,
+        filterOptions: {
+          financialYears: [...fySet].sort().reverse(),
+          clients
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching financial overview:', error);
+    res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+});
+
 module.exports = router;

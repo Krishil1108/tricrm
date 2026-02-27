@@ -27,6 +27,7 @@ const ProjectDetailPage = lazy(() => import('./ProjectDetailPage'));
 const UserManagementPage = lazy(() => import('./UserManagementPage'));
 const RoleManagementPage = lazy(() => import('./RoleManagementPage'));
 const AnalyticsDashboard = lazy(() => import('./AnalyticsDashboard'));
+const FinanceDashboard   = lazy(() => import('./FinanceDashboard'));
 
 function App() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
@@ -158,6 +159,15 @@ function App() {
                               element={
                                 <ProtectedRoute requireModule="finance">
                                   <AnalyticsDashboard />
+                                </ProtectedRoute>
+                              } 
+                            />
+                            
+                            <Route 
+                              path="/finance" 
+                              element={
+                                <ProtectedRoute requireModule="finance">
+                                  <FinanceDashboard />
                                 </ProtectedRoute>
                               } 
                             />
