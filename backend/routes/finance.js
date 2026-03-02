@@ -902,6 +902,7 @@ router.get('/overview', authenticate, async (req, res) => {
       proj.siteVisit      = Math.round((forExpenses * (proj.siteVisitPercent           || 0)) / 100);
       proj.marketingAndMisc     = Math.round((forExpenses * (proj.marketingAndMiscPercent     || 0)) / 100);
       proj.officeManagement     = Math.round((forExpenses * (proj.officeManagementPercent     || 0)) / 100);
+      proj.trimityFees           = baseForDist - assocAmount;
 
       return proj;
     });
@@ -918,12 +919,13 @@ router.get('/overview', authenticate, async (req, res) => {
       acc.totalOfficeManagement+= p.officeManagement     || 0;
       acc.totalAssociatePaid   += p.totalAssociatePaid   || 0;
       acc.totalAssociateAmount += p.totalAssociateAmount || 0;
+      acc.totalTrimityFees     += p.trimityFees          || 0;
       return acc;
     }, {
       totalFinalizedFees: 0, totalReceivedFees: 0,
       totalProfitMargin: 0, totalDrawing: 0, totalDocuments: 0,
       totalSiteVisit: 0, totalMarketingMisc: 0, totalOfficeManagement: 0,
-      totalAssociatePaid: 0, totalAssociateAmount: 0
+      totalAssociatePaid: 0, totalAssociateAmount: 0, totalTrimityFees: 0
     });
 
     summary.totalExpenses = summary.totalDrawing + summary.totalDocuments +

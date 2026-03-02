@@ -57,21 +57,6 @@ const FinanceDashboard = () => {
   const [expandedRows, setExpandedRows] = useState(new Set());
   const [exporting,    setExporting]    = useState(false);
   const [hideValues,   setHideValues]   = useState(false);
-  const [reconciling,  setReconciling]  = useState(false);
-
-  const reconcileData = async () => {
-    if (!window.confirm('This will scan all projects and reset "Total Received" to match actual payment entries.\n\nProjects with no payment records will be set to ₹0.\n\nProceed?')) return;
-    setReconciling(true);
-    try {
-      const result = await FinanceService.reconcileReceivedFees();
-      showSuccess(`${result.message}`);
-      if (result.fixed > 0) fetchData(); // reload so numbers update
-    } catch (err) {
-      showError('Reconciliation failed: ' + (err.response?.data?.message || err.message));
-    } finally {
-      setReconciling(false);
-    }
-  };
 
   // ── Filters ──────────────────────────────────────────────────────────────
   const [filterClient, setFilterClient] = useState('all');
@@ -380,14 +365,6 @@ const FinanceDashboard = () => {
           <button className="fd-btn fd-btn-refresh" onClick={fetchData} title="Reload data">
             <FiRefreshCw /> Refresh
           </button>
-          <button
-            className="fd-btn fd-btn-reconcile"
-            onClick={reconcileData}
-            disabled={reconciling}
-            title="Fix projects where received amount doesn't match payment records"
-          >
-            <FiRefreshCw className={reconciling ? 'fd-spin' : ''} /> {reconciling ? 'Fixing…' : 'Fix Data'}
-          </button>
         </div>
       </div>
 
@@ -631,6 +608,7 @@ const ALL_COL_DEFS = [
   { key: 'status',        label: 'Status',         thCls: '',                          numeric: false },
   { key: 'finalizedFees', label: 'Finalized Fees', thCls: 'fd-th-num fd-col-blue',    numeric: true  },
   { key: 'received',      label: 'Received',       thCls: 'fd-th-num fd-col-blue',    numeric: true  },
+  { key: 'trimityFees',   label: 'Trimity Fees',   thCls: 'fd-th-num fd-col-emerald',  numeric: true  },
   { key: 'pending',       label: 'Pending',        thCls: 'fd-th-num fd-col-orange',  numeric: true  },
   { key: 'profitMargin',  label: 'Profit Margin',  thCls: 'fd-th-num',                numeric: true  },
   { key: 'drawing',       label: 'Drawing',        thCls: 'fd-th-num',                numeric: true  },
@@ -644,7 +622,7 @@ const ALL_COL_DEFS = [
 ];
 const DEFAULT_COL_ORDER  = ALL_COL_DEFS.map(c => c.key);
 const DEFAULT_HIDDEN_COLS = [];
-const COL_PREFS_KEY = 'fd_col_prefs_v2';
+const COL_PREFS_KEY = 'fd_col_prefs_v3';
 
 const loadColPrefs = () => {
   try {
@@ -804,6 +782,7 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
       case 'status':        return <td key={key} className="fd-td"><StatusBadge status={p.status} /></td>;
       case 'finalizedFees': return <td key={key} className="fd-td fd-td-num">{fmtCurrency(p.finalizedFees)}</td>;
       case 'received':      return <td key={key} className="fd-td fd-td-num fd-num-blue">{fmtCurrency(p.fyReceivedFees)}</td>;
+      case 'trimityFees':   return <td key={key} className="fd-td fd-td-num fd-num-emerald">{fmtCurrency((p.fyReceivedFees ?? 0) - (p.totalAssociateAmount ?? 0))}</td>;
       case 'pending':       return <td key={key} className={`fd-td fd-td-num ${pending>0?'fd-num-orange':'fd-num-green'}`}>{fmtCurrency(pending)}</td>;
       case 'profitMargin':  return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.profitMargin)}</td>;
       case 'drawing':       return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.drawing)}</td>;
@@ -840,6 +819,7 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
     switch (key) {
       case 'finalizedFees': return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalFinalizedFees)}</strong></td>;
       case 'received':      return <td key={key} className="fd-td fd-td-num fd-num-blue"><strong>{fmtCurrency(summary.totalReceivedFees)}</strong></td>;
+      case 'trimityFees':   return <td key={key} className="fd-td fd-td-num fd-num-emerald"><strong>{fmtCurrency(summary.totalTrimityFees)}</strong></td>;
       case 'pending':       return <td key={key} className="fd-td fd-td-num fd-num-orange"><strong>{fmtCurrency(summary.pendingFees)}</strong></td>;
       case 'profitMargin':  return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalProfitMargin)}</strong></td>;
       case 'drawing':       return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalDrawing)}</strong></td>;

@@ -356,6 +356,7 @@
 .fd-col-blue   { background: #1d4ed8 !important; }
 .fd-col-green  { background: #15803d !important; }
 .fd-col-orange { background: #b45309 !important; }
+.fd-col-emerald{ background: #047857 !important; }
 
 /* ── Table Rows ──────────────────────────────────────────── */
 .fd-row {
@@ -411,6 +412,7 @@
 .fd-num-green  { color: #15803d; }
 .fd-num-orange { color: #b45309; }
 .fd-num-red    { color: #b91c1c; }
+.fd-num-emerald{ color: #047857; }
 
 /* ── Footer row ──────────────────────────────────────────── */
 .fd-row-total {
@@ -425,6 +427,7 @@
 .fd-row-total .fd-num-green  { color: #86efac; }
 .fd-row-total .fd-num-orange { color: #fcd34d; }
 .fd-row-total .fd-num-red    { color: #fca5a5; }
+.fd-row-total .fd-num-emerald{ color: #6ee7b7; }
 .fd-row-total .fd-td-net.fd-num-green { color: #4ade80; }
 .fd-row-total .fd-td-net.fd-num-red   { color: #f87171; }
 
