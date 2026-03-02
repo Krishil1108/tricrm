@@ -642,12 +642,11 @@ const ALL_COL_DEFS = [
   { key: 'marketingMisc', label: 'Mktg & Misc',    thCls: 'fd-th-num',                numeric: true  },
   { key: 'officeMgmt',    label: 'Office Mgmt',    thCls: 'fd-th-num',                numeric: true  },
   { key: 'associatePaid', label: 'Associate Paid', thCls: 'fd-th-num',                numeric: true  },
-  { key: 'netProfit',     label: 'Net Profit',     thCls: 'fd-th-num fd-col-green',   numeric: true  },
   { key: 'actions',       label: 'Actions',        thCls: 'fd-th-actions',            numeric: false },
 ];
 const DEFAULT_COL_ORDER  = ALL_COL_DEFS.map(c => c.key);
 const DEFAULT_HIDDEN_COLS = [];
-const COL_PREFS_KEY = 'fd_col_prefs_v3';
+const COL_PREFS_KEY = 'fd_col_prefs_v4';
 
 const loadColPrefs = () => {
   try {
@@ -816,7 +815,6 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
       case 'marketingMisc': return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.marketingAndMisc)}</td>;
       case 'officeMgmt':    return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.officeManagement)}</td>;
       case 'associatePaid': return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.totalAssociatePaid)}</td>;
-      case 'netProfit':     return <td key={key} className={`fd-td fd-td-num fd-td-net ${netProfit>=0?'fd-num-green':'fd-num-red'}`}><strong>{fmtCurrency(netProfit)}</strong></td>;
       case 'actions':       return (
         <td key={key} className="fd-td fd-td-actions" onClick={(e) => e.stopPropagation()}>
           <button
@@ -853,7 +851,6 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
       case 'marketingMisc': return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalMarketingMisc)}</strong></td>;
       case 'officeMgmt':    return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalOfficeManagement)}</strong></td>;
       case 'associatePaid': return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalAssociatePaid)}</strong></td>;
-      case 'netProfit':     return <td key={key} className={`fd-td fd-td-num fd-td-net ${summary.netProfit>=0?'fd-num-green':'fd-num-red'}`}><strong>{fmtCurrency(summary.netProfit)}</strong></td>;
       case 'actions':       return <td key={key} />;
       default:              return <td key={key} />;
     }
