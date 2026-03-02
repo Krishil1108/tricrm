@@ -583,20 +583,227 @@ const Pagination = ({ page, totalPages, totalItems, onPage }) => {
   );
 };
 
+// ─── Column definitions (configurable: can hide + reorder) ───────────────────
+const ALL_COL_DEFS = [
+  { key: 'client',        label: 'Client',         thCls: '',                          numeric: false },
+  { key: 'status',        label: 'Status',         thCls: '',                          numeric: false },
+  { key: 'finalizedFees', label: 'Finalized Fees', thCls: 'fd-th-num fd-col-blue',    numeric: true  },
+  { key: 'received',      label: 'Received',       thCls: 'fd-th-num fd-col-blue',    numeric: true  },
+  { key: 'pending',       label: 'Pending',        thCls: 'fd-th-num fd-col-orange',  numeric: true  },
+  { key: 'profitMargin',  label: 'Profit Margin',  thCls: 'fd-th-num',                numeric: true  },
+  { key: 'drawing',       label: 'Drawing',        thCls: 'fd-th-num',                numeric: true  },
+  { key: 'documents',     label: 'Documents',      thCls: 'fd-th-num',                numeric: true  },
+  { key: 'siteVisit',     label: 'Site Visit',     thCls: 'fd-th-num',                numeric: true  },
+  { key: 'marketingMisc', label: 'Mktg & Misc',    thCls: 'fd-th-num',                numeric: true  },
+  { key: 'officeMgmt',    label: 'Office Mgmt',    thCls: 'fd-th-num',                numeric: true  },
+  { key: 'associatePaid', label: 'Associate Paid', thCls: 'fd-th-num',                numeric: true  },
+  { key: 'netProfit',     label: 'Net Profit',     thCls: 'fd-th-num fd-col-green',   numeric: true  },
+];
+const DEFAULT_COL_ORDER  = ALL_COL_DEFS.map(c => c.key);
+const DEFAULT_HIDDEN_COLS = [];
+const COL_PREFS_KEY = 'fd_col_prefs_v1';
+
+const loadColPrefs = () => {
+  try {
+    const s = localStorage.getItem(COL_PREFS_KEY);
+    if (!s) return { order: DEFAULT_COL_ORDER, hidden: DEFAULT_HIDDEN_COLS };
+    const p = JSON.parse(s);
+    // Ensure any new columns added later are appended to the saved order
+    const extra = DEFAULT_COL_ORDER.filter(k => !p.order.includes(k));
+    return { order: [...p.order, ...extra], hidden: p.hidden ?? [] };
+  } catch { return { order: DEFAULT_COL_ORDER, hidden: DEFAULT_HIDDEN_COLS }; }
+};
+const saveColPrefs = (order, hidden) => {
+  try { localStorage.setItem(COL_PREFS_KEY, JSON.stringify({ order, hidden })); } catch {}
+};
+
+// ─── Column Manager Popover ───────────────────────────────────────────────────
+const ColumnManager = ({ colOrder, hiddenCols, onChange, onReset }) => {
+  const [open, setOpen] = useState(false);
+  const [dragIdx, setDragIdx] = useState(null);
+  const [dragOverIdx, setDragOverIdx] = useState(null);
+  const panelRef = React.useRef(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => {
+      if (panelRef.current && !panelRef.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const toggleHidden = (key) => {
+    const next = hiddenCols.includes(key)
+      ? hiddenCols.filter(k => k !== key)
+      : [...hiddenCols, key];
+    onChange(colOrder, next);
+  };
+
+  const onDragStart = (e, idx) => {
+    setDragIdx(idx);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+  const onDragOver = (e, idx) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIdx(idx);
+  };
+  const onDrop = (e, idx) => {
+    e.preventDefault();
+    if (dragIdx === null || dragIdx === idx) { setDragIdx(null); setDragOverIdx(null); return; }
+    const next = [...colOrder];
+    const [moved] = next.splice(dragIdx, 1);
+    next.splice(idx, 0, moved);
+    setDragIdx(null);
+    setDragOverIdx(null);
+    onChange(next, hiddenCols);
+  };
+  const onDragEnd = () => { setDragIdx(null); setDragOverIdx(null); };
+
+  const visibleCount = colOrder.filter(k => !hiddenCols.includes(k)).length;
+
+  return (
+    <div className="fd-col-mgr" ref={panelRef}>
+      <button
+        className={`fd-col-mgr-btn ${open ? 'active' : ''}`}
+        onClick={() => setOpen(v => !v)}
+        title="Show / hide and reorder columns"
+      >
+        ⚙ Columns {hiddenCols.length > 0 && <span className="fd-col-badge">{colOrder.length - hiddenCols.length}/{colOrder.length}</span>}
+      </button>
+
+      {open && (
+        <div className="fd-col-panel">
+          <div className="fd-col-panel-header">
+            <span>Configure Columns</span>
+            <button className="fd-col-reset" onClick={() => { onReset(); setOpen(false); }}>↺ Reset</button>
+          </div>
+          <p className="fd-col-hint">Drag ≡ to reorder • Check to show/hide</p>
+          <ul className="fd-col-list">
+            {colOrder.map((key, idx) => {
+              const def = ALL_COL_DEFS.find(c => c.key === key);
+              if (!def) return null;
+              const isHidden = hiddenCols.includes(key);
+              return (
+                <li
+                  key={key}
+                  className={`fd-col-item ${dragOverIdx === idx ? 'fd-col-drag-over' : ''} ${dragIdx === idx ? 'fd-col-dragging' : ''}`}
+                  draggable
+                  onDragStart={e => onDragStart(e, idx)}
+                  onDragOver={e => onDragOver(e, idx)}
+                  onDrop={e => onDrop(e, idx)}
+                  onDragEnd={onDragEnd}
+                >
+                  <span className="fd-col-drag-handle" title="Drag to reorder">⠿</span>
+                  <label className="fd-col-label">
+                    <input
+                      type="checkbox"
+                      checked={!isHidden}
+                      onChange={() => toggleHidden(key)}
+                    />
+                    <span>{def.label}</span>
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="fd-col-panel-footer">
+            {visibleCount} of {colOrder.length} columns visible
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ─── Overview Tab ─────────────────────────────────────────────────────────────
 const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   useEffect(() => { setPage(1); }, [projects]);
 
+  // Column prefs
+  const [colPrefs, setColPrefs] = useState(loadColPrefs);
+  const colOrder    = colPrefs.order;
+  const hiddenCols  = colPrefs.hidden;
+
+  const updateColPrefs = (order, hidden) => {
+    const next = { order, hidden };
+    setColPrefs(next);
+    saveColPrefs(order, hidden);
+  };
+  const resetColPrefs = () => updateColPrefs(DEFAULT_COL_ORDER, DEFAULT_HIDDEN_COLS);
+
+  // Build ordered visible column defs
+  const visibleCols = colOrder
+    .map(k => ALL_COL_DEFS.find(c => c.key === k))
+    .filter(Boolean)
+    .filter(c => !hiddenCols.includes(c.key));
+
+  // Total colspan: 2 fixed left (expand+#) + 1 fixed (project) + visible + 1 fixed right (actions)
+  const totalColSpan = 3 + visibleCols.length + 1;
+
   if (!projects.length) return <EmptyState />;
 
-  const totalPages  = Math.ceil(projects.length / PAGE_SIZE);
-  const pageStart   = (page - 1) * PAGE_SIZE;
+  const totalPages   = Math.ceil(projects.length / PAGE_SIZE);
+  const pageStart    = (page - 1) * PAGE_SIZE;
   const pageProjects = projects.slice(pageStart, pageStart + PAGE_SIZE);
+
+  // Cell renderer for each column key
+  const renderCell = (key, p) => {
+    const expenses = (p.drawing??0)+(p.documents??0)+(p.siteVisit??0)+(p.marketingAndMisc??0)+(p.officeManagement??0);
+    const netProfit = (p.fyReceivedFees??0) - expenses - (p.totalAssociatePaid??0);
+    const pending   = (p.finalizedFees??0)  - (p.fyReceivedFees??0);
+    switch (key) {
+      case 'client':        return <td key={key} className="fd-td fd-td-client">{p.clientId?.name ?? '—'}</td>;
+      case 'status':        return <td key={key} className="fd-td"><StatusBadge status={p.status} /></td>;
+      case 'finalizedFees': return <td key={key} className="fd-td fd-td-num">{fmtCurrency(p.finalizedFees)}</td>;
+      case 'received':      return <td key={key} className="fd-td fd-td-num fd-num-blue">{fmtCurrency(p.fyReceivedFees)}</td>;
+      case 'pending':       return <td key={key} className={`fd-td fd-td-num ${pending>0?'fd-num-orange':'fd-num-green'}`}>{fmtCurrency(pending)}</td>;
+      case 'profitMargin':  return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.profitMargin)}</td>;
+      case 'drawing':       return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.drawing)}</td>;
+      case 'documents':     return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.documents)}</td>;
+      case 'siteVisit':     return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.siteVisit)}</td>;
+      case 'marketingMisc': return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.marketingAndMisc)}</td>;
+      case 'officeMgmt':    return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.officeManagement)}</td>;
+      case 'associatePaid': return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.totalAssociatePaid)}</td>;
+      case 'netProfit':     return <td key={key} className={`fd-td fd-td-num fd-td-net ${netProfit>=0?'fd-num-green':'fd-num-red'}`}><strong>{fmtCurrency(netProfit)}</strong></td>;
+      default:              return null;
+    }
+  };
+
+  // Footer cell renderer
+  const renderFoot = (key) => {
+    switch (key) {
+      case 'finalizedFees': return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalFinalizedFees)}</strong></td>;
+      case 'received':      return <td key={key} className="fd-td fd-td-num fd-num-blue"><strong>{fmtCurrency(summary.totalReceivedFees)}</strong></td>;
+      case 'pending':       return <td key={key} className="fd-td fd-td-num fd-num-orange"><strong>{fmtCurrency(summary.pendingFees)}</strong></td>;
+      case 'profitMargin':  return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalProfitMargin)}</strong></td>;
+      case 'drawing':       return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalDrawing)}</strong></td>;
+      case 'documents':     return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalDocuments)}</strong></td>;
+      case 'siteVisit':     return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalSiteVisit)}</strong></td>;
+      case 'marketingMisc': return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalMarketingMisc)}</strong></td>;
+      case 'officeMgmt':    return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalOfficeManagement)}</strong></td>;
+      case 'associatePaid': return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalAssociatePaid)}</strong></td>;
+      case 'netProfit':     return <td key={key} className={`fd-td fd-td-num fd-td-net ${summary.netProfit>=0?'fd-num-green':'fd-num-red'}`}><strong>{fmtCurrency(summary.netProfit)}</strong></td>;
+      default:              return <td key={key} />;
+    }
+  };
 
   return (
     <>
+    {/* Column manager bar */}
+    <div className="fd-col-mgr-bar">
+      <ColumnManager
+        colOrder={colOrder}
+        hiddenCols={hiddenCols}
+        onChange={updateColPrefs}
+        onReset={resetColPrefs}
+      />
+    </div>
+
     <div className="fd-table-wrapper">
       <table className="fd-table">
         <thead>
@@ -604,31 +811,15 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
             <th className="fd-th fd-th-exp" />
             <th className="fd-th fd-th-num">#</th>
             <th className="fd-th fd-th-project">Project</th>
-            <th className="fd-th">Client</th>
-            <th className="fd-th">Status</th>
-            <th className="fd-th fd-th-num fd-col-blue">Finalized Fees</th>
-            <th className="fd-th fd-th-num fd-col-blue">Received</th>
-            <th className="fd-th fd-th-num fd-col-orange">Pending</th>
-            <th className="fd-th fd-th-num">Profit Margin</th>
-            <th className="fd-th fd-th-num">Drawing</th>
-            <th className="fd-th fd-th-num">Documents</th>
-            <th className="fd-th fd-th-num">Site Visit</th>
-            <th className="fd-th fd-th-num">Mktg & Misc</th>
-            <th className="fd-th fd-th-num">Office Mgmt</th>
-            <th className="fd-th fd-th-num">Associate Paid</th>
-            <th className="fd-th fd-th-num fd-col-green">Net Profit</th>
+            {visibleCols.map(c => (
+              <th key={c.key} className={`fd-th ${c.thCls}`}>{c.label}</th>
+            ))}
             <th className="fd-th fd-th-actions">Actions</th>
           </tr>
         </thead>
         <tbody>
           {pageProjects.map((p, i) => {
-            const expenses =
-              (p.drawing ?? 0) + (p.documents ?? 0) + (p.siteVisit ?? 0) +
-              (p.marketingAndMisc ?? 0) + (p.officeManagement ?? 0);
-            const netProfit = (p.fyReceivedFees ?? 0) - expenses - (p.totalAssociatePaid ?? 0);
-            const pending   = (p.finalizedFees  ?? 0) - (p.fyReceivedFees ?? 0);
-            const isOpen    = expandedRows.has(p._id);
-
+            const isOpen = expandedRows.has(p._id);
             return (
               <React.Fragment key={p._id}>
                 <tr
@@ -645,23 +836,7 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
                     <div className="fd-proj-num">{p.projectNumber}</div>
                     <div className="fd-proj-name">{p.projectName}</div>
                   </td>
-                  <td className="fd-td fd-td-client">{p.clientId?.name ?? '—'}</td>
-                  <td className="fd-td"><StatusBadge status={p.status} /></td>
-                  <td className="fd-td fd-td-num">{fmtCurrency(p.finalizedFees)}</td>
-                  <td className="fd-td fd-td-num fd-num-blue">{fmtCurrency(p.fyReceivedFees)}</td>
-                  <td className={`fd-td fd-td-num ${pending > 0 ? 'fd-num-orange' : 'fd-num-green'}`}>
-                    {fmtCurrency(pending)}
-                  </td>
-                  <td className="fd-td fd-td-num fd-meta">{fmtCurrency(p.profitMargin)}</td>
-                  <td className="fd-td fd-td-num fd-meta">{fmtCurrency(p.drawing)}</td>
-                  <td className="fd-td fd-td-num fd-meta">{fmtCurrency(p.documents)}</td>
-                  <td className="fd-td fd-td-num fd-meta">{fmtCurrency(p.siteVisit)}</td>
-                  <td className="fd-td fd-td-num fd-meta">{fmtCurrency(p.marketingAndMisc)}</td>
-                  <td className="fd-td fd-td-num fd-meta">{fmtCurrency(p.officeManagement)}</td>
-                  <td className="fd-td fd-td-num fd-meta">{fmtCurrency(p.totalAssociatePaid)}</td>
-                  <td className={`fd-td fd-td-num fd-td-net ${netProfit >= 0 ? 'fd-num-green' : 'fd-num-red'}`}>
-                    <strong>{fmtCurrency(netProfit)}</strong>
-                  </td>
+                  {visibleCols.map(c => renderCell(c.key, p))}
                   <td className="fd-td fd-td-actions" onClick={(e) => e.stopPropagation()}>
                     <button
                       className="fd-action-btn fd-action-edit"
@@ -679,10 +854,9 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
                     </button>
                   </td>
                 </tr>
-
                 {isOpen && (
                   <tr className="fd-row-expanded">
-                    <td colSpan={17} className="fd-td-expanded">
+                    <td colSpan={totalColSpan} className="fd-td-expanded">
                       <ExpandedDetail project={p} />
                     </td>
                   </tr>
@@ -695,22 +869,9 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
           <tr className="fd-row-total">
             <td /><td />
             <td className="fd-td">
-              <strong>TOTAL &mdash; {summary.projectCount} project{summary.projectCount !== 1 ? 's' : ''}</strong>
+              <strong>TOTAL — {summary.projectCount} project{summary.projectCount !== 1 ? 's' : ''}</strong>
             </td>
-            <td /><td />
-            <td className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalFinalizedFees)}</strong></td>
-            <td className="fd-td fd-td-num fd-num-blue"><strong>{fmtCurrency(summary.totalReceivedFees)}</strong></td>
-            <td className="fd-td fd-td-num fd-num-orange"><strong>{fmtCurrency(summary.pendingFees)}</strong></td>
-            <td className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalProfitMargin)}</strong></td>
-            <td className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalDrawing)}</strong></td>
-            <td className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalDocuments)}</strong></td>
-            <td className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalSiteVisit)}</strong></td>
-            <td className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalMarketingMisc)}</strong></td>
-            <td className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalOfficeManagement)}</strong></td>
-            <td className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalAssociatePaid)}</strong></td>
-            <td className={`fd-td fd-td-num fd-td-net ${summary.netProfit >= 0 ? 'fd-num-green' : 'fd-num-red'}`}>
-              <strong>{fmtCurrency(summary.netProfit)}</strong>
-            </td>
+            {visibleCols.map(c => renderFoot(c.key))}
             <td />
           </tr>
         </tfoot>
