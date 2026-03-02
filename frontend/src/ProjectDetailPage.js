@@ -308,7 +308,7 @@ const ProjectDetailPage = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ flex: 1 }}>
             <button
-              onClick={() => navigate('/projects')}
+              onClick={() => navigate('/finance')}
               style={{
                 padding: '6px 14px',
                 background: 'rgba(255, 255, 255, 0.15)',
@@ -327,7 +327,7 @@ const ProjectDetailPage = () => {
               onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)'}
               onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
             >
-              <FaArrowLeft /> Back to Projects
+              <FaArrowLeft /> Back to Finance
             </button>
             <h1 style={{ margin: '0 0 4px 0', fontSize: '24px', fontWeight: '600' }}>
               {project.projectName}
