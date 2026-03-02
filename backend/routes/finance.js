@@ -885,6 +885,21 @@ router.get('/overview', authenticate, async (req, res) => {
       proj.totalReceivedFees = allTimeReceived;
       proj.pendingFees = (proj.finalizedFees || 0) - allTimeReceived;
 
+      // Dynamically recompute all distribution fields from actual received amount + stored percentages.
+      // This ensures the Finance page reflects the correct figures irrespective of whether
+      // finalizedFees is set or whether the stored computed fields are stale.
+      const totalAssocPct = (proj.projectAssociates || []).reduce((s, a) => s + (a.percentage || 0), 0);
+      const dynamicAssocAmount  = Math.round((allTimeReceived * totalAssocPct) / 100);
+      const amountForExpenses   = allTimeReceived - dynamicAssocAmount;
+
+      proj.totalAssociateAmount = dynamicAssocAmount;
+      proj.profitMargin  = Math.round((amountForExpenses * (proj.profitMarginPercent  || 0)) / 100);
+      proj.drawing       = Math.round((amountForExpenses * (proj.drawingPercent       || 0)) / 100);
+      proj.documents     = Math.round((amountForExpenses * (proj.documentsPercent     || 0)) / 100);
+      proj.siteVisit     = Math.round((amountForExpenses * (proj.siteVisitPercent     || 0)) / 100);
+      proj.marketingAndMisc   = Math.round((amountForExpenses * (proj.marketingAndMiscPercent   || 0)) / 100);
+      proj.officeManagement   = Math.round((amountForExpenses * (proj.officeManagementPercent   || 0)) / 100);
+
       return proj;
     });
 
@@ -952,21 +967,41 @@ router.get('/overview', authenticate, async (req, res) => {
 // ── Reconcile: fix all projects where totalReceivedFees != sum of payments ──
 router.post('/reconcile-received-fees', authenticate, async (req, res) => {
   try {
-    const projects = await FinanceProject.find({}).select('projectName projectNumber payments totalReceivedFees');
+    const projects = await FinanceProject.find({}).select(
+      'projectName projectNumber payments totalReceivedFees profitMarginPercent drawingPercent documentsPercent siteVisitPercent marketingAndMiscPercent officeManagementPercent projectAssociates'
+    );
     let fixed = 0;
     const details = [];
 
     for (const p of projects) {
       const correctTotal = (p.payments || []).reduce((s, pay) => s + (pay.amount || 0), 0);
+
+      // Also recompute derived expense fields from percentages
+      const totalAssocPct       = (p.projectAssociates || []).reduce((s, a) => s + (a.percentage || 0), 0);
+      const dynamicAssocAmount  = Math.round((correctTotal * totalAssocPct) / 100);
+      const amountForExpenses   = correctTotal - dynamicAssocAmount;
+
+      const updates = {
+        totalReceivedFees:  correctTotal,
+        totalAssociateAmount: dynamicAssocAmount,
+        profitMargin:  Math.round((amountForExpenses * (p.profitMarginPercent  || 0)) / 100),
+        drawing:       Math.round((amountForExpenses * (p.drawingPercent       || 0)) / 100),
+        documents:     Math.round((amountForExpenses * (p.documentsPercent     || 0)) / 100),
+        siteVisit:     Math.round((amountForExpenses * (p.siteVisitPercent     || 0)) / 100),
+        marketingAndMisc:   Math.round((amountForExpenses * (p.marketingAndMiscPercent   || 0)) / 100),
+        officeManagement:   Math.round((amountForExpenses * (p.officeManagementPercent   || 0)) / 100),
+      };
+
       if (p.totalReceivedFees !== correctTotal) {
         details.push({
           project: `${p.projectNumber} – ${p.projectName}`,
           was: p.totalReceivedFees,
           now: correctTotal
         });
-        await FinanceProject.findByIdAndUpdate(p._id, { $set: { totalReceivedFees: correctTotal } });
         fixed++;
       }
+
+      await FinanceProject.findByIdAndUpdate(p._id, { $set: updates });
     }
 
     res.json({
