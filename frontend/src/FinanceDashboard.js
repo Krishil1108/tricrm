@@ -45,7 +45,7 @@ const fyPaymentsFor = (project, fyStart, fyEnd) => {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const FinanceDashboard = () => {
-  const { showError } = useToast();
+  const { showError, showSuccess } = useToast();
 
   // ── Remote data ──────────────────────────────────────────────────────────
   const [rawData, setRawData]   = useState(null);
@@ -57,6 +57,21 @@ const FinanceDashboard = () => {
   const [expandedRows, setExpandedRows] = useState(new Set());
   const [exporting,    setExporting]    = useState(false);
   const [hideValues,   setHideValues]   = useState(false);
+  const [reconciling,  setReconciling]  = useState(false);
+
+  const reconcileData = async () => {
+    if (!window.confirm('This will scan all projects and reset "Total Received" to match actual payment entries.\n\nProjects with no payment records will be set to ₹0.\n\nProceed?')) return;
+    setReconciling(true);
+    try {
+      const result = await FinanceService.reconcileReceivedFees();
+      showSuccess(`${result.message}`);
+      if (result.fixed > 0) fetchData(); // reload so numbers update
+    } catch (err) {
+      showError('Reconciliation failed: ' + (err.response?.data?.message || err.message));
+    } finally {
+      setReconciling(false);
+    }
+  };
 
   // ── Filters ──────────────────────────────────────────────────────────────
   const [filterClient, setFilterClient] = useState('all');
@@ -364,6 +379,14 @@ const FinanceDashboard = () => {
           </button>
           <button className="fd-btn fd-btn-refresh" onClick={fetchData} title="Reload data">
             <FiRefreshCw /> Refresh
+          </button>
+          <button
+            className="fd-btn fd-btn-reconcile"
+            onClick={reconcileData}
+            disabled={reconciling}
+            title="Fix projects where received amount doesn't match payment records"
+          >
+            <FiRefreshCw className={reconciling ? 'fd-spin' : ''} /> {reconciling ? 'Fixing…' : 'Fix Data'}
           </button>
         </div>
       </div>

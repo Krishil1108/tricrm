@@ -229,9 +229,10 @@ financeProjectSchema.virtual('netProfit').get(function() {
 
 // Pre-save hook to auto-calculate amounts from percentages
 financeProjectSchema.pre('save', function(next) {
-  // Calculate totalReceivedFees from payments if payments exist
-  if (this.payments && this.payments.length > 0) {
-    this.totalReceivedFees = this.payments.reduce((total, payment) => {
+  // Always recalculate totalReceivedFees from actual payment entries.
+  // If payments array is empty, the stored value must become 0 — never trust a stale imported value.
+  if (this.payments !== undefined) {
+    this.totalReceivedFees = (this.payments || []).reduce((total, payment) => {
       return total + (payment.amount || 0);
     }, 0);
   }

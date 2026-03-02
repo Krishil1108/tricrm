@@ -322,6 +322,19 @@ const FinanceService = {
 
   // ==================== UTILITY METHODS ====================
   
+  // Reconcile: fix projects where totalReceivedFees doesn't match actual payment sums
+  reconcileReceivedFees: async () => {
+    try {
+      const response = await axios.post(`${API_URL}/finance/reconcile-received-fees`, {}, {
+        headers: getAuthHeader()
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error reconciling received fees:', error);
+      throw error;
+    }
+  },
+
   // Apply default expense percentages to projects without configuration
   applyDefaultPercentages: async () => {
     try {

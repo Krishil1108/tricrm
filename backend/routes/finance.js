@@ -878,8 +878,12 @@ router.get('/overview', authenticate, async (req, res) => {
       proj.fyReceivedFees = fyPayments.reduce((s, pay) => s + (pay.amount || 0), 0);
       proj.fyPayments     = fyPayments;
 
-      // Pending = finalized – all-time received (not FY-scoped, by design)
-      proj.pendingFees = (proj.finalizedFees || 0) - (proj.totalReceivedFees || 0);
+      // Always derive all-time received from actual payment entries (ignore stale stored field).
+      // This prevents imported projects with totalReceivedFees set but no payment records from
+      // showing phantom received amounts.
+      const allTimeReceived = allPayments.reduce((s, pay) => s + (pay.amount || 0), 0);
+      proj.totalReceivedFees = allTimeReceived;
+      proj.pendingFees = (proj.finalizedFees || 0) - allTimeReceived;
 
       return proj;
     });
@@ -942,6 +946,38 @@ router.get('/overview', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Error fetching financial overview:', error);
     res.status(500).json({ success: false, message: 'Server error', error: error.message });
+  }
+});
+
+// ── Reconcile: fix all projects where totalReceivedFees != sum of payments ──
+router.post('/reconcile-received-fees', authenticate, async (req, res) => {
+  try {
+    const projects = await FinanceProject.find({}).select('projectName projectNumber payments totalReceivedFees');
+    let fixed = 0;
+    const details = [];
+
+    for (const p of projects) {
+      const correctTotal = (p.payments || []).reduce((s, pay) => s + (pay.amount || 0), 0);
+      if (p.totalReceivedFees !== correctTotal) {
+        details.push({
+          project: `${p.projectNumber} – ${p.projectName}`,
+          was: p.totalReceivedFees,
+          now: correctTotal
+        });
+        await FinanceProject.findByIdAndUpdate(p._id, { $set: { totalReceivedFees: correctTotal } });
+        fixed++;
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Reconciliation complete. Fixed ${fixed} project(s).`,
+      fixed,
+      details
+    });
+  } catch (err) {
+    console.error('Reconcile error:', err);
+    res.status(500).json({ success: false, message: err.message });
   }
 });
 
