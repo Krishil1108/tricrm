@@ -59,10 +59,11 @@ const FinanceDashboard = () => {
   const [hideValues,   setHideValues]   = useState(false);
 
   // ── Filters ──────────────────────────────────────────────────────────────
-  const [filterClient, setFilterClient] = useState('all');
-  const [filterFY,     setFilterFY]     = useState('all');
-  const [filterSearch, setFilterSearch] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [filterClient,    setFilterClient]    = useState('all');
+  const [filterFY,        setFilterFY]        = useState('all');
+  const [filterSearch,    setFilterSearch]    = useState('');
+  const [filterStatus,    setFilterStatus]    = useState('all');
+  const [filterAssociate, setFilterAssociate] = useState('all');
 
   // ── Fetch ─────────────────────────────────────────────────────────────────
   const fetchData = useCallback(async () => {
@@ -98,6 +99,12 @@ const FinanceDashboard = () => {
       .filter((p) => {
         if (filterClient !== 'all' && String(p.clientId?._id) !== filterClient) return false;
         if (filterStatus !== 'all' && p.status !== filterStatus) return false;
+        if (filterAssociate !== 'all') {
+          const hasAssoc = (p.projectAssociates ?? []).some(
+            a => String(a.associateId?._id) === filterAssociate
+          );
+          if (!hasAssoc) return false;
+        }
         if (q) {
           const hit =
             (p.projectName  ?? '').toLowerCase().includes(q) ||
@@ -116,7 +123,7 @@ const FinanceDashboard = () => {
         fyReceivedFees: fyReceivedFor(p, fyStart, fyEnd),
         fyPayments:     fyPaymentsFor(p, fyStart, fyEnd),
       }));
-  }, [rawData, filterClient, filterStatus, filterSearch, filterFY, fyStart, fyEnd]);
+  }, [rawData, filterClient, filterStatus, filterSearch, filterFY, fyStart, fyEnd, filterAssociate]);
 
   // ── Summary recalculated from filtered data ───────────────────────────────
   const summary = useMemo(() => {
@@ -159,12 +166,14 @@ const FinanceDashboard = () => {
     setFilterFY('all');
     setFilterSearch('');
     setFilterStatus('all');
+    setFilterAssociate('all');
     setExpandedRows(new Set());
   };
 
   const hasFilters =
-    filterClient !== 'all' || filterFY !== 'all' ||
-    filterSearch !== ''    || filterStatus !== 'all';
+    filterClient !== 'all'    || filterFY !== 'all' ||
+    filterSearch !== ''       || filterStatus !== 'all' ||
+    filterAssociate !== 'all';
 
   // ── Export: Excel ─────────────────────────────────────────────────────────
   const exportExcel = () => {
@@ -327,7 +336,7 @@ const FinanceDashboard = () => {
     );
   }
 
-  const { financialYears = [], clients = [] } = rawData?.filterOptions ?? {};
+  const { financialYears = [], clients = [], associates = [] } = rawData?.filterOptions ?? {};
 
   return (
     <div className="fd-wrapper">
@@ -484,6 +493,22 @@ const FinanceDashboard = () => {
             <option value="Completed">Completed</option>
             <option value="On Hold">On Hold</option>
             <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <div className="fd-filter-group">
+          <span className="fd-fi" style={{fontSize: 14}}>🤝</span>
+          <select
+            className="fd-filter-select"
+            value={filterAssociate}
+            onChange={(e) => { setFilterAssociate(e.target.value); setExpandedRows(new Set()); }}
+          >
+            <option value="all">All Associates</option>
+            {associates.map((a) => (
+              <option key={a._id} value={a._id}>
+                {a.name}{a.company ? ` — ${a.company}` : ''}
+              </option>
+            ))}
           </select>
         </div>
 

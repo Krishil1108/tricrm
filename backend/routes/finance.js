@@ -952,6 +952,18 @@ router.get('/overview', authenticate, async (req, res) => {
     // ── Clients list for filter dropdown ─────────────────────────────────────
     const clients = await Client.find({}, 'name company').sort({ name: 1 }).lean();
 
+    // ── Associates list for filter dropdown (derived from all projects) ────────
+    const assocMap = new Map();
+    enrichedProjects.forEach(p => {
+      (p.projectAssociates || []).forEach(a => {
+        const id = a.associateId?._id?.toString();
+        if (id && !assocMap.has(id)) {
+          assocMap.set(id, { _id: id, name: a.associateId.name, company: a.associateId.company });
+        }
+      });
+    });
+    const associates = [...assocMap.values()].sort((a, b) => a.name.localeCompare(b.name));
+
     res.json({
       success: true,
       data: {
@@ -959,7 +971,8 @@ router.get('/overview', authenticate, async (req, res) => {
         summary,
         filterOptions: {
           financialYears: [...fySet].sort().reverse(),
-          clients
+          clients,
+          associates
         }
       }
     });

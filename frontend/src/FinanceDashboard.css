@@ -314,7 +314,7 @@
   border-top: none;
   border-radius: 0 0 12px 12px;
   box-shadow: 0 2px 8px rgba(15,23,42,0.06);
-  overflow: hidden;
+  overflow: clip; /* clip preserves visual border-radius without breaking sticky thead */
 }
 
 /* ── Table Wrapper (horizontal scroll) ───────────────────── */
