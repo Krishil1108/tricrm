@@ -598,10 +598,11 @@ const ALL_COL_DEFS = [
   { key: 'officeMgmt',    label: 'Office Mgmt',    thCls: 'fd-th-num',                numeric: true  },
   { key: 'associatePaid', label: 'Associate Paid', thCls: 'fd-th-num',                numeric: true  },
   { key: 'netProfit',     label: 'Net Profit',     thCls: 'fd-th-num fd-col-green',   numeric: true  },
+  { key: 'actions',       label: 'Actions',        thCls: 'fd-th-actions',            numeric: false },
 ];
 const DEFAULT_COL_ORDER  = ALL_COL_DEFS.map(c => c.key);
 const DEFAULT_HIDDEN_COLS = [];
-const COL_PREFS_KEY = 'fd_col_prefs_v1';
+const COL_PREFS_KEY = 'fd_col_prefs_v2';
 
 const loadColPrefs = () => {
   try {
@@ -742,8 +743,8 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
     .filter(Boolean)
     .filter(c => !hiddenCols.includes(c.key));
 
-  // Total colspan: 2 fixed left (expand+#) + 1 fixed (project) + visible + 1 fixed right (actions)
-  const totalColSpan = 3 + visibleCols.length + 1;
+  // Total colspan: 2 fixed left (expand+#) + 1 fixed (project) + visible (includes actions if visible)
+  const totalColSpan = 3 + visibleCols.length;
 
   if (!projects.length) return <EmptyState />;
 
@@ -770,6 +771,24 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
       case 'officeMgmt':    return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.officeManagement)}</td>;
       case 'associatePaid': return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.totalAssociatePaid)}</td>;
       case 'netProfit':     return <td key={key} className={`fd-td fd-td-num fd-td-net ${netProfit>=0?'fd-num-green':'fd-num-red'}`}><strong>{fmtCurrency(netProfit)}</strong></td>;
+      case 'actions':       return (
+        <td key={key} className="fd-td fd-td-actions" onClick={(e) => e.stopPropagation()}>
+          <button
+            className="fd-action-btn fd-action-edit"
+            title="View / Edit project"
+            onClick={() => navigate(`/projects/${p._id}`, { state: { projectName: p.projectName } })}
+          >
+            <FaEdit size={11} /> Edit
+          </button>
+          <button
+            className="fd-action-btn fd-action-payment"
+            title="Add payment"
+            onClick={() => navigate(`/projects/${p._id}?addPayment=true`, { state: { projectName: p.projectName } })}
+          >
+            <FiCreditCard size={11} /> Payment
+          </button>
+        </td>
+      );
       default:              return null;
     }
   };
@@ -788,6 +807,7 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
       case 'officeMgmt':    return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalOfficeManagement)}</strong></td>;
       case 'associatePaid': return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalAssociatePaid)}</strong></td>;
       case 'netProfit':     return <td key={key} className={`fd-td fd-td-num fd-td-net ${summary.netProfit>=0?'fd-num-green':'fd-num-red'}`}><strong>{fmtCurrency(summary.netProfit)}</strong></td>;
+      case 'actions':       return <td key={key} />;
       default:              return <td key={key} />;
     }
   };
@@ -814,7 +834,6 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
             {visibleCols.map(c => (
               <th key={c.key} className={`fd-th ${c.thCls}`}>{c.label}</th>
             ))}
-            <th className="fd-th fd-th-actions">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -837,22 +856,6 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
                     <div className="fd-proj-name">{p.projectName}</div>
                   </td>
                   {visibleCols.map(c => renderCell(c.key, p))}
-                  <td className="fd-td fd-td-actions" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      className="fd-action-btn fd-action-edit"
-                      title="View / Edit project"
-                      onClick={() => navigate(`/projects/${p._id}`, { state: { projectName: p.projectName } })}
-                    >
-                      <FaEdit size={11} /> Edit
-                    </button>
-                    <button
-                      className="fd-action-btn fd-action-payment"
-                      title="Add payment"
-                      onClick={() => navigate(`/projects/${p._id}?addPayment=true`, { state: { projectName: p.projectName } })}
-                    >
-                      <FiCreditCard size={11} /> Payment
-                    </button>
-                  </td>
                 </tr>
                 {isOpen && (
                   <tr className="fd-row-expanded">
@@ -872,7 +875,6 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
               <strong>TOTAL — {summary.projectCount} project{summary.projectCount !== 1 ? 's' : ''}</strong>
             </td>
             {visibleCols.map(c => renderFoot(c.key))}
-            <td />
           </tr>
         </tfoot>
       </table>
