@@ -276,61 +276,52 @@ financeProjectSchema.pre('save', function(next) {
 // Pre-update hook to auto-calculate amounts from percentages
 financeProjectSchema.pre('findOneAndUpdate', function(next) {
   const update = this.getUpdate();
-  
-  // Calculate totalReceivedFees from payments if payments are being updated
-  if (update.$set?.payments) {
-    const totalFromPayments = update.$set.payments.reduce((total, payment) => {
+
+  if (!update.$set) {
+    return next();
+  }
+
+  // Step 1: Recalculate totalReceivedFees whenever payments change
+  if (update.$set.payments !== undefined) {
+    update.$set.totalReceivedFees = (update.$set.payments || []).reduce((total, payment) => {
       return total + (payment.amount || 0);
     }, 0);
-    update.$set.totalReceivedFees = totalFromPayments;
   }
-  
-  // Check if we have the data needed for calculation
-  if (update.$set || update.totalReceivedFees !== undefined) {
-    const receivedFees = update.$set?.totalReceivedFees || update.totalReceivedFees || 0;
-    
-    // Calculate total associate allocation if projectAssociates are being updated
-    if (update.$set) {
-      if (update.$set.projectAssociates && update.$set.projectAssociates.length > 0) {
-        const totalAssociatePercentage = update.$set.projectAssociates.reduce((sum, assoc) => {
-          return sum + (assoc.percentage || 0);
-        }, 0);
-        
-        update.$set.totalAssociateAmount = Math.round((receivedFees * totalAssociatePercentage) / 100);
-        
-        update.$set.totalAssociatePaid = update.$set.projectAssociates.reduce((sum, assoc) => {
-          return sum + (assoc.amountPaid || 0);
-        }, 0);
-        
-        update.$set.totalAssociatePending = update.$set.totalAssociateAmount - update.$set.totalAssociatePaid;
-      }
-      
-      // Calculate remaining amount after associate allocation
-      const associateAllocation = update.$set.totalAssociateAmount || 0;
-      const amountForExpenses = receivedFees - associateAllocation;
-    
-      // If percentage fields are being updated, calculate the amounts from remaining balance
-      if (update.$set.profitMarginPercent !== undefined) {
-        update.$set.profitMargin = Math.round((amountForExpenses * (update.$set.profitMarginPercent || 0)) / 100);
-      }
-      if (update.$set.drawingPercent !== undefined) {
-        update.$set.drawing = Math.round((amountForExpenses * (update.$set.drawingPercent || 0)) / 100);
-      }
-      if (update.$set.documentsPercent !== undefined) {
-        update.$set.documents = Math.round((amountForExpenses * (update.$set.documentsPercent || 0)) / 100);
-      }
-      if (update.$set.siteVisitPercent !== undefined) {
-        update.$set.siteVisit = Math.round((amountForExpenses * (update.$set.siteVisitPercent || 0)) / 100);
-      }
-      if (update.$set.marketingAndMiscPercent !== undefined) {
-        update.$set.marketingAndMisc = Math.round((amountForExpenses * (update.$set.marketingAndMiscPercent || 0)) / 100);
-      }
-      if (update.$set.officeManagementPercent !== undefined) {
-        update.$set.officeManagement = Math.round((amountForExpenses * (update.$set.officeManagementPercent || 0)) / 100);
-      }
+
+  // Step 2: Recalculate all distribution amounts whenever payments OR percentages OR associates change.
+  // We need the current receivedFees and percentages — if they’re not in the update we leave
+  // the stored amounts as-is (they were correct when last saved via pre-save hook).
+  const receivedFees = update.$set.totalReceivedFees;
+  if (receivedFees !== undefined) {
+    // Associate share: deduct first
+    if (update.$set.projectAssociates !== undefined) {
+      const totalAssocPct = (update.$set.projectAssociates || []).reduce((sum, a) => sum + (a.percentage || 0), 0);
+      update.$set.totalAssociateAmount = Math.round((receivedFees * totalAssocPct) / 100);
+      update.$set.totalAssociatePaid   = (update.$set.projectAssociates || []).reduce((sum, a) => sum + (a.amountPaid || 0), 0);
+      update.$set.totalAssociatePending = update.$set.totalAssociateAmount - update.$set.totalAssociatePaid;
     }
+
+    const assocAmount   = update.$set.totalAssociateAmount ?? 0;
+    const forExpenses   = receivedFees - assocAmount;
+
+    // Recalculate every expense amount from its stored percent
+    const pctFields = [
+      ['profitMarginPercent',     'profitMargin'],
+      ['drawingPercent',          'drawing'],
+      ['documentsPercent',        'documents'],
+      ['siteVisitPercent',        'siteVisit'],
+      ['marketingAndMiscPercent', 'marketingAndMisc'],
+      ['officeManagementPercent', 'officeManagement'],
+    ];
+    pctFields.forEach(([pctKey, amtKey]) => {
+      // Use the incoming percent value if it’s being updated, otherwise the field won’t be touched
+      // (the pre-save hook covers the case where we have the full doc).
+      if (update.$set[pctKey] !== undefined) {
+        update.$set[amtKey] = Math.round((forExpenses * (update.$set[pctKey] || 0)) / 100);
+      }
+    });
   }
-  
+
   next();
 });
 

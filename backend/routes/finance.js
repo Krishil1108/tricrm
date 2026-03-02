@@ -878,27 +878,30 @@ router.get('/overview', authenticate, async (req, res) => {
       proj.fyReceivedFees = fyPayments.reduce((s, pay) => s + (pay.amount || 0), 0);
       proj.fyPayments     = fyPayments;
 
-      // Always derive all-time received from actual payment entries (ignore stale stored field).
-      // This prevents imported projects with totalReceivedFees set but no payment records from
-      // showing phantom received amounts.
+      // All-time received (for pending calculation and storing back)
       const allTimeReceived = allPayments.reduce((s, pay) => s + (pay.amount || 0), 0);
       proj.totalReceivedFees = allTimeReceived;
+      // Pending = finalized – all-time received (not FY-scoped, by design)
       proj.pendingFees = (proj.finalizedFees || 0) - allTimeReceived;
 
-      // Dynamically recompute all distribution fields from actual received amount + stored percentages.
-      // This ensures the Finance page reflects the correct figures irrespective of whether
-      // finalizedFees is set or whether the stored computed fields are stale.
+      // Distribute based on fyReceivedFees (the same amount shown in the "Received" column).
+      // When no FY filter is active fyReceivedFees === allTimeReceived, so results are identical.
+      // When FY filter IS active, all distribution columns (Drawing, Documents ...) correspond
+      // to the same receipt amount shown, making every row internally consistent.
+      // Associate share is always deducted FIRST before applying expense percentages —
+      // exactly matching the ProjectDetailPage calculation.
+      const baseForDist   = proj.fyReceivedFees;
       const totalAssocPct = (proj.projectAssociates || []).reduce((s, a) => s + (a.percentage || 0), 0);
-      const dynamicAssocAmount  = Math.round((allTimeReceived * totalAssocPct) / 100);
-      const amountForExpenses   = allTimeReceived - dynamicAssocAmount;
+      const assocAmount   = Math.round((baseForDist * totalAssocPct) / 100);
+      const forExpenses   = baseForDist - assocAmount;
 
-      proj.totalAssociateAmount = dynamicAssocAmount;
-      proj.profitMargin  = Math.round((amountForExpenses * (proj.profitMarginPercent  || 0)) / 100);
-      proj.drawing       = Math.round((amountForExpenses * (proj.drawingPercent       || 0)) / 100);
-      proj.documents     = Math.round((amountForExpenses * (proj.documentsPercent     || 0)) / 100);
-      proj.siteVisit     = Math.round((amountForExpenses * (proj.siteVisitPercent     || 0)) / 100);
-      proj.marketingAndMisc   = Math.round((amountForExpenses * (proj.marketingAndMiscPercent   || 0)) / 100);
-      proj.officeManagement   = Math.round((amountForExpenses * (proj.officeManagementPercent   || 0)) / 100);
+      proj.totalAssociateAmount = assocAmount;
+      proj.profitMargin   = Math.round((forExpenses * (proj.profitMarginPercent        || 0)) / 100);
+      proj.drawing        = Math.round((forExpenses * (proj.drawingPercent             || 0)) / 100);
+      proj.documents      = Math.round((forExpenses * (proj.documentsPercent           || 0)) / 100);
+      proj.siteVisit      = Math.round((forExpenses * (proj.siteVisitPercent           || 0)) / 100);
+      proj.marketingAndMisc     = Math.round((forExpenses * (proj.marketingAndMiscPercent     || 0)) / 100);
+      proj.officeManagement     = Math.round((forExpenses * (proj.officeManagementPercent     || 0)) / 100);
 
       return proj;
     });
