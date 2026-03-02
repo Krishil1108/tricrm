@@ -7,10 +7,13 @@
 .fd-wrapper {
   padding: 20px 24px 40px;
   min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
   background: var(--color-bg, #f8fafc);
   font-family: var(--font-sans, 'Segoe UI', sans-serif);
   color: var(--color-text, #0f172a);
   position: relative;
+  overflow-x: hidden;
 }
 
 /* ── Loading / Error ─────────────────────────────────────── */

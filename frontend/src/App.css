@@ -15,14 +15,18 @@
   background: var(--color-bg);
   margin-left: 70px; /* Default collapsed sidebar width */
   transition: margin-left 0.3s ease;
-  padding: var(--space-7);
+  padding: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
+  width: calc(100% - 70px);
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .main-content.sidebar-expanded {
   margin-left: 240px; /* Expanded sidebar width */
+  width: calc(100% - 240px);
 }
 
 /* Welcome message for the blank page */
@@ -75,9 +79,11 @@
 @media (max-width: 768px) {
   .main-content {
     margin-left: 60px;
+    width: calc(100% - 60px);
   }
   
   .main-content.sidebar-expanded {
     margin-left: 250px;
+    width: calc(100% - 250px);
   }
 }
