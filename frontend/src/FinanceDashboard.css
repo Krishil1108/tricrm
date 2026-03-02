@@ -543,6 +543,70 @@
 .fd-empty-icon { font-size: 40px; }
 .fd-empty p    { font-size: 14px; text-align: center; margin: 0; }
 
+/* ── Action Column ───────────────────────────────────────── */
+.fd-th-actions {
+  width: 110px;
+  min-width: 110px;
+  text-align: center;
+}
+.fd-td-actions {
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  padding: 6px 8px;
+}
+.fd-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.fd-action-edit {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  margin-right: 4px;
+}
+.fd-action-edit:hover {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+.fd-action-payment {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+.fd-action-payment:hover {
+  background: #16a34a;
+  color: #fff;
+  border-color: #16a34a;
+}
+
+/* ── Clickable Project Link (Payments / Associates tabs) ─── */
+.fd-proj-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+.fd-proj-link:hover .fd-proj-name {
+  color: #2563eb;
+  text-decoration: underline;
+}
+.fd-proj-link:hover .fd-proj-num {
+  color: #2563eb;
+}
+
 /* ── Pagination ───────────────────────────────────────────── */
 .fd-pagination {
   display: flex;

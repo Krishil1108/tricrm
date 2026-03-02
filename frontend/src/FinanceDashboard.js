@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { FaFileExcel, FaFilePdf, FaSearch, FaTimes, FaFilter } from 'react-icons/fa';
-import { FiRefreshCw, FiChevronDown, FiChevronRight } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
+import { FaFileExcel, FaFilePdf, FaSearch, FaTimes, FaFilter, FaEdit, FaExternalLinkAlt } from 'react-icons/fa';
+import { FiRefreshCw, FiChevronDown, FiChevronRight, FiCreditCard } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -584,6 +585,7 @@ const Pagination = ({ page, totalPages, totalItems, onPage }) => {
 
 // ─── Overview Tab ─────────────────────────────────────────────────────────────
 const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
   useEffect(() => { setPage(1); }, [projects]);
 
@@ -615,6 +617,7 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
             <th className="fd-th fd-th-num">Office Mgmt</th>
             <th className="fd-th fd-th-num">Associate Paid</th>
             <th className="fd-th fd-th-num fd-col-green">Net Profit</th>
+            <th className="fd-th fd-th-actions">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -659,11 +662,27 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
                   <td className={`fd-td fd-td-num fd-td-net ${netProfit >= 0 ? 'fd-num-green' : 'fd-num-red'}`}>
                     <strong>{fmtCurrency(netProfit)}</strong>
                   </td>
+                  <td className="fd-td fd-td-actions" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      className="fd-action-btn fd-action-edit"
+                      title="View / Edit project"
+                      onClick={() => navigate(`/projects/${p._id}`, { state: { projectName: p.projectName } })}
+                    >
+                      <FaEdit size={11} /> Edit
+                    </button>
+                    <button
+                      className="fd-action-btn fd-action-payment"
+                      title="Add payment"
+                      onClick={() => navigate(`/projects/${p._id}?addPayment=true`, { state: { projectName: p.projectName } })}
+                    >
+                      <FiCreditCard size={11} /> Payment
+                    </button>
+                  </td>
                 </tr>
 
                 {isOpen && (
                   <tr className="fd-row-expanded">
-                    <td colSpan={16} className="fd-td-expanded">
+                    <td colSpan={17} className="fd-td-expanded">
                       <ExpandedDetail project={p} />
                     </td>
                   </tr>
@@ -692,6 +711,7 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
             <td className={`fd-td fd-td-num fd-td-net ${summary.netProfit >= 0 ? 'fd-num-green' : 'fd-num-red'}`}>
               <strong>{fmtCurrency(summary.netProfit)}</strong>
             </td>
+            <td />
           </tr>
         </tfoot>
       </table>
@@ -827,6 +847,7 @@ const ExpandedDetail = ({ project: p }) => {
 
 // ─── Payments Tab ─────────────────────────────────────────────────────────────
 const PaymentsTab = ({ projects }) => {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
 
   const rows = useMemo(() => {
@@ -873,8 +894,14 @@ const PaymentsTab = ({ projects }) => {
               <tr key={`${p._id}-${i}`} className="fd-row">
                 <td className="fd-td fd-td-num fd-meta">{pageStart + rowIdx + 1}</td>
                 <td className="fd-td fd-td-project">
-                  <div className="fd-proj-num">{p.projectNumber}</div>
-                  <div className="fd-proj-name">{p.projectName}</div>
+                  <button
+                    className="fd-proj-link"
+                    onClick={() => navigate(`/projects/${p._id}`, { state: { projectName: p.projectName } })}
+                    title="Open project"
+                  >
+                    <div className="fd-proj-num">{p.projectNumber}</div>
+                    <div className="fd-proj-name">{p.projectName} <FaExternalLinkAlt size={9} style={{opacity:0.5}} /></div>
+                  </button>
                 </td>
                 <td className="fd-td fd-td-client">{p.clientId?.name ?? '—'}</td>
                 <td className="fd-td fd-td-num">
@@ -903,6 +930,7 @@ const PaymentsTab = ({ projects }) => {
 
 // ─── Associates Tab ───────────────────────────────────────────────────────────
 const AssociatesTab = ({ projects }) => {
+  const navigate = useNavigate();
   const [page, setPage] = useState(1);
 
   const rows = useMemo(() => {
@@ -955,8 +983,14 @@ const AssociatesTab = ({ projects }) => {
               <tr key={`${p._id}-${a._id ?? i}`} className="fd-row">
                 <td className="fd-td fd-td-num fd-meta">{pageStart + i + 1}</td>
                 <td className="fd-td fd-td-project">
-                  <div className="fd-proj-num">{p.projectNumber}</div>
-                  <div className="fd-proj-name">{p.projectName}</div>
+                  <button
+                    className="fd-proj-link"
+                    onClick={() => navigate(`/projects/${p._id}`, { state: { projectName: p.projectName } })}
+                    title="Open project"
+                  >
+                    <div className="fd-proj-num">{p.projectNumber}</div>
+                    <div className="fd-proj-name">{p.projectName} <FaExternalLinkAlt size={9} style={{opacity:0.5}} /></div>
+                  </button>
                 </td>
                 <td className="fd-td fd-td-client">{p.clientId?.name ?? '—'}</td>
                 <td className="fd-td"><strong>{a.associateId?.name ?? '—'}</strong></td>
