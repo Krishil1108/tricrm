@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaFileExcel, FaFilePdf, FaSearch, FaTimes, FaFilter, FaEdit, FaExternalLinkAlt } from 'react-icons/fa';
+import { FaFileExcel, FaFilePdf, FaSearch, FaTimes, FaFilter, FaEdit, FaExternalLinkAlt, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FiRefreshCw, FiChevronDown, FiChevronRight, FiCreditCard } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
@@ -56,6 +56,7 @@ const FinanceDashboard = () => {
   const [activeTab,    setActiveTab]    = useState('overview');
   const [expandedRows, setExpandedRows] = useState(new Set());
   const [exporting,    setExporting]    = useState(false);
+  const [hideValues,   setHideValues]   = useState(false);
 
   // ── Filters ──────────────────────────────────────────────────────────────
   const [filterClient, setFilterClient] = useState('all');
@@ -368,6 +369,15 @@ const FinanceDashboard = () => {
       </div>
 
       {/* ── Summary Cards ─────────────────────────────────────────────────── */}
+      <div className="fd-cards-section">
+      <button
+        className="fd-hide-toggle"
+        onClick={() => setHideValues(v => !v)}
+        title={hideValues ? 'Show figures' : 'Hide figures'}
+      >
+        {hideValues ? <FaEyeSlash size={13} /> : <FaEye size={13} />}
+        <span>{hideValues ? 'Show' : 'Hide'}</span>
+      </button>
       <div className="fd-cards">
         <SummaryCard
           label="Total Finalized Fees"
@@ -375,6 +385,7 @@ const FinanceDashboard = () => {
           color="blue"
           icon="📋"
           sub={`${summary.projectCount} project${summary.projectCount !== 1 ? 's' : ''}`}
+          hidden={hideValues}
         />
         <SummaryCard
           label="Total Received"
@@ -382,6 +393,7 @@ const FinanceDashboard = () => {
           color="green"
           icon="✅"
           sub={filterFY !== 'all' ? `FY ${filterFY}` : 'All time'}
+          hidden={hideValues}
         />
         <SummaryCard
           label="Pending Fees"
@@ -389,6 +401,7 @@ const FinanceDashboard = () => {
           color="orange"
           icon="⏳"
           sub="Outstanding balance"
+          hidden={hideValues}
         />
         <SummaryCard
           label="Total Expenses"
@@ -396,6 +409,7 @@ const FinanceDashboard = () => {
           color="red"
           icon="📉"
           sub="Drawing + Docs + Site + Mktg + Office"
+          hidden={hideValues}
         />
         <SummaryCard
           label="Net Profit"
@@ -403,6 +417,7 @@ const FinanceDashboard = () => {
           color={summary.netProfit >= 0 ? 'emerald' : 'crimson'}
           icon={summary.netProfit >= 0 ? '🚀' : '⚠️'}
           sub="After expenses & associate payouts"
+          hidden={hideValues}
         />
         <SummaryCard
           label="Associate Payouts"
@@ -410,7 +425,9 @@ const FinanceDashboard = () => {
           color="purple"
           icon="🤝"
           sub={`${fmtCurrency(summary.totalAssociateAmount)} allocated`}
+          hidden={hideValues}
         />
+      </div>
       </div>
 
       {/* ── Filter Bar ────────────────────────────────────────────────────── */}
@@ -516,13 +533,15 @@ const FinanceDashboard = () => {
 };
 
 // ─── Summary Card ─────────────────────────────────────────────────────────────
-const SummaryCard = ({ label, value, color, icon, sub }) => (
+const SummaryCard = ({ label, value, color, icon, sub, hidden }) => (
   <div className={`fd-card fd-card-${color}`}>
     <div className="fd-card-left">
       <div className="fd-card-icon">{icon}</div>
     </div>
     <div className="fd-card-right">
-      <div className="fd-card-value">{fmtCurrency(value)}</div>
+      <div className={`fd-card-value${hidden ? ' fd-card-value--hidden' : ''}`}>
+        {hidden ? <span className="fd-card-mask">••••••</span> : fmtCurrency(value)}
+      </div>
       <div className="fd-card-label">{label}</div>
       {sub && <div className="fd-card-sub">{sub}</div>}
     </div>
