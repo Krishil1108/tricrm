@@ -316,11 +316,9 @@
   box-shadow: 0 2px 8px rgba(15,23,42,0.06);
 }
 
-/* ── Table Wrapper (horizontal + vertical scroll) ────────── */
+/* ── Table Wrapper (horizontal scroll only; vertical = page scroll) ── */
 .fd-table-wrapper {
   overflow-x: auto;
-  overflow-y: auto;
-  max-height: calc(100vh - 370px);
   -webkit-overflow-scrolling: touch;
 }
 
