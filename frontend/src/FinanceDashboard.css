@@ -543,6 +543,64 @@
 .fd-empty-icon { font-size: 40px; }
 .fd-empty p    { font-size: 14px; text-align: center; margin: 0; }
 
+/* ── Pagination ───────────────────────────────────────────── */
+.fd-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.fd-pagination-info {
+  font-size: 13px;
+  color: #64748b;
+}
+.fd-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.fd-pg-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.fd-pg-btn:hover:not(:disabled) {
+  background: #eff6ff;
+  border-color: #2563eb;
+  color: #2563eb;
+}
+.fd-pg-btn.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+  font-weight: 700;
+}
+.fd-pg-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.fd-pg-ellipsis {
+  padding: 0 4px;
+  color: #94a3b8;
+  font-size: 14px;
+  line-height: 32px;
+}
+
 /* ── Responsive ───────────────────────────────────────────── */
 @media (max-width: 768px) {
   .fd-wrapper { padding: 12px 12px 32px; }
@@ -554,6 +612,7 @@
   .fd-filter-input,
   .fd-filter-select { max-width: none; width: 100%; }
   .fd-results-hint { margin-left: 0; }
+  .fd-pagination { flex-direction: column; align-items: flex-start; }
 }
 @media (max-width: 480px) {
   .fd-cards { grid-template-columns: 1fr; }

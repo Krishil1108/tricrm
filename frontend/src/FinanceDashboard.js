@@ -528,11 +528,73 @@ const SummaryCard = ({ label, value, color, icon, sub }) => (
   </div>
 );
 
-// ─── Overview Tab ─────────────────────────────────────────────────────────────
-const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
-  if (!projects.length) return <EmptyState />;
+// ─── Pagination Component ────────────────────────────────────────────────────
+const PAGE_SIZE = 50;
+
+const Pagination = ({ page, totalPages, totalItems, onPage }) => {
+  if (totalPages <= 1) return null;
+
+  const start = (page - 1) * PAGE_SIZE + 1;
+  const end   = Math.min(page * PAGE_SIZE, totalItems);
+
+  // Build page numbers to show: always first, last, current ±2, ellipsis gaps
+  const getPages = () => {
+    const pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= page - 2 && i <= page + 2)) {
+        pages.push(i);
+      }
+    }
+    // Insert ellipsis markers
+    const result = [];
+    let prev = 0;
+    for (const p of pages) {
+      if (p - prev > 1) result.push('...');
+      result.push(p);
+      prev = p;
+    }
+    return result;
+  };
 
   return (
+    <div className="fd-pagination">
+      <span className="fd-pagination-info">
+        Showing <strong>{start}–{end}</strong> of <strong>{totalItems}</strong> items
+      </span>
+      <div className="fd-pagination-controls">
+        <button className="fd-pg-btn" onClick={() => onPage(1)}       disabled={page === 1} title="First">«</button>
+        <button className="fd-pg-btn" onClick={() => onPage(page - 1)} disabled={page === 1} title="Previous">‹</button>
+        {getPages().map((p, i) =>
+          p === '...' ? (
+            <span key={`e-${i}`} className="fd-pg-ellipsis">…</span>
+          ) : (
+            <button
+              key={p}
+              className={`fd-pg-btn ${p === page ? 'active' : ''}`}
+              onClick={() => onPage(p)}
+            >{p}</button>
+          )
+        )}
+        <button className="fd-pg-btn" onClick={() => onPage(page + 1)} disabled={page === totalPages} title="Next">›</button>
+        <button className="fd-pg-btn" onClick={() => onPage(totalPages)} disabled={page === totalPages} title="Last">»</button>
+      </div>
+    </div>
+  );
+};
+
+// ─── Overview Tab ─────────────────────────────────────────────────────────────
+const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
+  const [page, setPage] = useState(1);
+  useEffect(() => { setPage(1); }, [projects]);
+
+  if (!projects.length) return <EmptyState />;
+
+  const totalPages  = Math.ceil(projects.length / PAGE_SIZE);
+  const pageStart   = (page - 1) * PAGE_SIZE;
+  const pageProjects = projects.slice(pageStart, pageStart + PAGE_SIZE);
+
+  return (
+    <>
     <div className="fd-table-wrapper">
       <table className="fd-table">
         <thead>
@@ -556,7 +618,7 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
           </tr>
         </thead>
         <tbody>
-          {projects.map((p, i) => {
+          {pageProjects.map((p, i) => {
             const expenses =
               (p.drawing ?? 0) + (p.documents ?? 0) + (p.siteVisit ?? 0) +
               (p.marketingAndMisc ?? 0) + (p.officeManagement ?? 0);
@@ -575,7 +637,7 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
                       ? <FiChevronDown size={13} color="#2563eb" />
                       : <FiChevronRight size={13} color="#94a3b8" />}
                   </td>
-                  <td className="fd-td fd-td-num fd-meta">{i + 1}</td>
+                  <td className="fd-td fd-td-num fd-meta">{pageStart + i + 1}</td>
                   <td className="fd-td fd-td-project">
                     <div className="fd-proj-num">{p.projectNumber}</div>
                     <div className="fd-proj-name">{p.projectName}</div>
@@ -634,6 +696,8 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
         </tfoot>
       </table>
     </div>
+    <Pagination page={page} totalPages={totalPages} totalItems={projects.length} onPage={setPage} />
+    </>
   );
 };
 
@@ -763,6 +827,8 @@ const ExpandedDetail = ({ project: p }) => {
 
 // ─── Payments Tab ─────────────────────────────────────────────────────────────
 const PaymentsTab = ({ projects }) => {
+  const [page, setPage] = useState(1);
+
   const rows = useMemo(() => {
     const out = [];
     projects.forEach((p) => {
@@ -774,9 +840,16 @@ const PaymentsTab = ({ projects }) => {
     return out;
   }, [projects]);
 
+  useEffect(() => { setPage(1); }, [rows]);
+
   if (!rows.length) return <EmptyState label="No payment entries for the selected filters." />;
 
+  const totalPages = Math.ceil(rows.length / PAGE_SIZE);
+  const pageStart  = (page - 1) * PAGE_SIZE;
+  const pageRows   = rows.slice(pageStart, pageStart + PAGE_SIZE);
+
   return (
+    <>
     <div className="fd-table-wrapper">
       <table className="fd-table">
         <thead>
@@ -792,13 +865,13 @@ const PaymentsTab = ({ projects }) => {
           </tr>
         </thead>
         <tbody>
-          {rows.map(({ p, pay, i }, rowIdx) => {
+          {pageRows.map(({ p, pay, i }, rowIdx) => {
             const pctOf = p.finalizedFees
               ? `${((pay.amount / p.finalizedFees) * 100).toFixed(1)}%`
               : '—';
             return (
               <tr key={`${p._id}-${i}`} className="fd-row">
-                <td className="fd-td fd-td-num fd-meta">{rowIdx + 1}</td>
+                <td className="fd-td fd-td-num fd-meta">{pageStart + rowIdx + 1}</td>
                 <td className="fd-td fd-td-project">
                   <div className="fd-proj-num">{p.projectNumber}</div>
                   <div className="fd-proj-name">{p.projectName}</div>
@@ -823,11 +896,15 @@ const PaymentsTab = ({ projects }) => {
         </tbody>
       </table>
     </div>
+    <Pagination page={page} totalPages={totalPages} totalItems={rows.length} onPage={setPage} />
+    </>
   );
 };
 
 // ─── Associates Tab ───────────────────────────────────────────────────────────
 const AssociatesTab = ({ projects }) => {
+  const [page, setPage] = useState(1);
+
   const rows = useMemo(() => {
     const out = [];
     projects.forEach((p) => {
@@ -840,13 +917,20 @@ const AssociatesTab = ({ projects }) => {
     return out;
   }, [projects]);
 
+  useEffect(() => { setPage(1); }, [rows]);
+
   if (!rows.length) return <EmptyState label="No associate allocations for the selected filters." />;
+
+  const totalPages = Math.ceil(rows.length / PAGE_SIZE);
+  const pageStart  = (page - 1) * PAGE_SIZE;
+  const pageRows   = rows.slice(pageStart, pageStart + PAGE_SIZE);
 
   const totAlloc   = rows.reduce((s, r) => s + r.alloc,             0);
   const totPaid    = rows.reduce((s, r) => s + (r.a.amountPaid??0), 0);
   const totPending = rows.reduce((s, r) => s + r.pending,           0);
 
   return (
+    <>
     <div className="fd-table-wrapper">
       <table className="fd-table">
         <thead>
@@ -864,12 +948,12 @@ const AssociatesTab = ({ projects }) => {
           </tr>
         </thead>
         <tbody>
-          {rows.map(({ p, a, alloc, pending }, i) => {
+          {pageRows.map(({ p, a, alloc, pending }, i) => {
             const paid   = a.amountPaid ?? 0;
             const isPaid = pending === 0 && alloc > 0;
             return (
               <tr key={`${p._id}-${a._id ?? i}`} className="fd-row">
-                <td className="fd-td fd-td-num fd-meta">{i + 1}</td>
+                <td className="fd-td fd-td-num fd-meta">{pageStart + i + 1}</td>
                 <td className="fd-td fd-td-project">
                   <div className="fd-proj-num">{p.projectNumber}</div>
                   <div className="fd-proj-name">{p.projectName}</div>
@@ -904,6 +988,8 @@ const AssociatesTab = ({ projects }) => {
         </tfoot>
       </table>
     </div>
+    <Pagination page={page} totalPages={totalPages} totalItems={rows.length} onPage={setPage} />
+    </>
   );
 };
 
