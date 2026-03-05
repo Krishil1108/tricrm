@@ -856,3 +856,285 @@
   .fd-tabs  { overflow-x: auto; }
   .fd-tab   { font-size: 12px; padding: 9px 14px; }
 }
+
+/* ── Export Button ────────────────────────────────────────── */
+.fd-btn-export {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+}
+.fd-btn-export:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.4);
+  transform: translateY(-1px);
+}
+
+/* ── Export Modal Overlay ─────────────────────────────────── */
+.fd-export-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+
+.fd-export-modal {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
+  width: 100%;
+  max-width: 860px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.fd-export-modal-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+.fd-export-modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.2px;
+}
+.fd-export-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #94a3b8;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1;
+}
+.fd-export-close:hover { background: #f1f5f9; color: #334155; }
+
+/* Format row */
+.fd-export-format-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+.fd-export-sect-lbl {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+.fd-export-fmt-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  background: #fff;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  user-select: none;
+}
+.fd-export-fmt-opt input[type="radio"] { display: none; }
+.fd-export-fmt-opt.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+.fd-export-fmt-opt:hover:not(.active) { border-color: #94a3b8; background: #f8fafc; }
+
+/* Two-panel body */
+.fd-export-body {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 0;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+.fd-export-panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.fd-export-col-panel {
+  border-right: 1px solid #e2e8f0;
+}
+
+/* Panel header */
+.fd-export-panel-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  flex-wrap: wrap;
+}
+.fd-export-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #2563eb;
+  color: #fff;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 7px;
+  margin-left: 4px;
+}
+.fd-export-panel-acts {
+  display: flex;
+  gap: 6px;
+}
+.fd-export-link-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  color: #2563eb;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.12s;
+}
+.fd-export-link-btn:hover { background: #eff6ff; }
+
+/* Column list */
+.fd-export-col-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+  overflow-y: auto;
+  flex: 1;
+}
+.fd-export-col-list li { padding: 0; }
+.fd-export-col-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  cursor: pointer;
+  font-size: 12.5px;
+  color: #334155;
+  transition: background 0.1s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.fd-export-col-item:hover  { background: #f1f5f9; }
+.fd-export-col-item.is-required { color: #64748b; cursor: default; }
+.fd-export-col-item input[type="checkbox"] { flex-shrink: 0; accent-color: #2563eb; }
+.fd-export-req-tag {
+  margin-left: auto;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #94a3b8;
+  background: #f1f5f9;
+  border-radius: 4px;
+  padding: 1px 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Record search */
+.fd-export-rec-search {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #334155;
+  background: #fff;
+  width: 150px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.fd-export-rec-search:focus { border-color: #2563eb; }
+
+/* Record table */
+.fd-export-rec-table-wrap {
+  overflow-y: auto;
+  flex: 1;
+}
+.fd-export-rec-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.fd-export-rec-table th {
+  position: sticky;
+  top: 0;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 7px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-align: left;
+  white-space: nowrap;
+  z-index: 1;
+}
+.fd-export-rec-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+  color: #334155;
+}
+.fd-export-rec-table tr { cursor: pointer; transition: background 0.1s; }
+.fd-export-rec-table tr:hover td { background: #f8fafc; }
+.fd-export-row-sel td { background: #eff6ff !important; }
+.fd-export-row-sel:hover td { background: #dbeafe !important; }
+.fd-export-rec-table input[type="checkbox"] { accent-color: #2563eb; }
+
+/* Footer */
+.fd-export-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 24px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.fd-export-summary {
+  font-size: 12.5px;
+  color: #64748b;
+}
+.fd-export-summary strong { color: #0f172a; }
+.fd-export-footer-btns {
+  display: flex;
+  gap: 8px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .fd-export-body { grid-template-columns: 1fr; }
+  .fd-export-col-panel { border-right: none; border-bottom: 1px solid #e2e8f0; max-height: 220px; }
+  .fd-export-modal { max-height: 95vh; }
+}

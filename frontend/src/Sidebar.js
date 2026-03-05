@@ -50,7 +50,7 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
       module: 'finance',
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M13.66 7H15V5h-1.34C12.28 3.17 10.29 2 8 2H3v2h5c1.35 0 2.54.59 3.37 1.5H3v2h8.48c.07.16.13.33.18.5H3v2h8.01A4.995 4.995 0 0 1 3 12v1l5 5h2.83l-5.01-5.01A7.014 7.014 0 0 0 13.66 7z"/>
+          <path d="M3 3v18h18v-2H5V3H3zm16.5 14.5l-4.5-4.5-2 2-4-4L7.59 12.5l4.91 4.91 2-2 3.09 3.09L19.5 17.5zM7 10h2v6H7v-6zm4-3h2v9h-2V7zm4 5h2v4h-2v-4z"/>
         </svg>
       )
     },

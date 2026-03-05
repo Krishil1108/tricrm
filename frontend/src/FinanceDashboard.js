@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaFileExcel, FaFilePdf, FaSearch, FaTimes, FaFilter, FaEdit, FaExternalLinkAlt, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaFileExcel, FaFilePdf, FaSearch, FaTimes, FaFilter, FaEdit, FaExternalLinkAlt, FaEye, FaEyeSlash, FaDownload } from 'react-icons/fa';
 import { FiRefreshCw, FiChevronDown, FiChevronRight, FiCreditCard } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
@@ -55,8 +55,8 @@ const FinanceDashboard = () => {
   // ── UI state ─────────────────────────────────────────────────────────────
   const [activeTab,    setActiveTab]    = useState('overview');
   const [expandedRows, setExpandedRows] = useState(new Set());
-  const [exporting,    setExporting]    = useState(false);
-  const [hideValues,   setHideValues]   = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [hideValues,      setHideValues]      = useState(false);
 
   // ── Filters ──────────────────────────────────────────────────────────────
   const [filterClient,    setFilterClient]    = useState('all');
@@ -175,147 +175,6 @@ const FinanceDashboard = () => {
     filterSearch !== ''       || filterStatus !== 'all' ||
     filterAssociate !== 'all';
 
-  // ── Export: Excel ─────────────────────────────────────────────────────────
-  const exportExcel = () => {
-    setExporting(true);
-    try {
-      const wb = XLSX.utils.book_new();
-
-      // Sheet 1 – Overview
-      const ws1 = XLSX.utils.json_to_sheet(
-        filteredProjects.map((p, i) => {
-          const expenses = (p.drawing??0)+(p.documents??0)+(p.siteVisit??0)+(p.marketingAndMisc??0)+(p.officeManagement??0);
-          return {
-            'Sr.No'               : i + 1,
-            'Project #'           : p.projectNumber,
-            'Project Name'        : p.projectName,
-            'Client'              : p.clientId?.name    ?? '—',
-            'Status'              : p.status,
-            'Finalized Fees (₹)'  : p.finalizedFees      ?? 0,
-            'Received Fees (₹)'   : p.fyReceivedFees     ?? 0,
-            'Pending (₹)'         : (p.finalizedFees??0) - (p.fyReceivedFees??0),
-            'Profit Margin (₹)'   : p.profitMargin       ?? 0,
-            'Drawing (₹)'         : p.drawing            ?? 0,
-            'Documents (₹)'       : p.documents          ?? 0,
-            'Site Visit (₹)'      : p.siteVisit          ?? 0,
-            'Mktg & Misc (₹)'     : p.marketingAndMisc   ?? 0,
-            'Office Mgmt (₹)'     : p.officeManagement   ?? 0,
-            'Associate Paid (₹)'  : p.totalAssociatePaid ?? 0,
-            'Net Profit (₹)'      : (p.fyReceivedFees??0) - expenses - (p.totalAssociatePaid??0),
-          };
-        })
-      );
-      XLSX.utils.book_append_sheet(wb, ws1, 'Overview');
-
-      // Sheet 2 – Payments
-      const payRows = [];
-      filteredProjects.forEach((p) => {
-        (p.fyPayments ?? []).forEach((pay) => {
-          payRows.push({
-            'Project #'  : p.projectNumber,
-            'Project Name': p.projectName,
-            'Client'     : p.clientId?.name ?? '—',
-            'Date'       : pay.date ? new Date(pay.date).toLocaleDateString('en-IN') : '—',
-            'Amount (₹)' : pay.amount ?? 0,
-            'Mode'       : pay.mode ?? '—',
-            'Ref No.'    : pay.chequeNeftNumber ?? '—',
-          });
-        });
-      });
-      const ws2 = XLSX.utils.json_to_sheet(payRows.length ? payRows : [{ Note: 'No payments' }]);
-      XLSX.utils.book_append_sheet(wb, ws2, 'Payments');
-
-      // Sheet 3 – Associates
-      const assocRows = [];
-      filteredProjects.forEach((p) => {
-        (p.projectAssociates ?? []).forEach((a) => {
-          const alloc   = (p.totalReceivedFees??0) * ((a.percentage??0)/100);
-          const pending = Math.max(0, alloc - (a.amountPaid??0));
-          assocRows.push({
-            'Project #'      : p.projectNumber,
-            'Project Name'   : p.projectName,
-            'Client'         : p.clientId?.name         ?? '—',
-            'Associate Name' : a.associateId?.name      ?? '—',
-            'Company'        : a.associateId?.company   ?? '—',
-            '% Share'        : a.percentage             ?? 0,
-            'Allocated (₹)'  : Math.round(alloc),
-            'Paid (₹)'       : a.amountPaid             ?? 0,
-            'Pending (₹)'    : Math.round(pending),
-          });
-        });
-      });
-      const ws3 = XLSX.utils.json_to_sheet(assocRows.length ? assocRows : [{ Note: 'No associates' }]);
-      XLSX.utils.book_append_sheet(wb, ws3, 'Associates');
-
-      const fyLabel = filterFY !== 'all' ? `_FY${filterFY}` : '';
-      XLSX.writeFile(wb, `FinancialOverview${fyLabel}_${new Date().toISOString().slice(0,10)}.xlsx`);
-    } catch (err) {
-      showError('Excel export failed: ' + err.message);
-    } finally {
-      setExporting(false);
-    }
-  };
-
-  // ── Export: PDF ───────────────────────────────────────────────────────────
-  const exportPDF = () => {
-    setExporting(true);
-    try {
-      const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'A3' });
-      doc.setFontSize(18);
-      doc.setTextColor(37, 99, 235);
-      doc.text('Financial Overview', 40, 44);
-      doc.setFontSize(9);
-      doc.setTextColor(100, 116, 139);
-      doc.text(
-        `Generated: ${new Date().toLocaleString('en-IN')}  |  Projects: ${summary.projectCount}  |  FY: ${filterFY==='all'?'All Years':'FY '+filterFY}`,
-        40, 60
-      );
-
-      autoTable(doc, {
-        startY: 74,
-        head: [['#','Project','Client','Finalized','Received','Pending','Profit Margin','Drawing','Documents','Site Visit','Mktg&Misc','Office Mgmt','Associate','Net Profit']],
-        body: filteredProjects.map((p, i) => {
-          const exp = (p.drawing??0)+(p.documents??0)+(p.siteVisit??0)+(p.marketingAndMisc??0)+(p.officeManagement??0);
-          return [
-            i+1,
-            `${p.projectNumber}\n${p.projectName}`,
-            p.clientId?.name ?? '—',
-            fmt(p.finalizedFees),
-            fmt(p.fyReceivedFees),
-            fmt((p.finalizedFees??0)-(p.fyReceivedFees??0)),
-            fmt(p.profitMargin),
-            fmt(p.drawing),
-            fmt(p.documents),
-            fmt(p.siteVisit),
-            fmt(p.marketingAndMisc),
-            fmt(p.officeManagement),
-            fmt(p.totalAssociatePaid),
-            fmt((p.fyReceivedFees??0)-exp-(p.totalAssociatePaid??0)),
-          ];
-        }),
-        foot: [[
-          '', 'TOTAL', '',
-          fmt(summary.totalFinalizedFees), fmt(summary.totalReceivedFees), fmt(summary.pendingFees),
-          fmt(summary.totalProfitMargin), fmt(summary.totalDrawing), fmt(summary.totalDocuments),
-          fmt(summary.totalSiteVisit), fmt(summary.totalMarketingMisc), fmt(summary.totalOfficeManagement),
-          fmt(summary.totalAssociatePaid), fmt(summary.netProfit),
-        ]],
-        styles       : { fontSize: 7.5, cellPadding: 4, overflow: 'linebreak' },
-        headStyles   : { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
-        footStyles   : { fillColor: [241, 245, 249], fontStyle: 'bold' },
-        alternateRowStyles: { fillColor: [248, 250, 252] },
-        columnStyles : { 1: { cellWidth: 90 } },
-      });
-
-      const fyLabel = filterFY !== 'all' ? `_FY${filterFY}` : '';
-      doc.save(`FinancialOverview${fyLabel}_${new Date().toISOString().slice(0,10)}.pdf`);
-    } catch (err) {
-      showError('PDF export failed: ' + err.message);
-    } finally {
-      setExporting(false);
-    }
-  };
-
   // ── Render ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
@@ -356,20 +215,12 @@ const FinanceDashboard = () => {
         </div>
         <div className="fd-header-actions">
           <button
-            className="fd-btn fd-btn-excel"
-            onClick={exportExcel}
-            disabled={exporting || !filteredProjects.length}
-            title="Export to Excel (Overview + Payments + Associates sheets)"
+            className="fd-btn fd-btn-export"
+            onClick={() => setShowExportModal(true)}
+            disabled={!filteredProjects.length}
+            title="Export data as PDF or Excel — choose records and columns"
           >
-            <FaFileExcel /> Export Excel
-          </button>
-          <button
-            className="fd-btn fd-btn-pdf"
-            onClick={exportPDF}
-            disabled={exporting || !filteredProjects.length}
-            title="Export overview to PDF"
-          >
-            <FaFilePdf /> Export PDF
+            <FaDownload /> Export
           </button>
           <button className="fd-btn fd-btn-refresh" onClick={fetchData} title="Reload data">
             <FiRefreshCw /> Refresh
@@ -553,6 +404,15 @@ const FinanceDashboard = () => {
         {activeTab === 'payments'   && <PaymentsTab   projects={filteredProjects} />}
         {activeTab === 'associates' && <AssociatesTab projects={filteredProjects} />}
       </div>
+
+      {showExportModal && (
+        <ExportModal
+          projects={filteredProjects}
+          filterFY={filterFY}
+          onClose={() => setShowExportModal(false)}
+          showError={showError}
+        />
+      )}
     </div>
   );
 };
@@ -647,6 +507,55 @@ const ALL_COL_DEFS = [
 const DEFAULT_COL_ORDER  = ALL_COL_DEFS.map(c => c.key);
 const DEFAULT_HIDDEN_COLS = [];
 const COL_PREFS_KEY = 'fd_col_prefs_v4';
+
+// ─── Export helpers ───────────────────────────────────────────────────────────
+const EXPORT_COL_DEFS = [
+  { key: 'projectNumber',  label: 'Project #',      required: true  },
+  { key: 'projectName',    label: 'Project Name',   required: true  },
+  { key: 'client',         label: 'Client',         required: false },
+  { key: 'status',         label: 'Status',         required: false },
+  { key: 'finalizedFees',  label: 'Finalized Fees', required: false },
+  { key: 'received',       label: 'Received Fees',  required: false },
+  { key: 'trimityFees',    label: 'Trimity Fees',   required: false },
+  { key: 'pending',        label: 'Pending',        required: false },
+  { key: 'profitMargin',   label: 'Profit Margin',  required: false },
+  { key: 'drawing',        label: 'Drawing',        required: false },
+  { key: 'documents',      label: 'Documents',      required: false },
+  { key: 'siteVisit',      label: 'Site Visit',     required: false },
+  { key: 'marketingMisc',  label: 'Mktg & Misc',    required: false },
+  { key: 'officeMgmt',     label: 'Office Mgmt',    required: false },
+  { key: 'associatePaid',  label: 'Associate Paid', required: false },
+  { key: 'netProfit',      label: 'Net Profit',     required: false },
+];
+
+const NUMERIC_EXPORT_KEYS = new Set([
+  'finalizedFees','received','trimityFees','pending','profitMargin',
+  'drawing','documents','siteVisit','marketingMisc','officeMgmt',
+  'associatePaid','netProfit',
+]);
+
+const getExportValue = (key, p) => {
+  const expenses = (p.drawing??0)+(p.documents??0)+(p.siteVisit??0)+(p.marketingAndMisc??0)+(p.officeManagement??0);
+  switch (key) {
+    case 'projectNumber':  return p.projectNumber   ?? '—';
+    case 'projectName':    return p.projectName     ?? '—';
+    case 'client':         return p.clientId?.name  ?? '—';
+    case 'status':         return p.status          ?? '—';
+    case 'finalizedFees':  return p.finalizedFees   ?? 0;
+    case 'received':       return p.fyReceivedFees  ?? 0;
+    case 'trimityFees':    return (p.fyReceivedFees??0) - (p.totalAssociateAmount??0);
+    case 'pending':        return (p.finalizedFees??0) - (p.fyReceivedFees??0);
+    case 'profitMargin':   return p.profitMargin    ?? 0;
+    case 'drawing':        return p.drawing         ?? 0;
+    case 'documents':      return p.documents       ?? 0;
+    case 'siteVisit':      return p.siteVisit       ?? 0;
+    case 'marketingMisc':  return p.marketingAndMisc?? 0;
+    case 'officeMgmt':     return p.officeManagement?? 0;
+    case 'associatePaid':  return p.totalAssociatePaid ?? 0;
+    case 'netProfit':      return (p.fyReceivedFees??0) - expenses - (p.totalAssociatePaid??0);
+    default:               return '';
+  }
+};
 
 const loadColPrefs = () => {
   try {
@@ -1231,6 +1140,259 @@ const AssociatesTab = ({ projects }) => {
     </div>
     <Pagination page={page} totalPages={totalPages} totalItems={rows.length} onPage={setPage} />
     </>
+  );
+};
+
+// ─── Export Modal ────────────────────────────────────────────────────────────
+const ExportModal = ({ projects, filterFY, onClose, showError }) => {
+  const [format,      setFormat]      = useState('excel');
+  const [selectedIds, setSelectedIds] = useState(() => new Set(projects.map(p => p._id)));
+  const [selCols,     setSelCols]     = useState(() => new Set(EXPORT_COL_DEFS.map(c => c.key)));
+  const [recSearch,   setRecSearch]   = useState('');
+  const [exporting,   setExporting]   = useState(false);
+
+  const visibleProjects = projects.filter(p => {
+    if (!recSearch.trim()) return true;
+    const q = recSearch.toLowerCase();
+    return (
+      (p.projectName   ?? '').toLowerCase().includes(q) ||
+      (p.projectNumber ?? '').toLowerCase().includes(q) ||
+      (p.clientId?.name ?? '').toLowerCase().includes(q)
+    );
+  });
+
+  const allVisible = visibleProjects.length > 0 && visibleProjects.every(p => selectedIds.has(p._id));
+  const someVisible = visibleProjects.some(p => selectedIds.has(p._id));
+
+  const toggleAllVisible = () => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (allVisible) visibleProjects.forEach(p => next.delete(p._id));
+      else            visibleProjects.forEach(p => next.add(p._id));
+      return next;
+    });
+  };
+
+  const toggleRec = (id) =>
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+
+  const toggleCol = (key) => {
+    if (EXPORT_COL_DEFS.find(c => c.key === key)?.required) return;
+    setSelCols(prev => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  };
+
+  const selectAllCols    = () => setSelCols(new Set(EXPORT_COL_DEFS.map(c => c.key)));
+  const requiredOnlyCols = () => setSelCols(new Set(EXPORT_COL_DEFS.filter(c => c.required).map(c => c.key)));
+
+  const selectedProjects = projects.filter(p => selectedIds.has(p._id));
+  const orderedCols      = EXPORT_COL_DEFS.filter(c => selCols.has(c.key));
+
+  const doExcelExport = (rows, cols, filename) => {
+    const wb = XLSX.utils.book_new();
+    const wsData = rows.map((p, i) => {
+      const row = { 'Sr.No': i + 1 };
+      cols.forEach(c => {
+        const colLabel = c.label + (NUMERIC_EXPORT_KEYS.has(c.key) ? ' (₹)' : '');
+        row[colLabel] = getExportValue(c.key, p);
+      });
+      return row;
+    });
+    const ws = XLSX.utils.json_to_sheet(wsData);
+    XLSX.utils.book_append_sheet(wb, ws, 'Finance Export');
+    XLSX.writeFile(wb, `${filename}.xlsx`);
+  };
+
+  const doPDFExport = (rows, cols, filename) => {
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'A3' });
+    doc.setFontSize(16);
+    doc.setTextColor(37, 99, 235);
+    doc.text('Financial Overview', 40, 44);
+    doc.setFontSize(9);
+    doc.setTextColor(100, 116, 139);
+    doc.text(
+      `Generated: ${new Date().toLocaleString('en-IN')}  |  Records: ${rows.length}  |  FY: ${filterFY === 'all' ? 'All Years' : 'FY ' + filterFY}`,
+      40, 60
+    );
+    autoTable(doc, {
+      startY: 74,
+      head: [['#', ...cols.map(c => c.label)]],
+      body: rows.map((p, i) => [
+        i + 1,
+        ...cols.map(c => {
+          const v = getExportValue(c.key, p);
+          return NUMERIC_EXPORT_KEYS.has(c.key) ? fmt(v) : v;
+        }),
+      ]),
+      styles            : { fontSize: 7.5, cellPadding: 4, overflow: 'linebreak' },
+      headStyles        : { fillColor: [37, 99, 235], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+    });
+    doc.save(`${filename}.pdf`);
+  };
+
+  const doExport = () => {
+    if (!selectedProjects.length) { showError('Please select at least one record.'); return; }
+    if (!orderedCols.length)      { showError('Please select at least one column.');  return; }
+    setExporting(true);
+    const fyLabel  = filterFY !== 'all' ? `_FY${filterFY}` : '';
+    const filename = `FinancialExport${fyLabel}_${new Date().toISOString().slice(0, 10)}`;
+    try {
+      if (format === 'excel') doExcelExport(selectedProjects, orderedCols, filename);
+      else                    doPDFExport(selectedProjects, orderedCols, filename);
+      onClose();
+    } catch (err) {
+      showError(`Export failed: ${err.message}`);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  return (
+    <div className="fd-export-overlay" onClick={onClose}>
+      <div className="fd-export-modal" onClick={e => e.stopPropagation()}>
+
+        {/* Header */}
+        <div className="fd-export-modal-hdr">
+          <span className="fd-export-modal-title">📤 Export Data</span>
+          <button className="fd-export-close" onClick={onClose} title="Close">✕</button>
+        </div>
+
+        {/* Format picker */}
+        <div className="fd-export-format-row">
+          <span className="fd-export-sect-lbl">Format:</span>
+          {[
+            { value: 'excel', icon: '📗', label: 'Excel (.xlsx)' },
+            { value: 'pdf',   icon: '📄', label: 'PDF (.pdf)'   },
+          ].map(f => (
+            <label key={f.value} className={`fd-export-fmt-opt ${format === f.value ? 'active' : ''}`}>
+              <input
+                type="radio" name="fd-export-fmt" value={f.value}
+                checked={format === f.value}
+                onChange={() => setFormat(f.value)}
+              />
+              {f.icon} {f.label}
+            </label>
+          ))}
+        </div>
+
+        {/* Two-panel body */}
+        <div className="fd-export-body">
+
+          {/* ── Column selection ── */}
+          <div className="fd-export-panel fd-export-col-panel">
+            <div className="fd-export-panel-hdr">
+              <span>Columns <span className="fd-export-badge">{selCols.size}/{EXPORT_COL_DEFS.length}</span></span>
+              <div className="fd-export-panel-acts">
+                <button className="fd-export-link-btn" onClick={selectAllCols}>All</button>
+                <button className="fd-export-link-btn" onClick={requiredOnlyCols}>Required only</button>
+              </div>
+            </div>
+            <ul className="fd-export-col-list">
+              {EXPORT_COL_DEFS.map(c => (
+                <li key={c.key}>
+                  <label className={`fd-export-col-item ${c.required ? 'is-required' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={selCols.has(c.key)}
+                      onChange={() => toggleCol(c.key)}
+                      disabled={c.required}
+                    />
+                    <span>{c.label}</span>
+                    {c.required && <span className="fd-export-req-tag">required</span>}
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* ── Record selection ── */}
+          <div className="fd-export-panel fd-export-rec-panel">
+            <div className="fd-export-panel-hdr">
+              <span>Records <span className="fd-export-badge">{selectedIds.size}/{projects.length}</span></span>
+              <input
+                className="fd-export-rec-search"
+                placeholder="Search records…"
+                value={recSearch}
+                onChange={e => setRecSearch(e.target.value)}
+              />
+            </div>
+            <div className="fd-export-rec-table-wrap">
+              <table className="fd-export-rec-table">
+                <thead>
+                  <tr>
+                    <th>
+                      <input
+                        type="checkbox"
+                        checked={allVisible}
+                        ref={el => { if (el) el.indeterminate = !allVisible && someVisible; }}
+                        onChange={toggleAllVisible}
+                        title={allVisible ? 'Deselect all visible' : 'Select all visible'}
+                      />
+                    </th>
+                    <th>#</th>
+                    <th>Project</th>
+                    <th>Client</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleProjects.map((p, i) => (
+                    <tr
+                      key={p._id}
+                      className={selectedIds.has(p._id) ? 'fd-export-row-sel' : ''}
+                      onClick={() => toggleRec(p._id)}
+                    >
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(p._id)}
+                          onChange={() => toggleRec(p._id)}
+                          onClick={e => e.stopPropagation()}
+                        />
+                      </td>
+                      <td className="fd-meta">{i + 1}</td>
+                      <td>
+                        <div className="fd-proj-num">{p.projectNumber}</div>
+                        <div className="fd-proj-name">{p.projectName}</div>
+                      </td>
+                      <td>{p.clientId?.name ?? '—'}</td>
+                      <td><StatusBadge status={p.status} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="fd-export-footer">
+          <span className="fd-export-summary">
+            Exporting <strong>{selectedIds.size}</strong> record{selectedIds.size !== 1 ? 's' : ''} ×{' '}
+            <strong>{selCols.size}</strong> column{selCols.size !== 1 ? 's' : ''}
+          </span>
+          <div className="fd-export-footer-btns">
+            <button className="fd-btn fd-btn-refresh" onClick={onClose}>Cancel</button>
+            <button
+              className={`fd-btn ${format === 'pdf' ? 'fd-btn-pdf' : 'fd-btn-excel'}`}
+              onClick={doExport}
+              disabled={exporting || !selectedIds.size}
+            >
+              {format === 'pdf' ? <FaFilePdf /> : <FaFileExcel />}
+              {exporting ? 'Exporting…' : `Export ${format === 'pdf' ? 'PDF' : 'Excel'}`}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
