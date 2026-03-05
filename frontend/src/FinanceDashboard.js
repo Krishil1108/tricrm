@@ -1317,12 +1317,20 @@ const ExportModal = ({ projects, filterFY, onClose, showError }) => {
           <div className="fd-export-panel fd-export-rec-panel">
             <div className="fd-export-panel-hdr">
               <span>Records <span className="fd-export-badge">{selectedIds.size}/{projects.length}</span></span>
+            </div>
+            <div className="fd-export-search-row">
+              <svg className="fd-export-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+              </svg>
               <input
                 className="fd-export-rec-search"
-                placeholder="Search records…"
+                placeholder="Search by project, client…"
                 value={recSearch}
                 onChange={e => setRecSearch(e.target.value)}
               />
+              {recSearch && (
+                <button className="fd-export-search-clear" onClick={() => setRecSearch('')} title="Clear search">✕</button>
+              )}
             </div>
             <div className="fd-export-rec-table-wrap">
               <table className="fd-export-rec-table">

@@ -1026,54 +1026,115 @@
 .fd-export-link-btn:hover { background: #eff6ff; }
 
 /* Column list */
+.fd-export-col-panel { background: #fff; }
 .fd-export-col-list {
   list-style: none;
   margin: 0;
-  padding: 8px 0;
+  padding: 6px 0;
   overflow-y: auto;
   flex: 1;
+  background: #fff;
 }
-.fd-export-col-list li { padding: 0; }
+.fd-export-col-list li { padding: 0; margin: 0; }
 .fd-export-col-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 16px;
-  cursor: pointer;
-  font-size: 12.5px;
-  color: #334155;
-  transition: background 0.1s;
-  width: 100%;
-  box-sizing: border-box;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 8px 14px !important;
+  cursor: pointer !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  color: #1e293b !important;
+  background: #fff !important;
+  transition: background 0.1s !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  border: none !important;
+  text-align: left !important;
+  line-height: 1.4 !important;
 }
-.fd-export-col-item:hover  { background: #f1f5f9; }
-.fd-export-col-item.is-required { color: #64748b; cursor: default; }
-.fd-export-col-item input[type="checkbox"] { flex-shrink: 0; accent-color: #2563eb; }
+.fd-export-col-item:hover { background: #f1f5f9 !important; }
+.fd-export-col-item.is-required { color: #64748b !important; cursor: default !important; }
+.fd-export-col-item span { color: inherit !important; }
+
+/* Custom checkbox for columns */
+.fd-export-col-item input[type="checkbox"] {
+  flex-shrink: 0 !important;
+  width: 15px !important;
+  height: 15px !important;
+  min-width: 15px !important;
+  min-height: 15px !important;
+  accent-color: #2563eb !important;
+  cursor: pointer !important;
+  margin: 0 !important;
+  border-radius: 3px !important;
+}
+.fd-export-col-item input[type="checkbox"]:disabled { cursor: default !important; }
+
 .fd-export-req-tag {
   margin-left: auto;
-  font-size: 9.5px;
+  flex-shrink: 0;
+  font-size: 9px;
   font-weight: 700;
-  color: #94a3b8;
-  background: #f1f5f9;
+  color: #94a3b8 !important;
+  background: #f1f5f9 !important;
   border-radius: 4px;
   padding: 1px 5px;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
-/* Record search */
-.fd-export-rec-search {
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 12px;
-  color: #334155;
+/* Record search row */
+.fd-export-search-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e2e8f0;
   background: #fff;
-  width: 150px;
-  outline: none;
-  transition: border-color 0.15s;
+  flex-shrink: 0;
+  position: relative;
 }
-.fd-export-rec-search:focus { border-color: #2563eb; }
+.fd-export-search-icon {
+  position: absolute;
+  left: 22px;
+  color: #94a3b8;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+.fd-export-rec-search {
+  flex: 1;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 7px 30px 7px 32px;
+  font-size: 12.5px;
+  color: #1e293b;
+  background: #f8fafc;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.fd-export-rec-search:focus {
+  border-color: #2563eb;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+.fd-export-rec-search::placeholder { color: #94a3b8; }
+.fd-export-search-clear {
+  position: absolute;
+  right: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  color: #94a3b8;
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color 0.1s, background 0.1s;
+}
+.fd-export-search-clear:hover { color: #475569; background: #f1f5f9; }
 
 /* Record table */
 .fd-export-rec-table-wrap {
@@ -1108,7 +1169,15 @@
 .fd-export-rec-table tr:hover td { background: #f8fafc; }
 .fd-export-row-sel td { background: #eff6ff !important; }
 .fd-export-row-sel:hover td { background: #dbeafe !important; }
-.fd-export-rec-table input[type="checkbox"] { accent-color: #2563eb; }
+.fd-export-rec-table input[type="checkbox"] {
+  accent-color: #2563eb;
+  width: 15px;
+  height: 15px;
+  min-width: 15px;
+  min-height: 15px;
+  cursor: pointer;
+  margin: 0;
+}
 
 /* Footer */
 .fd-export-footer {
