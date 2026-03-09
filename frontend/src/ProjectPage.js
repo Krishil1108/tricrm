@@ -22,6 +22,7 @@ const ProjectPage = () => {
   const navigate = useNavigate();
   const processedEditId = useRef(null);
   const sourceClientId = useRef(null);
+  const returnTo = useRef(null);
   const { 
     canViewProjectManagementPage,
     canAddNewProject,
@@ -156,6 +157,12 @@ const ProjectPage = () => {
   useEffect(() => {
     const editProjectId = location.state?.editProjectId;
     const clientId = location.state?.clientId;
+    const returnToPath = location.state?.returnTo;
+    
+    // Store returnTo path if provided (means we came from Finance Detail)
+    if (returnToPath) {
+      returnTo.current = returnToPath;
+    }
     
     // Store the clientId if provided (means we came from Client Management)
     if (clientId) {
@@ -820,8 +827,14 @@ const ProjectPage = () => {
       }
       showSuccess('Saved successfully');
       
+      // Check if user came from Finance Detail page
+      if (editingItem && returnTo.current) {
+        const destination = returnTo.current;
+        returnTo.current = null;
+        handleCloseModal();
+        navigate(destination);
       // Check if user came from Client Management
-      if (editingItem && sourceClientId.current) {
+      } else if (editingItem && sourceClientId.current) {
         // Show navigation dialog
         setShowNavigationDialog(true);
       } else {

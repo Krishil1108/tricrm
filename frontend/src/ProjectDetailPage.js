@@ -128,7 +128,7 @@ const ProjectDetailPage = () => {
   };
 
   const handleEdit = () => {
-    navigate('/projects', { state: { editProjectId: project._id } });
+    navigate('/projects', { state: { editProjectId: project._id, returnTo: location.pathname } });
   };
 
   const handleDelete = async () => {
