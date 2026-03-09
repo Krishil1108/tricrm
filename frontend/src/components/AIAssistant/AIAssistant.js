@@ -66,6 +66,7 @@ const HELP_TEXT = `Here's what I can do for you:
 **💰 Finance — Projects**
 • "Payment history for project X"
 • "Add payment ₹50,000 NEFT to project X"
+• "Add associate Priya to project X with 10% share"
 • "Update drawing percent to 15% for project X"
 • "Set yearly distribution to 1.5L for project X"
 • "Update finalized fees to 5L for project X"

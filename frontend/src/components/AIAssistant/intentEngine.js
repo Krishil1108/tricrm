@@ -215,6 +215,34 @@ export const FIELD_DEFS = {
       return (n == null || n < 0) ? 'Please enter a valid amount.' : null;
     },
   },
+  // ── Add Associate to Project ──────────────────────────────
+  assocName: {
+    label: 'Associate Name', type: 'text',
+    question: 'Which associate? (type part of their name)',
+  },
+  assocPercentage: {
+    label: 'Share (%)', type: 'number',
+    question: 'What percentage share? (1–100, e.g. type 10 for 10%)',
+    validate: v => {
+      const n = parseFloat(v);
+      return (isNaN(n) || n <= 0 || n > 100) ? 'Please enter a number between 1 and 100.' : null;
+    },
+  },
+  assocAmountPaid: {
+    label: 'Amount Paid (₹)', type: 'currency',
+    question: 'Amount already paid to them? (or skip)',
+    skippable: true,
+  },
+  assocPaymentDate: {
+    label: 'Payment Date', type: 'datetime',
+    question: 'Payment date to this associate? (or skip)',
+    skippable: true,
+  },
+  assocPaymentBank: {
+    label: 'Paid via Bank', type: 'text',
+    question: 'Which bank was payment made from? (or skip)',
+    skippable: true,
+  },
 };
 
 // ----- Intent Definitions -----
@@ -507,6 +535,31 @@ export const INTENTS = {
     fields: [], requiredFields: [],
     action: 'fy_summary', isImmediate: true,
   },
+  // ── Add Associate to Project ────────────────────────────
+  ADD_ASSOCIATE_TO_PROJECT: {
+    id: 'ADD_ASSOCIATE_TO_PROJECT', label: 'Add Associate to Project', icon: '🤝',
+    description: 'Assign an associate with a percentage share to a project',
+    patterns: [
+      /\badd\b.{0,30}\bassociate\b.{0,60}\bproject\b/i,
+      /\bassign\b.{0,30}\bassociate\b/i,
+      /\bassociate\b.{0,30}\b(add|assign|link|attach)\b/i,
+      /\badd\b.{0,30}\bto\b.{0,30}\bproject\b.{0,30}\b(associate|with\s+\d+%)/i,
+      /\b(give|set)\b.{0,20}\bassociate\b.{0,20}\b(share|percent)/i,
+    ],
+    fields: ['assocName', 'assocPercentage', 'assocAmountPaid', 'assocPaymentDate', 'assocPaymentBank'],
+    requiredFields: ['assocName', 'assocPercentage'],
+    action: 'add_associate_to_project', needsProject: true,
+    confirmLabel: 'Add Associate',
+    successMessage: (d, ctx) => `✅ Associate **${d.assocName}** added to **${ctx?.projectName || 'project'}** with **${d.assocPercentage}%** share!`,
+    summaryRows: (d, ctx) => [
+      ['Project', ctx?.projectName || '—'],
+      ['Associate', d.assocName],
+      ['Share', `${d.assocPercentage}%`],
+      ['Amount Paid', d.assocAmountPaid ? fmtINR(parseAmount(String(d.assocAmountPaid))) : '₹0'],
+      ['Payment Date', d.assocPaymentDate || '—'],
+      ['Bank', d.assocPaymentBank || '—'],
+    ],
+  },
   // ── Export ───────────────────────────────────────────────
   EXPORT_EXCEL: {
     id: 'EXPORT_EXCEL', label: 'Export Excel', icon: '📊',
@@ -577,6 +630,18 @@ export function extractEntities(text) {
   // email
   const emailMatch = text.match(/\b([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})\b/);
   if (emailMatch) entities.email = emailMatch[1];
+
+  // associate name: "associate Vaishal Shah", "add Priya as associate"
+  const assocNameMatch = text.match(
+    /\bassociate\s+([A-Z][a-zA-Z\s.'-]{1,40}?)(?=\s+(?:to|with|in|at|from|,|and|$))/i
+  ) || text.match(
+    /\b(add|assign)\s+([A-Z][a-zA-Z\s.'-]{2,40}?)\s+(?:as\s+)?associate/i
+  );
+  if (assocNameMatch) entities.assocName = (assocNameMatch[1] || assocNameMatch[2]).trim();
+
+  // percentage: "10%", "10 percent", "with a share of 10"
+  const pctMatch = text.match(/\b(\d{1,3})(?:\.\d+)?\s*(?:%|percent(?:age)?)\b/i);
+  if (pctMatch) entities.assocPercentage = pctMatch[1];
 
   // phone (Indian and international)
   const phoneMatch = text.match(/\b(\+?[0-9]{10,15})\b/);

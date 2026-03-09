@@ -127,6 +127,10 @@ const FinanceDashboard = () => {
           const fyFees = fyReceivedFor(p, fyStart, fyEnd);
           if (fyFees === 0) return false;
         }
+        if (filterBank !== 'all') {
+          const hasBank = (p.payments ?? []).some(pay => pay.referenceType === filterBank);
+          if (!hasBank) return false;
+        }
         return true;
       })
       .map((p) => ({
@@ -134,7 +138,7 @@ const FinanceDashboard = () => {
         fyReceivedFees: fyReceivedFor(p, fyStart, fyEnd),
         fyPayments:     fyPaymentsFor(p, fyStart, fyEnd),
       }));
-  }, [rawData, filterClient, filterStatus, filterSearch, filterFY, fyStart, fyEnd, filterAssociate]);
+  }, [rawData, filterClient, filterStatus, filterSearch, filterFY, fyStart, fyEnd, filterAssociate, filterBank]);
 
   // ── Summary recalculated from filtered data ───────────────────────────────
   const summary = useMemo(() => {

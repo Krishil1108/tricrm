@@ -252,6 +252,48 @@ export async function getAssociatePaymentStatus() {
   );
 }
 
+// ── Add Associate to a Finance Project ─────────────────
+export async function addAssociateToProject(projectId, data) {
+  const { parseAmount } = await import('./intentEngine');
+  // Resolve associate name → ID
+  const assocRes = await axios.get(`${API}/associates`, { headers: authHeader() });
+  const allAssocs = assocRes.data?.data || assocRes.data || [];
+  const q = (data.assocName || '').toLowerCase().trim();
+  const matched = allAssocs.filter(a => a.name?.toLowerCase().includes(q));
+  if (matched.length === 0)
+    throw new Error(`No associate found matching "${data.assocName}". Please check the name.`);
+  if (matched.length > 1)
+    throw new Error(`Multiple associates match "${data.assocName}": ${matched.map(a => a.name).join(', ')}. Please be more specific.`);
+  const associate = matched[0];
+
+  // Fetch current project
+  const projRes = await axios.get(`${API}/finance/projects/${projectId}`, { headers: authHeader() });
+  const project = projRes.data?.data || projRes.data;
+  const existing = Array.isArray(project.projectAssociates) ? project.projectAssociates : [];
+
+  // Prevent duplicate assignment
+  const alreadySet = existing.some(
+    a => String(a.associateId?._id || a.associateId) === String(associate._id)
+  );
+  if (alreadySet)
+    throw new Error(`${associate.name} is already assigned to this project.`);
+
+  const newEntry = {
+    associateId: associate._id,
+    percentage: parseFloat(data.assocPercentage),
+    amountPaid: data.assocAmountPaid ? (parseAmount(String(data.assocAmountPaid)) || 0) : 0,
+    paymentGivenDate: data.assocPaymentDate || null,
+    paymentGivenBank: data.assocPaymentBank || '',
+  };
+
+  const res = await axios.put(
+    `${API}/finance/projects/${projectId}`,
+    { ...project, projectAssociates: [...existing, newEntry] },
+    { headers: authHeader() }
+  );
+  return { result: res.data, associateName: associate.name };
+}
+
 // ── Update finalized fees for a project ──────────────────
 export async function updateFinalizedFees(projectId, amount) {
   const res = await axios.put(
@@ -418,6 +460,8 @@ export async function executeAction(action, data, ctx) {
       return getTopProjects();
     case 'recent_payments':
       return getRecentPayments();
+    case 'add_associate_to_project':
+      return addAssociateToProject(ctx.projectId, data);
     case 'associate_payment_status':
       return getAssociatePaymentStatus();
     case 'fy_summary': {
