@@ -58,13 +58,23 @@ const FinanceDashboard = () => {
   const [showExportModal, setShowExportModal] = useState(false);
   const [hideValues,      setHideValues]      = useState(false);
 
-  // ── Filters ──────────────────────────────────────────────────────────────
-  const [filterClient,    setFilterClient]    = useState('all');
-  const [filterFY,        setFilterFY]        = useState('all');
-  const [filterSearch,    setFilterSearch]    = useState('');
-  const [filterStatus,    setFilterStatus]    = useState('all');
-  const [filterAssociate, setFilterAssociate] = useState('all');
-  const [filterBank,      setFilterBank]      = useState('all');
+  // ── Filters (persisted in sessionStorage so navigation preserves them) ────
+  const _savedFilters = (() => {
+    try { return JSON.parse(sessionStorage.getItem('fd_filters') || '{}'); } catch { return {}; }
+  })();
+  const [filterClient,    setFilterClient]    = useState(_savedFilters.filterClient    ?? 'all');
+  const [filterFY,        setFilterFY]        = useState(_savedFilters.filterFY        ?? 'all');
+  const [filterSearch,    setFilterSearch]    = useState(_savedFilters.filterSearch    ?? '');
+  const [filterStatus,    setFilterStatus]    = useState(_savedFilters.filterStatus    ?? 'all');
+  const [filterAssociate, setFilterAssociate] = useState(_savedFilters.filterAssociate ?? 'all');
+  const [filterBank,      setFilterBank]      = useState(_savedFilters.filterBank      ?? 'all');
+
+  // Sync filters to sessionStorage whenever any filter changes
+  useEffect(() => {
+    sessionStorage.setItem('fd_filters', JSON.stringify({
+      filterClient, filterFY, filterSearch, filterStatus, filterAssociate, filterBank
+    }));
+  }, [filterClient, filterFY, filterSearch, filterStatus, filterAssociate, filterBank]);
 
   // ── Fetch ─────────────────────────────────────────────────────────────────
   const fetchData = useCallback(async () => {
@@ -182,6 +192,7 @@ const FinanceDashboard = () => {
     setFilterAssociate('all');
     setFilterBank('all');
     setExpandedRows(new Set());
+    sessionStorage.removeItem('fd_filters');
   };
 
   const hasFilters =
