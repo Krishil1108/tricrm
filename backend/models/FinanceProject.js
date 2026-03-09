@@ -174,6 +174,10 @@ const financeProjectSchema = new mongoose.Schema({
       type: Date,
       required: true
     },
+    referenceType: {
+      type: String,
+      default: ''
+    },
     chequeNeftNumber: {
       type: String,
       default: ''

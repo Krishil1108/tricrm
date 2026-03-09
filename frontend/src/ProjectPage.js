@@ -799,6 +799,7 @@ const ProjectPage = () => {
           .filter(payment => payment.date && payment.amount) // Only include valid payments
           .map(payment => ({
             date: payment.date,
+            referenceType: payment.referenceType || '',
             chequeNeftNumber: payment.chequeNeftNumber || '',
             mode: payment.mode || 'Cheque',
             amount: parseInt(payment.amount) || 0  // Use parseInt to avoid decimal issues
@@ -2368,12 +2369,29 @@ const Modal = ({
   percentageConfig,
   hasPermission 
 }) => {
-  
+
+  // Bank list for Reference dropdown
+  const [bankList, setBankList] = React.useState([
+    'State Bank of India', 'HDFC Bank', 'ICICI Bank', 'Axis Bank',
+    'Kotak Mahindra Bank', 'Punjab National Bank', 'Bank of Baroda',
+    'Canara Bank', 'Union Bank of India', 'IndusInd Bank', 'Yes Bank'
+  ]);
+  const [newBankName, setNewBankName] = React.useState('');
+
+  const addBank = () => {
+    const trimmed = newBankName.trim();
+    if (trimmed && !bankList.includes(trimmed)) {
+      setBankList(prev => [...prev, trimmed]);
+    }
+    setNewBankName('');
+  };
+
   // Payment management functions
   const addPayment = () => {
     const newPayment = {
       id: `payment_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
       date: '',
+      referenceType: '',
       chequeNeftNumber: '',
       mode: 'Cheque',
       amount: ''
@@ -2655,14 +2673,53 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
                   />
                 </div>
                 <div className="form-group">
-                  <label>Cheque/NEFT Number</label>
-                  <input 
-                    type="text" 
-                    className="form-input" 
-                    value={payment.chequeNeftNumber || ''} 
-                    onChange={(e) => updatePayment(payment.id, 'chequeNeftNumber', e.target.value)}
-                    placeholder="Enter reference number"
-                  />
+                  <label>Reference</label>
+                  <select
+                    className="form-input"
+                    value={payment.referenceType || ''}
+                    onChange={(e) => updatePayment(payment.id, 'referenceType', e.target.value)}
+                  >
+                    <option value="">-- Select Reference --</option>
+                    <optgroup label="Reference Types">
+                      <option value="Cheque Number">Cheque Number</option>
+                      <option value="NEFT Number">NEFT Number</option>
+                    </optgroup>
+                    <optgroup label="Banks">
+                      {bankList.map(bank => (
+                        <option key={bank} value={bank}>{bank}</option>
+                      ))}
+                    </optgroup>
+                  </select>
+                  {(payment.referenceType === 'Cheque Number' || payment.referenceType === 'NEFT Number') && (
+                    <input
+                      type="text"
+                      className="form-input"
+                      style={{ marginTop: '6px' }}
+                      value={payment.chequeNeftNumber || ''}
+                      onChange={(e) => updatePayment(payment.id, 'chequeNeftNumber', e.target.value)}
+                      placeholder={`Enter ${payment.referenceType}`}
+                    />
+                  )}
+                  <div style={{ display: 'flex', gap: '4px', marginTop: '6px' }}>
+                    <input
+                      type="text"
+                      className="form-input"
+                      style={{ fontSize: '12px', padding: '4px 8px' }}
+                      value={newBankName}
+                      onChange={(e) => setNewBankName(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addBank(); } }}
+                      placeholder="Add bank name..."
+                    />
+                    <button
+                      type="button"
+                      className="project-btn project-btn-success"
+                      style={{ whiteSpace: 'nowrap', padding: '4px 10px', fontSize: '12px' }}
+                      onClick={addBank}
+                      disabled={!newBankName.trim()}
+                    >
+                      + Add
+                    </button>
+                  </div>
                 </div>
                 <div className="form-group">
                   <label>Payment Mode</label>
