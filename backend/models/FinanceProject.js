@@ -44,6 +44,10 @@ const financeProjectSchema = new mongoose.Schema({
     paymentGivenDate: {
       type: Date
     },
+    paymentGivenBank: {
+      type: String,
+      default: ''
+    },
     // Multiple payment transactions for this associate (10-15 stages)
     paymentTransactions: [{
       transactionDate: {

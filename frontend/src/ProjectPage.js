@@ -2778,7 +2778,8 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
                   associateId: '', 
                   percentage: 0, 
                   amountPaid: 0, 
-                  paymentGivenDate: '' 
+                  paymentGivenDate: '',
+                  paymentGivenBank: ''
                 }];
                 handleChange({ target: { name: 'projectAssociates', value: newAssociates } });
               }}
@@ -2969,6 +2970,37 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
                       }}
                       disabled={!assoc.associateId}
                     />
+                  </div>
+                  <div className="form-group">
+                    <label>Paid via Bank</label>
+                    <select
+                      className="form-input"
+                      value={assoc.paymentGivenBank || ''}
+                      onChange={(e) => {
+                        const newAssociates = [...formData.projectAssociates];
+                        newAssociates[index].paymentGivenBank = e.target.value;
+                        handleChange({ target: { name: 'projectAssociates', value: newAssociates } });
+                      }}
+                      disabled={!assoc.associateId}
+                    >
+                      <option value="">-- Select Bank --</option>
+                      <option value="Cash">Cash</option>
+                      <option value="Cheque">Cheque</option>
+                      <option value="NEFT">NEFT</option>
+                      <option value="RTGS">RTGS</option>
+                      <option value="UPI">UPI</option>
+                      <option value="State Bank of India">State Bank of India</option>
+                      <option value="HDFC Bank">HDFC Bank</option>
+                      <option value="ICICI Bank">ICICI Bank</option>
+                      <option value="Axis Bank">Axis Bank</option>
+                      <option value="Kotak Mahindra Bank">Kotak Mahindra Bank</option>
+                      <option value="Punjab National Bank">Punjab National Bank</option>
+                      <option value="Bank of Baroda">Bank of Baroda</option>
+                      <option value="Canara Bank">Canara Bank</option>
+                      <option value="Union Bank of India">Union Bank of India</option>
+                      <option value="IndusInd Bank">IndusInd Bank</option>
+                      <option value="Yes Bank">Yes Bank</option>
+                    </select>
                   </div>
                 </div>
               </div>

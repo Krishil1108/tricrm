@@ -64,6 +64,7 @@ const FinanceDashboard = () => {
   const [filterSearch,    setFilterSearch]    = useState('');
   const [filterStatus,    setFilterStatus]    = useState('all');
   const [filterAssociate, setFilterAssociate] = useState('all');
+  const [filterBank,      setFilterBank]      = useState('all');
 
   // ── Fetch ─────────────────────────────────────────────────────────────────
   const fetchData = useCallback(async () => {
@@ -153,6 +154,18 @@ const FinanceDashboard = () => {
     return s;
   }, [filteredProjects]);
 
+  // ── Unique banks from all payment referenceType fields ─────────────────
+  const allBanks = useMemo(() => {
+    if (!rawData?.projects) return [];
+    const banks = new Set();
+    rawData.projects.forEach(p => {
+      (p.payments ?? []).forEach(pay => {
+        if (pay.referenceType) banks.add(pay.referenceType);
+      });
+    });
+    return [...banks].sort();
+  }, [rawData]);
+
   // ── Row toggle ───────────────────────────────────────────────────────────
   const toggleRow = (id) =>
     setExpandedRows((prev) => {
@@ -167,13 +180,14 @@ const FinanceDashboard = () => {
     setFilterSearch('');
     setFilterStatus('all');
     setFilterAssociate('all');
+    setFilterBank('all');
     setExpandedRows(new Set());
   };
 
   const hasFilters =
     filterClient !== 'all'    || filterFY !== 'all' ||
     filterSearch !== ''       || filterStatus !== 'all' ||
-    filterAssociate !== 'all';
+    filterAssociate !== 'all' || filterBank !== 'all';
 
   // ── Render ────────────────────────────────────────────────────────────────
   if (loading) {
@@ -363,6 +377,20 @@ const FinanceDashboard = () => {
           </select>
         </div>
 
+        <div className="fd-filter-group">
+          <span className="fd-fi" style={{fontSize: 14}}>🏦</span>
+          <select
+            className="fd-filter-select"
+            value={filterBank}
+            onChange={(e) => { setFilterBank(e.target.value); setExpandedRows(new Set()); }}
+          >
+            <option value="all">All Banks</option>
+            {allBanks.map((b) => (
+              <option key={b} value={b}>{b}</option>
+            ))}
+          </select>
+        </div>
+
         {hasFilters && (
           <button className="fd-btn fd-btn-clear" onClick={clearFilters}>
             <FaTimes /> Clear
@@ -401,8 +429,8 @@ const FinanceDashboard = () => {
             toggleRow={toggleRow}
           />
         )}
-        {activeTab === 'payments'   && <PaymentsTab   projects={filteredProjects} />}
-        {activeTab === 'associates' && <AssociatesTab projects={filteredProjects} />}
+        {activeTab === 'payments'   && <PaymentsTab   projects={filteredProjects} filterBank={filterBank} setFilterBank={setFilterBank} />}
+        {activeTab === 'associates' && <AssociatesTab projects={filteredProjects} filterBank={filterBank} setFilterBank={setFilterBank} />}
       </div>
 
       {showExportModal && (
@@ -962,11 +990,13 @@ const ExpandedDetail = ({ project: p }) => {
 };
 
 // ─── Payments Tab ─────────────────────────────────────────────────────────────
-const PaymentsTab = ({ projects }) => {
+const PaymentsTab = ({ projects, filterBank, setFilterBank }) => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
+  const [showBankBreakdown, setShowBankBreakdown] = useState(false);
 
-  const rows = useMemo(() => {
+  // Flatten ALL payment rows (unfiltered) for computing bank stats
+  const allRows = useMemo(() => {
     const out = [];
     projects.forEach((p) => {
       (p.fyPayments ?? p.payments ?? [])
@@ -977,75 +1007,225 @@ const PaymentsTab = ({ projects }) => {
     return out;
   }, [projects]);
 
+  // Bank-wise stats (always from allRows)
+  const bankStats = useMemo(() => {
+    const map = {};
+    allRows.forEach(({ pay }) => {
+      const key = pay.referenceType || '— Not Specified';
+      if (!map[key]) map[key] = { amount: 0, count: 0 };
+      map[key].amount += pay.amount ?? 0;
+      map[key].count  += 1;
+    });
+    return Object.entries(map)
+      .sort((a, b) => b[1].amount - a[1].amount)
+      .map(([bank, stats]) => ({ bank, ...stats }));
+  }, [allRows]);
+
+  // Project-wise bank breakdown
+  const projectBankBreakdown = useMemo(() => {
+    const map = {};
+    allRows.forEach(({ p, pay }) => {
+      const projKey = p._id;
+      if (!map[projKey]) map[projKey] = { p, banks: {} };
+      const bank = pay.referenceType || '— Not Specified';
+      if (!map[projKey].banks[bank]) map[projKey].banks[bank] = 0;
+      map[projKey].banks[bank] += pay.amount ?? 0;
+    });
+    return Object.values(map).filter(e => Object.keys(e.banks).length > 0);
+  }, [allRows]);
+
+  // Apply bank filter for the main table
+  const rows = useMemo(() => {
+    if (filterBank === 'all') return allRows;
+    return allRows.filter(({ pay }) => (pay.referenceType || '— Not Specified') === filterBank);
+  }, [allRows, filterBank]);
+
   useEffect(() => { setPage(1); }, [rows]);
 
-  if (!rows.length) return <EmptyState label="No payment entries for the selected filters." />;
+  if (!allRows.length) return <EmptyState label="No payment entries for the selected filters." />;
 
   const totalPages = Math.ceil(rows.length / PAGE_SIZE);
   const pageStart  = (page - 1) * PAGE_SIZE;
   const pageRows   = rows.slice(pageStart, pageStart + PAGE_SIZE);
+  const bankTotal  = rows.reduce((s, { pay }) => s + (pay.amount ?? 0), 0);
 
   return (
     <>
-    <div className="fd-table-wrapper">
-      <table className="fd-table">
-        <thead>
-          <tr>
-            <th className="fd-th fd-th-num">#</th>
-            <th className="fd-th fd-th-project">Project</th>
-            <th className="fd-th">Client</th>
-            <th className="fd-th fd-th-num">Date</th>
-            <th className="fd-th fd-th-num fd-col-blue">Amount</th>
-            <th className="fd-th">Mode</th>
-            <th className="fd-th">Reference No.</th>
-            <th className="fd-th fd-th-num">% of Finalized</th>
-          </tr>
-        </thead>
-        <tbody>
-          {pageRows.map(({ p, pay, i }, rowIdx) => {
-            const pctOf = p.finalizedFees
-              ? `${((pay.amount / p.finalizedFees) * 100).toFixed(1)}%`
-              : '—';
+      {/* ── Bank-wise Stats ──────────────────────────────────────────── */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <span style={{ fontWeight: 600, fontSize: 14, color: '#374151' }}>🏦 Bank-wise Received</span>
+          {filterBank !== 'all' && (
+            <button
+              onClick={() => setFilterBank('all')}
+              style={{ fontSize: 11, padding: '2px 8px', borderRadius: 12, border: '1px solid #d1d5db', background: '#f3f4f6', cursor: 'pointer', color: '#6b7280' }}
+            >
+              ✕ Clear bank filter
+            </button>
+          )}
+          <button
+            onClick={() => setShowBankBreakdown(v => !v)}
+            style={{ marginLeft: 'auto', fontSize: 11, padding: '2px 10px', borderRadius: 12, border: '1px solid #d1d5db', background: '#f3f4f6', cursor: 'pointer', color: '#374151' }}
+          >
+            {showBankBreakdown ? 'Hide' : 'Show'} Project Breakdown
+          </button>
+        </div>
+        {/* Bank stat pills */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+          {bankStats.map(({ bank, amount, count }) => {
+            const isActive = filterBank === bank;
             return (
-              <tr key={`${p._id}-${i}`} className="fd-row">
-                <td className="fd-td fd-td-num fd-meta">{pageStart + rowIdx + 1}</td>
-                <td className="fd-td fd-td-project">
-                  <button
-                    className="fd-proj-link"
-                    onClick={() => navigate(`/projects/${p._id}`, { state: { projectName: p.projectName } })}
-                    title="Open project"
-                  >
-                    <div className="fd-proj-num">{p.projectNumber}</div>
-                    <div className="fd-proj-name">{p.projectName} <FaExternalLinkAlt size={9} style={{opacity:0.5}} /></div>
-                  </button>
-                </td>
-                <td className="fd-td fd-td-client">{p.clientId?.name ?? '—'}</td>
-                <td className="fd-td fd-td-num">
-                  {pay.date
-                    ? new Date(pay.date).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
-                    : '—'}
-                </td>
-                <td className="fd-td fd-td-num fd-num-blue">
-                  <strong>{fmtCurrency(pay.amount)}</strong>
-                </td>
-                <td className="fd-td">
-                  <span className="fd-mode-badge">{pay.mode ?? '—'}</span>
-                </td>
-                <td className="fd-td fd-ref">{pay.chequeNeftNumber || '—'}</td>
-                <td className="fd-td fd-td-num fd-meta">{pctOf}</td>
-              </tr>
+              <button
+                key={bank}
+                onClick={() => setFilterBank(isActive ? 'all' : bank)}
+                style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                  padding: '8px 14px', borderRadius: 10,
+                  border: isActive ? '2px solid #2563eb' : '2px solid #e5e7eb',
+                  background: isActive ? '#eff6ff' : '#fff',
+                  cursor: 'pointer', minWidth: 140, textAlign: 'left',
+                  boxShadow: isActive ? '0 0 0 3px rgba(37,99,235,0.15)' : 'none',
+                  transition: 'all 0.15s'
+                }}
+              >
+                <span style={{ fontSize: 12, fontWeight: 700, color: isActive ? '#1d4ed8' : '#374151', marginBottom: 2 }}>{bank}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#16a34a' }}>{fmtCurrency(amount)}</span>
+                <span style={{ fontSize: 11, color: '#9ca3af' }}>{count} transaction{count !== 1 ? 's' : ''}</span>
+              </button>
             );
           })}
-        </tbody>
-      </table>
-    </div>
-    <Pagination page={page} totalPages={totalPages} totalItems={rows.length} onPage={setPage} />
+        </div>
+      </div>
+
+      {/* ── Project-wise Bank Breakdown ──────────────────────────────── */}
+      {showBankBreakdown && (
+        <div style={{ marginBottom: 20, background: '#f9fafb', borderRadius: 10, border: '1px solid #e5e7eb', overflow: 'hidden' }}>
+          <div style={{ padding: '10px 16px', background: '#f3f4f6', borderBottom: '1px solid #e5e7eb', fontWeight: 600, fontSize: 13, color: '#374151' }}>
+            📊 Project-wise Bank Breakup
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <thead>
+                <tr style={{ background: '#f3f4f6' }}>
+                  <th style={{ padding: '8px 14px', textAlign: 'left', borderBottom: '1px solid #e5e7eb', color: '#6b7280', fontWeight: 600 }}>Project</th>
+                  {bankStats.map(({ bank }) => (
+                    <th key={bank} style={{ padding: '8px 12px', textAlign: 'right', borderBottom: '1px solid #e5e7eb', color: '#2563eb', fontWeight: 600, whiteSpace: 'nowrap' }}>{bank}</th>
+                  ))}
+                  <th style={{ padding: '8px 12px', textAlign: 'right', borderBottom: '1px solid #e5e7eb', color: '#374151', fontWeight: 600 }}>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projectBankBreakdown.map(({ p, banks }) => {
+                  const projTotal = Object.values(banks).reduce((s, v) => s + v, 0);
+                  return (
+                    <tr key={p._id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                      <td style={{ padding: '8px 14px', color: '#374151' }}>
+                        <div style={{ fontSize: 11, color: '#9ca3af' }}>{p.projectNumber}</div>
+                        <div style={{ fontWeight: 500 }}>{p.projectName}</div>
+                      </td>
+                      {bankStats.map(({ bank }) => (
+                        <td key={bank} style={{ padding: '8px 12px', textAlign: 'right', color: banks[bank] ? '#16a34a' : '#d1d5db' }}>
+                          {banks[bank] ? fmtCurrency(banks[bank]) : '—'}
+                        </td>
+                      ))}
+                      <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 700, color: '#1d4ed8' }}>{fmtCurrency(projTotal)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              <tfoot>
+                <tr style={{ background: '#f3f4f6', borderTop: '2px solid #e5e7eb' }}>
+                  <td style={{ padding: '8px 14px', fontWeight: 700, color: '#374151' }}>TOTAL</td>
+                  {bankStats.map(({ bank, amount }) => (
+                    <td key={bank} style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 700, color: '#2563eb' }}>{fmtCurrency(amount)}</td>
+                  ))}
+                  <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 700, color: '#1d4ed8' }}>{fmtCurrency(allRows.reduce((s, { pay }) => s + (pay.amount ?? 0), 0))}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ── Filtered total label ─────────────────────────────────────── */}
+      {filterBank !== 'all' && (
+        <div style={{ marginBottom: 10, fontSize: 13, color: '#374151' }}>
+          Showing <strong>{filterBank}</strong>: {rows.length} transaction{rows.length !== 1 ? 's' : ''} · Total <strong style={{ color: '#16a34a' }}>{fmtCurrency(bankTotal)}</strong>
+        </div>
+      )}
+
+      {rows.length === 0 ? (
+        <EmptyState label={`No payments found for "${filterBank}".`} />
+      ) : (
+        <>
+        <div className="fd-table-wrapper">
+          <table className="fd-table">
+            <thead>
+              <tr>
+                <th className="fd-th fd-th-num">#</th>
+                <th className="fd-th fd-th-project">Project</th>
+                <th className="fd-th">Client</th>
+                <th className="fd-th fd-th-num">Date</th>
+                <th className="fd-th fd-th-num fd-col-blue">Amount</th>
+                <th className="fd-th">Mode</th>
+                <th className="fd-th">Bank / Reference</th>
+                <th className="fd-th">Reference No.</th>
+                <th className="fd-th fd-th-num">% of Finalized</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pageRows.map(({ p, pay, i }, rowIdx) => {
+                const pctOf = p.finalizedFees
+                  ? `${((pay.amount / p.finalizedFees) * 100).toFixed(1)}%`
+                  : '—';
+                const isMatch = filterBank !== 'all' && (pay.referenceType || '— Not Specified') === filterBank;
+                return (
+                  <tr key={`${p._id}-${i}`} className="fd-row" style={isMatch ? { background: '#eff6ff' } : {}}>
+                    <td className="fd-td fd-td-num fd-meta">{pageStart + rowIdx + 1}</td>
+                    <td className="fd-td fd-td-project">
+                      <button
+                        className="fd-proj-link"
+                        onClick={() => navigate(`/projects/${p._id}`, { state: { projectName: p.projectName } })}
+                        title="Open project"
+                      >
+                        <div className="fd-proj-num">{p.projectNumber}</div>
+                        <div className="fd-proj-name">{p.projectName} <FaExternalLinkAlt size={9} style={{opacity:0.5}} /></div>
+                      </button>
+                    </td>
+                    <td className="fd-td fd-td-client">{p.clientId?.name ?? '—'}</td>
+                    <td className="fd-td fd-td-num">
+                      {pay.date
+                        ? new Date(pay.date).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
+                        : '—'}
+                    </td>
+                    <td className="fd-td fd-td-num fd-num-blue">
+                      <strong>{fmtCurrency(pay.amount)}</strong>
+                    </td>
+                    <td className="fd-td">
+                      <span className="fd-mode-badge">{pay.mode ?? '—'}</span>
+                    </td>
+                    <td className="fd-td">
+                      {pay.referenceType
+                        ? <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: '#dbeafe', color: '#1d4ed8', fontWeight: 600 }}>{pay.referenceType}</span>
+                        : <span className="fd-meta">—</span>}
+                    </td>
+                    <td className="fd-td fd-ref">{pay.chequeNeftNumber || '—'}</td>
+                    <td className="fd-td fd-td-num fd-meta">{pctOf}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <Pagination page={page} totalPages={totalPages} totalItems={rows.length} onPage={setPage} />
+        </>
+      )}
     </>
   );
 };
 
 // ─── Associates Tab ───────────────────────────────────────────────────────────
-const AssociatesTab = ({ projects }) => {
+const AssociatesTab = ({ projects, filterBank, setFilterBank }) => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
 
@@ -1061,6 +1241,23 @@ const AssociatesTab = ({ projects }) => {
     return out;
   }, [projects]);
 
+  // Bank-wise disbursement stats
+  const disbursementStats = useMemo(() => {
+    const map = {};
+    rows.forEach(({ a }) => {
+      const bank = a.paymentGivenBank || '— Not Specified';
+      if (!map[bank]) map[bank] = { amount: 0, count: 0 };
+      if (a.amountPaid > 0) {
+        map[bank].amount += a.amountPaid ?? 0;
+        map[bank].count  += 1;
+      }
+    });
+    return Object.entries(map)
+      .filter(([, v]) => v.amount > 0)
+      .sort((a, b) => b[1].amount - a[1].amount)
+      .map(([bank, stats]) => ({ bank, ...stats }));
+  }, [rows]);
+
   useEffect(() => { setPage(1); }, [rows]);
 
   if (!rows.length) return <EmptyState label="No associate allocations for the selected filters." />;
@@ -1075,6 +1272,32 @@ const AssociatesTab = ({ projects }) => {
 
   return (
     <>
+      {/* ── Bank-wise Disbursement Stats ──────────────────────────── */}
+      {disbursementStats.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontWeight: 600, fontSize: 14, color: '#374151', marginBottom: 10 }}>
+            🏦 Associate Payout · Bank-wise Disbursement
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {disbursementStats.map(({ bank, amount, count }) => (
+              <div
+                key={bank}
+                style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                  padding: '8px 14px', borderRadius: 10,
+                  border: '2px solid #e5e7eb', background: '#fff',
+                  minWidth: 140,
+                }}
+              >
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#374151', marginBottom: 2 }}>{bank}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: '#9333ea' }}>{fmtCurrency(amount)}</span>
+                <span style={{ fontSize: 11, color: '#9ca3af' }}>{count} payout{count !== 1 ? 's' : ''}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
     <div className="fd-table-wrapper">
       <table className="fd-table">
         <thead>
@@ -1088,6 +1311,7 @@ const AssociatesTab = ({ projects }) => {
             <th className="fd-th fd-th-num fd-col-blue">Allocated</th>
             <th className="fd-th fd-th-num fd-col-green">Paid</th>
             <th className="fd-th fd-th-num fd-col-orange">Pending</th>
+            <th className="fd-th">Payment Bank</th>
             <th className="fd-th">Payment Status</th>
           </tr>
         </thead>
@@ -1118,6 +1342,11 @@ const AssociatesTab = ({ projects }) => {
                   {fmtCurrency(Math.round(pending))}
                 </td>
                 <td className="fd-td">
+                  {a.paymentGivenBank
+                    ? <span style={{ fontSize: 12, padding: '2px 8px', borderRadius: 10, background: '#f3e8ff', color: '#7c3aed', fontWeight: 600 }}>{a.paymentGivenBank}</span>
+                    : <span className="fd-meta">—</span>}
+                </td>
+                <td className="fd-td">
                   <span className={`fd-assoc-status ${isPaid ? 'a-paid' : pending > 0 ? 'a-partial' : 'a-nil'}`}>
                     {isPaid ? '✓ Paid' : pending > 0 ? '⏳ Partial' : '— Nil'}
                   </span>
@@ -1133,7 +1362,7 @@ const AssociatesTab = ({ projects }) => {
             <td className="fd-td fd-td-num fd-num-blue"><strong>{fmtCurrency(Math.round(totAlloc))}</strong></td>
             <td className="fd-td fd-td-num fd-num-green"><strong>{fmtCurrency(totPaid)}</strong></td>
             <td className="fd-td fd-td-num fd-num-orange"><strong>{fmtCurrency(Math.round(totPending))}</strong></td>
-            <td />
+            <td /><td />
           </tr>
         </tfoot>
       </table>
