@@ -31,6 +31,7 @@ const ProjectDetailPage = () => {
   const [associates, setAssociates] = useState([]);
   const [allAssociatesList, setAllAssociatesList] = useState([]);
   const [showAddAssociateModal, setShowAddAssociateModal] = useState(false);
+  const [editAssocIndex, setEditAssocIndex] = useState(null); // null = add mode, number = edit mode
   const [addAssocForm, setAddAssocForm] = useState({ associateId: '', percentage: '', amountPaid: '', paymentGivenDate: '', paymentGivenBank: '' });
   const [savingAssociate, setSavingAssociate] = useState(false);
   const [percentageConfig, setPercentageConfig] = useState({
@@ -297,6 +298,65 @@ const ProjectDetailPage = () => {
     }
   };
 
+  const openEditAssociate = (index) => {
+    const assoc = project.projectAssociates[index];
+    setEditAssocIndex(index);
+    setAddAssocForm({
+      associateId: assoc.associateId || '',
+      percentage: assoc.percentage || '',
+      amountPaid: assoc.amountPaid || '',
+      paymentGivenDate: assoc.paymentGivenDate ? assoc.paymentGivenDate.slice(0, 10) : '',
+      paymentGivenBank: assoc.paymentGivenBank || ''
+    });
+    setShowAddAssociateModal(true);
+  };
+
+  const handleUpdateAssociate = async () => {
+    if (!addAssocForm.associateId) { showError('Please select an associate'); return; }
+    const pct = parseFloat(addAssocForm.percentage);
+    if (!pct || pct <= 0 || pct > 100) { showError('Please enter a valid percentage (1–100)'); return; }
+    setSavingAssociate(true);
+    try {
+      const updatedEntry = {
+        ...project.projectAssociates[editAssocIndex],
+        associateId: addAssocForm.associateId,
+        percentage: pct,
+        amountPaid: parseFloat(addAssocForm.amountPaid) || 0,
+        paymentGivenDate: addAssocForm.paymentGivenDate || null,
+        paymentGivenBank: addAssocForm.paymentGivenBank || ''
+      };
+      const updatedAssociates = project.projectAssociates.map((a, i) => i === editAssocIndex ? updatedEntry : a);
+      await FinanceService.updateProject(project._id, { ...project, projectAssociates: updatedAssociates });
+      setProject(prev => ({ ...prev, projectAssociates: updatedAssociates }));
+      setShowAddAssociateModal(false);
+      setEditAssocIndex(null);
+      setAddAssocForm({ associateId: '', percentage: '', amountPaid: '', paymentGivenDate: '', paymentGivenBank: '' });
+      showSuccess('Associate updated successfully');
+      loadAllData();
+    } catch (error) {
+      console.error('Error updating associate:', error);
+      showError('Failed to update associate: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setSavingAssociate(false);
+    }
+  };
+
+  const handleDeleteAssociate = async (index) => {
+    const assocInfo = associates.find(a => a._id === project.projectAssociates[index]?.associateId);
+    const name = assocInfo?.name || 'this associate';
+    if (!window.confirm(`Remove ${name} from this project?`)) return;
+    try {
+      const updatedAssociates = project.projectAssociates.filter((_, i) => i !== index);
+      await FinanceService.updateProject(project._id, { ...project, projectAssociates: updatedAssociates });
+      setProject(prev => ({ ...prev, projectAssociates: updatedAssociates }));
+      showSuccess('Associate removed successfully');
+      loadAllData();
+    } catch (error) {
+      console.error('Error removing associate:', error);
+      showError('Failed to remove associate: ' + (error.response?.data?.message || error.message));
+    }
+  };
+
 
   if (!project) {
     return (
@@ -532,20 +592,40 @@ const ProjectDetailPage = () => {
                     borderRadius: '8px',
                     border: '1px solid #e5e7eb'
                   }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                       <span style={{ fontWeight: '600', color: '#1f2937', fontSize: '14px' }}>
                         {associateInfo?.name || 'Unknown'}
                       </span>
-                      <span style={{ 
-                        background: '#667eea', 
-                        color: 'white', 
-                        padding: '2px 10px', 
-                        borderRadius: '12px',
-                        fontSize: '12px',
-                        fontWeight: '600'
-                      }}>
-                        {assoc.percentage}%
-                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ 
+                          background: '#667eea', 
+                          color: 'white', 
+                          padding: '2px 10px', 
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: '600'
+                        }}>
+                          {assoc.percentage}%
+                        </span>
+                        {canEditProject && (
+                          <>
+                            <button
+                              onClick={() => openEditAssociate(index)}
+                              title="Edit associate"
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#667eea', padding: '2px 4px', fontSize: '13px', display: 'flex', alignItems: 'center' }}
+                            >
+                              <FaEdit />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteAssociate(index)}
+                              title="Remove associate"
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626', padding: '2px 4px', fontSize: '13px', display: 'flex', alignItems: 'center' }}
+                            >
+                              <FaTrash />
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#6b7280' }}>
                       <span>Amount Paid:</span>
@@ -573,7 +653,7 @@ const ProjectDetailPage = () => {
             </div>
           )}
 
-          {/* Add Associate Modal */}
+          {/* Add / Edit Associate Modal */}
           {showAddAssociateModal && (
             <div style={{
               position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
@@ -584,7 +664,7 @@ const ProjectDetailPage = () => {
                 width: '100%', maxWidth: '460px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
               }}>
                 <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '700', color: '#1f2937' }}>
-                  Add Associate
+                  {editAssocIndex !== null ? 'Edit Associate' : 'Add Associate'}
                 </h3>
 
                 {/* Associate Select */}
@@ -678,6 +758,7 @@ const ProjectDetailPage = () => {
                   <button
                     onClick={() => {
                       setShowAddAssociateModal(false);
+                      setEditAssocIndex(null);
                       setAddAssocForm({ associateId: '', percentage: '', amountPaid: '', paymentGivenDate: '', paymentGivenBank: '' });
                     }}
                     disabled={savingAssociate}
@@ -689,7 +770,7 @@ const ProjectDetailPage = () => {
                     Cancel
                   </button>
                   <button
-                    onClick={handleSaveAssociate}
+                    onClick={editAssocIndex !== null ? handleUpdateAssociate : handleSaveAssociate}
                     disabled={savingAssociate}
                     style={{
                       padding: '9px 20px', background: '#667eea', border: 'none',
@@ -697,7 +778,7 @@ const ProjectDetailPage = () => {
                       fontSize: '14px', fontWeight: '600', opacity: savingAssociate ? 0.7 : 1
                     }}
                   >
-                    {savingAssociate ? 'Saving...' : 'Add Associate'}
+                    {savingAssociate ? 'Saving...' : (editAssocIndex !== null ? 'Update Associate' : 'Add Associate')}
                   </button>
                 </div>
               </div>
