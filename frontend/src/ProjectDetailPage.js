@@ -29,6 +29,10 @@ const ProjectDetailPage = () => {
   const [project, setProject] = useState(null);
   const [client, setClient] = useState(null);
   const [associates, setAssociates] = useState([]);
+  const [allAssociatesList, setAllAssociatesList] = useState([]);
+  const [showAddAssociateModal, setShowAddAssociateModal] = useState(false);
+  const [addAssocForm, setAddAssocForm] = useState({ associateId: '', percentage: '', amountPaid: '', paymentGivenDate: '', paymentGivenBank: '' });
+  const [savingAssociate, setSavingAssociate] = useState(false);
   const [percentageConfig, setPercentageConfig] = useState({
     profitMarginPercent: 0,
     drawingPercent: 0,
@@ -51,6 +55,12 @@ const ProjectDetailPage = () => {
   useEffect(() => {
     loadAllData();
   }, [projectId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    AssociateService.getAllAssociates()
+      .then(data => setAllAssociatesList(data || []))
+      .catch(() => {});
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadAllData = async () => {
     try {
@@ -253,6 +263,40 @@ const ProjectDetailPage = () => {
     }
   };
 
+  const handleSaveAssociate = async () => {
+    if (!addAssocForm.associateId) {
+      showError('Please select an associate');
+      return;
+    }
+    const pct = parseFloat(addAssocForm.percentage);
+    if (!pct || pct <= 0 || pct > 100) {
+      showError('Please enter a valid percentage (1–100)');
+      return;
+    }
+    setSavingAssociate(true);
+    try {
+      const newEntry = {
+        associateId: addAssocForm.associateId,
+        percentage: pct,
+        amountPaid: parseFloat(addAssocForm.amountPaid) || 0,
+        paymentGivenDate: addAssocForm.paymentGivenDate || null,
+        paymentGivenBank: addAssocForm.paymentGivenBank || ''
+      };
+      const updatedAssociates = [...(project.projectAssociates || []), newEntry];
+      await FinanceService.updateProject(project._id, { ...project, projectAssociates: updatedAssociates });
+      setProject(prev => ({ ...prev, projectAssociates: updatedAssociates }));
+      setShowAddAssociateModal(false);
+      setAddAssocForm({ associateId: '', percentage: '', amountPaid: '', paymentGivenDate: '', paymentGivenBank: '' });
+      showSuccess('Associate added successfully');
+      loadAllData();
+    } catch (error) {
+      console.error('Error adding associate:', error);
+      showError('Failed to add associate: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setSavingAssociate(false);
+    }
+  };
+
 
   if (!project) {
     return (
@@ -447,16 +491,36 @@ const ProjectDetailPage = () => {
           padding: '24px',
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
         }}>
-          <h3 style={{ 
-            margin: '0 0 20px 0', 
-            fontSize: '18px', 
-            fontWeight: '600',
-            color: '#1f2937',
-            borderBottom: '2px solid #667eea',
-            paddingBottom: '10px'
-          }}>
-            Associate Information
-          </h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '2px solid #667eea', paddingBottom: '10px' }}>
+            <h3 style={{ 
+              margin: 0, 
+              fontSize: '18px', 
+              fontWeight: '600',
+              color: '#1f2937'
+            }}>
+              Associate Information
+            </h3>
+            {canEditProject && (
+              <button
+                onClick={() => setShowAddAssociateModal(true)}
+                style={{
+                  padding: '6px 14px',
+                  background: '#667eea',
+                  border: 'none',
+                  borderRadius: '6px',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px'
+                }}
+              >
+                <FaUsers style={{ fontSize: '12px' }} /> + Add Associate
+              </button>
+            )}
+          </div>
           {project.projectAssociates && project.projectAssociates.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {project.projectAssociates.map((assoc, index) => {
@@ -506,6 +570,137 @@ const ProjectDetailPage = () => {
             }}>
               <FaUsers style={{ fontSize: '48px', marginBottom: '12px', opacity: 0.3 }} />
               <p style={{ margin: 0, fontSize: '14px' }}>No associates assigned</p>
+            </div>
+          )}
+
+          {/* Add Associate Modal */}
+          {showAddAssociateModal && (
+            <div style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+            }}>
+              <div style={{
+                background: 'white', borderRadius: '12px', padding: '28px',
+                width: '100%', maxWidth: '460px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+              }}>
+                <h3 style={{ margin: '0 0 20px 0', fontSize: '18px', fontWeight: '700', color: '#1f2937' }}>
+                  Add Associate
+                </h3>
+
+                {/* Associate Select */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
+                    Associate *
+                  </label>
+                  <select
+                    value={addAssocForm.associateId}
+                    onChange={e => setAddAssocForm(f => ({ ...f, associateId: e.target.value }))}
+                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }}
+                  >
+                    <option value="">-- Select Associate --</option>
+                    {allAssociatesList.map(a => (
+                      <option key={a._id} value={a._id}>{a.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Percentage */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
+                    Percentage (%) *
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    placeholder="e.g. 25"
+                    value={addAssocForm.percentage}
+                    onChange={e => setAddAssocForm(f => ({ ...f, percentage: e.target.value }))}
+                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                {/* Amount Paid */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
+                    Amount Paid (₹)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={addAssocForm.amountPaid}
+                    onChange={e => setAddAssocForm(f => ({ ...f, amountPaid: e.target.value }))}
+                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                {/* Payment Date */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
+                    Payment Date
+                  </label>
+                  <input
+                    type="date"
+                    value={addAssocForm.paymentGivenDate}
+                    onChange={e => setAddAssocForm(f => ({ ...f, paymentGivenDate: e.target.value }))}
+                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', boxSizing: 'border-box' }}
+                  />
+                </div>
+
+                {/* Paid via Bank */}
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '6px' }}>
+                    Paid via Bank
+                  </label>
+                  <select
+                    value={addAssocForm.paymentGivenBank}
+                    onChange={e => setAddAssocForm(f => ({ ...f, paymentGivenBank: e.target.value }))}
+                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }}
+                  >
+                    <option value="">-- Select Bank --</option>
+                    <option value="State Bank of India">State Bank of India</option>
+                    <option value="HDFC Bank">HDFC Bank</option>
+                    <option value="ICICI Bank">ICICI Bank</option>
+                    <option value="Axis Bank">Axis Bank</option>
+                    <option value="Kotak Mahindra Bank">Kotak Mahindra Bank</option>
+                    <option value="Punjab National Bank">Punjab National Bank</option>
+                    <option value="Bank of Baroda">Bank of Baroda</option>
+                    <option value="Canara Bank">Canara Bank</option>
+                    <option value="Union Bank of India">Union Bank of India</option>
+                    <option value="IndusInd Bank">IndusInd Bank</option>
+                    <option value="Yes Bank">Yes Bank</option>
+                  </select>
+                </div>
+
+                {/* Buttons */}
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                  <button
+                    onClick={() => {
+                      setShowAddAssociateModal(false);
+                      setAddAssocForm({ associateId: '', percentage: '', amountPaid: '', paymentGivenDate: '', paymentGivenBank: '' });
+                    }}
+                    disabled={savingAssociate}
+                    style={{
+                      padding: '9px 20px', background: '#f3f4f6', border: '1px solid #d1d5db',
+                      borderRadius: '6px', color: '#374151', cursor: 'pointer', fontSize: '14px', fontWeight: '600'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveAssociate}
+                    disabled={savingAssociate}
+                    style={{
+                      padding: '9px 20px', background: '#667eea', border: 'none',
+                      borderRadius: '6px', color: 'white', cursor: savingAssociate ? 'not-allowed' : 'pointer',
+                      fontSize: '14px', fontWeight: '600', opacity: savingAssociate ? 0.7 : 1
+                    }}
+                  >
+                    {savingAssociate ? 'Saving...' : 'Add Associate'}
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>
