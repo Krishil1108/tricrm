@@ -50,7 +50,7 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
       module: 'finance',
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M3 3v18h18v-2H5V3H3zm16.5 14.5l-4.5-4.5-2 2-4-4L7.59 12.5l4.91 4.91 2-2 3.09 3.09L19.5 17.5zM7 10h2v6H7v-6zm4-3h2v9h-2V7zm4 5h2v4h-2v-4z"/>
+          <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
         </svg>
       )
     },
@@ -61,7 +61,7 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
       module: 'finance',
       icon: (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+          <path d="M3 3v18h18v-2H5V3H3zm16.5 14.5l-4.5-4.5-2 2-4-4L7.59 12.5l4.91 4.91 2-2 3.09 3.09L19.5 17.5zM7 10h2v6H7v-6zm4-3h2v9h-2V7zm4 5h2v4h-2v-4z"/>
         </svg>
       )
     },
