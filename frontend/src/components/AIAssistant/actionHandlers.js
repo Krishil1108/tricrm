@@ -171,6 +171,97 @@ export async function getFinanceStats() {
   return res.data?.data || res.data;
 }
 
+// ── List all clients ──────────────────────────────────────
+export async function listAllClients() {
+  const res = await axios.get(`${API}/clients`, { headers: authHeader() });
+  return res.data?.data || res.data || [];
+}
+
+// ── List all associates ───────────────────────────────────
+export async function listAllAssociates() {
+  const res = await axios.get(`${API}/associates`, { headers: authHeader() });
+  return res.data?.data || res.data || [];
+}
+
+// ── List all finance projects ─────────────────────────────
+export async function listAllProjects() {
+  const res = await axios.get(`${API}/finance/projects`, { headers: authHeader() });
+  return res.data?.data || res.data || [];
+}
+
+// ── Projects with pending fees ────────────────────────────
+export async function getPendingProjects() {
+  const res = await axios.get(`${API}/finance/projects`, { headers: authHeader() });
+  const all = res.data?.data || res.data || [];
+  return all
+    .filter(p => (p.finalizedFees || 0) - (p.totalReceivedFees || 0) > 0)
+    .sort((a, b) =>
+      ((b.finalizedFees || 0) - (b.totalReceivedFees || 0)) -
+      ((a.finalizedFees || 0) - (a.totalReceivedFees || 0))
+    );
+}
+
+// ── Top projects by finalized fees ────────────────────────
+export async function getTopProjects() {
+  const res = await axios.get(`${API}/finance/projects`, { headers: authHeader() });
+  const all = res.data?.data || res.data || [];
+  return all
+    .filter(p => (p.finalizedFees || 0) > 0)
+    .sort((a, b) => (b.finalizedFees || 0) - (a.finalizedFees || 0))
+    .slice(0, 10);
+}
+
+// ── Recent payments across all projects ──────────────────
+export async function getRecentPayments() {
+  const res = await axios.get(`${API}/finance/projects`, { headers: authHeader() });
+  const all = res.data?.data || res.data || [];
+  const payments = [];
+  for (const p of all) {
+    if (Array.isArray(p.payments)) {
+      p.payments.forEach(pay => {
+        payments.push({
+          ...pay,
+          projectName: p.projectName,
+          projectNumber: p.projectNumber,
+        });
+      });
+    }
+  }
+  return payments
+    .filter(p => p.date)
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 10);
+}
+
+// ── Associate payment status across all projects ──────────
+export async function getAssociatePaymentStatus() {
+  const res = await axios.get(`${API}/finance/projects`, { headers: authHeader() });
+  const all = res.data?.data || res.data || [];
+  const map = {};
+  for (const p of all) {
+    if (p.associateId) {
+      const name = p.associateId?.name || p.associateId?.company || 'Unknown';
+      if (!map[name]) map[name] = { name, totalOwed: 0, totalPaid: 0, projects: 0 };
+      map[name].totalOwed += p.totalAssociateAmount || 0;
+      map[name].totalPaid += p.totalAssociatePaid || 0;
+      map[name].projects += 1;
+    }
+  }
+  return Object.values(map).sort(
+    (a, b) => (b.totalOwed - b.totalPaid) - (a.totalOwed - a.totalPaid)
+  );
+}
+
+// ── Update finalized fees for a project ──────────────────
+export async function updateFinalizedFees(projectId, amount) {
+  const res = await axios.put(
+    `${API}/finance/projects/${projectId}`,
+    { finalizedFees: Number(amount) },
+    { headers: authHeader() }
+  );
+  return res.data;
+}
+
 // ── Export all projects as Excel (blob download) ──────────
 export async function exportProjectsExcel() {
   const response = await axios.get(`${API}/finance/export/projects`, {
@@ -309,12 +400,36 @@ export async function executeAction(action, data, ctx) {
         year2024_25: parseAmount(String(data.yearlyAmount)),
       });
     }
+    case 'update_finalized_fees': {
+      const { parseAmount: pa } = await import('./intentEngine');
+      return updateFinalizedFees(ctx.projectId, pa(String(data.finalizedFeesAmount)));
+    }
     case 'finance_stats':
       return getFinanceStats();
+    case 'list_clients':
+      return listAllClients();
+    case 'list_associates':
+      return listAllAssociates();
+    case 'list_projects':
+      return listAllProjects();
+    case 'pending_fees':
+      return getPendingProjects();
+    case 'top_projects':
+      return getTopProjects();
+    case 'recent_payments':
+      return getRecentPayments();
+    case 'associate_payment_status':
+      return getAssociatePaymentStatus();
+    case 'fy_summary': {
+      const [stats, projects] = await Promise.all([getFinanceStats(), listAllProjects()]);
+      return { stats, projects };
+    }
     case 'export_excel':
       return exportProjectsExcel();
     case 'export_pdf':
       return exportProjectsPDF();
+    case 'calculate':
+      return null; // handled inline in AIAssistant.js
     default:
       throw new Error(`Unknown action: ${action}`);
   }

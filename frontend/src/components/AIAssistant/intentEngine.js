@@ -206,6 +206,15 @@ export const FIELD_DEFS = {
       return (n == null || n < 0) ? 'Please enter a valid amount.' : null;
     },
   },
+  // ── Finalized fees update ────────────────────────────────
+  finalizedFeesAmount: {
+    label: 'New Finalized Fees (₹)', type: 'currency',
+    question: 'New finalized fee amount? (e.g. ₹5,00,000 or 5L)',
+    validate: v => {
+      const n = parseAmount(String(v));
+      return (n == null || n < 0) ? 'Please enter a valid amount.' : null;
+    },
+  },
 };
 
 // ----- Intent Definitions -----
@@ -263,6 +272,31 @@ export const INTENTS = {
     successMessage: d => `✅ Note **${d.noteTitle}** saved!`,
     summaryRows: d => [['Title', d.noteTitle], ['Content', (d.noteContent || '').slice(0, 60)], ['Category', d.noteCategory || 'General']],
   },
+  // ── List all (instant, no query needed) ─────────────────
+  LIST_CLIENTS: {
+    id: 'LIST_CLIENTS', label: 'List All Clients', icon: '👥',
+    description: 'Show all clients with count and status',
+    patterns: [
+      /\b(list|show)\s+(?:all\s+)?clients?\s*$/i,
+      /\bhow\s+many\s+clients?\b/i,
+      /\ball\s+clients?\b/i,
+      /\bclient\s+(list|count|total|directory)\b/i,
+    ],
+    fields: [], requiredFields: [],
+    action: 'list_clients', isImmediate: true,
+  },
+  LIST_ASSOCIATES: {
+    id: 'LIST_ASSOCIATES', label: 'List All Associates', icon: '🤝',
+    description: 'Show all associates with count and status',
+    patterns: [
+      /\b(list|show)\s+(?:all\s+)?associates?\s*$/i,
+      /\bhow\s+many\s+associates?\b/i,
+      /\ball\s+associates?\b/i,
+      /\bassociate\s+(list|count|total|directory)\b/i,
+    ],
+    fields: [], requiredFields: [],
+    action: 'list_associates', isImmediate: true,
+  },
   // ── Search/find ──────────────────────────────────────────
   FIND_CLIENT: {
     id: 'FIND_CLIENT', label: 'Find Client', icon: '🔍',
@@ -278,6 +312,18 @@ export const INTENTS = {
     fields: ['query'], requiredFields: ['query'],
     action: 'find_associate', isSearch: true,
   },
+  LIST_PROJECTS: {
+    id: 'LIST_PROJECTS', label: 'List All Projects', icon: '📂',
+    description: 'Show summary list of all finance projects',
+    patterns: [
+      /\b(list|show)\s+(?:all\s+)?projects?\s*$/i,
+      /\bhow\s+many\s+projects?\b/i,
+      /\ball\s+projects?\b/i,
+      /\bproject\s+(list|count|total|directory)\b/i,
+    ],
+    fields: [], requiredFields: [],
+    action: 'list_projects', isImmediate: true,
+  },
   FIND_PROJECT: {
     id: 'FIND_PROJECT', label: 'Find Project', icon: '📁',
     description: 'Search for a project',
@@ -287,6 +333,19 @@ export const INTENTS = {
     ],
     fields: ['projectQuery'], requiredFields: ['projectQuery'],
     action: 'find_project', isSearch: true,
+  },
+  // ── Recent payments (global, no project) ──────────────────
+  RECENT_PAYMENTS: {
+    id: 'RECENT_PAYMENTS', label: 'Recent Payments', icon: '💳',
+    description: 'Show latest payments received across all projects',
+    patterns: [
+      /\b(recent|latest|last|new)\b.{0,20}\bpayments?\b/i,
+      /\bpayments?\b.{0,20}\b(recent|latest|last)\b/i,
+      /\blatest\s+transactions?\b/i,
+      /\bwhat.s\s+been\s+(received|paid)\b/i,
+    ],
+    fields: [], requiredFields: [],
+    action: 'recent_payments', isImmediate: true,
   },
   // ── Project payments ─────────────────────────────────────
   VIEW_PROJECT_PAYMENTS: {
@@ -357,6 +416,23 @@ export const INTENTS = {
       ['2024-25 Amount', fmtINR(parseAmount(String(d.yearlyAmount)))],
     ],
   },
+  UPDATE_FINALIZED_FEES: {
+    id: 'UPDATE_FINALIZED_FEES', label: 'Update Finalized Fees', icon: '💼',
+    description: 'Update the finalized fee amount for a project',
+    patterns: [
+      /\b(update|change|set|modify|edit)\b.{0,25}\b(finalized\s+fees?|project\s+fees?|contract\s+fees?)\b/i,
+      /\bfinalized\s+fees?\b.{0,25}\b(update|change|set|to)\b/i,
+    ],
+    fields: ['finalizedFeesAmount'],
+    requiredFields: ['finalizedFeesAmount'],
+    action: 'update_finalized_fees', needsProject: true,
+    confirmLabel: 'Update Finalized Fees',
+    successMessage: (d, ctx) => `✅ Finalized fees updated to **${fmtINR(parseAmount(String(d.finalizedFeesAmount)))}** for **${ctx?.projectName || 'project'}**!`,
+    summaryRows: (d, ctx) => [
+      ['Project', ctx?.projectName || '—'],
+      ['New Finalized Fees', fmtINR(parseAmount(String(d.finalizedFeesAmount)))],
+    ],
+  },
   // ── Finance analytics (instant, no field collection) ─────
   FINANCE_STATS: {
     id: 'FINANCE_STATS', label: 'Finance Stats', icon: '📊',
@@ -381,6 +457,56 @@ export const INTENTS = {
     fields: [], requiredFields: [],
     action: 'project_detail', needsProject: true, isImmediate: true,
   },
+  PENDING_FEES: {
+    id: 'PENDING_FEES', label: 'Pending Fee Projects', icon: '⏳',
+    description: 'Show projects with outstanding/pending fees',
+    patterns: [
+      /\b(pending\s+fees?|outstanding\s+fees?|unpaid\s+fees?)\b/i,
+      /\bwho\s+hasn.t\s+paid\b/i,
+      /\boverdue\s+(payments?|fees?|invoices?)\b/i,
+      /\bprojects?\b.{0,25}\b(pending|outstanding|unpaid|balance)\b/i,
+      /\bshow\b.{0,15}\bpending\b/i,
+    ],
+    fields: [], requiredFields: [],
+    action: 'pending_fees', isImmediate: true,
+  },
+  TOP_PROJECTS: {
+    id: 'TOP_PROJECTS', label: 'Top Projects', icon: '🏆',
+    description: 'Show highest-value projects by fees',
+    patterns: [
+      /\b(top|highest|biggest|largest|best)\b.{0,20}\bprojects?\b/i,
+      /\bprojects?\b.{0,20}\b(highest|biggest|largest)\b.{0,20}\bfees?\b/i,
+      /\bhighest\s+(revenue|value|fees?)\b/i,
+    ],
+    fields: [], requiredFields: [],
+    action: 'top_projects', isImmediate: true,
+  },
+  ASSOCIATE_PAYMENT_STATUS: {
+    id: 'ASSOCIATE_PAYMENT_STATUS', label: 'Associate Payment Status', icon: '🤝',
+    description: 'Show associate payment summary and pending dues',
+    patterns: [
+      /\bassociate\s+(payment\s*status|dues?|payouts?|pending\s+payouts?)\b/i,
+      /\b(pending|outstanding)\s+associate\s+(payments?|dues?|amounts?)\b/i,
+      /\bhow\s+much\b.{0,25}\b(owe|paid|due)\b.{0,25}\bassociate\b/i,
+      /\bassociate\s+(summary|overview|financials?)\b/i,
+      /\bwhat\s+(do\s+)?i\s+owe\s+(to\s+)?associates?\b/i,
+    ],
+    fields: [], requiredFields: [],
+    action: 'associate_payment_status', isImmediate: true,
+  },
+  FY_SUMMARY: {
+    id: 'FY_SUMMARY', label: 'FY 2024-25 Summary', icon: '📅',
+    description: 'Financial year summary and yearly distribution totals',
+    patterns: [
+      /\b(fy|financial\s+year|fiscal\s+year)\b/i,
+      /\b2024[\-_]?\s*25\s+(summary|overview|total|report)\b/i,
+      /\b(this\s+year|yearly)\s+(summary|total|overview|revenue|profit)\b/i,
+      /\byearly\s+(overview|report|summary|stats?)\b/i,
+      /\bannual\s+(overview|report|summary|stats?)\b/i,
+    ],
+    fields: [], requiredFields: [],
+    action: 'fy_summary', isImmediate: true,
+  },
   // ── Export ───────────────────────────────────────────────
   EXPORT_EXCEL: {
     id: 'EXPORT_EXCEL', label: 'Export Excel', icon: '📊',
@@ -402,6 +528,18 @@ export const INTENTS = {
     ],
     fields: [], requiredFields: [],
     action: 'export_pdf', isImmediate: true,
+  },
+  // ── Calculator ────────────────────────────────────────────
+  CALCULATOR: {
+    id: 'CALCULATOR', label: 'Calculate', icon: '🧮',
+    description: 'Calculate percentages or amounts',
+    patterns: [
+      /\b(calculate|compute|what\s+is)\b.{0,30}\b\d+\s*%\s*of\b/i,
+      /\b\d+(?:\.\d+)?\s*%\s*of\s+[\d₹]/i,
+      /\bhow\s+much\s+is\b.{0,30}\b\d+\s*%\b/i,
+    ],
+    fields: [], requiredFields: [],
+    action: 'calculate', isImmediate: true,
   },
   // ── Navigate / Help ──────────────────────────────────────
   NAVIGATE: {
@@ -703,5 +841,153 @@ export function formatFinanceStats(stats) {
     `  • **Total Expenses:    ${fmtINR(expenses)}**`,
     ``,
     `  💰 **Net Profit:       ${fmtINR(profit)}**`,
+  ].join('\n');
+}
+
+// ─── Format full client list ─────────────────────────────────────────────────
+export function formatClientList(clients) {
+  if (!clients || clients.length === 0) return '👥 No clients found.';
+  const active = clients.filter(c => c.status === 'Active').length;
+  const lines = [
+    `👥 **All Clients (${clients.length} total · ${active} active)**`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    '',
+  ];
+  clients.slice(0, 15).forEach((c, i) => {
+    const details = [c.company, c.city].filter(Boolean).join(', ');
+    lines.push(`  ${i + 1}. **${c.name}**${details ? `  ·  ${details}` : ''}  ·  ${c.status || 'Active'}`);
+  });
+  if (clients.length > 15) lines.push(`  … and ${clients.length - 15} more clients`);
+  return lines.join('\n');
+}
+
+// ─── Format full associate list ──────────────────────────────────────────────
+export function formatAssociateList(associates) {
+  if (!associates || associates.length === 0) return '🤝 No associates found.';
+  const active = associates.filter(a => a.status === 'Active').length;
+  const lines = [
+    `🤝 **All Associates (${associates.length} total · ${active} active)**`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    '',
+  ];
+  associates.slice(0, 15).forEach((a, i) => {
+    const details = [a.company, a.city].filter(Boolean).join(', ');
+    lines.push(`  ${i + 1}. **${a.name}**${details ? `  ·  ${details}` : ''}  ·  ${a.status || 'Active'}`);
+  });
+  if (associates.length > 15) lines.push(`  … and ${associates.length - 15} more associates`);
+  return lines.join('\n');
+}
+
+// ─── Format project list ─────────────────────────────────────────────────────
+export function formatProjectList(projects) {
+  if (!projects || projects.length === 0) return '📂 No projects found.';
+  const active = projects.filter(p => p.status === 'Active' || p.status === 'In Progress').length;
+  const totalFees = projects.reduce((s, p) => s + (p.finalizedFees || 0), 0);
+  const lines = [
+    `📂 **All Projects (${projects.length} total · ${active} active)**`,
+    `Total Finalized: ${fmtINR(totalFees)}`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    '',
+  ];
+  projects.slice(0, 15).forEach((p, i) => {
+    const client = p.clientId?.name || p.clientId?.company || '—';
+    lines.push(`  ${i + 1}. **${p.projectNumber}** ${p.projectName}  ·  ${client}  ·  ${fmtINR(p.finalizedFees)}  ·  ${p.status || '—'}`);
+  });
+  if (projects.length > 15) lines.push(`  … and ${projects.length - 15} more projects`);
+  return lines.join('\n');
+}
+
+// ─── Format pending-fee projects ─────────────────────────────────────────────
+export function formatPendingProjects(projects) {
+  if (!projects || projects.length === 0)
+    return '✅ No pending fees — all projects are fully paid!';
+  const totalPending = projects.reduce((s, p) => s + ((p.finalizedFees || 0) - (p.totalReceivedFees || 0)), 0);
+  const lines = [
+    `⏳ **Pending Fee Projects (${projects.length} project${projects.length !== 1 ? 's' : ''})**`,
+    `Total Outstanding: **${fmtINR(totalPending)}**`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    '',
+  ];
+  projects.slice(0, 10).forEach((p, i) => {
+    const client = p.clientId?.name || p.clientId?.company || '—';
+    const pending = (p.finalizedFees || 0) - (p.totalReceivedFees || 0);
+    lines.push(`  ${i + 1}. **${p.projectNumber}** ${p.projectName}`);
+    lines.push(`     ${client}  ·  Pending: **${fmtINR(pending)}** of ${fmtINR(p.finalizedFees)}`);
+  });
+  if (projects.length > 10) lines.push(`  … and ${projects.length - 10} more projects`);
+  return lines.join('\n');
+}
+
+// ─── Format top projects by finalized fees ────────────────────────────────────
+export function formatTopProjects(projects) {
+  if (!projects || projects.length === 0) return '📊 No projects found.';
+  const lines = [
+    `🏆 **Top ${projects.length} Projects by Finalized Fee**`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    '',
+  ];
+  projects.forEach((p, i) => {
+    const client = p.clientId?.name || p.clientId?.company || '—';
+    const received = p.totalReceivedFees || 0;
+    const pct = p.finalizedFees > 0 ? Math.round((received / p.finalizedFees) * 100) : 0;
+    lines.push(`  ${i + 1}. **${p.projectNumber}** ${p.projectName}`);
+    lines.push(`     ${client}  ·  ${fmtINR(p.finalizedFees)}  ·  ${pct}% received`);
+  });
+  return lines.join('\n');
+}
+
+// ─── Format recent payments across all projects ───────────────────────────────
+export function formatRecentPayments(payments) {
+  if (!payments || payments.length === 0) return '💳 No recent payments found.';
+  const total = payments.reduce((s, p) => s + (p.amount || 0), 0);
+  const lines = [
+    `💳 **Recent Payments (last ${payments.length})**`,
+    `Total: **${fmtINR(total)}**`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    '',
+  ];
+  payments.forEach((p, i) => {
+    const ref = p.chequeNeftNumber ? ` [${p.chequeNeftNumber}]` : '';
+    lines.push(`  ${i + 1}. ${formatDate(p.date)}  ·  **${fmtINR(p.amount)}**`);
+    lines.push(`     ${p.projectName}  ·  ${p.mode}${ref}`);
+  });
+  return lines.join('\n');
+}
+
+// ─── Format associate payment status ────────────────────────────────────────
+export function formatAssociatePaymentStatus(statuses) {
+  if (!statuses || statuses.length === 0)
+    return '🤝 No associate payment data found.';
+  const totalOwed = statuses.reduce((s, a) => s + (a.totalOwed || 0), 0);
+  const totalPaid = statuses.reduce((s, a) => s + (a.totalPaid || 0), 0);
+  const lines = [
+    `🤝 **Associate Payment Summary**`,
+    `Owed: ${fmtINR(totalOwed)}  ·  Paid: ${fmtINR(totalPaid)}  ·  Balance: **${fmtINR(totalOwed - totalPaid)}**`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    '',
+  ];
+  statuses.forEach((a, i) => {
+    const balance = (a.totalOwed || 0) - (a.totalPaid || 0);
+    lines.push(`  ${i + 1}. **${a.name}**  ·  ${a.projects} project${a.projects !== 1 ? 's' : ''}`);
+    lines.push(`     Owed: ${fmtINR(a.totalOwed)}  ·  Paid: ${fmtINR(a.totalPaid)}  ·  Balance: **${fmtINR(balance)}**`);
+  });
+  return lines.join('\n');
+}
+
+// ─── Format FY 2024-25 summary ───────────────────────────────────────────────
+export function formatFySummary(stats, projects) {
+  const totalYearly = (projects || []).reduce((s, p) => s + (p.year2024_25 || 0), 0);
+  const r = stats?.revenue || stats || {};
+  const finalized = r.totalFinalizedFees ?? r.totalFinalized ?? 0;
+  const received  = r.totalReceivedFees  ?? r.totalReceived  ?? 0;
+  return [
+    `📅 **FY 2024-25 Financial Summary**`,
+    `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`,
+    `📁 Total Projects:   ${stats?.projects?.total || (projects || []).length}`,
+    `💼 Finalized Fees:   ${fmtINR(finalized)}`,
+    `✅ Total Received:   ${fmtINR(received)}`,
+    `⏳ Pending:          ${fmtINR(finalized - received)}`,
+    `📅 2024-25 Yearly:   ${fmtINR(totalYearly)}`,
+    `💰 Net Profit:       ${fmtINR(r.netProfit ?? 0)}`,
   ].join('\n');
 }

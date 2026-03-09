@@ -30,6 +30,14 @@ import {
   formatProjectSummary,
   formatPaymentList,
   formatFinanceStats,
+  formatClientList,
+  formatAssociateList,
+  formatProjectList,
+  formatPendingProjects,
+  formatTopProjects,
+  formatRecentPayments,
+  formatAssociatePaymentStatus,
+  formatFySummary,
 } from './intentEngine';
 import { executeAction } from './actionHandlers';
 import './AIAssistant.css';
@@ -49,23 +57,32 @@ const HELP_TEXT = `Here's what I can do for you:
 • "Schedule a meeting about Design Review"
 • "Add a note titled Follow-up"
 
-**🔍 Search**
-• "Find client Ravi"
-• "Search associate Priya"
+**🔍 Search & Browse**
+• "Find client Ravi" / "Search associate Priya"
 • "Find project TRI-001" / "Show project house design"
+• "List all clients" / "Show all associates"
+• "All projects" / "How many clients"
 
-**💰 Finance & Projects**
+**💰 Finance — Projects**
 • "Payment history for project X"
-• "Add payment ₹50000 NEFT to project X"
+• "Add payment ₹50,000 NEFT to project X"
 • "Update drawing percent to 15% for project X"
 • "Set yearly distribution to 1.5L for project X"
+• "Update finalized fees to 5L for project X"
 
 **📊 Finance Analytics**
-• "Total drawing" / "Total expenses" / "Net profit"
-• "Finance summary" / "Give me totals"
+• "Finance summary" / "Total expenses" / "Net profit"
+• "Pending fees" / "Who hasn't paid"
+• "Recent payments" / "Top projects"
+• "Associate payment status"
+• "FY 2024-25 summary" / "This year's total"
 
 **📤 Export**
 • "Export to Excel" / "Export to PDF"
+
+**🧮 Calculator**
+• "Calculate 15% of 5 lakhs"
+• "What is 10% of ₹50,000"
 
 **🧭 Navigate**
 • "Go to Projects" / "Open Finance" / "Analytics"
@@ -205,9 +222,11 @@ export default function AIAssistant() {
       setTimeout(() => inputRef.current?.focus(), 100);
       setHasNewBadge(false);
       if (messages.length === 0) {
+        const hour = new Date().getHours();
+        const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
         addAssistantMsg(
-          "Hi! I'm your CRM assistant. 👋\n\nI can **add clients, associates, meetings, notes**, **search records**, and **navigate** to any page.\n\nWhat would you like to do?",
-          ['Add Client', 'Schedule Meeting', 'Add Note', 'Help']
+          `${greet}! I'm your CRM assistant. ✨\n\nI can **add clients, associates, meetings, notes**, **search records**, **analyse finance**, and **navigate** any page.\n\nWhat would you like to do?`,
+          ['Add Client', 'Finance Stats', 'Pending Fees', 'Help']
         );
       }
     }
@@ -327,7 +346,7 @@ export default function AIAssistant() {
         return;
       }
       if (text === 'Do something else') {
-        addAssistantMsg("Sure! What would you like to do?", ['Add Client', 'Finance Stats', 'Find Project', 'Help']);
+        addAssistantMsg("Sure! What would you like to do?", ['Add Client', 'Finance Stats', 'Pending Fees', 'Find Project', 'Help']);
         return;
       }
       if (text === 'Close') {
@@ -392,9 +411,45 @@ export default function AIAssistant() {
         setIsTyping(false);
         try {
           const stats = await executeAction('finance_stats', {});
-          addAssistantMsg(formatFinanceStats(stats), ['Export Excel', 'Export PDF', 'Find Project', 'Do something else']);
+          addAssistantMsg(formatFinanceStats(stats), ['Pending Fees', 'Recent Payments', 'Export Excel', 'Find Project', 'Do something else']);
         } catch (err) {
           addAssistantMsg(`❌ Could not fetch stats: ${err?.message}`, ['Try again']);
+        }
+        return;
+      }
+      if (text === 'Pending Fees') {
+        setIsTyping(true);
+        await new Promise(r => setTimeout(r, 500));
+        setIsTyping(false);
+        try {
+          const projects = await executeAction('pending_fees', {});
+          addAssistantMsg(formatPendingProjects(projects), ['Finance Stats', 'Recent Payments', 'Find Project', 'Do something else']);
+        } catch (err) {
+          addAssistantMsg(`❌ ${err?.message}`, ['Try again']);
+        }
+        return;
+      }
+      if (text === 'Recent Payments') {
+        setIsTyping(true);
+        await new Promise(r => setTimeout(r, 500));
+        setIsTyping(false);
+        try {
+          const payments = await executeAction('recent_payments', {});
+          addAssistantMsg(formatRecentPayments(payments), ['Finance Stats', 'Pending Fees', 'Find Project', 'Do something else']);
+        } catch (err) {
+          addAssistantMsg(`❌ ${err?.message}`, ['Try again']);
+        }
+        return;
+      }
+      if (text === 'Top Projects') {
+        setIsTyping(true);
+        await new Promise(r => setTimeout(r, 500));
+        setIsTyping(false);
+        try {
+          const projects = await executeAction('top_projects', {});
+          addAssistantMsg(formatTopProjects(projects), ['Finance Stats', 'Pending Fees', 'Find Project', 'Do something else']);
+        } catch (err) {
+          addAssistantMsg(`❌ ${err?.message}`, ['Try again']);
         }
         return;
       }
@@ -431,9 +486,22 @@ export default function AIAssistant() {
       // Detect intent
       const foundIntent = detectIntent(effectiveText);
       if (!foundIntent) {
+        // Smart fallback: suggest closest matching capabilities
+        const lower = effectiveText.toLowerCase();
+        const suggestions = [];
+        if (/client|customer/i.test(lower)) suggestions.push('Add Client', 'Find Client');
+        if (/associate|partner/i.test(lower)) suggestions.push('Add Associate', 'Find Associate');
+        if (/project|TRI/i.test(lower)) suggestions.push('Find Project', 'List Projects');
+        if (/finance|fee|payment|profit|expense/i.test(lower)) suggestions.push('Finance Stats', 'Pending Fees', 'Recent Payments');
+        if (/meeting|call|schedule/i.test(lower)) suggestions.push('Schedule Meeting');
+        if (/note|reminder/i.test(lower)) suggestions.push('Add Note');
+        if (/export|download|pdf|excel/i.test(lower)) suggestions.push('Export Excel', 'Export PDF');
+        const fallbackOptions = suggestions.length > 0
+          ? suggestions.slice(0, 4)
+          : ['Finance Stats', 'Find Project', 'Add Client', 'Help'];
         addAssistantMsg(
-          "I'm not sure what you mean. Try **\"Add client\"**, **\"Finance stats\"**, **\"Find project TRI-001\"**, or type **Help**.",
-          ['Add Client', 'Finance Stats', 'Find Project', 'Help']
+          `I'm not sure I understood that. Did you mean one of these?`,
+          fallbackOptions
         );
         return;
       }
@@ -456,13 +524,58 @@ export default function AIAssistant() {
 
       // ── Immediate intents (no collection needed) ─────────
       if (foundIntent.isImmediate) {
+        // Calculator is handled fully inline — no API call
+        if (foundIntent.action === 'calculate') {
+          const m = effectiveText.match(/(\d+(?:\.\d+)?)\s*%\s*of\s+([\d₹,.\s]+(?:lakh|lac|crore|cr\b|k\b)?)/i);
+          if (m) {
+            const pct = parseFloat(m[1]);
+            const base = parseAmount(m[2].trim());
+            if (!isNaN(pct) && base != null) {
+              const result = (pct / 100) * base;
+              addAssistantMsg(
+                `🧮 **${pct}% of ${fmtINR(base)} = ${fmtINR(result)}**`,
+                ['Finance Stats', 'Do something else']
+              );
+              return;
+            }
+          }
+          addAssistantMsg(
+            'Please provide the calculation in the format:\n**"15% of 5 lakhs"** or **"10% of ₹50,000"**'
+          );
+          return;
+        }
+
         setIsTyping(true);
         await new Promise(r => setTimeout(r, 500));
         setIsTyping(false);
         try {
           if (foundIntent.action === 'finance_stats') {
             const stats = await executeAction('finance_stats', {});
-            addAssistantMsg(formatFinanceStats(stats), ['Export Excel', 'Export PDF', 'Find Project', 'Do something else']);
+            addAssistantMsg(formatFinanceStats(stats), ['Pending Fees', 'Recent Payments', 'Export Excel', 'Find Project', 'Do something else']);
+          } else if (foundIntent.action === 'list_clients') {
+            const clients = await executeAction('list_clients', {});
+            addAssistantMsg(formatClientList(clients), ['Add Client', 'Find Client', 'Do something else']);
+          } else if (foundIntent.action === 'list_associates') {
+            const associates = await executeAction('list_associates', {});
+            addAssistantMsg(formatAssociateList(associates), ['Add Associate', 'Find Associate', 'Do something else']);
+          } else if (foundIntent.action === 'list_projects') {
+            const projects = await executeAction('list_projects', {});
+            addAssistantMsg(formatProjectList(projects), ['Pending Fees', 'Top Projects', 'Find Project', 'Do something else']);
+          } else if (foundIntent.action === 'pending_fees') {
+            const projects = await executeAction('pending_fees', {});
+            addAssistantMsg(formatPendingProjects(projects), ['Finance Stats', 'Recent Payments', 'Find Project', 'Do something else']);
+          } else if (foundIntent.action === 'top_projects') {
+            const projects = await executeAction('top_projects', {});
+            addAssistantMsg(formatTopProjects(projects), ['Finance Stats', 'Pending Fees', 'Find Project', 'Do something else']);
+          } else if (foundIntent.action === 'recent_payments') {
+            const payments = await executeAction('recent_payments', {});
+            addAssistantMsg(formatRecentPayments(payments), ['Finance Stats', 'Pending Fees', 'Find Project', 'Do something else']);
+          } else if (foundIntent.action === 'associate_payment_status') {
+            const statuses = await executeAction('associate_payment_status', {});
+            addAssistantMsg(formatAssociatePaymentStatus(statuses), ['Finance Stats', 'Pending Fees', 'Do something else']);
+          } else if (foundIntent.action === 'fy_summary') {
+            const { stats, projects } = await executeAction('fy_summary', {});
+            addAssistantMsg(formatFySummary(stats, projects), ['Finance Stats', 'Pending Fees', 'Recent Payments', 'Do something else']);
           } else if (foundIntent.action === 'export_excel') {
             await executeAction('export_excel', {});
             addAssistantMsg('✅ **Excel file downloaded!** All projects exported.', ['Export PDF', 'Finance Stats', 'Do something else']);
@@ -967,11 +1080,11 @@ export default function AIAssistant() {
     setHasNewBadge(false);
     // Re-show greeting
     setTimeout(() => {
-      addAssistantMsg(
-        "Chat cleared! What would you like to do?",
-        ['Add Client', 'Schedule Meeting', 'Add Note', 'Help']
-      );
-    }, 50);
+        addAssistantMsg(
+          "Chat cleared! What would you like to do?",
+          ['Finance Stats', 'Pending Fees', 'Find Project', 'Help']
+        );
+      }, 50);
   }
 
   // ── Render ────────────────────────────────────────────────
