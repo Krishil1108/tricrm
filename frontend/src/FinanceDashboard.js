@@ -165,16 +165,22 @@ const FinanceDashboard = () => {
   }, [filteredProjects]);
 
   // ── Unique banks from all payment referenceType fields ─────────────────
+  const STATIC_BANKS = [
+    'State Bank of India', 'HDFC Bank', 'ICICI Bank', 'Axis Bank',
+    'Kotak Mahindra Bank', 'Punjab National Bank', 'Bank of Baroda',
+    'Canara Bank', 'Union Bank of India', 'IndusInd Bank', 'Yes Bank'
+  ];
   const allBanks = useMemo(() => {
-    if (!rawData?.projects) return [];
-    const banks = new Set();
-    rawData.projects.forEach(p => {
-      (p.payments ?? []).forEach(pay => {
-        if (pay.referenceType) banks.add(pay.referenceType);
+    const banks = new Set(STATIC_BANKS);
+    if (rawData?.projects) {
+      rawData.projects.forEach(p => {
+        (p.payments ?? []).forEach(pay => {
+          if (pay.referenceType) banks.add(pay.referenceType);
+        });
       });
-    });
+    }
     return [...banks].sort();
-  }, [rawData]);
+  }, [rawData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Row toggle ───────────────────────────────────────────────────────────
   const toggleRow = (id) =>
