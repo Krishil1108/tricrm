@@ -2494,6 +2494,10 @@ const Modal = ({
               onAddAssociate={onAddAssociate}
               percentageConfig={percentageConfig}
               hasPermission={hasPermission}
+              bankList={bankList}
+              newBankName={newBankName}
+              setNewBankName={setNewBankName}
+              addBank={addBank}
             />
           ) : (
             <ExpenseForm formData={formData} handleChange={handleChange} />
@@ -2514,7 +2518,7 @@ const Modal = ({
 };
 
 // Project Form
-const ProjectForm = ({ formData, handleChange, addPayment, removePayment, updatePayment, clients, associates, onAddClient, onAddAssociate, percentageConfig, hasPermission }) => {
+const ProjectForm = ({ formData, handleChange, addPayment, removePayment, updatePayment, clients, associates, onAddClient, onAddAssociate, percentageConfig, hasPermission, bankList, newBankName, setNewBankName, addBank }) => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
