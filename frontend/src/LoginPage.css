@@ -1,11 +1,14 @@
 /* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
-/* Import Font Awesome */
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+/* Reset and Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 .login-page-wrapper {
-  background-color: #080710;
   font-family: 'Poppins', sans-serif;
   min-height: 100vh;
   display: flex;
@@ -13,183 +16,141 @@
   justify-content: center;
   position: relative;
   overflow: hidden;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4ea5d9 100%);
 }
 
-.background {
-  width: 430px;
-  height: 520px;
+/* Ocean Background with Animated Waves */
+.ocean-background {
   position: absolute;
-  transform: translate(-50%, -50%);
-  left: 50%;
-  top: 50%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
 }
 
-.background .shape {
-  height: 200px;
-  width: 200px;
+.wave {
   position: absolute;
-  border-radius: 50%;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 100px;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120"><path d="M0,60 C300,120 500,0 800,60 C1100,120 1200,60 1200,60 L1200,120 L0,120 Z" fill="%23ffffff" opacity="0.1"/></svg>') repeat-x;
+  animation: wave-animation 10s ease-in-out infinite;
 }
 
-.shape:first-child {
-  background: linear-gradient(
-    #1845ad,
-    #23a2f6
-  );
-  left: -80px;
-  top: -80px;
+.wave1 {
+  animation-delay: 0s;
+  opacity: 0.1;
+  bottom: 0;
 }
 
-.shape:last-child {
-  background: linear-gradient(
-    to right,
-    #ff512f,
-    #f09819
-  );
-  right: -30px;
-  bottom: -80px;
+.wave2 {
+  animation-delay: -2s;
+  opacity: 0.05;
+  bottom: 10px;
+  animation-duration: 8s;
 }
 
-.login-form {
-  height: auto;
-  min-height: 520px;
-  width: 400px;
-  background-color: rgba(255, 255, 255, 0.13);
+.wave3 {
+  animation-delay: -4s;
+  opacity: 0.03;
+  bottom: 20px;
+  animation-duration: 12s;
+}
+
+@keyframes wave-animation {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-50px);
+  }
+}
+
+/* Main Container */
+.login-container {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  height: 100vh;
   position: relative;
-  border-radius: 10px;
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
-  padding: 50px 35px;
   z-index: 1;
 }
 
-.login-form * {
-  font-family: 'Poppins', sans-serif;
-  color: #ffffff;
-  letter-spacing: 0.5px;
-  outline: none;
-  border: none;
+/* Left Section - Login Form */
+.login-form-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 0 30px 30px 0;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
-.login-form h3 {
-  font-size: 32px;
-  font-weight: 500;
-  line-height: 42px;
-  text-align: center;
-  margin-bottom: 10px;
+.login-form-content {
+  width: 100%;
+  max-width: 400px;
 }
 
-.subtitle {
+/* Headings */
+.main-heading {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  color: #1e3c72;
   text-align: center;
-  font-size: 16px;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 20px;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+  background: linear-gradient(135deg, #1e3c72, #2a5298, #4ea5d9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.login-error {
-  background-color: rgba(255, 82, 82, 0.2);
-  border: 1px solid rgba(255, 82, 82, 0.4);
-  color: #ffcccc;
-  padding: 12px;
-  border-radius: 6px;
-  font-size: 14px;
+.motivational-subtitle {
+  font-size: 1rem;
+  color: #666;
   text-align: center;
-  margin-bottom: 15px;
-  backdrop-filter: blur(5px);
+  margin-bottom: 2rem;
+  line-height: 1.4;
+}
+
+/* Form Styles */
+.fishing-login-form {
+  width: 100%;
+}
+
+.input-group {
+  margin-bottom: 1.5rem;
 }
 
 label {
   display: block;
-  margin-top: 30px;
-  font-size: 16px;
+  font-size: 0.9rem;
   font-weight: 600;
-  color: #ffffff !important;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
-}
-
-/* Additional specificity for labels to ensure they are white */
-.login-form label {
-  color: #ffffff !important;
-}
-
-form label,
-label[for="username"],
-label[for="password"] {
-  color: #ffffff !important;
-  font-weight: 600 !important;
-}
-
-.password-container {
-  position: relative;
-  display: block;
-  width: 100%;
-  margin-top: 8px;
-}
-
-.password-container input {
-  padding-right: 45px;
-  margin-top: 0;
-}
-
-.password-toggle {
-  position: absolute;
-  right: 15px;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  color: #333333;
-  font-size: 18px;
-  transition: all 0.3s ease;
-  z-index: 10;
-  pointer-events: auto;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  padding: 4px;
-}
-
-.password-toggle svg {
-  display: block;
-  stroke: #333333;
-  transition: stroke 0.3s ease, transform 0.3s ease;
-}
-
-.password-toggle:hover svg {
-  stroke: #000000;
-}
-
-.password-toggle:hover {
-  transform: translateY(-50%) scale(1.1);
-}
-
-.password-toggle:active {
-  transform: translateY(-50%) scale(0.95);
+  color: #333;
+  margin-bottom: 0.5rem;
 }
 
 input {
-  display: block;
-  height: 50px;
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
-  padding: 0 10px;
-  margin-top: 8px;
-  font-size: 14px;
-  font-weight: 300;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #fff;
+  color: #333;
   transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ffffff;
 }
 
 input:focus {
-  background-color: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  outline: none;
+  border-color: #4ea5d9;
+  box-shadow: 0 0 0 3px rgba(78, 165, 217, 0.1);
 }
 
 input:disabled {
@@ -197,72 +158,152 @@ input:disabled {
   cursor: not-allowed;
 }
 
-/* Ensure password input has proper padding for the toggle button */
-#password {
-  padding-right: 50px !important;
+/* Password Container */
+.password-container {
+  position: relative;
 }
 
-::placeholder {
-  color: #e5e5e5;
+.password-toggle {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #666;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.signin-btn {
-  margin-top: 50px;
+.password-toggle:hover {
+  color: #4ea5d9;
+}
+
+/* Main Action Button */
+.catch-dreams-btn {
   width: 100%;
-  background-color: #ffffff;
-  color: #080710;
-  padding: 15px 0;
-  font-size: 18px;
+  padding: 0.875rem;
+  background: linear-gradient(135deg, #ff8a00, #e52e71);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
   font-weight: 600;
-  border-radius: 5px;
   cursor: pointer;
   transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+  text-transform: none;
 }
 
-.signin-btn:hover:not(:disabled) {
-  background-color: #f0f0f0;
+.catch-dreams-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 20px rgba(255, 138, 0, 0.3);
 }
 
-.signin-btn:disabled {
+.catch-dreams-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
 
+/* Social Login Section */
+.social-login-section {
+  margin-bottom: 1.5rem;
+}
+
+.social-divider {
+  text-align: center;
+  margin: 1.5rem 0;
+  position: relative;
+}
+
+.social-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #e1e5e9;
+}
+
+.social-divider span {
+  background: #fff;
+  color: #666;
+  padding: 0 1rem;
+  font-size: 0.875rem;
+}
+
+.social-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.social-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  background: #fff;
+  color: #333;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.social-btn:hover {
+  border-color: #4ea5d9;
+  background: #f8fafc;
+}
+
+.social-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Error Messages */
+.login-error {
+  background: rgba(229, 46, 113, 0.1);
+  border: 1px solid rgba(229, 46, 113, 0.3);
+  color: #e52e71;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* Links */
 .forgot-password-link {
   text-align: center;
-  margin-top: 15px;
-  margin-bottom: 10px;
+  margin-bottom: 1rem;
 }
 
 .forgot-password-link a {
-  color: rgba(255, 255, 255, 0.9);
+  color: #4ea5d9;
   text-decoration: none;
-  font-size: 13px;
+  font-size: 0.875rem;
   font-weight: 500;
-  transition: all 0.3s ease;
-  padding: 5px 10px;
-  border-radius: 5px;
+  transition: color 0.3s ease;
 }
 
 .forgot-password-link a:hover {
-  color: #23a2f6;
-  background: rgba(255, 255, 255, 0.1);
+  color: #2a5298;
 }
 
 .contact-admin {
   text-align: center;
-  font-size: 14px;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.7);
-  margin-top: 15px;
-  margin-bottom: 0;
-  padding-bottom: 10px;
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: 1rem;
 }
 
 .admin-link {
-  color: #23a2f6;
+  color: #4ea5d9;
   text-decoration: none;
   font-weight: 500;
 }
@@ -271,43 +312,269 @@ input:disabled {
   text-decoration: underline;
 }
 
-/* Responsive Design */
-@media (max-width: 480px) {
-  .login-form {
-    width: 350px;
-    height: auto;
-    min-height: 520px;
-    padding: 40px 25px;
-  }
-  
-  .background {
-    width: 380px;
-  }
-}
-
-@media (max-width: 360px) {
-  .login-form {
-    width: 320px;
-    padding: 30px 20px;
-  }
-  
-  .background {
-    width: 350px;
-  }
-  
-  .login-form h3 {
-    font-size: 28px;
-  }
-}
-
-/* Copyright Watermark Styles */
 .copyright-watermark {
   text-align: center;
-  margin-top: 20px;
-  padding: 10px;
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.6);
-  font-weight: 300;
-  letter-spacing: 0.5px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.75rem;
+  color: #999;
+  padding-top: 1rem;
+  border-top: 1px solid #e1e5e9;
+}
+
+/* Right Section - Fishing Illustration */
+.illustration-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1e3c72, #2a5298, #4ea5d9);
+  position: relative;
+  overflow: hidden;
+}
+
+.fishing-illustration {
+  text-align: center;
+  color: white;
+  z-index: 2;
+  position: relative;
+}
+
+.catch-opportunities {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Fisherman Scene CSS Art */
+.fisherman-scene {
+  position: relative;
+  width: 300px;
+  height: 400px;
+  margin: 0 auto;
+}
+
+/* Fisherman Figure */
+.fisherman {
+  position: absolute;
+  bottom: 80px;
+  left: 50px;
+  z-index: 5;
+}
+
+.fisherman-body {
+  width: 40px;
+  height: 80px;
+  background: #2c3e50;
+  border-radius: 20px 20px 0 0;
+  position: relative;
+}
+
+.fisherman-body::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 25px;
+  height: 25px;
+  background: #f4d2a7;
+  border-radius: 50%;
+}
+
+.fisherman-body::after {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 15px;
+  background: #8b4513;
+  border-radius: 15px 15px 0 0;
+}
+
+.fishing-rod {
+  position: absolute;
+  top: -60px;
+  right: -10px;
+  width: 3px;
+  height: 100px;
+  background: #8b4513;
+  transform: rotate(-30deg);
+  transform-origin: bottom;
+}
+
+.fishing-line {
+  position: absolute;
+  top: -60px;
+  right: -15px;
+  width: 1px;
+  height: 200px;
+  background: #333;
+  transform: rotate(-30deg);
+  transform-origin: top;
+  animation: fishing-line-sway 3s ease-in-out infinite;
+}
+
+@keyframes fishing-line-sway {
+  0%, 100% {
+    transform: rotate(-30deg);
+  }
+  50% {
+    transform: rotate(-35deg);
+  }
+}
+
+/* Big Fish */
+.big-fish {
+  position: absolute;
+  bottom: 20px;
+  right: 50px;
+  z-index: 4;
+  animation: fish-swim 4s ease-in-out infinite;
+}
+
+.fish-body {
+  width: 80px;
+  height: 50px;
+  background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+  border-radius: 50px 20px 20px 50px;
+  position: relative;
+}
+
+.fish-tail {
+  position: absolute;
+  right: -20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 25px solid #ff6b6b;
+  border-top: 15px solid transparent;
+  border-bottom: 15px solid transparent;
+}
+
+.fish-fin {
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  width: 0;
+  height: 0;
+  border-left: 15px solid #ee5a24;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+}
+
+@keyframes fish-swim {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  25% {
+    transform: translateY(-10px) translateX(5px);
+  }
+  75% {
+    transform: translateY(10px) translateX(-5px);
+  }
+}
+
+/* Water Ripples */
+.water-ripples {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(transparent, rgba(255, 255, 255, 0.1));
+  overflow: hidden;
+}
+
+.water-ripples::before,
+.water-ripples::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><path d="M0,10 Q25,0 50,10 T100,10 V20 H0 Z" fill="rgba(255,255,255,0.1)"/></svg>') repeat-x;
+  animation: ripple 3s ease-in-out infinite;
+}
+
+.water-ripples::after {
+  animation-delay: 1.5s;
+  opacity: 0.5;
+}
+
+@keyframes ripple {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-20px);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .login-container {
+    flex-direction: column;
+  }
+
+  .login-form-section,
+  .illustration-section {
+    flex: none;
+    height: 50vh;
+  }
+
+  .login-form-section {
+    border-radius: 0;
+  }
+
+  .fisherman-scene {
+    width: 200px;
+    height: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .login-form-section {
+    padding: 1rem;
+  }
+
+  .main-heading {
+    font-size: 2rem;
+  }
+
+  .social-buttons {
+    flex-direction: column;
+  }
+
+  .illustration-section {
+    height: 40vh;
+  }
+
+  .catch-opportunities {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .login-form-content {
+    max-width: none;
+  }
+
+  .main-heading {
+    font-size: 1.75rem;
+  }
+
+  .fisherman-scene {
+    width: 150px;
+    height: 200px;
+  }
 }
