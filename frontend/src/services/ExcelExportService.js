@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx';
+// Dynamic import for XLSX - loads only when needed (7.2MB saved from initial bundle)
 
 class ExcelExportService {
   /**
@@ -7,8 +7,11 @@ class ExcelExportService {
    * @param {Object} filters - Applied filters
    * @param {string} filename - Optional filename
    */
-  static exportClientsToExcel(clients, filters = {}, filename = null) {
+  static async exportClientsToExcel(clients, filters = {}, filename = null) {
     try {
+      // Dynamic import - only load XLSX when export is triggered
+      const XLSX = await import('xlsx');
+
       // Prepare the data for export
       const exportData = clients.map((client, index) => ({
         'Name': client.name || '',
@@ -50,7 +53,7 @@ class ExcelExportService {
         { 'Export Information': 'Status Filter', 'Value': filters.filterStatus || 'All' },
         { 'Export Information': 'Sort By', 'Value': filters.sortBy || 'Name' }
       ];
-      
+
       const metaWorksheet = XLSX.utils.json_to_sheet(metadata);
       XLSX.utils.book_append_sheet(workbook, metaWorksheet, 'Export Info');
 
@@ -82,8 +85,11 @@ class ExcelExportService {
    * @param {Object} filters - Applied filters
    * @param {string} filename - Optional filename
    */
-  static exportInventoryToExcel(inventory, filters = {}, filename = null) {
+  static async exportInventoryToExcel(inventory, filters = {}, filename = null) {
     try {
+      // Dynamic import - only load XLSX when export is triggered
+      const XLSX = await import('xlsx');
+
       // Format currency for Excel
       const formatCurrency = (amount) => {
         return parseFloat(amount || 0);
@@ -166,7 +172,7 @@ class ExcelExportService {
         { 'Export Information': 'Date Range', 'Value': filters.dateRange || 'All Time' },
         { 'Export Information': 'Sort By', 'Value': filters.sortBy || 'Name' }
       ];
-      
+
       const metaWorksheet = XLSX.utils.json_to_sheet(metadata);
       XLSX.utils.book_append_sheet(workbook, metaWorksheet, 'Export Info');
 

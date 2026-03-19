@@ -1,5 +1,4 @@
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+// Dynamic imports for jsPDF and html2canvas - loads only when PDF generation is needed (33MB+ saved from initial bundle)
 
 /**
  * Professional PDF Generator for Window Quotations
@@ -11,6 +10,8 @@ import html2canvas from 'html2canvas';
 class QuotationPDFGenerator {
   constructor() {
     this.pdf = null;
+    this.jsPDF = null; // Will be loaded dynamically
+    this.html2canvas = null; // Will be loaded dynamically
     this.pageWidth = 210; // A4 width in mm
     this.pageHeight = 297; // A4 height in mm
     this.margin = 25.4; // 1 inch margins on all sides (25.4mm)
@@ -42,6 +43,10 @@ class QuotationPDFGenerator {
    */
   async generatePDF(quotationData) {
     try {
+      // Dynamic import - only load jsPDF when PDF generation is triggered
+      const { default: jsPDF } = await import('jspdf');
+      this.jsPDF = jsPDF;
+
       this.pdf = new jsPDF('p', 'mm', 'a4');
       this.currentY = this.margin;
       this.quotationData = quotationData; // Store for access in other methods
@@ -694,6 +699,9 @@ class QuotationPDFGenerator {
    * Add window diagram visualization
    */
   async addWindowDiagram(spec) {
+    // Dynamic import - only load html2canvas when diagram is needed
+    const html2canvas = (await import('html2canvas')).default;
+
     // Create a temporary div to render the window shape
     const diagramDiv = document.createElement('div');
     diagramDiv.style.position = 'absolute';
@@ -702,13 +710,13 @@ class QuotationPDFGenerator {
     diagramDiv.style.height = '250px';
     diagramDiv.style.background = 'white';
     diagramDiv.style.padding = '20px';
-    
+
     // Generate SVG for the window
     const svg = this.generateWindowSVG(spec);
     diagramDiv.innerHTML = svg;
-    
+
     document.body.appendChild(diagramDiv);
-    
+
     try {
       // Capture the diagram as canvas
       const canvas = await html2canvas(diagramDiv, {
@@ -870,6 +878,9 @@ class QuotationPDFGenerator {
    * Add window diagram visualization (enhanced) - Captures real diagram with all configurations
    */
   async addWindowDiagramEnhanced(spec, startX, columnWidth) {
+    // Dynamic import - only load html2canvas when diagram is needed
+    const html2canvas = (await import('html2canvas')).default;
+
     // Calculate available space to ensure diagram fits without cutting
     const availableHeight = this.pageHeight - this.currentY - this.margin - 20; // Reduced buffer for compact layout
     

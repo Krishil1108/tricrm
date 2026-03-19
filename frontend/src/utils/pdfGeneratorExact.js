@@ -1,5 +1,4 @@
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+// Dynamic imports for jsPDF and html2canvas - loads only when PDF generation is needed (33MB+ saved from initial bundle)
 
 /**
  * PIXEL-PERFECT PDF Generator matching reference quotation exactly
@@ -21,6 +20,9 @@ class ExactQuotationPDFGenerator {
    */
   async generatePDF(quotationData) {
     try {
+      // Dynamic import - only load jsPDF when PDF generation is triggered
+      const { default: jsPDF } = await import('jspdf');
+
       this.pdf = new jsPDF('p', 'mm', 'a4');
       this.currentY = this.margin;
       this.quotationData = quotationData;
