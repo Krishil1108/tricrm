@@ -68,6 +68,8 @@ function LoginPage() {
             <span className="auth-brand-name">Arviz Intelligence</span>
           </div>
 
+          <div className="auth-software-name">TriCRM</div>
+
           <h1 className="auth-heading">Welcome Back</h1>
           <p className="auth-subheading">Enter your username and password to access your account</p>
 
