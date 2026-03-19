@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useMemo } from 'react';
 import API_BASE_URL from '../config/api';
 
 const AuthContext = createContext();
@@ -301,7 +301,7 @@ export const AuthProvider = ({ children }) => {
     return user?.role?.name === 'Admin';
   };
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     permissions,
     token,
@@ -387,7 +387,7 @@ export const AuthProvider = ({ children }) => {
     canViewRoleManagementPage,
     isAdmin,
     isAuthenticated: !!user
-  };
+  }), [user, permissions, token, loading]);
 
   return (
     <AuthContext.Provider value={value}>

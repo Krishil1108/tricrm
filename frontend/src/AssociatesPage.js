@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import AssociateService from './services/AssociateService';
@@ -13,7 +13,7 @@ import './PageContent.css';
 import './styles/ActionButtons.css';
 import './styles/ClientsPageEnhanced.css';
 
-const AssociatesPage = () => {
+const AssociatesPage = memo(() => {
     const { 
     canAddNewAssociate,
     canEditAssociate, 
@@ -187,7 +187,7 @@ const AssociatesPage = () => {
       
       setShowAddPopup(false);
       setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      // Removed 3s delay for instant performance
     } catch (error) {
       setError('Failed to add associate. Please try again.');
       console.error('Error creating associate:', error);
@@ -236,7 +236,7 @@ const AssociatesPage = () => {
       setShowEditPopup(false);
       setEditingAssociate(null);
       setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      // Removed 3s delay for instant performance
     } catch (error) {
       setError('Failed to update associate. Please try again.');
       console.error('Error updating associate:', error);
@@ -372,13 +372,13 @@ const AssociatesPage = () => {
 
     const filename = ExcelExportService.generateFilename('associates', filters);
     const result = ExcelExportService.exportAssociatesToExcel(filteredAssociates, filters, filename);
-    
+
     if (result.success) {
       setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      // Removed 3s delay for instant performance
     } else {
       setError(result.message);
-      setTimeout(() => setError(''), 5000);
+      // Removed 5s delay for instant performance
     }
   };
 
@@ -1103,6 +1103,8 @@ const AssociatesPage = () => {
       <Watermark />
     </div>
   );
-};
+});
+
+AssociatesPage.displayName = 'AssociatesPage';
 
 export default AssociatesPage;

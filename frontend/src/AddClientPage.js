@@ -53,9 +53,9 @@ const AddClientPage = () => {
       zipCode: '',
       notes: ''
     });
-    
+
     setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    // Removed 3s delay for instant performance
   };
 
   const handleReset = () => {

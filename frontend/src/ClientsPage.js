@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import ClientService from './services/ClientService';
@@ -14,7 +14,7 @@ import './PageContent.css';
 import './styles/ClientsPageEnhanced.css';
 import './styles/ActionButtons.css';
 
-const ClientsPage = () => {
+const ClientsPage = memo(() => {
   const { 
     canAddNewClient,
     canEditClient, 
@@ -219,7 +219,7 @@ const ClientsPage = () => {
       
       setShowAddPopup(false);
       setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      // Removed 3s delay for instant performance
     } catch (error) {
       setError('Failed to add client. Please try again.');
       console.error('Error creating client:', error);
@@ -274,7 +274,7 @@ const ClientsPage = () => {
       setShowEditPopup(false);
       setEditingClient(null);
       setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      // Removed 3s delay for instant performance
     } catch (error) {
       setError('Failed to update client. Please try again.');
       console.error('Error updating client:', error);
@@ -414,13 +414,13 @@ const ClientsPage = () => {
 
     const filename = ExcelExportService.generateFilename('clients', filters);
     const result = ExcelExportService.exportClientsToExcel(filteredClients, filters, filename);
-    
+
     if (result.success) {
       setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      // Removed 3s delay for instant performance
     } else {
       setError(result.message);
-      setTimeout(() => setError(''), 5000);
+      // Removed 5s delay for instant performance
     }
   };
 
@@ -1372,6 +1372,8 @@ const ClientsPage = () => {
       <Watermark />
     </div>
   );
-};
+});
+
+ClientsPage.displayName = 'ClientsPage';
 
 export default ClientsPage;
