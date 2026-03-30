@@ -132,6 +132,22 @@ const AssociateProjectsPage = () => {
     navigate('/associates');
   };
 
+  // Helper function to calculate Indian Financial Year (April-March)
+  const getFinancialYear = (date) => {
+    if (!date) return '-';
+    const d = new Date(date);
+    const month = d.getMonth(); // 0-11 (0=Jan, 3=Apr, 11=Dec)
+    const year = d.getFullYear();
+    
+    // If month is April (3) or later, FY is current year to next year
+    // If month is Jan-Mar (0-2), FY is previous year to current year
+    if (month >= 3) {
+      return `${year}-${(year + 1).toString().slice(-2)}`;
+    } else {
+      return `${year - 1}-${year.toString().slice(-2)}`;
+    }
+  };
+
   // Export to Excel
   const exportToExcel = () => {
     try {
@@ -140,6 +156,7 @@ const AssociateProjectsPage = () => {
         return;
       }
       
+      // ===== 1. Project Summary Data =====
       const exportData = filteredProjects.map(project => {
         const associateDataFromProject = project.projectAssociates?.find(
           assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
@@ -162,10 +179,97 @@ const AssociateProjectsPage = () => {
         };
       });
 
-      const workbook = XLSX.utils.book_new();
-      const worksheet = XLSX.utils.json_to_sheet(exportData);
+      // ===== 2. Payment Entries Data =====
+      const paymentEntries = [];
+      filteredProjects.forEach(project => {
+        const associateDataFromProject = project.projectAssociates?.find(
+          assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+        );
+        
+        if (associateDataFromProject?.paymentTransactions && associateDataFromProject.paymentTransactions.length > 0) {
+          associateDataFromProject.paymentTransactions.forEach(transaction => {
+            paymentEntries.push({
+              'Project Number': project.projectNumber || '',
+              'Project Name': project.projectName || '',
+              'Transaction Date': transaction.transactionDate ? 
+                new Date(transaction.transactionDate).toLocaleDateString('en-IN') : '-',
+              'Financial Year': getFinancialYear(transaction.transactionDate),
+              'Payment Mode': transaction.paymentMode || '-',
+              'Cheque/NEFT Number': transaction.chequeNeftNumber || '-',
+              'Amount (₹)': transaction.amount || 0,
+              'Notes': transaction.notes || '-'
+            });
+          });
+        }
+      });
 
-      // Set column widths
+      // ===== 3. Financial Year Summary Data =====
+      const fyMap = new Map();
+      
+      filteredProjects.forEach(project => {
+        const associateDataFromProject = project.projectAssociates?.find(
+          assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+        );
+        
+        if (associateDataFromProject?.paymentTransactions && associateDataFromProject.paymentTransactions.length > 0) {
+          associateDataFromProject.paymentTransactions.forEach(transaction => {
+            const fy = getFinancialYear(transaction.transactionDate);
+            
+            if (!fyMap.has(fy)) {
+              fyMap.set(fy, {
+                totalReceived: 0,
+                totalSettled: 0,
+                transactionCount: 0,
+                projectsSet: new Set()
+              });
+            }
+            
+            const fyData = fyMap.get(fy);
+            fyData.totalSettled += (transaction.amount || 0);
+            fyData.transactionCount += 1;
+            fyData.projectsSet.add(project.projectNumber);
+          });
+        }
+        
+        // Calculate total received per FY based on project payment entries
+        if (project.paymentEntries && project.paymentEntries.length > 0) {
+          const associatePercentage = associateDataFromProject?.percentage || 0;
+          
+          project.paymentEntries.forEach(entry => {
+            const fy = getFinancialYear(entry.paymentDate);
+            const associateShare = Math.round((entry.amountReceived * associatePercentage) / 100);
+            
+            if (!fyMap.has(fy)) {
+              fyMap.set(fy, {
+                totalReceived: 0,
+                totalSettled: 0,
+                transactionCount: 0,
+                projectsSet: new Set()
+              });
+            }
+            
+            fyMap.get(fy).totalReceived += associateShare;
+          });
+        }
+      });
+
+      // Convert fyMap to array and sort by FY (most recent first)
+      const fySummary = Array.from(fyMap.entries())
+        .map(([fy, data]) => ({
+          'Financial Year': fy,
+          'Total Payments Received (₹)': data.totalReceived,
+          'Total Payments Settled (₹)': data.totalSettled,
+          'Pending Amount (₹)': data.totalReceived - data.totalSettled,
+          'Number of Transactions': data.transactionCount,
+          'Number of Projects': data.projectsSet.size
+        }))
+        .sort((a, b) => b['Financial Year'].localeCompare(a['Financial Year']));
+
+      // ===== 4. Create Excel Workbook =====
+      const workbook = XLSX.utils.book_new();
+      
+      // Sheet 1: Associate Projects Summary
+      const worksheet = XLSX.utils.json_to_sheet(exportData);
       const columnWidths = [
         { wch: 15 }, // Project Number
         { wch: 30 }, // Project Name
@@ -176,10 +280,41 @@ const AssociateProjectsPage = () => {
         { wch: 12 }  // Status
       ];
       worksheet['!cols'] = columnWidths;
-
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Associate Projects');
 
-      // Add summary sheet
+      // Sheet 2: Payment Entries Detail
+      if (paymentEntries.length > 0) {
+        const paymentWorksheet = XLSX.utils.json_to_sheet(paymentEntries);
+        const paymentColumnWidths = [
+          { wch: 15 }, // Project Number
+          { wch: 30 }, // Project Name
+          { wch: 15 }, // Transaction Date
+          { wch: 15 }, // Financial Year
+          { wch: 15 }, // Payment Mode
+          { wch: 20 }, // Cheque/NEFT Number
+          { wch: 15 }, // Amount
+          { wch: 30 }  // Notes
+        ];
+        paymentWorksheet['!cols'] = paymentColumnWidths;
+        XLSX.utils.book_append_sheet(workbook, paymentWorksheet, 'Payment Entries');
+      }
+
+      // Sheet 3: Financial Year Summary
+      if (fySummary.length > 0) {
+        const fyWorksheet = XLSX.utils.json_to_sheet(fySummary);
+        const fyColumnWidths = [
+          { wch: 15 }, // Financial Year
+          { wch: 22 }, // Total Payments Received
+          { wch: 22 }, // Total Payments Settled
+          { wch: 18 }, // Pending Amount
+          { wch: 20 }, // Number of Transactions
+          { wch: 18 }  // Number of Projects
+        ];
+        fyWorksheet['!cols'] = fyColumnWidths;
+        XLSX.utils.book_append_sheet(workbook, fyWorksheet, 'Financial Year Summary');
+      }
+
+      // Sheet 4: Overall Summary
       const summary = [
         { 'Field': 'Associate Name', 'Value': associateInfo.name },
         { 'Field': 'Company', 'Value': associateInfo.company || '-' },
@@ -187,7 +322,8 @@ const AssociateProjectsPage = () => {
         { 'Field': 'Total Projects', 'Value': stats.totalProjects },
         { 'Field': 'Total Associate Allocation', 'Value': `₹${stats.totalAssociateAllocation.toLocaleString('en-IN')}` },
         { 'Field': 'Amount Paid to Associate', 'Value': `₹${stats.totalAssociatePaid.toLocaleString('en-IN')}` },
-        { 'Field': 'Pending to Associate', 'Value': `₹${stats.totalAssociatePending.toLocaleString('en-IN')}` }
+        { 'Field': 'Pending to Associate', 'Value': `₹${stats.totalAssociatePending.toLocaleString('en-IN')}` },
+        { 'Field': 'Total Payment Entries', 'Value': paymentEntries.length }
       ];
       
       const summaryWorksheet = XLSX.utils.json_to_sheet(summary);
@@ -851,7 +987,6 @@ const AssociateProjectsPage = () => {
                               className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                               style={{ padding: '5px', color: '#16a34a', backgroundColor: 'transparent', border: 'none', borderRadius: '6px', cursor: 'pointer', transition: 'all 0.2s ease' }}
                               title="Add Payment"
-                              disabled={pendingAmount <= 0}
                               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
                               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             >
