@@ -98,12 +98,11 @@ const AssociateProjectsPage = () => {
         );
         
         if (associateData) {
-          // Calculate this associate's share of the project (based on finalized fees)
-          const associateShare = Math.round((project.finalizedFees * (associateData.percentage || 0)) / 100);
-          const receivedBasedShare = Math.round((project.totalReceivedFees * (associateData.percentage || 0)) / 100);
+          // Calculate this associate's share of the project (based on received fees)
+          const associateShare = Math.round((project.totalReceivedFees * (associateData.percentage || 0)) / 100);
           stats.totalAssociateAllocation += associateShare;
           stats.totalAssociatePaid += (associateData.amountPaid || 0);
-          stats.totalAssociatePending += (receivedBasedShare - (associateData.amountPaid || 0));
+          stats.totalAssociatePending += (associateShare - (associateData.amountPaid || 0));
         }
       }
     });
@@ -163,10 +162,9 @@ const AssociateProjectsPage = () => {
         );
         
         const associatePercentage = associateDataFromProject?.percentage || 0;
-        const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
-        const receivedBasedAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
+        const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
         const amountPaid = associateDataFromProject?.amountPaid || 0;
-        const pendingAmount = receivedBasedAmount - amountPaid;
+        const pendingAmount = associateAmount - amountPaid;
         
         return {
           'Project Number': project.projectNumber || '',
@@ -299,7 +297,151 @@ const AssociateProjectsPage = () => {
         XLSX.utils.book_append_sheet(workbook, paymentWorksheet, 'Payment Entries');
       }
 
-      // Sheet 3: Financial Year Summary
+      // Sheet 3: Project-wise Financial Year Distribution
+      const projectFYDistribution = [];
+      
+      filteredProjects.forEach(project => {
+        const associateDataFromProject = project.projectAssociates?.find(
+          assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+        );
+        
+        if (associateDataFromProject?.paymentTransactions && associateDataFromProject.paymentTransactions.length > 0) {
+          // Group payments by financial year for this project
+          const projectFYMap = new Map();
+          
+          associateDataFromProject.paymentTransactions.forEach(transaction => {
+            const fy = getFinancialYear(transaction.transactionDate);
+            if (!projectFYMap.has(fy)) {
+              projectFYMap.set(fy, []);
+            }
+            projectFYMap.get(fy).push(transaction);
+          });
+          
+          // Sort FY keys
+          const sortedFYs = Array.from(projectFYMap.keys()).sort();
+          
+          // Add rows for each FY with payments
+          sortedFYs.forEach((fy, index) => {
+            const transactions = projectFYMap.get(fy);
+            const fyTotal = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+            
+            // First row for this FY shows project details
+            if (index === 0) {
+              projectFYDistribution.push({
+                'Project Number': project.projectNumber || '',
+                'Project Name': project.projectName || '',
+                'Financial Year': fy,
+                'Payments': transactions.map(t => 
+                  `${new Date(t.transactionDate).toLocaleDateString('en-IN')}: ₹${(t.amount || 0).toLocaleString('en-IN')}`
+                ).join(' | '),
+                'FY Total (₹)': fyTotal,
+                'Remarks': `${transactions.length} payment(s)`
+              });
+            } else {
+              // Subsequent FYs for same project - leave project details blank
+              projectFYDistribution.push({
+                'Project Number': '',
+                'Project Name': '',
+                'Financial Year': fy,
+                'Payments': transactions.map(t => 
+                  `${new Date(t.transactionDate).toLocaleDateString('en-IN')}: ₹${(t.amount || 0).toLocaleString('en-IN')}`
+                ).join(' | '),
+                'FY Total (₹)': fyTotal,
+                'Remarks': `${transactions.length} payment(s)`
+              });
+            }
+          });
+          
+          // Add project total row
+          const projectTotal = associateDataFromProject.paymentTransactions.reduce(
+            (sum, t) => sum + (t.amount || 0), 0
+          );
+          projectFYDistribution.push({
+            'Project Number': '',
+            'Project Name': '',
+            'Financial Year': 'PROJECT TOTAL',
+            'Payments': '',
+            'FY Total (₹)': projectTotal,
+            'Remarks': `Total across ${sortedFYs.length} FY(s)`
+          });
+          
+          // Add blank row for spacing
+          projectFYDistribution.push({
+            'Project Number': '',
+            'Project Name': '',
+            'Financial Year': '',
+            'Payments': '',
+            'FY Total (₹)': '',
+            'Remarks': ''
+          });
+        }
+      });
+      
+      // Add FY-wise grand totals at the bottom
+      if (projectFYDistribution.length > 0) {
+        const allFYTotals = new Map();
+        
+        filteredProjects.forEach(project => {
+          const associateDataFromProject = project.projectAssociates?.find(
+            assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+          );
+          
+          if (associateDataFromProject?.paymentTransactions) {
+            associateDataFromProject.paymentTransactions.forEach(transaction => {
+              const fy = getFinancialYear(transaction.transactionDate);
+              allFYTotals.set(fy, (allFYTotals.get(fy) || 0) + (transaction.amount || 0));
+            });
+          }
+        });
+        
+        projectFYDistribution.push({
+          'Project Number': '',
+          'Project Name': '',
+          'Financial Year': '═══════════════',
+          'Payments': '',
+          'FY Total (₹)': '',
+          'Remarks': 'FINANCIAL YEAR TOTALS'
+        });
+        
+        const sortedAllFYs = Array.from(allFYTotals.keys()).sort();
+        sortedAllFYs.forEach(fy => {
+          projectFYDistribution.push({
+            'Project Number': '',
+            'Project Name': '',
+            'Financial Year': fy,
+            'Payments': '',
+            'FY Total (₹)': allFYTotals.get(fy),
+            'Remarks': 'Grand Total'
+          });
+        });
+        
+        // Overall grand total
+        const overallTotal = Array.from(allFYTotals.values()).reduce((sum, val) => sum + val, 0);
+        projectFYDistribution.push({
+          'Project Number': '',
+          'Project Name': '',
+          'Financial Year': 'OVERALL TOTAL',
+          'Payments': '',
+          'FY Total (₹)': overallTotal,
+          'Remarks': 'All payments'
+        });
+      }
+      
+      if (projectFYDistribution.length > 0) {
+        const projectFYWorksheet = XLSX.utils.json_to_sheet(projectFYDistribution);
+        const projectFYColumnWidths = [
+          { wch: 15 }, // Project Number
+          { wch: 30 }, // Project Name
+          { wch: 15 }, // Financial Year
+          { wch: 60 }, // Payments
+          { wch: 15 }, // FY Total
+          { wch: 25 }  // Remarks
+        ];
+        projectFYWorksheet['!cols'] = projectFYColumnWidths;
+        XLSX.utils.book_append_sheet(workbook, projectFYWorksheet, 'Project FY Distribution');
+      }
+
+      // Sheet 4: Financial Year Summary
       if (fySummary.length > 0) {
         const fyWorksheet = XLSX.utils.json_to_sheet(fySummary);
         const fyColumnWidths = [
@@ -314,7 +456,7 @@ const AssociateProjectsPage = () => {
         XLSX.utils.book_append_sheet(workbook, fyWorksheet, 'Financial Year Summary');
       }
 
-      // Sheet 4: Overall Summary
+      // Sheet 5: Overall Summary
       const summary = [
         { 'Field': 'Associate Name', 'Value': associateInfo.name },
         { 'Field': 'Company', 'Value': associateInfo.company || '-' },
@@ -384,10 +526,9 @@ const AssociateProjectsPage = () => {
         );
         
         const associatePercentage = associateDataFromProject?.percentage || 0;
-        const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
-        const receivedBasedAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
+        const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
         const amountPaid = associateDataFromProject?.amountPaid || 0;
-        const pendingAmount = receivedBasedAmount - amountPaid;
+        const pendingAmount = associateAmount - amountPaid;
         
         return [
           project.projectNumber || '',
@@ -441,7 +582,7 @@ const AssociateProjectsPage = () => {
     setSelectedAssociateData(associateData);
     
     // Calculate suggested amount based on percentage
-    const associateAmount = Math.round((project.finalizedFees * (associateData?.percentage || 0)) / 100);
+    const associateAmount = Math.round((project.totalReceivedFees * (associateData?.percentage || 0)) / 100);
     const amountPaid = associateData?.amountPaid || 0;
     const pendingAmount = associateAmount - amountPaid;
     
@@ -898,7 +1039,7 @@ const AssociateProjectsPage = () => {
                             assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
                           );
                           const associatePercentage = associateDataFromProject?.percentage || 0;
-                          return Math.round((project.finalizedFees * associatePercentage) / 100);
+                          return Math.round((project.totalReceivedFees * associatePercentage) / 100);
                         })}
                       >
                         Associate Amount
@@ -949,10 +1090,9 @@ const AssociateProjectsPage = () => {
                     );
                     
                     const associatePercentage = associateDataFromProject?.percentage || 0;
-                    const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
-                    const receivedBasedAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
+                    const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
                     const amountPaid = associateDataFromProject?.amountPaid || 0;
-                    const pendingAmount = receivedBasedAmount - amountPaid;
+                    const pendingAmount = associateAmount - amountPaid;
                     
                     return (
                       <tr key={project._id}>
@@ -1068,7 +1208,7 @@ const AssociateProjectsPage = () => {
                             assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
                           );
                           const associatePercentage = associateData?.percentage || 0;
-                          return Math.round((project.finalizedFees * associatePercentage) / 100);
+                          return Math.round((project.totalReceivedFees * associatePercentage) / 100);
                         })}
                       >
                         Allocated Amount
@@ -1084,7 +1224,7 @@ const AssociateProjectsPage = () => {
                             assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
                           );
                           const associatePercentage = associateData?.percentage || 0;
-                          const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
+                          const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
                           const amountPaid = associateData?.amountPaid || 0;
                           const pendingAmount = associateAmount - amountPaid;
                           return pendingAmount === 0 ? 'Completed' : amountPaid > 0 ? 'Partial' : 'Pending';
@@ -1118,7 +1258,7 @@ const AssociateProjectsPage = () => {
                             assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
                           );
                           const associatePercentage = associateData?.percentage || 0;
-                          const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
+                          const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
                           const amountPaid = associateData?.amountPaid || 0;
                           return associateAmount - amountPaid;
                         })}
@@ -1138,7 +1278,7 @@ const AssociateProjectsPage = () => {
                     );
                     
                     const associatePercentage = associateData?.percentage || 0;
-                    const associateAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
+                    const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
                     const amountPaid = associateData?.amountPaid || 0;
                     const pendingAmount = associateAmount - amountPaid;
                     const paymentStatus = pendingAmount === 0 ? 'Completed' : amountPaid > 0 ? 'Partial' : 'Pending';
