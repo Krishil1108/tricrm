@@ -4,7 +4,7 @@ import { useAuth } from './contexts/AuthContext';
 import FinanceService from './services/FinanceService';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
-import { FaChartBar, FaCheckCircle, FaClock, FaDownload, FaEdit, FaFileExcel, FaFilePdf, FaHistory, FaMoneyBillWave, FaUser, FaUsers } from 'react-icons/fa';
+import { FaCalendarAlt, FaChartBar, FaCheckCircle, FaClock, FaDownload, FaEdit, FaFileExcel, FaFilePdf, FaHistory, FaMoneyBillWave, FaUser, FaUsers } from 'react-icons/fa';
 import { FiBarChart2, FiChevronDown, FiChevronUp, FiMinus } from 'react-icons/fi';
 import useSortableData from './utils/useSortableData';
 import jsPDF from 'jspdf';
@@ -35,9 +35,11 @@ const AssociateProjectsPage = () => {
   });
   const [filters, setFilters] = useState({
     search: '',
-    status: 'all'
+    status: 'all',
+    financialYear: 'all' // Add FY filter
   });
   const [activeView, setActiveView] = useState('owner'); // 'owner' or 'associate'
+  const [availableFYs, setAvailableFYs] = useState([]); // Store available financial years
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,12 +65,25 @@ const AssociateProjectsPage = () => {
     fetchAssociateProjects();
   }, [associateId]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Recalculate stats when FY filter changes
+  useEffect(() => {
+    if (projects.length > 0) {
+      calculateStats(projects, filters.financialYear);
+    }
+  }, [filters.financialYear]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const fetchAssociateProjects = async () => {
     try {
       showLoading();
       const projectsData = await FinanceService.getProjectsByAssociate(associateId);
       setProjects(Array.isArray(projectsData) ? projectsData : []);
-      calculateStats(projectsData);
+      
+      // Generate available FYs
+      const fys = generateAvailableFYs(projectsData);
+      setAvailableFYs(fys);
+      
+      // Calculate stats with current FY filter
+      calculateStats(projectsData, filters.financialYear);
     } catch (error) {
       console.error('Error fetching associate projects:', error);
       showError('Failed to load associate projects');
@@ -78,7 +93,7 @@ const AssociateProjectsPage = () => {
     }
   };
 
-  const calculateStats = (projectsData) => {
+  const calculateStats = (projectsData, selectedFY = 'all') => {
     const projects = Array.isArray(projectsData) ? projectsData : [];
     const stats = {
       totalProjects: projects.length,
@@ -98,11 +113,15 @@ const AssociateProjectsPage = () => {
         );
         
         if (associateData) {
+          // Filter payments by FY if specified
+          const fyPayments = filterPaymentsByFY(associateData.paymentTransactions, selectedFY);
+          const fyAmountPaid = fyPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+          
           // Calculate this associate's share of the project (based on received fees)
           const associateShare = Math.round((project.totalReceivedFees * (associateData.percentage || 0)) / 100);
           stats.totalAssociateAllocation += associateShare;
-          stats.totalAssociatePaid += (associateData.amountPaid || 0);
-          stats.totalAssociatePending += (associateShare - (associateData.amountPaid || 0));
+          stats.totalAssociatePaid += fyAmountPaid;
+          stats.totalAssociatePending += (associateShare - fyAmountPaid);
         }
       }
     });
@@ -125,6 +144,64 @@ const AssociateProjectsPage = () => {
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  // Helper function to get FY date range
+  const getFYDateRange = (fy) => {
+    if (!fy || fy === 'all') return { start: null, end: null };
+    
+    const [startYear] = fy.split('-');
+    const year = parseInt(startYear, 10);
+    
+    return {
+      start: new Date(`${year}-04-01T00:00:00`),
+      end: new Date(`${year + 1}-03-31T23:59:59`)
+    };
+  };
+
+  // Helper function to filter payments by FY
+  const filterPaymentsByFY = (payments, fy) => {
+    if (!fy || fy === 'all' || !payments || !Array.isArray(payments)) {
+      return payments || [];
+    }
+    
+    const { start, end } = getFYDateRange(fy);
+    if (!start || !end) return payments;
+    
+    return payments.filter(payment => {
+      if (!payment.transactionDate) return false;
+      const paymentDate = new Date(payment.transactionDate);
+      return paymentDate >= start && paymentDate <= end;
+    });
+  };
+
+  // Generate available financial years from project data
+  const generateAvailableFYs = (projectsData) => {
+    const fys = new Set();
+    
+    projectsData.forEach(project => {
+      if (project.projectAssociates) {
+        project.projectAssociates.forEach(assoc => {
+          if (assoc.paymentTransactions) {
+            assoc.paymentTransactions.forEach(payment => {
+              if (payment.transactionDate) {
+                const fy = getFinancialYear(payment.transactionDate);
+                if (fy !== '-') fys.add(fy);
+              }
+            });
+          }
+        });
+      }
+    });
+    
+    // Convert to array and sort in descending order (most recent first)
+    const fyArray = Array.from(fys).sort((a, b) => {
+      const [yearA] = a.split('-').map(Number);
+      const [yearB] = b.split('-').map(Number);
+      return yearB - yearA;
+    });
+    
+    return fyArray;
   };
 
   const handleBackToAssociates = () => {
@@ -809,7 +886,7 @@ const AssociateProjectsPage = () => {
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters.search, filters.status]);
+  }, [filters.search, filters.status, filters.financialYear]);
 
   return (
     <div className="project-page">
@@ -830,6 +907,21 @@ const AssociateProjectsPage = () => {
             <strong style={{ color: '#fff' }}>{associateInfo.name}</strong>
             {associateInfo.company && <span> · {associateInfo.company}</span>}
             {stats.totalProjects > 0 && <span> · {stats.totalProjects} project{stats.totalProjects !== 1 ? 's' : ''}</span>}
+            {filters.financialYear !== 'all' && (
+              <span 
+                style={{
+                  marginLeft: '8px',
+                  padding: '3px 10px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  border: '1px solid rgba(255, 255, 255, 0.3)'
+                }}
+              >
+                FY {filters.financialYear}
+              </span>
+            )}
           </p>
         </div>
         <div className="hero-actions">
@@ -864,6 +956,59 @@ const AssociateProjectsPage = () => {
 
       <div className="page-body">
 
+      {/* FY Filter Banner - Shows when specific FY is selected */}
+      {filters.financialYear !== 'all' && canViewStats('associates') && (
+        <div style={{
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          borderRadius: '12px',
+          padding: '16px 20px',
+          marginBottom: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          boxShadow: '0 4px 15px rgba(102, 126, 234, 0.3)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.2)',
+              borderRadius: '10px',
+              padding: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <FaCalendarAlt style={{ color: '#fff', fontSize: '20px' }} />
+            </div>
+            <div>
+              <div style={{ color: '#fff', fontSize: '16px', fontWeight: '600' }}>
+                Financial Year {filters.financialYear}
+              </div>
+              <div style={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '12px' }}>
+                Showing payments from April {filters.financialYear.split('-')[0]} to March {parseInt(filters.financialYear.split('-')[0]) + 1}
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => setFilters(prev => ({ ...prev, financialYear: 'all' }))}
+            style={{
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              borderRadius: '8px',
+              padding: '8px 16px',
+              color: '#fff',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: '500',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+          >
+            Show All Time
+          </button>
+        </div>
+      )}
+
       {/* Stats Cards - Role-based visibility */}
       {canViewStats('associates') && (
         <div className="stats-grid">
@@ -892,14 +1037,18 @@ const AssociateProjectsPage = () => {
             <div className="stat-icon"><FaCheckCircle /></div>
             <div className="stat-info">
               <div className="stat-number">{formatCurrency(stats.totalAssociatePaid)}</div>
-              <div className="stat-label">Amount Paid to Associate</div>
+              <div className="stat-label">
+                {filters.financialYear !== 'all' ? `Paid in FY ${filters.financialYear}` : 'Amount Paid to Associate'}
+              </div>
             </div>
           </div>
           <div className="stat-card">
             <div className="stat-icon"><FaClock /></div>
             <div className="stat-info">
               <div className="stat-number">{formatCurrency(stats.totalAssociatePending)}</div>
-              <div className="stat-label">Pending to Associate</div>
+              <div className="stat-label">
+                {filters.financialYear !== 'all' ? `Pending (FY ${filters.financialYear})` : 'Pending to Associate'}
+              </div>
             </div>
           </div>
         </div>
@@ -944,6 +1093,18 @@ const AssociateProjectsPage = () => {
               onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
             />
           </div>
+          
+          <select 
+            value={filters.financialYear} 
+            onChange={(e) => setFilters(prev => ({ ...prev, financialYear: e.target.value }))}
+            className="filter-select"
+            title="Filter by Financial Year"
+          >
+            <option value="all">All Time</option>
+            {availableFYs.map(fy => (
+              <option key={fy} value={fy}>FY {fy}</option>
+            ))}
+          </select>
           
           <select 
             value={filters.status} 
@@ -1054,7 +1215,8 @@ const AssociateProjectsPage = () => {
                           const associateDataFromProject = project.projectAssociates?.find(
                             assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
                           );
-                          return associateDataFromProject?.amountPaid || 0;
+                          const fyPayments = filterPaymentsByFY(associateDataFromProject?.paymentTransactions, filters.financialYear);
+                          return fyPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
                         })}
                       >
                         Amount Paid to Associate
@@ -1071,7 +1233,8 @@ const AssociateProjectsPage = () => {
                           );
                           const associatePercentage = associateDataFromProject?.percentage || 0;
                           const receivedBasedAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
-                          const amountPaid = associateDataFromProject?.amountPaid || 0;
+                          const fyPayments = filterPaymentsByFY(associateDataFromProject?.paymentTransactions, filters.financialYear);
+                          const amountPaid = fyPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
                           return receivedBasedAmount - amountPaid;
                         })}
                       >
@@ -1091,7 +1254,10 @@ const AssociateProjectsPage = () => {
                     
                     const associatePercentage = associateDataFromProject?.percentage || 0;
                     const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
-                    const amountPaid = associateDataFromProject?.amountPaid || 0;
+                    
+                    // Calculate FY-specific amounts
+                    const fyPayments = filterPaymentsByFY(associateDataFromProject?.paymentTransactions, filters.financialYear);
+                    const amountPaid = fyPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
                     const pendingAmount = associateAmount - amountPaid;
                     
                     return (
@@ -1225,7 +1391,8 @@ const AssociateProjectsPage = () => {
                           );
                           const associatePercentage = associateData?.percentage || 0;
                           const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
-                          const amountPaid = associateData?.amountPaid || 0;
+                          const fyPayments = filterPaymentsByFY(associateData?.paymentTransactions, filters.financialYear);
+                          const amountPaid = fyPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
                           const pendingAmount = associateAmount - amountPaid;
                           return pendingAmount === 0 ? 'Completed' : amountPaid > 0 ? 'Partial' : 'Pending';
                         })}
@@ -1242,7 +1409,8 @@ const AssociateProjectsPage = () => {
                           const associateData = project.projectAssociates?.find(
                             assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
                           );
-                          return associateData?.amountPaid || 0;
+                          const fyPayments = filterPaymentsByFY(associateData?.paymentTransactions, filters.financialYear);
+                          return fyPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
                         })}
                       >
                         Paid Amount
@@ -1259,7 +1427,8 @@ const AssociateProjectsPage = () => {
                           );
                           const associatePercentage = associateData?.percentage || 0;
                           const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
-                          const amountPaid = associateData?.amountPaid || 0;
+                          const fyPayments = filterPaymentsByFY(associateData?.paymentTransactions, filters.financialYear);
+                          const amountPaid = fyPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
                           return associateAmount - amountPaid;
                         })}
                       >
@@ -1279,7 +1448,10 @@ const AssociateProjectsPage = () => {
                     
                     const associatePercentage = associateData?.percentage || 0;
                     const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
-                    const amountPaid = associateData?.amountPaid || 0;
+                    
+                    // Calculate FY-specific amounts
+                    const fyPayments = filterPaymentsByFY(associateData?.paymentTransactions, filters.financialYear);
+                    const amountPaid = fyPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
                     const pendingAmount = associateAmount - amountPaid;
                     const paymentStatus = pendingAmount === 0 ? 'Completed' : amountPaid > 0 ? 'Partial' : 'Pending';
                     

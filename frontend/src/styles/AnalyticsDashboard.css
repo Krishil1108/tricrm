@@ -307,10 +307,28 @@
 }
 
 .card-value {
-  font-size: 2.2rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: #2c3e50;
   margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ensure values wrap for very long numbers on smaller screens */
+@media (max-width: 1400px) {
+  .card-value {
+    font-size: 1.4rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .card-value {
+    font-size: 1.6rem;
+    white-space: normal;
+    word-break: break-word;
+  }
 }
 
 .card-change {

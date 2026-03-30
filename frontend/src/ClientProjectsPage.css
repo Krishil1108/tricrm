@@ -304,7 +304,7 @@
 }
 
 .stat-number {
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 700;
   color: #1a202c;
   margin-bottom: 3px;
@@ -312,6 +312,21 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Ensure numbers wrap for very long values on smaller screens */
+@media (max-width: 1400px) {
+  .stat-number {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .stat-number {
+    font-size: 18px;
+    white-space: normal;
+    word-break: break-word;
+  }
 }
 
 .stat-label {
