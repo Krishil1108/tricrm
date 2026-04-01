@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const Expense = require('../models/Expense');
 const ExpenseCategory = require('../models/ExpenseCategory');
 const Firm = require('../models/Firm');
-const { authenticate } = require('../middleware/auth');
+// Note: authenticate middleware is applied at the app.use() level in server.js
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -41,26 +41,30 @@ const upload = multer({
 // ==================== EXPENSE CATEGORY ROUTES ====================
 
 // Get all categories (including defaults)
-router.get('/categories', authenticate, async (req, res) => {
+router.get('/categories', async (req, res) => {
+  console.log('[EXPENSE-ROUTES] GET /categories - Request received');
   try {
     // Ensure default categories exist
+    console.log('[EXPENSE-ROUTES] Ensuring default categories exist...');
     await ExpenseCategory.ensureDefaultCategories();
     
     const { includeInactive } = req.query;
     const query = includeInactive === 'true' ? {} : { isActive: true };
+    console.log('[EXPENSE-ROUTES] Query:', query);
     
     const categories = await ExpenseCategory.find(query)
       .sort({ sortOrder: 1, name: 1 });
     
+    console.log(`[EXPENSE-ROUTES] Found ${categories.length} categories:`, categories.map(c => c.name));
     res.sendSuccess(categories, 'Categories fetched successfully');
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.error('[EXPENSE-ROUTES] Error fetching categories:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
 // Create custom category
-router.post('/categories', authenticate, async (req, res) => {
+router.post('/categories', async (req, res) => {
   try {
     const { name, description, icon, color } = req.body;
     
@@ -94,7 +98,7 @@ router.post('/categories', authenticate, async (req, res) => {
 });
 
 // Update category
-router.put('/categories/:id', authenticate, async (req, res) => {
+router.put('/categories/:id', async (req, res) => {
   try {
     const { name, description, icon, color, isActive } = req.body;
     
@@ -123,7 +127,7 @@ router.put('/categories/:id', authenticate, async (req, res) => {
 });
 
 // Delete custom category
-router.delete('/categories/:id', authenticate, async (req, res) => {
+router.delete('/categories/:id', async (req, res) => {
   try {
     const category = await ExpenseCategory.findById(req.params.id);
     if (!category) {
@@ -153,7 +157,8 @@ router.delete('/categories/:id', authenticate, async (req, res) => {
 // ==================== FIRM ROUTES ====================
 
 // Get all firms
-router.get('/firms', authenticate, async (req, res) => {
+router.get('/firms', async (req, res) => {
+  console.log('[EXPENSE-ROUTES] GET /firms - Request received');
   try {
     const { includeInactive, search } = req.query;
     const query = includeInactive === 'true' ? {} : { isActive: true };
@@ -165,36 +170,43 @@ router.get('/firms', authenticate, async (req, res) => {
       ];
     }
     
+    console.log('[EXPENSE-ROUTES] Firms query:', query);
     const firms = await Firm.find(query)
       .sort({ name: 1 })
       .populate('createdBy', 'username email');
     
+    console.log(`[EXPENSE-ROUTES] Found ${firms.length} firms:`, firms.map(f => f.name));
     res.sendSuccess(firms, 'Firms fetched successfully');
   } catch (error) {
-    console.error('Error fetching firms:', error);
+    console.error('[EXPENSE-ROUTES] Error fetching firms:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
 // Get single firm
-router.get('/firms/:id', authenticate, async (req, res) => {
+router.get('/firms/:id', async (req, res) => {
+  console.log('[EXPENSE-ROUTES] GET /firms/:id - Request received, id:', req.params.id);
   try {
     const firm = await Firm.findById(req.params.id)
       .populate('createdBy', 'username email');
     
     if (!firm) {
+      console.log('[EXPENSE-ROUTES] Firm not found');
       return res.status(404).json({ message: 'Firm not found' });
     }
     
+    console.log('[EXPENSE-ROUTES] Firm found:', firm.name);
     res.sendSuccess(firm, 'Firm fetched successfully');
   } catch (error) {
-    console.error('Error fetching firm:', error);
+    console.error('[EXPENSE-ROUTES] Error fetching firm:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
 // Create firm
-router.post('/firms', authenticate, async (req, res) => {
+router.post('/firms', async (req, res) => {
+  console.log('[EXPENSE-ROUTES] POST /firms - Request received');
+  console.log('[EXPENSE-ROUTES] Body:', req.body);
   try {
     const firmData = {
       ...req.body,
@@ -204,18 +216,20 @@ router.post('/firms', authenticate, async (req, res) => {
     const firm = new Firm(firmData);
     await firm.save();
     
+    console.log('[EXPENSE-ROUTES] Firm created:', firm.name, 'ID:', firm._id);
     res.status(201).json({ success: true, data: firm, message: 'Firm created successfully' });
   } catch (error) {
     if (error.code === 11000) {
+      console.log('[EXPENSE-ROUTES] Duplicate firm name error');
       return res.status(400).json({ message: 'Firm with this name already exists' });
     }
-    console.error('Error creating firm:', error);
+    console.error('[EXPENSE-ROUTES] Error creating firm:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
 // Update firm
-router.put('/firms/:id', authenticate, async (req, res) => {
+router.put('/firms/:id', async (req, res) => {
   try {
     const firm = await Firm.findByIdAndUpdate(
       req.params.id,
@@ -235,7 +249,7 @@ router.put('/firms/:id', authenticate, async (req, res) => {
 });
 
 // Delete firm
-router.delete('/firms/:id', authenticate, async (req, res) => {
+router.delete('/firms/:id', async (req, res) => {
   try {
     // Check if firm has expenses
     const expenseCount = await Expense.countDocuments({ firm: req.params.id });
@@ -258,7 +272,7 @@ router.delete('/firms/:id', authenticate, async (req, res) => {
 });
 
 // Add bank account to firm
-router.post('/firms/:id/bank-accounts', authenticate, async (req, res) => {
+router.post('/firms/:id/bank-accounts', async (req, res) => {
   try {
     const firm = await Firm.findById(req.params.id);
     if (!firm) {
@@ -284,7 +298,7 @@ router.post('/firms/:id/bank-accounts', authenticate, async (req, res) => {
 });
 
 // Update bank account
-router.put('/firms/:firmId/bank-accounts/:accountId', authenticate, async (req, res) => {
+router.put('/firms/:firmId/bank-accounts/:accountId', async (req, res) => {
   try {
     const firm = await Firm.findById(req.params.firmId);
     if (!firm) {
@@ -312,7 +326,7 @@ router.put('/firms/:firmId/bank-accounts/:accountId', authenticate, async (req, 
 });
 
 // Delete bank account
-router.delete('/firms/:firmId/bank-accounts/:accountId', authenticate, async (req, res) => {
+router.delete('/firms/:firmId/bank-accounts/:accountId', async (req, res) => {
   try {
     const firm = await Firm.findById(req.params.firmId);
     if (!firm) {
@@ -343,7 +357,8 @@ router.delete('/firms/:firmId/bank-accounts/:accountId', authenticate, async (re
 // ==================== EXPENSE ROUTES ====================
 
 // Get all expenses with filters
-router.get('/', authenticate, async (req, res) => {
+router.get('/', async (req, res) => {
+  console.log('[EXPENSE-ROUTES] GET / - Fetching expenses');
   try {
     const { 
       category, firm, bankAccount,
@@ -423,7 +438,7 @@ router.get('/', authenticate, async (req, res) => {
 });
 
 // Get single expense
-router.get('/:id', authenticate, async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const expense = await Expense.findById(req.params.id)
       .populate('category', 'name slug icon color')
@@ -442,7 +457,9 @@ router.get('/:id', authenticate, async (req, res) => {
 });
 
 // Create expense
-router.post('/', authenticate, upload.array('attachments', 5), async (req, res) => {
+router.post('/', upload.array('attachments', 5), async (req, res) => {
+  console.log('[EXPENSE-ROUTES] POST / - Creating expense');
+  console.log('[EXPENSE-ROUTES] Body:', req.body);
   try {
     const expenseData = {
       ...req.body,
@@ -476,15 +493,16 @@ router.post('/', authenticate, upload.array('attachments', 5), async (req, res) 
       { path: 'createdBy', select: 'username email' }
     ]);
     
+    console.log('[EXPENSE-ROUTES] Expense created successfully:', expense._id);
     res.status(201).json({ success: true, data: expense, message: 'Expense created successfully' });
   } catch (error) {
-    console.error('Error creating expense:', error);
+    console.error('[EXPENSE-ROUTES] Error creating expense:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
 // Update expense
-router.put('/:id', authenticate, upload.array('attachments', 5), async (req, res) => {
+router.put('/:id', upload.array('attachments', 5), async (req, res) => {
   try {
     const expense = await Expense.findById(req.params.id);
     if (!expense) {
@@ -535,7 +553,7 @@ router.put('/:id', authenticate, upload.array('attachments', 5), async (req, res
 });
 
 // Delete expense
-router.delete('/:id', authenticate, async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const expense = await Expense.findById(req.params.id);
     if (!expense) {
@@ -560,7 +578,7 @@ router.delete('/:id', authenticate, async (req, res) => {
 });
 
 // Remove attachment from expense
-router.delete('/:id/attachments/:attachmentId', authenticate, async (req, res) => {
+router.delete('/:id/attachments/:attachmentId', async (req, res) => {
   try {
     const expense = await Expense.findById(req.params.id);
     if (!expense) {
@@ -586,7 +604,8 @@ router.delete('/:id/attachments/:attachmentId', authenticate, async (req, res) =
 // ==================== ANALYTICS ROUTES ====================
 
 // Get expense analytics
-router.get('/analytics/summary', authenticate, async (req, res) => {
+router.get('/analytics/summary', async (req, res) => {
+  console.log('[EXPENSE-ROUTES] GET /analytics/summary - Request received');
   try {
     const { startDate, endDate, category, firm, timeframe = 'monthly' } = req.query;
     
@@ -597,15 +616,16 @@ router.get('/analytics/summary', authenticate, async (req, res) => {
       firm
     });
     
+    console.log('[EXPENSE-ROUTES] Analytics fetched successfully');
     res.sendSuccess(analytics, 'Analytics fetched successfully');
   } catch (error) {
-    console.error('Error fetching analytics:', error);
+    console.error('[EXPENSE-ROUTES] Error fetching analytics:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
 // Get expense trends by timeframe
-router.get('/analytics/trends', authenticate, async (req, res) => {
+router.get('/analytics/trends', async (req, res) => {
   try {
     const { timeframe = 'monthly', periods = 12, category, firm } = req.query;
     
@@ -670,7 +690,7 @@ router.get('/analytics/trends', authenticate, async (req, res) => {
 });
 
 // Get year-over-year comparison
-router.get('/analytics/comparison', authenticate, async (req, res) => {
+router.get('/analytics/comparison', async (req, res) => {
   try {
     const { years = 3 } = req.query;
     const currentYear = new Date().getFullYear();
@@ -724,7 +744,7 @@ router.get('/analytics/comparison', authenticate, async (req, res) => {
 });
 
 // Get fiscal year summary
-router.get('/analytics/fiscal-year', authenticate, async (req, res) => {
+router.get('/analytics/fiscal-year', async (req, res) => {
   try {
     const { fy } = req.query;
     

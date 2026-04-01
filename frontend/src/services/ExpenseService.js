@@ -3,6 +3,19 @@ import API_BASE_URL from '../config/api';
 
 const API_URL = API_BASE_URL;
 
+// Debug logger
+const DEBUG = true;
+const log = (area, message, data = null) => {
+  if (DEBUG) {
+    const timestamp = new Date().toISOString().split('T')[1].slice(0, 12);
+    if (data !== null) {
+      console.log(`[${timestamp}] [ExpenseService-${area}]`, message, data);
+    } else {
+      console.log(`[${timestamp}] [ExpenseService-${area}]`, message);
+    }
+  }
+};
+
 // Get auth token
 const getAuthHeader = () => {
   const token = localStorage.getItem('token');
@@ -14,13 +27,17 @@ const ExpenseService = {
   
   // Get all categories
   getCategories: async (includeInactive = false) => {
+    log('CATEGORIES', 'Fetching categories...', { includeInactive });
     try {
       const response = await axios.get(`${API_URL}/expenses/categories`, {
         headers: getAuthHeader(),
         params: { includeInactive }
       });
+      log('CATEGORIES', 'Raw response:', response);
+      log('CATEGORIES', 'Response data:', response.data);
       return response.data;
     } catch (error) {
+      log('CATEGORIES', 'Error:', error.response?.data || error.message);
       console.error('Error fetching categories:', error);
       throw error;
     }
@@ -28,12 +45,15 @@ const ExpenseService = {
 
   // Create custom category
   createCategory: async (categoryData) => {
+    log('CATEGORIES', 'Creating category...', categoryData);
     try {
       const response = await axios.post(`${API_URL}/expenses/categories`, categoryData, {
         headers: getAuthHeader()
       });
+      log('CATEGORIES', 'Create response:', response.data);
       return response.data;
     } catch (error) {
+      log('CATEGORIES', 'Create error:', error.response?.data || error.message);
       console.error('Error creating category:', error);
       throw error;
     }
@@ -69,13 +89,17 @@ const ExpenseService = {
   
   // Get all firms
   getFirms: async (params = {}) => {
+    log('FIRMS', 'Fetching firms...', params);
     try {
       const response = await axios.get(`${API_URL}/expenses/firms`, {
         headers: getAuthHeader(),
         params
       });
+      log('FIRMS', 'Raw response:', response);
+      log('FIRMS', 'Response data:', response.data);
       return response.data;
     } catch (error) {
+      log('FIRMS', 'Error:', error.response?.data || error.message);
       console.error('Error fetching firms:', error);
       throw error;
     }
@@ -83,12 +107,15 @@ const ExpenseService = {
 
   // Get single firm
   getFirm: async (id) => {
+    log('FIRMS', 'Fetching single firm...', { id });
     try {
       const response = await axios.get(`${API_URL}/expenses/firms/${id}`, {
         headers: getAuthHeader()
       });
+      log('FIRMS', 'Single firm response:', response.data);
       return response.data;
     } catch (error) {
+      log('FIRMS', 'Error fetching firm:', error.response?.data || error.message);
       console.error('Error fetching firm:', error);
       throw error;
     }
@@ -96,12 +123,15 @@ const ExpenseService = {
 
   // Create firm
   createFirm: async (firmData) => {
+    log('FIRMS', 'Creating firm...', firmData);
     try {
       const response = await axios.post(`${API_URL}/expenses/firms`, firmData, {
         headers: getAuthHeader()
       });
+      log('FIRMS', 'Create firm response:', response.data);
       return response.data;
     } catch (error) {
+      log('FIRMS', 'Create firm error:', error.response?.data || error.message);
       console.error('Error creating firm:', error);
       throw error;
     }
@@ -109,12 +139,15 @@ const ExpenseService = {
 
   // Update firm
   updateFirm: async (id, firmData) => {
+    log('FIRMS', 'Updating firm...', { id, firmData });
     try {
       const response = await axios.put(`${API_URL}/expenses/firms/${id}`, firmData, {
         headers: getAuthHeader()
       });
+      log('FIRMS', 'Update firm response:', response.data);
       return response.data;
     } catch (error) {
+      log('FIRMS', 'Update firm error:', error.response?.data || error.message);
       console.error('Error updating firm:', error);
       throw error;
     }

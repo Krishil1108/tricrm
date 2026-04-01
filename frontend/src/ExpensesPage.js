@@ -3,7 +3,7 @@ import {
   FiPlus, FiFilter, FiDownload, FiTrendingUp, FiDollarSign, 
   FiPieChart, FiList, FiGrid, FiSearch, FiCalendar, FiRefreshCw,
   FiChevronRight, FiX, FiEdit2, FiTrash2, FiEye, FiCreditCard,
-  FiFolder, FiMapPin, FiBriefcase, FiFileText, FiTool
+  FiFolder, FiMapPin, FiBriefcase, FiFileText, FiTool, FiLoader
 } from 'react-icons/fi';
 import ExpenseService from './services/ExpenseService';
 import { useToast } from './context/ToastContext';
@@ -11,6 +11,19 @@ import Watermark from './components/Watermark';
 import Modal from './components/Modal';
 import ConfirmDialog from './components/ConfirmDialog';
 import './ExpensesPage.css';
+
+// Debug logger
+const DEBUG = true;
+const log = (area, message, data = null) => {
+  if (DEBUG) {
+    const timestamp = new Date().toISOString().split('T')[1].slice(0, 12);
+    if (data) {
+      console.log(`[${timestamp}] [EXPENSE-${area}]`, message, data);
+    } else {
+      console.log(`[${timestamp}] [EXPENSE-${area}]`, message);
+    }
+  }
+};
 
 // Category icon mapping
 const categoryIcons = {
@@ -71,10 +84,12 @@ const ExpenseWizard = ({ isOpen, onClose, onSuccess, editData = null }) => {
   // Load initial data
   useEffect(() => {
     if (isOpen) {
+      log('WIZARD', 'Modal opened, loading data...');
       loadCategories();
       loadFirms();
       
       if (editData) {
+        log('WIZARD', 'Edit mode - setting form data', editData);
         setFormData({
           category: editData.category?._id || '',
           firm: editData.firm?._id || '',
@@ -97,23 +112,37 @@ const ExpenseWizard = ({ isOpen, onClose, onSuccess, editData = null }) => {
   }, [isOpen, editData]);
 
   const loadCategories = async () => {
+    log('WIZARD', 'Loading categories...');
     try {
       const res = await ExpenseService.getCategories();
+      log('WIZARD', 'Categories API response:', res);
       if (res.success) {
+        log('WIZARD', `Loaded ${res.data?.length || 0} categories`, res.data);
         setCategories(res.data || []);
+      } else {
+        log('WIZARD', 'Categories response not successful', res);
       }
     } catch (err) {
+      log('WIZARD', 'Error loading categories:', err);
+      console.error('Categories error details:', err.response?.data || err.message);
       showError('Failed to load categories');
     }
   };
 
   const loadFirms = async () => {
+    log('WIZARD', 'Loading firms for wizard...');
     try {
       const res = await ExpenseService.getFirms();
+      log('WIZARD', 'Firms API response:', res);
       if (res.success) {
+        log('WIZARD', `Loaded ${res.data?.length || 0} firms`, res.data);
         setFirms(res.data || []);
+      } else {
+        log('WIZARD', 'Firms response not successful', res);
       }
     } catch (err) {
+      log('WIZARD', 'Error loading firms:', err);
+      console.error('Firms error details:', err.response?.data || err.message);
       showError('Failed to load firms');
     }
   };
@@ -228,10 +257,18 @@ const ExpenseWizard = ({ isOpen, onClose, onSuccess, editData = null }) => {
     </div>
   );
 
-  const renderCategoryStep = () => (
+  const renderCategoryStep = () => {
+    log('WIZARD', 'Rendering category step, categories:', categories);
+    return (
     <div className="wizard-content">
       <h3>Select Expense Category</h3>
       <p className="wizard-subtitle">Choose the type of expense you want to record</p>
+      {categories.length === 0 && (
+        <div className="empty-state">
+          <FiFolder size={40} />
+          <p>No categories found. Loading...</p>
+        </div>
+      )}
       <div className="category-grid">
         {categories.map(cat => {
           const IconComponent = categoryIcons[cat.icon] || FiFolder;
@@ -260,9 +297,11 @@ const ExpenseWizard = ({ isOpen, onClose, onSuccess, editData = null }) => {
         </div>
       </div>
     </div>
-  );
+  )};
 
-  const renderFirmStep = () => (
+  const renderFirmStep = () => {
+    log('WIZARD', 'Rendering firm step, firms:', firms);
+    return (
     <div className="wizard-content">
       <h3>Select Firm</h3>
       <p className="wizard-subtitle">Choose the firm for this expense</p>
@@ -300,7 +339,7 @@ const ExpenseWizard = ({ isOpen, onClose, onSuccess, editData = null }) => {
         )}
       </div>
     </div>
-  );
+  )};
 
   const renderBankStep = () => (
     <div className="wizard-content">
@@ -528,18 +567,33 @@ const FirmManagementModal = ({ isOpen, onClose, onSuccess }) => {
   const [selectedFirmForBank, setSelectedFirmForBank] = useState(null);
 
   useEffect(() => {
-    if (isOpen) loadFirms();
+    if (isOpen) {
+      log('FIRM-MODAL', 'Modal opened, loading firms...');
+      loadFirms();
+    }
   }, [isOpen]);
 
   const loadFirms = async () => {
+    log('FIRM-MODAL', 'Loading firms...');
     setLoading(true);
     try {
       const res = await ExpenseService.getFirms({ includeInactive: true });
-      if (res.success) setFirms(res.data || []);
+      log('FIRM-MODAL', 'Firms API response:', res);
+      if (res.success) {
+        log('FIRM-MODAL', `Loaded ${res.data?.length || 0} firms`, res.data);
+        setFirms(res.data || []);
+      } else {
+        log('FIRM-MODAL', 'Firms response not successful', res);
+        setFirms([]);
+      }
     } catch (err) {
+      log('FIRM-MODAL', 'Error loading firms:', err);
+      console.error('Firms error details:', err.response?.data || err.message);
       showError('Failed to load firms');
+      setFirms([]);
     } finally {
       setLoading(false);
+      log('FIRM-MODAL', 'Loading complete, loading state set to false');
     }
   };
 
@@ -557,25 +611,31 @@ const FirmManagementModal = ({ isOpen, onClose, onSuccess }) => {
   };
 
   const handleSaveFirm = async () => {
+    log('FIRM-MODAL', 'Saving firm...', formData);
     if (!formData.name.trim()) {
       showError('Firm name is required');
       return;
     }
     setLoading(true);
     try {
+      let res;
       if (editingFirm) {
-        await ExpenseService.updateFirm(editingFirm._id, formData);
+        res = await ExpenseService.updateFirm(editingFirm._id, formData);
+        log('FIRM-MODAL', 'Update firm response:', res);
         showSuccess('Firm updated successfully');
       } else {
-        await ExpenseService.createFirm(formData);
+        res = await ExpenseService.createFirm(formData);
+        log('FIRM-MODAL', 'Create firm response:', res);
         showSuccess('Firm created successfully');
       }
-      loadFirms();
+      await loadFirms();
       setShowForm(false);
       setEditingFirm(null);
       setFormData({ name: '', shortName: '', address: '', city: '', phone: '', email: '', gstNumber: '', panNumber: '' });
       onSuccess?.();
     } catch (err) {
+      log('FIRM-MODAL', 'Error saving firm:', err);
+      console.error('Save firm error details:', err.response?.data || err.message);
       showError(err.response?.data?.message || 'Failed to save firm');
     } finally {
       setLoading(false);
@@ -583,6 +643,7 @@ const FirmManagementModal = ({ isOpen, onClose, onSuccess }) => {
   };
 
   const handleAddBankAccount = async () => {
+    log('FIRM-MODAL', 'Adding bank account...', bankForm);
     if (!bankForm.accountName.trim()) {
       showError('Account name is required');
       return;
@@ -706,14 +767,19 @@ const FirmManagementModal = ({ isOpen, onClose, onSuccess }) => {
         )}
 
         <div className="firm-list-section">
-          {loading && <div className="loading-spinner">Loading...</div>}
+          {loading && (
+            <div className="fm-loading">
+              <FiLoader className="fm-spinner" size={24} />
+              <span>Loading firms...</span>
+            </div>
+          )}
           {!loading && firms.length === 0 && (
             <div className="empty-state">
               <FiBriefcase size={40} />
               <p>No firms added yet</p>
             </div>
           )}
-          {firms.map(firm => (
+          {!loading && firms.map(firm => (
             <div key={firm._id} className="firm-item">
               <div className="firm-header">
                 <h4>{firm.name}</h4>
@@ -779,34 +845,52 @@ const ExpensesPage = () => {
 
   // Load data on mount
   useEffect(() => {
+    log('PAGE', 'Component mounted, loading initial data...');
     loadInitialData();
   }, []);
 
   // Reload expenses when filters change
   useEffect(() => {
+    log('PAGE', 'Filters or pagination changed, reloading expenses...', { filters, page: pagination.page });
     loadExpenses();
   }, [filters, pagination.page]);
 
   const loadInitialData = async () => {
+    log('PAGE', 'loadInitialData started...');
     setLoading(true);
     try {
+      log('PAGE', 'Fetching categories and firms in parallel...');
       const [catRes, firmRes] = await Promise.all([
         ExpenseService.getCategories(),
         ExpenseService.getFirms()
       ]);
       
-      if (catRes.success) setCategories(catRes.data || []);
-      if (firmRes.success) setFirms(firmRes.data || []);
+      log('PAGE', 'Categories API response:', catRes);
+      log('PAGE', 'Firms API response:', firmRes);
       
+      if (catRes.success) {
+        log('PAGE', `Setting ${catRes.data?.length || 0} categories`);
+        setCategories(catRes.data || []);
+      }
+      if (firmRes.success) {
+        log('PAGE', `Setting ${firmRes.data?.length || 0} firms`);
+        setFirms(firmRes.data || []);
+      }
+      
+      log('PAGE', 'Loading expenses and analytics...');
       await Promise.all([loadExpenses(), loadAnalytics()]);
     } catch (err) {
+      log('PAGE', 'Error in loadInitialData:', err);
+      console.error('loadInitialData error details:', err.response?.data || err.message);
       showError('Failed to load data');
     } finally {
       setLoading(false);
+      log('PAGE', 'loadInitialData complete');
     }
   };
 
   const loadExpenses = async () => {
+    log('PAGE', 'loadExpenses started...');
     try {
       const params = {
         page: pagination.page,
@@ -843,33 +927,43 @@ const ExpensesPage = () => {
         }
       }
       
+      log('PAGE', 'Fetching expenses with params:', params);
       const res = await ExpenseService.getExpenses(params);
+      log('PAGE', 'Expenses API response:', res);
       if (res.success) {
+        log('PAGE', `Setting ${res.data?.expenses?.length || 0} expenses`);
         setExpenses(res.data.expenses || []);
         setPagination(prev => ({ ...prev, ...res.data.pagination }));
       }
     } catch (err) {
+      log('PAGE', 'Error loading expenses:', err);
       console.error('Failed to load expenses:', err);
     }
   };
 
   const loadAnalytics = async () => {
+    log('PAGE', 'loadAnalytics started...');
     try {
       const res = await ExpenseService.getAnalyticsSummary(filters);
+      log('PAGE', 'Analytics API response:', res);
       if (res.success) {
+        log('PAGE', 'Setting analytics data', res.data);
         setAnalytics(res.data);
       }
     } catch (err) {
+      log('PAGE', 'Error loading analytics:', err);
       console.error('Failed to load analytics:', err);
     }
   };
 
   const handleRefresh = () => {
+    log('PAGE', 'Refresh triggered');
     loadInitialData();
   };
 
   const handleDeleteExpense = async () => {
     if (!deleteConfirm.expense) return;
+    log('PAGE', 'Deleting expense:', deleteConfirm.expense._id);
     try {
       await ExpenseService.deleteExpense(deleteConfirm.expense._id);
       showSuccess('Expense deleted successfully');
@@ -877,16 +971,19 @@ const ExpensesPage = () => {
       loadExpenses();
       loadAnalytics();
     } catch (err) {
+      log('PAGE', 'Error deleting expense:', err);
       showError(err.response?.data?.message || 'Failed to delete expense');
     }
   };
 
   const handleFilterChange = (key, value) => {
+    log('PAGE', `Filter changed: ${key}=${value}`);
     setFilters(prev => ({ ...prev, [key]: value }));
     setPagination(prev => ({ ...prev, page: 1 }));
   };
 
   const clearFilters = () => {
+    log('PAGE', 'Clearing all filters');
     setFilters({
       search: '',
       category: '',
