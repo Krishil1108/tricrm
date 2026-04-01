@@ -13,7 +13,7 @@ import ConfirmDialog from './components/ConfirmDialog';
 import './ExpensesPage.css';
 
 // Debug logger
-const DEBUG = true;
+const DEBUG = false;
 const log = (area, message, data = null) => {
   if (DEBUG) {
     const timestamp = new Date().toISOString().split('T')[1].slice(0, 12);
@@ -530,19 +530,21 @@ const ExpenseWizard = ({ isOpen, onClose, onSuccess, editData = null }) => {
         {step === 4 && renderDetailsStep()}
 
         <div className="wizard-actions">
-          {step > 1 && !editData && (
-            <button className="btn-secondary" onClick={() => setStep(step - 1)}>
-              Back
-            </button>
-          )}
           {step === 4 && (
-            <button 
-              className="btn-primary" 
-              onClick={handleSubmit}
-              disabled={loading || !formData.amount || !formData.date}
-            >
-              {loading ? 'Saving...' : (editData ? 'Update Expense' : 'Save Expense')}
-            </button>
+            <>
+              {step > 1 && !editData && (
+                <button className="btn-secondary" onClick={() => setStep(step - 1)}>
+                  Back
+                </button>
+              )}
+              <button 
+                className="btn-primary-blue" 
+                onClick={handleSubmit}
+                disabled={loading || !formData.amount || !formData.date}
+              >
+                {loading ? 'Saving...' : (editData ? 'Update Expense' : 'Save Expense')}
+              </button>
+            </>
           )}
         </div>
       </div>

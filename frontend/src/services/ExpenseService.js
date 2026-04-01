@@ -4,7 +4,7 @@ import API_BASE_URL from '../config/api';
 const API_URL = API_BASE_URL;
 
 // Debug logger
-const DEBUG = true;
+const DEBUG = false;
 const log = (area, message, data = null) => {
   if (DEBUG) {
     const timestamp = new Date().toISOString().split('T')[1].slice(0, 12);

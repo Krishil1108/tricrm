@@ -9,6 +9,10 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
+// Debug flag - set to false to disable console logging
+const DEBUG = false;
+const log = (...args) => DEBUG && console.log(...args);
+
 // Configure multer for attachment uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -42,15 +46,15 @@ const upload = multer({
 
 // Get all categories (including defaults)
 router.get('/categories', async (req, res) => {
-  console.log('[EXPENSE-ROUTES] GET /categories - Request received');
+  log('[EXPENSE-ROUTES] GET /categories - Request received');
   try {
     // Ensure default categories exist
-    console.log('[EXPENSE-ROUTES] Ensuring default categories exist...');
+    log('[EXPENSE-ROUTES] Ensuring default categories exist...');
     await ExpenseCategory.ensureDefaultCategories();
     
     const { includeInactive } = req.query;
     const query = includeInactive === 'true' ? {} : { isActive: true };
-    console.log('[EXPENSE-ROUTES] Query:', query);
+    log('[EXPENSE-ROUTES] Query:', query);
     
     const categories = await ExpenseCategory.find(query)
       .sort({ sortOrder: 1, name: 1 });
@@ -158,7 +162,7 @@ router.delete('/categories/:id', async (req, res) => {
 
 // Get all firms
 router.get('/firms', async (req, res) => {
-  console.log('[EXPENSE-ROUTES] GET /firms - Request received');
+  log('[EXPENSE-ROUTES] GET /firms - Request received');
   try {
     const { includeInactive, search } = req.query;
     const query = includeInactive === 'true' ? {} : { isActive: true };
@@ -170,7 +174,7 @@ router.get('/firms', async (req, res) => {
       ];
     }
     
-    console.log('[EXPENSE-ROUTES] Firms query:', query);
+    log('[EXPENSE-ROUTES] Firms query:', query);
     const firms = await Firm.find(query)
       .sort({ name: 1 })
       .populate('createdBy', 'username email');
@@ -185,17 +189,17 @@ router.get('/firms', async (req, res) => {
 
 // Get single firm
 router.get('/firms/:id', async (req, res) => {
-  console.log('[EXPENSE-ROUTES] GET /firms/:id - Request received, id:', req.params.id);
+  log('[EXPENSE-ROUTES] GET /firms/:id - Request received, id:', req.params.id);
   try {
     const firm = await Firm.findById(req.params.id)
       .populate('createdBy', 'username email');
     
     if (!firm) {
-      console.log('[EXPENSE-ROUTES] Firm not found');
+      log('[EXPENSE-ROUTES] Firm not found');
       return res.status(404).json({ message: 'Firm not found' });
     }
     
-    console.log('[EXPENSE-ROUTES] Firm found:', firm.name);
+    log('[EXPENSE-ROUTES] Firm found:', firm.name);
     res.sendSuccess(firm, 'Firm fetched successfully');
   } catch (error) {
     console.error('[EXPENSE-ROUTES] Error fetching firm:', error);
@@ -205,7 +209,7 @@ router.get('/firms/:id', async (req, res) => {
 
 // Create firm
 router.post('/firms', async (req, res) => {
-  console.log('[EXPENSE-ROUTES] POST /firms - Request received');
+  log('[EXPENSE-ROUTES] POST /firms - Request received');
   console.log('[EXPENSE-ROUTES] Body:', req.body);
   try {
     const firmData = {
@@ -216,11 +220,11 @@ router.post('/firms', async (req, res) => {
     const firm = new Firm(firmData);
     await firm.save();
     
-    console.log('[EXPENSE-ROUTES] Firm created:', firm.name, 'ID:', firm._id);
+    log('[EXPENSE-ROUTES] Firm created:', firm.name, 'ID:', firm._id);
     res.status(201).json({ success: true, data: firm, message: 'Firm created successfully' });
   } catch (error) {
     if (error.code === 11000) {
-      console.log('[EXPENSE-ROUTES] Duplicate firm name error');
+      log('[EXPENSE-ROUTES] Duplicate firm name error');
       return res.status(400).json({ message: 'Firm with this name already exists' });
     }
     console.error('[EXPENSE-ROUTES] Error creating firm:', error);
@@ -358,8 +362,8 @@ router.delete('/firms/:firmId/bank-accounts/:accountId', async (req, res) => {
 
 // Get all expenses with filters
 router.get('/', async (req, res) => {
-  console.log('[EXPENSE-ROUTES] GET / - Fetching expenses');
-  console.log('[EXPENSE-ROUTES] Query params:', req.query);
+  log('[EXPENSE-ROUTES] GET / - Fetching expenses');
+  log('[EXPENSE-ROUTES] Query params:', req.query);
   console.log('[EXPENSE-ROUTES] User:', req.user?._id);
   try {
     const { 
@@ -398,12 +402,12 @@ router.get('/', async (req, res) => {
       ];
     }
     
-    console.log('[EXPENSE-ROUTES] MongoDB query:', JSON.stringify(query));
+    log('[EXPENSE-ROUTES] MongoDB query:', JSON.stringify(query));
     
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const sort = { [sortBy]: sortOrder === 'desc' ? -1 : 1 };
     
-    console.log('[EXPENSE-ROUTES] Querying database...');
+    log('[EXPENSE-ROUTES] Querying database...');
     const [expenses, total] = await Promise.all([
       Expense.find(query)
         .populate('category', 'name slug icon color')
@@ -429,7 +433,7 @@ router.get('/', async (req, res) => {
       return expenseObj;
     });
     
-    console.log('[EXPENSE-ROUTES] Sending response with', enrichedExpenses.length, 'expenses');
+    log('[EXPENSE-ROUTES] Sending response with', enrichedExpenses.length, 'expenses');
     res.sendSuccess({
       expenses: enrichedExpenses,
       pagination: {
@@ -467,10 +471,10 @@ router.get('/:id', async (req, res) => {
 
 // Create expense
 router.post('/', upload.array('attachments', 5), async (req, res) => {
-  console.log('[EXPENSE-ROUTES] POST / - Creating expense');
-  console.log('[EXPENSE-ROUTES] Body:', req.body);
-  console.log('[EXPENSE-ROUTES] Files:', req.files?.length || 0);
-  console.log('[EXPENSE-ROUTES] User:', req.user?._id);
+  log('[EXPENSE-ROUTES] POST / - Creating expense');
+  log('[EXPENSE-ROUTES] Body:', req.body);
+  log('[EXPENSE-ROUTES] Files:', req.files?.length || 0);
+  log('[EXPENSE-ROUTES] User:', req.user?._id);
   try {
     // Validate required fields
     if (!req.body.category) {
@@ -500,7 +504,7 @@ router.post('/', upload.array('attachments', 5), async (req, res) => {
       date: new Date(req.body.date)
     };
     
-    console.log('[EXPENSE-ROUTES] Processing expense data:', {
+    log('[EXPENSE-ROUTES] Processing expense data:', {
       category: expenseData.category,
       firm: expenseData.firm,
       bankAccount: expenseData.bankAccount,
@@ -517,29 +521,29 @@ router.post('/', upload.array('attachments', 5), async (req, res) => {
         size: file.size,
         path: file.path
       }));
-      console.log('[EXPENSE-ROUTES] Added', expenseData.attachments.length, 'attachments');
+      log('[EXPENSE-ROUTES] Added', expenseData.attachments.length, 'attachments');
     }
     
     // Parse tags if string
     if (typeof expenseData.tags === 'string') {
       expenseData.tags = expenseData.tags.split(',').map(t => t.trim()).filter(Boolean);
-      console.log('[EXPENSE-ROUTES] Parsed tags:', expenseData.tags);
+      log('[EXPENSE-ROUTES] Parsed tags:', expenseData.tags);
     }
     
-    console.log('[EXPENSE-ROUTES] Creating expense document...');
+    log('[EXPENSE-ROUTES] Creating expense document...');
     const expense = new Expense(expenseData);
     await expense.save();
-    console.log('[EXPENSE-ROUTES] Expense saved with ID:', expense._id);
+    log('[EXPENSE-ROUTES] Expense saved with ID:', expense._id);
     
     // Populate for response
-    console.log('[EXPENSE-ROUTES] Populating references...');
+    log('[EXPENSE-ROUTES] Populating references...');
     await expense.populate([
       { path: 'category', select: 'name slug icon color' },
       { path: 'firm', select: 'name shortName bankAccounts' },
       { path: 'createdBy', select: 'username email' }
     ]);
     
-    console.log('[EXPENSE-ROUTES] Expense created successfully:', expense._id);
+    log('[EXPENSE-ROUTES] Expense created successfully:', expense._id);
     res.sendSuccess(expense, 'Expense created successfully', 201);
   } catch (error) {
     console.error('[EXPENSE-ROUTES] Error creating expense:', error);
@@ -656,12 +660,12 @@ router.delete('/:id/attachments/:attachmentId', async (req, res) => {
 
 // Get expense analytics
 router.get('/analytics/summary', async (req, res) => {
-  console.log('[EXPENSE-ROUTES] GET /analytics/summary - Request received');
-  console.log('[EXPENSE-ROUTES] Analytics query params:', req.query);
+  log('[EXPENSE-ROUTES] GET /analytics/summary - Request received');
+  log('[EXPENSE-ROUTES] Analytics query params:', req.query);
   try {
     const { startDate, endDate, category, firm, timeframe = 'monthly' } = req.query;
     
-    console.log('[EXPENSE-ROUTES] Calling Expense.getAnalytics...');
+    log('[EXPENSE-ROUTES] Calling Expense.getAnalytics...');
     const analytics = await Expense.getAnalytics({
       startDate,
       endDate,
@@ -669,8 +673,8 @@ router.get('/analytics/summary', async (req, res) => {
       firm
     });
     
-    console.log('[EXPENSE-ROUTES] Analytics result:', JSON.stringify(analytics));
-    console.log('[EXPENSE-ROUTES] Analytics summary count:', analytics?.summary?.[0]?.count || 0);
+    log('[EXPENSE-ROUTES] Analytics result:', JSON.stringify(analytics));
+    log('[EXPENSE-ROUTES] Analytics summary count:', analytics?.summary?.[0]?.count || 0);
     res.sendSuccess(analytics, 'Analytics fetched successfully');
   } catch (error) {
     console.error('[EXPENSE-ROUTES] Error fetching analytics:', error);
