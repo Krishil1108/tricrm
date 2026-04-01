@@ -220,13 +220,20 @@ const ExpenseService = {
   
   // Get all expenses with filters
   getExpenses: async (filters = {}) => {
+    log('EXPENSES', 'Fetching expenses with filters:', filters);
     try {
       const response = await axios.get(`${API_URL}/expenses`, {
         headers: getAuthHeader(),
         params: filters
       });
-      return normalizeResponse(response);
+      log('EXPENSES', 'Raw response:', response);
+      log('EXPENSES', 'Response data:', response.data);
+      const normalized = normalizeResponse(response);
+      log('EXPENSES', 'Normalized response:', normalized);
+      log('EXPENSES', `Found ${normalized.data?.expenses?.length || 0} expenses`);
+      return normalized;
     } catch (error) {
+      log('EXPENSES', 'Error fetching expenses:', error.response?.data || error.message);
       console.error('Error fetching expenses:', error);
       throw error;
     }

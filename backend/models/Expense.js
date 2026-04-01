@@ -80,8 +80,11 @@ const expenseSchema = new mongoose.Schema({
   },
   recurringFrequency: {
     type: String,
-    enum: ['daily', 'weekly', 'monthly', 'quarterly', 'yearly'],
-    default: null
+    enum: {
+      values: ['daily', 'weekly', 'monthly', 'quarterly', 'yearly'],
+      message: '{VALUE} is not a valid frequency'
+    },
+    required: false
   },
   
   // Status

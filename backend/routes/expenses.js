@@ -359,6 +359,8 @@ router.delete('/firms/:firmId/bank-accounts/:accountId', async (req, res) => {
 // Get all expenses with filters
 router.get('/', async (req, res) => {
   console.log('[EXPENSE-ROUTES] GET / - Fetching expenses');
+  console.log('[EXPENSE-ROUTES] Query params:', req.query);
+  console.log('[EXPENSE-ROUTES] User:', req.user?._id);
   try {
     const { 
       category, firm, bankAccount,
@@ -396,9 +398,12 @@ router.get('/', async (req, res) => {
       ];
     }
     
+    console.log('[EXPENSE-ROUTES] MongoDB query:', JSON.stringify(query));
+    
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const sort = { [sortBy]: sortOrder === 'desc' ? -1 : 1 };
     
+    console.log('[EXPENSE-ROUTES] Querying database...');
     const [expenses, total] = await Promise.all([
       Expense.find(query)
         .populate('category', 'name slug icon color')
@@ -409,6 +414,8 @@ router.get('/', async (req, res) => {
         .limit(parseInt(limit)),
       Expense.countDocuments(query)
     ]);
+    
+    console.log(`[EXPENSE-ROUTES] Found ${expenses.length} expenses out of ${total} total`);
     
     // Enrich expenses with bank account info
     const enrichedExpenses = expenses.map(expense => {
@@ -422,6 +429,7 @@ router.get('/', async (req, res) => {
       return expenseObj;
     });
     
+    console.log('[EXPENSE-ROUTES] Sending response with', enrichedExpenses.length, 'expenses');
     res.sendSuccess({
       expenses: enrichedExpenses,
       pagination: {
@@ -432,7 +440,8 @@ router.get('/', async (req, res) => {
       }
     }, 'Expenses fetched successfully');
   } catch (error) {
-    console.error('Error fetching expenses:', error);
+    console.error('[EXPENSE-ROUTES] Error fetching expenses:', error);
+    console.error('[EXPENSE-ROUTES] Error stack:', error.stack);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -648,9 +657,11 @@ router.delete('/:id/attachments/:attachmentId', async (req, res) => {
 // Get expense analytics
 router.get('/analytics/summary', async (req, res) => {
   console.log('[EXPENSE-ROUTES] GET /analytics/summary - Request received');
+  console.log('[EXPENSE-ROUTES] Analytics query params:', req.query);
   try {
     const { startDate, endDate, category, firm, timeframe = 'monthly' } = req.query;
     
+    console.log('[EXPENSE-ROUTES] Calling Expense.getAnalytics...');
     const analytics = await Expense.getAnalytics({
       startDate,
       endDate,
@@ -658,10 +669,12 @@ router.get('/analytics/summary', async (req, res) => {
       firm
     });
     
-    console.log('[EXPENSE-ROUTES] Analytics fetched successfully');
+    console.log('[EXPENSE-ROUTES] Analytics result:', JSON.stringify(analytics));
+    console.log('[EXPENSE-ROUTES] Analytics summary count:', analytics?.summary?.[0]?.count || 0);
     res.sendSuccess(analytics, 'Analytics fetched successfully');
   } catch (error) {
     console.error('[EXPENSE-ROUTES] Error fetching analytics:', error);
+    console.error('[EXPENSE-ROUTES] Error stack:', error.stack);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
