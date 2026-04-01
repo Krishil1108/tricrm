@@ -460,12 +460,44 @@ router.get('/:id', async (req, res) => {
 router.post('/', upload.array('attachments', 5), async (req, res) => {
   console.log('[EXPENSE-ROUTES] POST / - Creating expense');
   console.log('[EXPENSE-ROUTES] Body:', req.body);
+  console.log('[EXPENSE-ROUTES] Files:', req.files?.length || 0);
+  console.log('[EXPENSE-ROUTES] User:', req.user?._id);
   try {
+    // Validate required fields
+    if (!req.body.category) {
+      console.error('[EXPENSE-ROUTES] Missing category');
+      return res.status(400).json({ message: 'Category is required' });
+    }
+    if (!req.body.firm) {
+      console.error('[EXPENSE-ROUTES] Missing firm');
+      return res.status(400).json({ message: 'Firm is required' });
+    }
+    if (!req.body.bankAccount) {
+      console.error('[EXPENSE-ROUTES] Missing bankAccount');
+      return res.status(400).json({ message: 'Bank account is required' });
+    }
+    if (!req.body.amount) {
+      console.error('[EXPENSE-ROUTES] Missing amount');
+      return res.status(400).json({ message: 'Amount is required' });
+    }
+    if (!req.body.date) {
+      console.error('[EXPENSE-ROUTES] Missing date');
+      return res.status(400).json({ message: 'Date is required' });
+    }
+    
     const expenseData = {
       ...req.body,
       createdBy: req.user._id,
       date: new Date(req.body.date)
     };
+    
+    console.log('[EXPENSE-ROUTES] Processing expense data:', {
+      category: expenseData.category,
+      firm: expenseData.firm,
+      bankAccount: expenseData.bankAccount,
+      amount: expenseData.amount,
+      date: expenseData.date
+    });
     
     // Handle file attachments
     if (req.files && req.files.length > 0) {
@@ -476,17 +508,22 @@ router.post('/', upload.array('attachments', 5), async (req, res) => {
         size: file.size,
         path: file.path
       }));
+      console.log('[EXPENSE-ROUTES] Added', expenseData.attachments.length, 'attachments');
     }
     
     // Parse tags if string
     if (typeof expenseData.tags === 'string') {
       expenseData.tags = expenseData.tags.split(',').map(t => t.trim()).filter(Boolean);
+      console.log('[EXPENSE-ROUTES] Parsed tags:', expenseData.tags);
     }
     
+    console.log('[EXPENSE-ROUTES] Creating expense document...');
     const expense = new Expense(expenseData);
     await expense.save();
+    console.log('[EXPENSE-ROUTES] Expense saved with ID:', expense._id);
     
     // Populate for response
+    console.log('[EXPENSE-ROUTES] Populating references...');
     await expense.populate([
       { path: 'category', select: 'name slug icon color' },
       { path: 'firm', select: 'name shortName bankAccounts' },
@@ -494,9 +531,14 @@ router.post('/', upload.array('attachments', 5), async (req, res) => {
     ]);
     
     console.log('[EXPENSE-ROUTES] Expense created successfully:', expense._id);
-    res.status(201).json({ success: true, data: expense, message: 'Expense created successfully' });
+    res.sendSuccess(expense, 'Expense created successfully', 201);
   } catch (error) {
     console.error('[EXPENSE-ROUTES] Error creating expense:', error);
+    console.error('[EXPENSE-ROUTES] Error stack:', error.stack);
+    console.error('[EXPENSE-ROUTES] Error name:', error.name);
+    if (error.errors) {
+      console.error('[EXPENSE-ROUTES] Validation errors:', error.errors);
+    }
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

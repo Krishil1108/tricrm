@@ -201,34 +201,46 @@ const ExpenseWizard = ({ isOpen, onClose, onSuccess, editData = null }) => {
   };
 
   const handleSubmit = async () => {
+    log('WIZARD', 'handleSubmit called, validating...');
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
+      log('WIZARD', 'Validation failed: invalid amount');
       showError('Please enter a valid amount');
       return;
     }
     if (!formData.date) {
+      log('WIZARD', 'Validation failed: missing date');
       showError('Please select a date');
       return;
     }
 
+    log('WIZARD', 'Validation passed, preparing payload...', formData);
     setLoading(true);
     try {
       const payload = {
         ...formData,
         amount: parseFloat(formData.amount)
       };
+      
+      log('WIZARD', 'Payload prepared:', payload);
 
       if (editData) {
+        log('WIZARD', 'Updating existing expense:', editData._id);
         await ExpenseService.updateExpense(editData._id, payload);
         showSuccess('Expense updated successfully');
       } else {
-        await ExpenseService.createExpense(payload);
+        log('WIZARD', 'Creating new expense...');
+        const result = await ExpenseService.createExpense(payload);
+        log('WIZARD', 'Create result:', result);
         showSuccess('Expense created successfully');
       }
       
+      log('WIZARD', 'Expense saved successfully, calling onSuccess...');
       onSuccess?.();
       onClose();
       resetForm();
     } catch (err) {
+      log('WIZARD', 'Error saving expense:', err);
+      console.error('Save expense error details:', err.response?.data || err.message);
       showError(err.response?.data?.message || 'Failed to save expense');
     } finally {
       setLoading(false);

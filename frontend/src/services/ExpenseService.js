@@ -247,6 +247,7 @@ const ExpenseService = {
 
   // Create expense
   createExpense: async (expenseData) => {
+    log('EXPENSES', 'Creating expense...', expenseData);
     try {
       const formData = new FormData();
       
@@ -257,11 +258,24 @@ const ExpenseService = {
           expenseData.attachments.forEach(file => {
             formData.append('attachments', file);
           });
+          log('EXPENSES', `Added ${expenseData.attachments.length} attachments`);
         } else if (key === 'tags' && Array.isArray(expenseData.tags)) {
           formData.append('tags', expenseData.tags.join(','));
+          log('EXPENSES', 'Added tags:', expenseData.tags);
         } else if (expenseData[key] !== undefined && expenseData[key] !== null) {
           formData.append(key, expenseData[key]);
         }
+      });
+
+      // Log what's being sent
+      log('EXPENSES', 'FormData fields:', {
+        category: expenseData.category,
+        firm: expenseData.firm,
+        bankAccount: expenseData.bankAccount,
+        amount: expenseData.amount,
+        date: expenseData.date,
+        paymentMode: expenseData.paymentMode,
+        title: expenseData.title
       });
 
       const response = await axios.post(`${API_URL}/expenses`, formData, {
@@ -270,8 +284,10 @@ const ExpenseService = {
           'Content-Type': 'multipart/form-data'
         }
       });
+      log('EXPENSES', 'Create response:', response.data);
       return normalizeResponse(response);
     } catch (error) {
+      log('EXPENSES', 'Error creating expense:', error.response?.data || error.message);
       console.error('Error creating expense:', error);
       throw error;
     }
