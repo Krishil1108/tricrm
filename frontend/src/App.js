@@ -28,6 +28,7 @@ const UserManagementPage = lazy(() => import('./UserManagementPage'));
 const RoleManagementPage = lazy(() => import('./RoleManagementPage'));
 const AnalyticsDashboard = lazy(() => import('./AnalyticsDashboard'));
 const FinanceDashboard   = lazy(() => import('./FinanceDashboard'));
+const ExpensesPage       = lazy(() => import('./ExpensesPage'));
 const AIAssistant        = lazy(() => import('./components/AIAssistant/AIAssistant'));
 
 function App() {
@@ -174,7 +175,16 @@ function App() {
                             />
                             
                             <Route 
-                              path="/settings" 
+                              path="/expenses" 
+                              element={
+                                <ProtectedRoute requireModule="finance">
+                                  <ExpensesPage />
+                                </ProtectedRoute>
+                              } 
+                            />
+                            
+                            <Route 
+                              path="/settings"
                               element={
                                 <ProtectedRoute requireModule="settings">
                                   <SettingsPage />

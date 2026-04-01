@@ -227,6 +227,7 @@ const financeRoutes = require('./routes/finance');
 const configurationVersionRoutes = require('./routes/configurationVersions');
 const dataManagementRoutes = require('./routes/dataManagement');
 const analyticsRoutes = require('./routes/analytics');
+const expenseRoutes = require('./routes/expenses');
 
 // Public routes (no authentication required)
 app.use('/api/auth', authRoutes);
@@ -241,6 +242,7 @@ app.use('/api/notes', authenticate, noteRoutes);
 app.use('/api/activities', authenticate, activityRoutes);
 app.use('/api/configuration-versions', authenticate, configurationVersionRoutes);
 app.use('/api/finance', authenticate, financeRoutes);
+app.use('/api/expenses', authenticate, expenseRoutes);
 app.use('/api/data', authenticate, dataManagementRoutes);
 
 // Analytics routes with debugging
