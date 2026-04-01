@@ -22,6 +22,17 @@ const getAuthHeader = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+// Helper to normalize API response - handles both {success: true} and {status: 'success'} formats
+const normalizeResponse = (response) => {
+  const data = response.data;
+  return {
+    success: data.success === true || data.status === 'success',
+    data: data.data,
+    message: data.message,
+    pagination: data.pagination
+  };
+};
+
 const ExpenseService = {
   // ==================== EXPENSE CATEGORY METHODS ====================
   
@@ -35,7 +46,7 @@ const ExpenseService = {
       });
       log('CATEGORIES', 'Raw response:', response);
       log('CATEGORIES', 'Response data:', response.data);
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       log('CATEGORIES', 'Error:', error.response?.data || error.message);
       console.error('Error fetching categories:', error);
@@ -51,7 +62,7 @@ const ExpenseService = {
         headers: getAuthHeader()
       });
       log('CATEGORIES', 'Create response:', response.data);
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       log('CATEGORIES', 'Create error:', error.response?.data || error.message);
       console.error('Error creating category:', error);
@@ -65,7 +76,7 @@ const ExpenseService = {
       const response = await axios.put(`${API_URL}/expenses/categories/${id}`, categoryData, {
         headers: getAuthHeader()
       });
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       console.error('Error updating category:', error);
       throw error;
@@ -78,7 +89,7 @@ const ExpenseService = {
       const response = await axios.delete(`${API_URL}/expenses/categories/${id}`, {
         headers: getAuthHeader()
       });
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       console.error('Error deleting category:', error);
       throw error;
@@ -97,7 +108,7 @@ const ExpenseService = {
       });
       log('FIRMS', 'Raw response:', response);
       log('FIRMS', 'Response data:', response.data);
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       log('FIRMS', 'Error:', error.response?.data || error.message);
       console.error('Error fetching firms:', error);
@@ -113,7 +124,7 @@ const ExpenseService = {
         headers: getAuthHeader()
       });
       log('FIRMS', 'Single firm response:', response.data);
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       log('FIRMS', 'Error fetching firm:', error.response?.data || error.message);
       console.error('Error fetching firm:', error);
@@ -129,7 +140,7 @@ const ExpenseService = {
         headers: getAuthHeader()
       });
       log('FIRMS', 'Create firm response:', response.data);
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       log('FIRMS', 'Create firm error:', error.response?.data || error.message);
       console.error('Error creating firm:', error);
@@ -145,7 +156,7 @@ const ExpenseService = {
         headers: getAuthHeader()
       });
       log('FIRMS', 'Update firm response:', response.data);
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       log('FIRMS', 'Update firm error:', error.response?.data || error.message);
       console.error('Error updating firm:', error);
@@ -159,7 +170,7 @@ const ExpenseService = {
       const response = await axios.delete(`${API_URL}/expenses/firms/${id}`, {
         headers: getAuthHeader()
       });
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       console.error('Error deleting firm:', error);
       throw error;
@@ -172,7 +183,7 @@ const ExpenseService = {
       const response = await axios.post(`${API_URL}/expenses/firms/${firmId}/bank-accounts`, accountData, {
         headers: getAuthHeader()
       });
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       console.error('Error adding bank account:', error);
       throw error;
@@ -185,7 +196,7 @@ const ExpenseService = {
       const response = await axios.put(`${API_URL}/expenses/firms/${firmId}/bank-accounts/${accountId}`, accountData, {
         headers: getAuthHeader()
       });
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       console.error('Error updating bank account:', error);
       throw error;
@@ -198,7 +209,7 @@ const ExpenseService = {
       const response = await axios.delete(`${API_URL}/expenses/firms/${firmId}/bank-accounts/${accountId}`, {
         headers: getAuthHeader()
       });
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       console.error('Error deleting bank account:', error);
       throw error;
@@ -214,7 +225,7 @@ const ExpenseService = {
         headers: getAuthHeader(),
         params: filters
       });
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       console.error('Error fetching expenses:', error);
       throw error;
@@ -227,7 +238,7 @@ const ExpenseService = {
       const response = await axios.get(`${API_URL}/expenses/${id}`, {
         headers: getAuthHeader()
       });
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       console.error('Error fetching expense:', error);
       throw error;
@@ -259,7 +270,7 @@ const ExpenseService = {
           'Content-Type': 'multipart/form-data'
         }
       });
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       console.error('Error creating expense:', error);
       throw error;
@@ -291,7 +302,7 @@ const ExpenseService = {
           'Content-Type': 'multipart/form-data'
         }
       });
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       console.error('Error updating expense:', error);
       throw error;
@@ -304,7 +315,7 @@ const ExpenseService = {
       const response = await axios.delete(`${API_URL}/expenses/${id}`, {
         headers: getAuthHeader()
       });
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       console.error('Error deleting expense:', error);
       throw error;
@@ -317,7 +328,7 @@ const ExpenseService = {
       const response = await axios.delete(`${API_URL}/expenses/${expenseId}/attachments/${attachmentId}`, {
         headers: getAuthHeader()
       });
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       console.error('Error removing attachment:', error);
       throw error;
@@ -333,7 +344,7 @@ const ExpenseService = {
         headers: getAuthHeader(),
         params: filters
       });
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       console.error('Error fetching analytics summary:', error);
       throw error;
@@ -347,7 +358,7 @@ const ExpenseService = {
         headers: getAuthHeader(),
         params
       });
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       console.error('Error fetching trends:', error);
       throw error;
@@ -361,7 +372,7 @@ const ExpenseService = {
         headers: getAuthHeader(),
         params: { years }
       });
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       console.error('Error fetching comparison:', error);
       throw error;
@@ -375,7 +386,7 @@ const ExpenseService = {
         headers: getAuthHeader(),
         params: { fy }
       });
-      return response.data;
+      return normalizeResponse(response);
     } catch (error) {
       console.error('Error fetching fiscal year summary:', error);
       throw error;
