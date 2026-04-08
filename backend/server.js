@@ -45,24 +45,43 @@ const PORT = process.env.PORT || 5000;
 app.set('trust proxy', 1);
 
 // CORS Configuration
+const normalizeOrigin = (value) => {
+  if (!value || typeof value !== 'string') {
+    return null;
+  }
+  return value.trim().replace(/\/+$/, '');
+};
+
+const envAllowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map(normalizeOrigin)
+  .filter(Boolean);
+
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5000',
+  'https://trimity-crm.onrender.com',
+  'https://www.trimity-crm.onrender.com',
+  'https://tricrm-frontend.onrender.com',
+  'https://tricrm-frontend.vercel.app',
+  'https://tricrm-frontend.netlify.app',
+  'https://trido-pm78.onrender.com',
+  normalizeOrigin(process.env.FRONTEND_URL),
+  ...envAllowedOrigins
+].filter(Boolean);
+
+const allowedOriginSet = new Set(allowedOrigins);
+
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'https://trimity-crm.onrender.com',
-      'https://tricrm-frontend.onrender.com',
-      'https://tricrm-frontend.vercel.app',
-      'https://tricrm-frontend.netlify.app',
-      'https://trido-pm78.onrender.com'
-    ];
-    
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
-    if (allowedOrigins.indexOf(origin) !== -1) {
+
+    const normalizedRequestOrigin = normalizeOrigin(origin);
+    if (normalizedRequestOrigin && allowedOriginSet.has(normalizedRequestOrigin)) {
       callback(null, true);
     } else {
-      console.log('CORS blocked origin:', origin);
+      console.log('CORS blocked origin:', origin, 'Allowed origins:', allowedOrigins);
       callback(new Error('Not allowed by CORS'));
     }
   },
