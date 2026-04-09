@@ -43,6 +43,58 @@ const fyPaymentsFor = (project, fyStart, fyEnd) => {
   });
 };
 
+const calcPercentAmount = (base, percent) =>
+  Math.floor((base ?? 0) * ((percent ?? 0) / 100));
+
+const isDateInRange = (dateValue, fyStart, fyEnd) => {
+  if (!fyStart || !fyEnd) return true;
+  if (!dateValue) return false;
+  const d = new Date(dateValue);
+  if (Number.isNaN(d.getTime())) return false;
+  return d >= fyStart && d <= fyEnd;
+};
+
+const getAssociatePaidForFY = (associate, fyStart, fyEnd) => {
+  const paid = associate?.amountPaid ?? 0;
+  if (!fyStart || !fyEnd) return paid;
+
+  // If payout date is not tracked for old rows, keep existing amount visible.
+  if (!associate?.paymentGivenDate) return paid;
+  return isDateInRange(associate.paymentGivenDate, fyStart, fyEnd) ? paid : 0;
+};
+
+const deriveProjectFinancials = (project, fyReceivedFees, fyStart, fyEnd) => {
+  const associates = project.projectAssociates ?? [];
+  const associatePercent = associates.reduce((sum, a) => sum + (a.percentage ?? 0), 0);
+
+  const fyAssociateAllocated = Math.floor((fyReceivedFees ?? 0) * (associatePercent / 100));
+  const fyTrimityFees = (fyReceivedFees ?? 0) - fyAssociateAllocated;
+
+  const fyProfitMargin = calcPercentAmount(fyTrimityFees, project.profitMarginPercent);
+  const fyDrawing = calcPercentAmount(fyTrimityFees, project.drawingPercent);
+  const fyDocuments = calcPercentAmount(fyTrimityFees, project.documentsPercent);
+  const fySiteVisit = calcPercentAmount(fyTrimityFees, project.siteVisitPercent);
+  const fyMarketingAndMisc = calcPercentAmount(fyTrimityFees, project.marketingAndMiscPercent);
+  const fyOfficeManagement = calcPercentAmount(fyTrimityFees, project.officeManagementPercent);
+
+  const fyAssociatePaid = associates.reduce(
+    (sum, a) => sum + getAssociatePaidForFY(a, fyStart, fyEnd),
+    0
+  );
+
+  return {
+    fyAssociateAllocated,
+    fyTrimityFees,
+    fyProfitMargin,
+    fyDrawing,
+    fyDocuments,
+    fySiteVisit,
+    fyMarketingAndMisc,
+    fyOfficeManagement,
+    fyAssociatePaid,
+  };
+};
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 const FinanceDashboard = () => {
   const { showError, showSuccess } = useToast();
@@ -135,8 +187,11 @@ const FinanceDashboard = () => {
       })
       .map((p) => ({
         ...p,
+        fyStart,
+        fyEnd,
         fyReceivedFees: fyReceivedFor(p, fyStart, fyEnd),
-        fyPayments:     fyPaymentsFor(p, fyStart, fyEnd),
+        fyPayments: fyPaymentsFor(p, fyStart, fyEnd),
+        ...deriveProjectFinancials(p, fyReceivedFor(p, fyStart, fyEnd), fyStart, fyEnd),
       }));
   }, [rawData, filterClient, filterStatus, filterSearch, filterFY, fyStart, fyEnd, filterAssociate, filterBank]);
 
@@ -144,6 +199,7 @@ const FinanceDashboard = () => {
   const summary = useMemo(() => {
     const s = {
       totalFinalizedFees: 0, totalReceivedFees: 0,
+      totalTrimityFees: 0,
       totalProfitMargin: 0,  totalDrawing: 0, totalDocuments: 0,
       totalSiteVisit: 0,     totalMarketingMisc: 0, totalOfficeManagement: 0,
       totalAssociatePaid: 0, totalAssociateAmount: 0,
@@ -151,14 +207,15 @@ const FinanceDashboard = () => {
     filteredProjects.forEach((p) => {
       s.totalFinalizedFees    += p.finalizedFees        ?? 0;
       s.totalReceivedFees     += p.fyReceivedFees       ?? 0;
-      s.totalProfitMargin     += p.profitMargin         ?? 0;
-      s.totalDrawing          += p.drawing              ?? 0;
-      s.totalDocuments        += p.documents            ?? 0;
-      s.totalSiteVisit        += p.siteVisit            ?? 0;
-      s.totalMarketingMisc    += p.marketingAndMisc     ?? 0;
-      s.totalOfficeManagement += p.officeManagement     ?? 0;
-      s.totalAssociatePaid    += p.totalAssociatePaid   ?? 0;
-      s.totalAssociateAmount  += p.totalAssociateAmount ?? 0;
+      s.totalTrimityFees      += p.fyTrimityFees        ?? 0;
+      s.totalProfitMargin     += p.fyProfitMargin       ?? 0;
+      s.totalDrawing          += p.fyDrawing            ?? 0;
+      s.totalDocuments        += p.fyDocuments          ?? 0;
+      s.totalSiteVisit        += p.fySiteVisit          ?? 0;
+      s.totalMarketingMisc    += p.fyMarketingAndMisc   ?? 0;
+      s.totalOfficeManagement += p.fyOfficeManagement   ?? 0;
+      s.totalAssociatePaid    += p.fyAssociatePaid      ?? 0;
+      s.totalAssociateAmount  += p.fyAssociateAllocated ?? 0;
     });
     s.totalExpenses = s.totalDrawing + s.totalDocuments + s.totalSiteVisit +
                       s.totalMarketingMisc + s.totalOfficeManagement;
@@ -584,7 +641,12 @@ const NUMERIC_EXPORT_KEYS = new Set([
 ]);
 
 const getExportValue = (key, p) => {
-  const expenses = (p.drawing??0)+(p.documents??0)+(p.siteVisit??0)+(p.marketingAndMisc??0)+(p.officeManagement??0);
+  const expenses =
+    (p.fyDrawing ?? 0) +
+    (p.fyDocuments ?? 0) +
+    (p.fySiteVisit ?? 0) +
+    (p.fyMarketingAndMisc ?? 0) +
+    (p.fyOfficeManagement ?? 0);
   switch (key) {
     case 'projectNumber':  return p.projectNumber   ?? '—';
     case 'projectName':    return p.projectName     ?? '—';
@@ -592,16 +654,16 @@ const getExportValue = (key, p) => {
     case 'status':         return p.status          ?? '—';
     case 'finalizedFees':  return p.finalizedFees   ?? 0;
     case 'received':       return p.fyReceivedFees  ?? 0;
-    case 'trimityFees':    return (p.fyReceivedFees??0) - (p.totalAssociateAmount??0);
+    case 'trimityFees':    return p.fyTrimityFees      ?? 0;
     case 'pending':        return (p.finalizedFees??0) - (p.fyReceivedFees??0);
-    case 'profitMargin':   return p.profitMargin    ?? 0;
-    case 'drawing':        return p.drawing         ?? 0;
-    case 'documents':      return p.documents       ?? 0;
-    case 'siteVisit':      return p.siteVisit       ?? 0;
-    case 'marketingMisc':  return p.marketingAndMisc?? 0;
-    case 'officeMgmt':     return p.officeManagement?? 0;
-    case 'associatePaid':  return p.totalAssociatePaid ?? 0;
-    case 'netProfit':      return (p.fyReceivedFees??0) - expenses - (p.totalAssociatePaid??0);
+    case 'profitMargin':   return p.fyProfitMargin      ?? 0;
+    case 'drawing':        return p.fyDrawing           ?? 0;
+    case 'documents':      return p.fyDocuments         ?? 0;
+    case 'siteVisit':      return p.fySiteVisit         ?? 0;
+    case 'marketingMisc':  return p.fyMarketingAndMisc  ?? 0;
+    case 'officeMgmt':     return p.fyOfficeManagement  ?? 0;
+    case 'associatePaid':  return p.fyAssociatePaid     ?? 0;
+    case 'netProfit':      return (p.fyReceivedFees??0) - expenses - (p.fyAssociatePaid??0);
     default:               return '';
   }
 };
@@ -756,23 +818,28 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
 
   // Cell renderer for each column key
   const renderCell = (key, p) => {
-    const expenses = (p.drawing??0)+(p.documents??0)+(p.siteVisit??0)+(p.marketingAndMisc??0)+(p.officeManagement??0);
-    const netProfit = (p.fyReceivedFees??0) - expenses - (p.totalAssociatePaid??0);
+    const expenses =
+      (p.fyDrawing ?? 0) +
+      (p.fyDocuments ?? 0) +
+      (p.fySiteVisit ?? 0) +
+      (p.fyMarketingAndMisc ?? 0) +
+      (p.fyOfficeManagement ?? 0);
+    const netProfit = (p.fyReceivedFees??0) - expenses - (p.fyAssociatePaid??0);
     const pending   = (p.finalizedFees??0)  - (p.fyReceivedFees??0);
     switch (key) {
       case 'client':        return <td key={key} className="fd-td fd-td-client">{p.clientId?.name ?? '—'}</td>;
       case 'status':        return <td key={key} className="fd-td"><StatusBadge status={p.status} /></td>;
       case 'finalizedFees': return <td key={key} className="fd-td fd-td-num">{fmtCurrency(p.finalizedFees)}</td>;
       case 'received':      return <td key={key} className="fd-td fd-td-num fd-num-blue">{fmtCurrency(p.fyReceivedFees)}</td>;
-      case 'trimityFees':   return <td key={key} className="fd-td fd-td-num fd-num-emerald">{fmtCurrency((p.fyReceivedFees ?? 0) - (p.totalAssociateAmount ?? 0))}</td>;
+      case 'trimityFees':   return <td key={key} className="fd-td fd-td-num fd-num-emerald">{fmtCurrency(p.fyTrimityFees ?? 0)}</td>;
       case 'pending':       return <td key={key} className={`fd-td fd-td-num ${pending>0?'fd-num-orange':'fd-num-green'}`}>{fmtCurrency(pending)}</td>;
-      case 'profitMargin':  return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.profitMargin)}</td>;
-      case 'drawing':       return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.drawing)}</td>;
-      case 'documents':     return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.documents)}</td>;
-      case 'siteVisit':     return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.siteVisit)}</td>;
-      case 'marketingMisc': return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.marketingAndMisc)}</td>;
-      case 'officeMgmt':    return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.officeManagement)}</td>;
-      case 'associatePaid': return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.totalAssociatePaid)}</td>;
+      case 'profitMargin':  return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.fyProfitMargin)}</td>;
+      case 'drawing':       return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.fyDrawing)}</td>;
+      case 'documents':     return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.fyDocuments)}</td>;
+      case 'siteVisit':     return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.fySiteVisit)}</td>;
+      case 'marketingMisc': return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.fyMarketingAndMisc)}</td>;
+      case 'officeMgmt':    return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.fyOfficeManagement)}</td>;
+      case 'associatePaid': return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.fyAssociatePaid)}</td>;
       case 'actions':       return (
         <td key={key} className="fd-td fd-td-actions" onClick={(e) => e.stopPropagation()}>
           <button
@@ -893,16 +960,16 @@ const ExpandedDetail = ({ project: p }) => {
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
   const expenseItems = [
-    { label: 'Profit Margin', value: p.profitMargin,       pct: p.profitMarginPercent,        color: '#10b981' },
-    { label: 'Drawing',       value: p.drawing,            pct: p.drawingPercent,             color: '#3b82f6' },
-    { label: 'Documents',     value: p.documents,          pct: p.documentsPercent,           color: '#f59e0b' },
-    { label: 'Site Visit',    value: p.siteVisit,          pct: p.siteVisitPercent,           color: '#8b5cf6' },
-    { label: 'Mktg & Misc',   value: p.marketingAndMisc,   pct: p.marketingAndMiscPercent,    color: '#ec4899' },
-    { label: 'Office Mgmt',   value: p.officeManagement,   pct: p.officeManagementPercent,    color: '#f97316' },
-    { label: 'Associates',    value: p.totalAssociatePaid, pct: null,                         color: '#6b7280' },
+    { label: 'Profit Margin', value: p.fyProfitMargin,       pct: p.profitMarginPercent,        color: '#10b981' },
+    { label: 'Drawing',       value: p.fyDrawing,            pct: p.drawingPercent,             color: '#3b82f6' },
+    { label: 'Documents',     value: p.fyDocuments,          pct: p.documentsPercent,           color: '#f59e0b' },
+    { label: 'Site Visit',    value: p.fySiteVisit,          pct: p.siteVisitPercent,           color: '#8b5cf6' },
+    { label: 'Mktg & Misc',   value: p.fyMarketingAndMisc,   pct: p.marketingAndMiscPercent,    color: '#ec4899' },
+    { label: 'Office Mgmt',   value: p.fyOfficeManagement,   pct: p.officeManagementPercent,    color: '#f97316' },
+    { label: 'Associates',    value: p.fyAssociatePaid,      pct: null,                         color: '#6b7280' },
   ].filter((e) => (e.value ?? 0) > 0);
 
-  const base = p.fyReceivedFees || 1;
+  const base = p.fyTrimityFees || 1;
 
   return (
     <div className="fd-exp-wrap">
@@ -987,15 +1054,16 @@ const ExpandedDetail = ({ project: p }) => {
             </thead>
             <tbody>
               {p.projectAssociates.map((a, i) => {
-                const alloc   = (p.totalReceivedFees ?? 0) * ((a.percentage ?? 0) / 100);
-                const pending = Math.max(0, alloc - (a.amountPaid ?? 0));
+                const alloc = Math.floor((p.fyReceivedFees ?? 0) * ((a.percentage ?? 0) / 100));
+                const paidForFY = getAssociatePaidForFY(a, p.fyStart, p.fyEnd);
+                const pending = Math.max(0, alloc - paidForFY);
                 return (
                   <tr key={i}>
                     <td><strong>{a.associateId?.name ?? '—'}</strong></td>
                     <td>{a.associateId?.company ?? '—'}</td>
                     <td>{a.percentage ?? 0}%</td>
                     <td>{fmtCurrency(Math.round(alloc))}</td>
-                    <td className="fd-num-green">{fmtCurrency(a.amountPaid)}</td>
+                    <td className="fd-num-green">{fmtCurrency(paidForFY)}</td>
                     <td className={pending > 0 ? 'fd-num-orange' : 'fd-num-green'}>
                       {fmtCurrency(Math.round(pending))}
                     </td>
@@ -1254,9 +1322,10 @@ const AssociatesTab = ({ projects, filterBank, setFilterBank }) => {
     const out = [];
     projects.forEach((p) => {
       (p.projectAssociates ?? []).forEach((a) => {
-        const alloc   = (p.totalReceivedFees ?? 0) * ((a.percentage ?? 0) / 100);
-        const pending = Math.max(0, alloc - (a.amountPaid ?? 0));
-        out.push({ p, a, alloc, pending });
+        const alloc = Math.floor((p.fyReceivedFees ?? 0) * ((a.percentage ?? 0) / 100));
+        const paid = getAssociatePaidForFY(a, p.fyStart, p.fyEnd);
+        const pending = Math.max(0, alloc - paid);
+        out.push({ p, a, alloc, paid, pending });
       });
     });
     return out;
@@ -1337,8 +1406,7 @@ const AssociatesTab = ({ projects, filterBank, setFilterBank }) => {
           </tr>
         </thead>
         <tbody>
-          {pageRows.map(({ p, a, alloc, pending }, i) => {
-            const paid   = a.amountPaid ?? 0;
+          {pageRows.map(({ p, a, alloc, paid, pending }, i) => {
             const isPaid = pending === 0 && alloc > 0;
             return (
               <tr key={`${p._id}-${a._id ?? i}`} className="fd-row">
