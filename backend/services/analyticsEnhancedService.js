@@ -2,8 +2,55 @@ const mongoose = require('mongoose');
 const Client = require('../models/Client');
 const Associate = require('../models/Associate');
 const FinanceProject = require('../models/FinanceProject');
+const Expense = require('../models/Expense');
+const ExpenseCategory = require('../models/ExpenseCategory');
+
+const CATEGORY_CONFIG = [
+  { label: 'Profit Margin', field: 'profitMargin', slug: 'profit-margin' },
+  { label: 'Drawing', field: 'drawing', slug: 'drawing' },
+  { label: 'Documents', field: 'documents', slug: 'documents' },
+  { label: 'Site Visit', field: 'siteVisit', slug: 'site-visit' },
+  { label: 'Marketing & Misc', field: 'marketingAndMisc', slug: 'marketing-miscellaneous' },
+  { label: 'Office Management', field: 'officeManagement', slug: 'office-management' }
+];
 
 class AnalyticsEnhancedService {
+  getCurrentFinancialYear() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    if (month >= 3) {
+      return `${year}-${String((year + 1) % 100).padStart(2, '0')}`;
+    }
+    return `${year - 1}-${String(year % 100).padStart(2, '0')}`;
+  }
+
+  parseFinancialYear(financialYear) {
+    const normalizedFy = (financialYear || this.getCurrentFinancialYear()).trim();
+    const match = normalizedFy.match(/^(\d{4})[-/](\d{2}|\d{4})$/);
+
+    if (!match) {
+      throw new Error('Invalid financialYear format. Use YYYY-YY (example: 2025-26).');
+    }
+
+    const startYear = Number(match[1]);
+    let endYear = Number(match[2]);
+
+    if (endYear < 100) {
+      endYear = Math.floor(startYear / 100) * 100 + endYear;
+    }
+
+    if (endYear !== startYear + 1) {
+      throw new Error('Invalid financialYear range. End year must be start year + 1.');
+    }
+
+    return {
+      financialYear: `${startYear}-${String(endYear % 100).padStart(2, '0')}`,
+      startDate: new Date(Date.UTC(startYear, 3, 1, 0, 0, 0, 0)),
+      endDate: new Date(Date.UTC(endYear, 2, 31, 23, 59, 59, 999))
+    };
+  }
+
   
   // Projects analytics with flexible grouping
   async getProjectsAnalytics({ from, to, groupBy = 'status' }) {
@@ -490,6 +537,94 @@ class AnalyticsEnhancedService {
       };
     } catch (error) {
       console.error('❌ [ENHANCED ANALYTICS] Error in getExpensesAnalytics:', error);
+      throw error;
+    }
+  }
+
+  async getEstimatedVsActualExpenses({ financialYear }) {
+    try {
+      const fy = this.parseFinancialYear(financialYear);
+
+      const [estimatedRow, categoryDocs] = await Promise.all([
+        FinanceProject.aggregate([
+          {
+            $match: {
+              updatedAt: { $gte: fy.startDate, $lte: fy.endDate }
+            }
+          },
+          {
+            $group: {
+              _id: null,
+              profitMargin: { $sum: { $toDouble: { $ifNull: ['$profitMargin', 0] } } },
+              drawing: { $sum: { $toDouble: { $ifNull: ['$drawing', 0] } } },
+              documents: { $sum: { $toDouble: { $ifNull: ['$documents', 0] } } },
+              siteVisit: { $sum: { $toDouble: { $ifNull: ['$siteVisit', 0] } } },
+              marketingAndMisc: { $sum: { $toDouble: { $ifNull: ['$marketingAndMisc', 0] } } },
+              officeManagement: { $sum: { $toDouble: { $ifNull: ['$officeManagement', 0] } } }
+            }
+          }
+        ]),
+        ExpenseCategory.find({
+          slug: { $in: CATEGORY_CONFIG.map((c) => c.slug) }
+        }).select('_id slug').lean()
+      ]);
+
+      const categoryIdBySlug = categoryDocs.reduce((acc, category) => {
+        acc[category.slug] = category._id;
+        return acc;
+      }, {});
+
+      const categoryIds = Object.values(categoryIdBySlug);
+
+      const actualRows = categoryIds.length > 0
+        ? await Expense.aggregate([
+            {
+              $match: {
+                date: { $gte: fy.startDate, $lte: fy.endDate },
+                category: { $in: categoryIds }
+              }
+            },
+            {
+              $group: {
+                _id: '$category',
+                amount: { $sum: { $toDouble: { $ifNull: ['$amount', 0] } } }
+              }
+            }
+          ])
+        : [];
+
+      const actualByCategoryId = actualRows.reduce((acc, row) => {
+        acc[String(row._id)] = Math.round(row.amount || 0);
+        return acc;
+      }, {});
+
+      const estimatedTotals = estimatedRow[0] || {};
+
+      const labels = CATEGORY_CONFIG.map((c) => c.label);
+      const estimatedValues = CATEGORY_CONFIG.map((c) => Math.round(estimatedTotals[c.field] || 0));
+      const actualValues = CATEGORY_CONFIG.map((c) => {
+        const categoryId = categoryIdBySlug[c.slug];
+        return categoryId ? (actualByCategoryId[String(categoryId)] || 0) : 0;
+      });
+
+      return {
+        labels,
+        estimatedValues,
+        actualValues,
+        estimatedTotal: estimatedValues.reduce((sum, value) => sum + value, 0),
+        actualTotal: actualValues.reduce((sum, value) => sum + value, 0),
+        financialYear: fy.financialYear,
+        financialYearStart: fy.startDate,
+        financialYearEnd: fy.endDate,
+        availableFinancialYears: [
+          this.getCurrentFinancialYear(),
+          `${Number(this.getCurrentFinancialYear().slice(0, 4)) - 1}-${String(Number(this.getCurrentFinancialYear().slice(0, 4)) % 100).padStart(2, '0')}`,
+          `${Number(this.getCurrentFinancialYear().slice(0, 4)) - 2}-${String((Number(this.getCurrentFinancialYear().slice(0, 4)) - 1) % 100).padStart(2, '0')}`,
+          `${Number(this.getCurrentFinancialYear().slice(0, 4)) - 3}-${String((Number(this.getCurrentFinancialYear().slice(0, 4)) - 2) % 100).padStart(2, '0')}`
+        ]
+      };
+    } catch (error) {
+      console.error('❌ [ENHANCED ANALYTICS] Error in getEstimatedVsActualExpenses:', error);
       throw error;
     }
   }

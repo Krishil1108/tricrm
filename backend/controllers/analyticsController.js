@@ -364,6 +364,18 @@ class AnalyticsController {
       res.status(500).json({ error: 'Failed to fetch expenses analytics', details: error.message });
     }
   }
+
+  async getEstimatedVsActualExpenses(req, res) {
+    console.log('📊 [ANALYTICS CONTROLLER] getEstimatedVsActualExpenses called');
+    try {
+      const { financialYear } = req.query;
+      const data = await analyticsEnhancedService.getEstimatedVsActualExpenses({ financialYear });
+      res.json(data);
+    } catch (error) {
+      console.error('❌ [ANALYTICS CONTROLLER] Error in getEstimatedVsActualExpenses:', error);
+      res.status(500).json({ error: 'Failed to fetch estimated vs actual expenses', details: error.message });
+    }
+  }
 }
 
 module.exports = new AnalyticsController();

@@ -121,6 +121,11 @@ router.get('/expenses/analytics', (req, res, next) => {
   analyticsController.getExpensesAnalytics(req, res, next);
 });
 
+router.get('/expenses/estimated-vs-actual', (req, res, next) => {
+  console.log('📊 [ANALYTICS] Estimated vs actual expenses requested');
+  analyticsController.getEstimatedVsActualExpenses(req, res, next);
+});
+
 // Advanced chart endpoint with Python support
 router.get('/advanced-chart', (req, res, next) => {
   console.log('📊 [ANALYTICS] Advanced chart requested with config:', req.query);
