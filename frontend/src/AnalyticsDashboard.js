@@ -300,6 +300,12 @@ const AnalyticsDashboard = () => {
               token={token}
               apiBaseUrl={API_BASE_URL}
             />
+
+            <AnalyticsChart
+              chartType="expenseComparison"
+              token={token}
+              apiBaseUrl={API_BASE_URL}
+            />
             
             <AnalyticsChart 
               chartType="payments"
