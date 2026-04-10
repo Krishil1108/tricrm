@@ -190,7 +190,7 @@ mongoose.connect(MONGODB_URI, {
 });
 
 // Import authentication middleware
-const { authenticate } = require('./middleware/auth');
+const { authenticate, hasModuleAccess } = require('./middleware/auth');
 
 // ============================================
 // API DOCUMENTATION (Swagger)
@@ -260,14 +260,14 @@ app.use('/api/meetings', authenticate, meetingRoutes);
 app.use('/api/notes', authenticate, noteRoutes);
 app.use('/api/activities', authenticate, activityRoutes);
 app.use('/api/configuration-versions', authenticate, configurationVersionRoutes);
-app.use('/api/finance', authenticate, financeRoutes);
-app.use('/api/expenses', authenticate, expenseRoutes);
+app.use('/api/finance', authenticate, hasModuleAccess('finance'), financeRoutes);
+app.use('/api/expenses', authenticate, hasModuleAccess('finance'), expenseRoutes);
 app.use('/api/data', authenticate, dataManagementRoutes);
 
 // Analytics routes with debugging
 console.log('📊 [SERVER] Registering analytics routes at /api/analytics...');
 try {
-  app.use('/api/analytics', analyticsRoutes);
+  app.use('/api/analytics', authenticate, hasModuleAccess('finance'), analyticsRoutes);
   console.log('✅ [SERVER] Analytics routes registered successfully');
 } catch (error) {
   console.error('❌ [SERVER] Failed to register analytics routes:', error);

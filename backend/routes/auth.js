@@ -62,6 +62,17 @@ router.post('/login', authLimiter, auditLog('LOGIN', 'User'), [
       });
     }
 
+    // Enforce reset before allowing authenticated sessions.
+    if (user.passwordResetRequired) {
+      await auditLogEvent(req, 'LOGIN_BLOCKED', 'User', { reason: 'Password reset required', username });
+      return res.status(403).json({
+        success: false,
+        code: 'PASSWORD_RESET_REQUIRED',
+        message: 'Password reset is required before login.',
+        passwordResetRequired: true
+      });
+    }
+
     // Update last login
     user.lastLogin = new Date();
     await user.save();

@@ -4,6 +4,7 @@ const multer = require('multer');
 const XLSX = require('xlsx');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const archiver = require('archiver');
 const { authenticate, isAdmin } = require('../middleware/auth');
 const Client = require('../models/Client');
@@ -82,6 +83,10 @@ const safeExportData = async (model, modelName, options = {}) => {
 };
 
 // Helper function to safely import data
+const generateSecureImportPassword = () => {
+  return `Tmp-${crypto.randomBytes(16).toString('hex')}!A1`;
+};
+
 const safeImportData = async (model, modelName, data, options = {}) => {
   const results = {
     successful: [],
@@ -106,12 +111,13 @@ const safeImportData = async (model, modelName, data, options = {}) => {
 
       // Remove fields that should not be imported
       delete item.__v;
+      const importedUsername = modelName === 'User' ? item.username : null;
       if (modelName === 'User') {
         delete item.refreshTokens;
-        // Don't import passwords for security
-        if (!item.password) {
-          item.password = 'TempPassword123!'; // Temporary password, user should reset
-        }
+        // Never trust imported credentials or username values.
+        delete item.password;
+        delete item.username;
+        delete item.passwordResetRequired;
       }
 
       // Set import metadata
@@ -142,6 +148,12 @@ const safeImportData = async (model, modelName, data, options = {}) => {
         isUpdate = true;
       } else if (!existingItem) {
         // Create new item
+        if (modelName === 'User') {
+          // New imported users get a one-time random password and must reset before use.
+          item.username = importedUsername || item.email;
+          item.password = generateSecureImportPassword();
+          item.passwordResetRequired = true;
+        }
         const newItem = new model(item);
         savedItem = await newItem.save();
         results.created.push(savedItem);

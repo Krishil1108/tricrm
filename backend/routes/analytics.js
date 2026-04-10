@@ -6,8 +6,19 @@ const analyticsController = require('../controllers/analyticsController');
 // Debug logging for route registration
 console.log('📊 [ANALYTICS] Registering analytics routes...');
 
+const allowDebugEndpoint = (req, res, next) => {
+  if (process.env.NODE_ENV !== 'production') {
+    return next();
+  }
+
+  return res.status(404).json({
+    success: false,
+    message: 'Endpoint not found'
+  });
+};
+
 // Simple test endpoint (no auth required for debugging)
-router.get('/test', (req, res) => {
+router.get('/test', allowDebugEndpoint, (req, res) => {
   console.log('🧪 [ANALYTICS] Test endpoint accessed');
   res.json({ 
     message: 'Analytics test endpoint working!',
@@ -17,7 +28,7 @@ router.get('/test', (req, res) => {
 });
 
 // Health check endpoint (no auth required for testing)
-router.get('/health', (req, res) => {
+router.get('/health', allowDebugEndpoint, (req, res) => {
   console.log('📊 [ANALYTICS] Health check accessed');
   res.json({ 
     status: 'Analytics routes are working',
@@ -37,7 +48,7 @@ router.get('/health', (req, res) => {
 });
 
 // Debug route to list all registered routes
-router.get('/debug-routes', (req, res) => {
+router.get('/debug-routes', allowDebugEndpoint, (req, res) => {
   console.log('📊 [ANALYTICS] Debug routes accessed');
   res.json({
     message: 'Analytics routes debug info',
@@ -140,7 +151,7 @@ router.get('/monthly-client-growth', authenticate, (req, res, next) => {
 });
 
 // Test endpoint for monthly client growth (no auth for debugging)
-router.get('/test-monthly-client-growth', (req, res) => {
+router.get('/test-monthly-client-growth', allowDebugEndpoint, (req, res) => {
   console.log('📊 [ANALYTICS] Test monthly client growth endpoint accessed');
   res.json({ 
     message: 'Monthly client growth endpoint is working',
