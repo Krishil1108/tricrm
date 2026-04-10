@@ -8,11 +8,13 @@ import {
   LineElement,
   PointElement,
   ArcElement,
+  RadialLinearScale,
+  Filler,
   Title,
   Tooltip,
   Legend
 } from 'chart.js';
-import { Bar, Line, Pie, Doughnut } from 'react-chartjs-2';
+import { Bar, Line, Pie, Doughnut, Scatter, Radar, PolarArea } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
@@ -21,6 +23,8 @@ ChartJS.register(
   LineElement,
   PointElement,
   ArcElement,
+  RadialLinearScale,
+  Filler,
   Title,
   Tooltip,
   Legend
@@ -112,6 +116,7 @@ const AnalyticsChart = ({
   const [expenseCategory, setExpenseCategory] = useState('all'); // For expenses chart
   const [financialYear, setFinancialYear] = useState(getCurrentFinancialYear());
   const [showAdvancedControls, setShowAdvancedControls] = useState(false);
+  const [expenseComparisonRaw, setExpenseComparisonRaw] = useState(null);
   const chartRef = useRef(null);
 
   // Chart configuration based on type
@@ -200,8 +205,8 @@ const AnalyticsChart = ({
           description: 'Compare finance estimates with actual expenses by category for a financial year',
           dataLabel: 'Expense Comparison',
           showGroupBy: false,
-          allowedVisuals: ['line'],
-          defaultVisual: 'line',
+          allowedVisuals: ['combo', 'line', 'bar', 'area', 'scatter', 'histogram', 'pie', 'doughnut', 'polarArea', 'radar'],
+          defaultVisual: 'combo',
           isCurrency: true
         };
       default:
@@ -259,31 +264,12 @@ const AnalyticsChart = ({
         const estimated = Array.isArray(data.estimatedValues) ? data.estimatedValues : [];
         const actual = Array.isArray(data.actualValues) ? data.actualValues : [];
 
-        setChartData({
+        setExpenseComparisonRaw({
           labels: chartLabels,
-          datasets: [
-            {
-              label: 'Estimated Expense',
-              data: estimated,
-              borderColor: 'rgba(37, 99, 235, 1)',
-              backgroundColor: 'rgba(37, 99, 235, 0.15)',
-              pointBackgroundColor: 'rgba(37, 99, 235, 1)',
-              borderWidth: 3,
-              fill: false,
-              tension: 0.35
-            },
-            {
-              label: 'Actual Expense',
-              data: actual,
-              borderColor: 'rgba(220, 38, 38, 1)',
-              backgroundColor: 'rgba(220, 38, 38, 0.15)',
-              pointBackgroundColor: 'rgba(220, 38, 38, 1)',
-              borderWidth: 3,
-              fill: false,
-              tension: 0.35
-            }
-          ]
+          estimated,
+          actual
         });
+        setChartData(null);
 
         const availableFinancialYears = Array.isArray(data.availableFinancialYears) && data.availableFinancialYears.length > 0
           ? data.availableFinancialYears
@@ -347,7 +333,7 @@ const AnalyticsChart = ({
     maintainAspectRatio: false,
     plugins: {
       legend: { 
-        position: visualType === 'pie' || visualType === 'doughnut' ? 'right' : 'top',
+        position: visualType === 'pie' || visualType === 'doughnut' || visualType === 'polarArea' ? 'right' : 'top',
         labels: { boxWidth: 12, padding: 10, font: { size: 11 } }
       },
       title: { display: false },
@@ -355,7 +341,7 @@ const AnalyticsChart = ({
         callbacks: {
           label: (context) => {
             const label = context.dataset.label || '';
-            const value = context.parsed.y || context.parsed || 0;
+            const value = context.parsed?.y ?? context.parsed?.r ?? context.parsed ?? 0;
             if (chartConfig.isCurrency) {
               return `${label}: ₹${value.toLocaleString('en-IN')}`;
             }
@@ -364,7 +350,18 @@ const AnalyticsChart = ({
         }
       }
     },
-    scales: visualType !== 'pie' && visualType !== 'doughnut' ? {
+    scales: visualType !== 'pie' && visualType !== 'doughnut' && visualType !== 'polarArea' && visualType !== 'radar' ? {
+      x: {
+        type: visualType === 'scatter' ? 'linear' : 'category',
+        ticks: visualType === 'scatter' ? {
+          callback: (value) => {
+            if (chartType === 'expenseComparison' && expenseComparisonRaw && Array.isArray(expenseComparisonRaw.labels)) {
+              return expenseComparisonRaw.labels[value] ?? value;
+            }
+            return value;
+          }
+        } : undefined
+      },
       y: { 
         beginAtZero: true,
         ticks: {
@@ -377,7 +374,177 @@ const AnalyticsChart = ({
         }
       }
     } : undefined
-  }), [visualType, chartConfig.isCurrency]);
+  }), [visualType, chartConfig.isCurrency, chartType, expenseComparisonRaw]);
+
+  const expenseComparisonChartData = useMemo(() => {
+    if (chartType !== 'expenseComparison' || !expenseComparisonRaw) {
+      return null;
+    }
+
+    const labels = Array.isArray(expenseComparisonRaw.labels) ? expenseComparisonRaw.labels : [];
+    const estimated = Array.isArray(expenseComparisonRaw.estimated) ? expenseComparisonRaw.estimated : [];
+    const actual = Array.isArray(expenseComparisonRaw.actual) ? expenseComparisonRaw.actual : [];
+
+    const estimatedBase = {
+      label: 'Estimated Expense',
+      data: estimated,
+      borderColor: 'rgba(37, 99, 235, 1)',
+      backgroundColor: 'rgba(37, 99, 235, 0.2)',
+      pointBackgroundColor: 'rgba(37, 99, 235, 1)'
+    };
+
+    const actualBase = {
+      label: 'Actual Expense',
+      data: actual,
+      borderColor: 'rgba(220, 38, 38, 1)',
+      backgroundColor: 'rgba(220, 38, 38, 0.2)',
+      pointBackgroundColor: 'rgba(220, 38, 38, 1)'
+    };
+
+    if (visualType === 'combo') {
+      return {
+        labels,
+        datasets: [
+          {
+            type: 'bar',
+            ...estimatedBase,
+            backgroundColor: 'rgba(37, 99, 235, 0.22)',
+            borderWidth: 1,
+            order: 2
+          },
+          {
+            type: 'bar',
+            ...actualBase,
+            backgroundColor: 'rgba(220, 38, 38, 0.22)',
+            borderWidth: 1,
+            order: 2
+          },
+          {
+            type: 'line',
+            ...estimatedBase,
+            fill: false,
+            borderWidth: 3,
+            tension: 0.35,
+            order: 1
+          },
+          {
+            type: 'line',
+            ...actualBase,
+            fill: false,
+            borderWidth: 3,
+            tension: 0.35,
+            order: 1
+          }
+        ]
+      };
+    }
+
+    if (visualType === 'line' || visualType === 'area') {
+      const fillArea = visualType === 'area';
+      return {
+        labels,
+        datasets: [
+          {
+            ...estimatedBase,
+            borderWidth: 3,
+            fill: fillArea,
+            tension: 0.35
+          },
+          {
+            ...actualBase,
+            borderWidth: 3,
+            fill: fillArea,
+            tension: 0.35
+          }
+        ]
+      };
+    }
+
+    if (visualType === 'bar' || visualType === 'histogram') {
+      const histogramStyle = visualType === 'histogram';
+      return {
+        labels,
+        datasets: [
+          {
+            ...estimatedBase,
+            borderWidth: 1,
+            categoryPercentage: histogramStyle ? 0.95 : 0.8,
+            barPercentage: histogramStyle ? 1 : 0.9
+          },
+          {
+            ...actualBase,
+            borderWidth: 1,
+            categoryPercentage: histogramStyle ? 0.95 : 0.8,
+            barPercentage: histogramStyle ? 1 : 0.9
+          }
+        ]
+      };
+    }
+
+    if (visualType === 'scatter') {
+      return {
+        datasets: [
+          {
+            ...estimatedBase,
+            data: estimated.map((value, index) => ({ x: index, y: value })),
+            showLine: false,
+            pointRadius: 5
+          },
+          {
+            ...actualBase,
+            data: actual.map((value, index) => ({ x: index, y: value })),
+            showLine: false,
+            pointRadius: 5
+          }
+        ]
+      };
+    }
+
+    if (visualType === 'pie' || visualType === 'doughnut' || visualType === 'polarArea') {
+      return {
+        labels: ['Estimated Total', 'Actual Total'],
+        datasets: [
+          {
+            label: 'Totals',
+            data: [
+              estimated.reduce((sum, value) => sum + Number(value || 0), 0),
+              actual.reduce((sum, value) => sum + Number(value || 0), 0)
+            ],
+            backgroundColor: ['rgba(37, 99, 235, 0.75)', 'rgba(220, 38, 38, 0.75)'],
+            borderColor: ['rgba(37, 99, 235, 1)', 'rgba(220, 38, 38, 1)'],
+            borderWidth: 1
+          }
+        ]
+      };
+    }
+
+    if (visualType === 'radar') {
+      return {
+        labels,
+        datasets: [
+          {
+            ...estimatedBase,
+            fill: true,
+            borderWidth: 2
+          },
+          {
+            ...actualBase,
+            fill: true,
+            borderWidth: 2
+          }
+        ]
+      };
+    }
+
+    return {
+      labels,
+      datasets: [estimatedBase, actualBase]
+    };
+  }, [chartType, visualType, expenseComparisonRaw]);
+
+  const renderChartType = chartType === 'expenseComparison'
+    ? (visualType === 'combo' || visualType === 'histogram' ? 'bar' : visualType)
+    : visualType;
 
   const applyPreset = (value) => {
     const now = new Date();
@@ -429,8 +596,11 @@ const AnalyticsChart = ({
     bar: Bar,
     line: Line,
     pie: Pie,
-    doughnut: Doughnut
-  }[visualType] || Bar;
+    doughnut: Doughnut,
+    scatter: Scatter,
+    radar: Radar,
+    polarArea: PolarArea
+  }[renderChartType] || Bar;
 
   return (
     <div className="analytics-chart-card">
@@ -456,10 +626,16 @@ const AnalyticsChart = ({
                   onClick={() => setVisualType(type)}
                   title={type.charAt(0).toUpperCase() + type.slice(1)}
                 >
+                  {type === 'combo' && '📶'}
                   {type === 'bar' && '📊'}
                   {type === 'line' && '📈'}
+                  {type === 'area' && '🌊'}
+                  {type === 'scatter' && '🟣'}
+                  {type === 'histogram' && '🧱'}
                   {type === 'pie' && '🥧'}
                   {type === 'doughnut' && '🍩'}
+                  {type === 'polarArea' && '🧭'}
+                  {type === 'radar' && '🕸️'}
                 </button>
               ))}
             </div>
@@ -574,9 +750,9 @@ const AnalyticsChart = ({
           )}
           {meta.groupBy && <span className="meta-badge">Grouping: <strong>{meta.groupBy}</strong></span>}
         </div>
-        {chartData && !error ? (
+        {(chartType === 'expenseComparison' ? expenseComparisonChartData : chartData) && !error ? (
           <div className="chart-container-sm">
-            <ChartComponent ref={chartRef} data={chartData} options={chartOptions} />
+            <ChartComponent ref={chartRef} data={chartType === 'expenseComparison' ? expenseComparisonChartData : chartData} options={chartOptions} />
           </div>
         ) : (
           <div className="chart-placeholder-sm">
