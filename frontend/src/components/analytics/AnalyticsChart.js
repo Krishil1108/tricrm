@@ -602,6 +602,64 @@ const AnalyticsChart = ({
     polarArea: PolarArea
   }[renderChartType] || Bar;
 
+  const valueLabelPlugin = useMemo(() => ({
+    id: 'expense-comparison-value-labels',
+    afterDatasetsDraw(chart) {
+      if (chartType !== 'expenseComparison') {
+        return;
+      }
+
+      if (!['combo', 'bar', 'histogram', 'line', 'area', 'scatter'].includes(visualType)) {
+        return;
+      }
+
+      const { ctx } = chart;
+      const datasets = chart.data?.datasets || [];
+
+      ctx.save();
+      ctx.font = '600 11px sans-serif';
+      ctx.fillStyle = '#1f2937';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+
+      datasets.forEach((dataset, datasetIndex) => {
+        const meta = chart.getDatasetMeta(datasetIndex);
+        if (!meta || meta.hidden) {
+          return;
+        }
+
+        const metaType = meta.type || dataset.type;
+        const shouldRenderForDataset = (
+          (visualType === 'combo' && metaType === 'bar') ||
+          ((visualType === 'bar' || visualType === 'histogram') && metaType === 'bar') ||
+          ((visualType === 'line' || visualType === 'area') && metaType === 'line') ||
+          (visualType === 'scatter' && metaType === 'scatter')
+        );
+
+        if (!shouldRenderForDataset) {
+          return;
+        }
+
+        meta.data.forEach((element, index) => {
+          const rawValue = Array.isArray(dataset.data) ? dataset.data[index] : null;
+          const numericValue = typeof rawValue === 'object' && rawValue !== null ? rawValue.y : rawValue;
+          if (typeof numericValue !== 'number' || Number.isNaN(numericValue)) {
+            return;
+          }
+
+          const position = element.tooltipPosition();
+          const labelText = chartConfig.isCurrency
+            ? `₹${Math.round(numericValue).toLocaleString('en-IN')}`
+            : Math.round(numericValue).toLocaleString('en-IN');
+
+          ctx.fillText(labelText, position.x, position.y - 8);
+        });
+      });
+
+      ctx.restore();
+    }
+  }), [chartType, visualType, chartConfig.isCurrency]);
+
   return (
     <div className="analytics-chart-card">
       <div className="chart-card-header">
@@ -752,7 +810,12 @@ const AnalyticsChart = ({
         </div>
         {(chartType === 'expenseComparison' ? expenseComparisonChartData : chartData) && !error ? (
           <div className="chart-container-sm">
-            <ChartComponent ref={chartRef} data={chartType === 'expenseComparison' ? expenseComparisonChartData : chartData} options={chartOptions} />
+            <ChartComponent
+              ref={chartRef}
+              data={chartType === 'expenseComparison' ? expenseComparisonChartData : chartData}
+              options={chartOptions}
+              plugins={[valueLabelPlugin]}
+            />
           </div>
         ) : (
           <div className="chart-placeholder-sm">
