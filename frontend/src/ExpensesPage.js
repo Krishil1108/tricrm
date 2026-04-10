@@ -7,9 +7,12 @@ import {
 } from 'react-icons/fi';
 import ExpenseService from './services/ExpenseService';
 import { useToast } from './context/ToastContext';
+import { useAuth } from './contexts/AuthContext';
+import API_BASE_URL from './config/api';
 import Watermark from './components/Watermark';
 import Modal from './components/Modal';
 import ConfirmDialog from './components/ConfirmDialog';
+import AnalyticsChart from './components/analytics/AnalyticsChart';
 import './ExpensesPage.css';
 
 // Debug logger
@@ -830,6 +833,7 @@ const FirmManagementModal = ({ isOpen, onClose, onSuccess }) => {
 // ============== MAIN EXPENSES PAGE ==============
 const ExpensesPage = () => {
   const { showError, showSuccess } = useToast();
+  const { token } = useAuth();
   
   // Data state
   const [expenses, setExpenses] = useState([]);
@@ -1282,6 +1286,14 @@ const ExpensesPage = () => {
 
       {activeTab === 'analytics' && (
         <div className="expense-analytics-section">
+          <div className="expense-analytics-chart-full-width">
+            <AnalyticsChart
+              chartType="expenseComparison"
+              token={token}
+              apiBaseUrl={API_BASE_URL}
+            />
+          </div>
+
           {/* Category Breakdown */}
           <div className="analytics-card">
             <h3><FiPieChart /> Category Breakdown</h3>

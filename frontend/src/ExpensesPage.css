@@ -467,6 +467,10 @@
   gap: 20px;
 }
 
+.expense-analytics-chart-full-width {
+  grid-column: 1 / -1;
+}
+
 .analytics-card {
   background: white;
   border-radius: 12px;
