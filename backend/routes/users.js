@@ -5,6 +5,8 @@ const User = require('../models/User');
 const Role = require('../models/Role');
 const { authenticate, isAdmin } = require('../middleware/auth');
 
+const isStrictTrue = (value) => value === true || value === 'true' || value === 1 || value === '1';
+
 // All user management routes require authentication and admin privileges
 router.use(authenticate);
 router.use(isAdmin);
@@ -302,7 +304,7 @@ router.post('/:id/reset-password', [
     const { newPassword, requirePasswordChange } = req.body;
 
     user.password = newPassword;
-    user.passwordResetRequired = requirePasswordChange || false;
+    user.passwordResetRequired = isStrictTrue(requirePasswordChange);
     await user.save();
 
     res.json({ 

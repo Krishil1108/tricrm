@@ -11,6 +11,8 @@ const { ValidationError, NotFoundError } = require('../errors/AppError');
 const { asyncHandler } = require('../errors/asyncHandler');
 const { auditLog, auditLogEvent } = require('../middleware/auditLog');
 
+const isStrictTrue = (value) => value === true || value === 'true' || value === 1 || value === '1';
+
 // @route   POST /api/auth/login
 // @desc    Login user
 // @access  Public
@@ -63,7 +65,7 @@ router.post('/login', authLimiter, auditLog('LOGIN', 'User'), [
     }
 
     // Enforce reset before allowing authenticated sessions.
-    if (user.passwordResetRequired) {
+    if (isStrictTrue(user.passwordResetRequired)) {
       await auditLogEvent(req, 'LOGIN_BLOCKED', 'User', { reason: 'Password reset required', username });
       return res.status(403).json({
         success: false,

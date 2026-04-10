@@ -72,7 +72,12 @@ export const AuthProvider = ({ children }) => {
         setPermissions(data.user.role.permissions);
         return { success: true, user: data.user };
       } else {
-        return { success: false, message: data.message };
+        return {
+          success: false,
+          message: data.message,
+          code: data.code,
+          passwordResetRequired: Boolean(data.passwordResetRequired)
+        };
       }
     } catch (error) {
       console.error('Login error:', error);
