@@ -53,16 +53,6 @@ const AnalyticsChart = ({
   token, 
   apiBaseUrl 
 }) => {
-  const getCurrentFinancialYear = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
-    if (month >= 3) {
-      return `${year}-${String((year + 1) % 100).padStart(2, '0')}`;
-    }
-    return `${year - 1}-${String(year % 100).padStart(2, '0')}`;
-  };
-
   // Set initial date range based on chart type
   const getInitialDateRange = () => {
     const now = new Date();
@@ -101,7 +91,6 @@ const AnalyticsChart = ({
   const [meta, setMeta] = useState({ total: 0 });
   const [visualType, setVisualType] = useState('bar');
   const [expenseCategory, setExpenseCategory] = useState('all'); // For expenses chart
-  const [financialYear, setFinancialYear] = useState(getCurrentFinancialYear());
   const chartRef = useRef(null);
 
   // Chart configuration based on type
@@ -183,17 +172,6 @@ const AnalyticsChart = ({
           defaultVisual: 'bar',
           isCurrency: true
         };
-      case 'expenseComparison':
-        return {
-          title: '📊 Estimated vs Actual Expenses',
-          endpoint: '/analytics/expenses/estimated-vs-actual',
-          description: 'Compare finance estimates with actual expenses by category for a financial year',
-          dataLabel: 'Expense Comparison',
-          showGroupBy: false,
-          allowedVisuals: ['line'],
-          defaultVisual: 'line',
-          isCurrency: true
-        };
       default:
         return {
           title: '📈 Analytics',
@@ -221,7 +199,6 @@ const AnalyticsChart = ({
       if (to && to.trim()) params.append('to', to);
       // Add category for expenses chart
       if (chartType === 'expenses') params.append('category', expenseCategory);
-      if (chartType === 'expenseComparison') params.append('financialYear', financialYear);
 
       const url = `${apiBaseUrl}${chartConfig.endpoint}?${params.toString()}`;
       const res = await fetch(url, {
@@ -234,7 +211,7 @@ const AnalyticsChart = ({
       
       const data = await res.json();
 
-      if (!data.labels || !data.values) {
+      if (!Array.isArray(data.labels)) {
         throw new Error('Invalid data structure received from server');
       }
 
@@ -244,64 +221,28 @@ const AnalyticsChart = ({
 
       const colors = labels.map((_, idx) => colorPalette[idx % colorPalette.length]);
 
-      if (chartType === 'expenseComparison') {
-        setChartData({
-          labels: data.labels || [],
-          datasets: [
-            {
-              label: 'Estimated Expense',
-              data: data.estimatedValues || [],
-              borderColor: 'rgba(99, 102, 241, 1)',
-              backgroundColor: 'rgba(99, 102, 241, 0.15)',
-              pointBackgroundColor: 'rgba(99, 102, 241, 1)',
-              borderWidth: 3,
-              fill: false,
-              tension: 0.35
-            },
-            {
-              label: 'Actual Expense',
-              data: data.actualValues || [],
-              borderColor: 'rgba(239, 68, 68, 1)',
-              backgroundColor: 'rgba(239, 68, 68, 0.15)',
-              pointBackgroundColor: 'rgba(239, 68, 68, 1)',
-              borderWidth: 3,
-              fill: false,
-              tension: 0.35
-            }
-          ]
-        });
+      setChartData({
+        labels,
+        datasets: [
+          {
+            label: data.dataLabel || chartConfig.dataLabel,
+            data: Array.isArray(data.values) ? data.values : [],
+            backgroundColor: colors,
+            borderColor: colors.map((c) => c.replace('0.8', '1')),
+            borderWidth: visualType === 'line' ? 2 : 1,
+            fill: visualType === 'line' ? false : true,
+            tension: 0.4
+          }
+        ]
+      });
 
-        setMeta({
-          total: data.actualTotal || 0,
-          estimatedTotal: data.estimatedTotal || 0,
-          actualTotal: data.actualTotal || 0,
-          financialYear: data.financialYear || financialYear,
-          availableFinancialYears: data.availableFinancialYears || [financialYear]
-        });
-      } else {
-        setChartData({
-          labels,
-          datasets: [
-            {
-              label: data.dataLabel || chartConfig.dataLabel,
-              data: data.values || [],
-              backgroundColor: colors,
-              borderColor: colors.map((c) => c.replace('0.8', '1')),
-              borderWidth: visualType === 'line' ? 2 : 1,
-              fill: visualType === 'line' ? false : true,
-              tension: 0.4
-            }
-          ]
-        });
-
-        setMeta({
-          total: data.total || 0,
-          groupBy: data.groupBy || groupBy,
-          from: data.from || from,
-          to: data.to || to,
-          extra: data.counts || data.projectCounts || data.percentages
-        });
-      }
+      setMeta({
+        total: data.total || 0,
+        groupBy: data.groupBy || groupBy,
+        from: data.from || from,
+        to: data.to || to,
+        extra: data.counts || data.projectCounts || data.percentages
+      });
 
     } catch (e) {
       setError(e.message);
@@ -313,7 +254,7 @@ const AnalyticsChart = ({
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [from, to, groupBy, chartType, expenseCategory, financialYear]);
+  }, [from, to, groupBy, chartType, expenseCategory]);
 
   useEffect(() => {
     if (!live) return undefined;
@@ -322,7 +263,7 @@ const AnalyticsChart = ({
     }, refreshMs);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [live, refreshMs, from, to, groupBy, chartType, expenseCategory, financialYear]);
+  }, [live, refreshMs, from, to, groupBy, chartType, expenseCategory]);
 
   const chartOptions = useMemo(() => ({
     responsive: true,
@@ -480,16 +421,6 @@ const AnalyticsChart = ({
               </div>
             </>
           )}
-          {chartType === 'expenseComparison' && (
-            <div className="control-group-inline">
-              <label>FY</label>
-              <select value={financialYear} onChange={(e) => setFinancialYear(e.target.value)} className="control-input-sm">
-                {(meta.availableFinancialYears || [financialYear]).map((fy) => (
-                  <option key={fy} value={fy}>{fy}</option>
-                ))}
-              </select>
-            </div>
-          )}
           {chartType === 'expenses' && (
             <div className="control-group-inline">
               <label>Category</label>
@@ -526,13 +457,6 @@ const AnalyticsChart = ({
           <span className="meta-badge">
             Total: <strong>{chartConfig.isCurrency ? `₹${meta.total.toLocaleString('en-IN')}` : meta.total.toLocaleString('en-IN')}</strong>
           </span>
-          {chartType === 'expenseComparison' && (
-            <>
-              <span className="meta-badge">Estimated: <strong>₹{(meta.estimatedTotal || 0).toLocaleString('en-IN')}</strong></span>
-              <span className="meta-badge">Actual: <strong>₹{(meta.actualTotal || 0).toLocaleString('en-IN')}</strong></span>
-              <span className="meta-badge">FY: <strong>{meta.financialYear || financialYear}</strong></span>
-            </>
-          )}
           {meta.groupBy && <span className="meta-badge">Grouping: <strong>{meta.groupBy}</strong></span>}
         </div>
         {chartData && !error ? (
