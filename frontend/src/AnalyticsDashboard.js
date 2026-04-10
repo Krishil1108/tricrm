@@ -302,12 +302,6 @@ const AnalyticsDashboard = () => {
             />
             
             <AnalyticsChart 
-              chartType="associates"
-              token={token}
-              apiBaseUrl={API_BASE_URL}
-            />
-            
-            <AnalyticsChart 
               chartType="payments"
               token={token}
               apiBaseUrl={API_BASE_URL}
