@@ -33,6 +33,35 @@
   color: #6b7280;
 }
 
+.chart-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.advanced-toggle-btn {
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+  border-radius: 8px;
+  height: 34px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.advanced-toggle-btn:hover {
+  border-color: #6366f1;
+}
+
+.advanced-toggle-btn.active {
+  border-color: #6366f1;
+  color: #4f46e5;
+  background: #eef2ff;
+}
+
 .visual-type-selector {
   display: flex;
   gap: 6px;

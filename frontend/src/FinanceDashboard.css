@@ -105,12 +105,23 @@
   white-space: nowrap;
 }
 .fd-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.fd-btn-export {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  border: 1px solid #1d4ed8;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+}
+.fd-btn-export:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px);
+}
 .fd-btn-excel   { background: #16a34a; color: #fff; }
 .fd-btn-excel:hover:not(:disabled) { background: #15803d; box-shadow: 0 2px 8px rgba(22,163,74,0.35); }
 .fd-btn-pdf     { background: #dc2626; color: #fff; }
 .fd-btn-pdf:hover:not(:disabled)   { background: #b91c1c; box-shadow: 0 2px 8px rgba(220,38,38,0.35); }
 .fd-btn-refresh  { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
-.fd-btn-refresh:hover { background: #e2e8f0; }
+.fd-btn-refresh:hover { background: #e2e8f0; color: #0f172a; }
 .fd-btn-reconcile { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
 .fd-btn-reconcile:hover:not(:disabled) { background: #ffedd5; }
 .fd-btn-reconcile:disabled { opacity: 0.6; cursor: not-allowed; }

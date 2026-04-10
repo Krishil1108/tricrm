@@ -228,6 +228,33 @@
   color: white;
 }
 
+.btn-density {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  background: #fff;
+  color: var(--text-secondary, #64748b);
+  cursor: pointer;
+}
+
+.btn-density:hover {
+  border-color: var(--primary, #6366f1);
+  color: var(--primary, #6366f1);
+}
+
+.filter-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1e40af;
+  background: #dbeafe;
+}
+
 /* Filter Panel */
 .filter-panel {
   display: flex;
@@ -296,6 +323,22 @@
 .expense-table {
   width: 100%;
   border-collapse: collapse;
+}
+
+.expense-table.compact th,
+.expense-table.compact td {
+  padding: 9px 10px;
+}
+
+.expense-table.compact .category-badge,
+.expense-table.compact .payment-mode {
+  font-size: 11px;
+  padding: 2px 8px;
+}
+
+.expense-table.compact .action-btn {
+  width: 28px;
+  height: 28px;
 }
 
 .expense-table th,
@@ -610,6 +653,29 @@
   text-align: center;
   padding: 40px;
   color: var(--text-secondary, #64748b);
+}
+
+.analytics-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 28px 20px;
+  border: 1px dashed var(--border-color, #dbe2ea);
+  border-radius: 10px;
+  color: var(--text-secondary, #64748b);
+  background: #fafcff;
+  text-align: center;
+}
+
+.analytics-empty-state strong {
+  color: var(--text-primary, #1e293b);
+  font-size: 14px;
+}
+
+.analytics-empty-state span {
+  font-size: 12px;
 }
 
 /* Empty State */

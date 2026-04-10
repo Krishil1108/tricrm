@@ -58,6 +58,14 @@ const formatDate = (date) => {
   });
 };
 
+const AnalyticsEmptyState = ({ title = 'No analytics data', subtitle = 'Try changing filters or date range.' }) => (
+  <div className="analytics-empty-state">
+    <FiPieChart size={20} />
+    <strong>{title}</strong>
+    <span>{subtitle}</span>
+  </div>
+);
+
 // ============== EXPENSE WIZARD COMPONENT ==============
 const ExpenseWizard = ({ isOpen, onClose, onSuccess, editData = null }) => {
   const { showError, showSuccess } = useToast();
@@ -860,6 +868,10 @@ const ExpensesPage = () => {
     timeframe: 'all'
   });
   const [showFilters, setShowFilters] = useState(false);
+  const [tableDensity, setTableDensity] = useState(() => {
+    const saved = localStorage.getItem('expenses-table-density');
+    return saved === 'compact' ? 'compact' : 'comfortable';
+  });
 
   // Load data on mount
   useEffect(() => {
@@ -1020,6 +1032,22 @@ const ExpensesPage = () => {
     return analytics?.summary?.[0]?.count || 0;
   }, [analytics]);
 
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (filters.search) count += 1;
+    if (filters.category) count += 1;
+    if (filters.firm) count += 1;
+    if (filters.startDate || filters.endDate) count += 1;
+    if (filters.timeframe && filters.timeframe !== 'all') count += 1;
+    return count;
+  }, [filters]);
+
+  const toggleTableDensity = () => {
+    const nextDensity = tableDensity === 'comfortable' ? 'compact' : 'comfortable';
+    setTableDensity(nextDensity);
+    localStorage.setItem('expenses-table-density', nextDensity);
+  };
+
   return (
     <div className="expenses-page">
       <Watermark />
@@ -1129,6 +1157,14 @@ const ExpensesPage = () => {
         >
           <FiFilter /> Filters
         </button>
+
+        <button className="btn-density" onClick={toggleTableDensity}>
+          {tableDensity === 'compact' ? 'Comfortable' : 'Compact'}
+        </button>
+
+        {activeFilterCount > 0 && (
+          <span className="filter-status">{activeFilterCount} filter(s) active</span>
+        )}
       </div>
 
       {showFilters && (
@@ -1193,7 +1229,7 @@ const ExpensesPage = () => {
           ) : (
             <>
               <div className="expense-table-container">
-                <table className="expense-table">
+                <table className={`expense-table ${tableDensity === 'compact' ? 'compact' : ''}`}>
                   <thead>
                     <tr>
                       <th>Date</th>
@@ -1324,7 +1360,7 @@ const ExpensesPage = () => {
                 );
               })}
               {(!analytics?.byCategory || analytics.byCategory.length === 0) && (
-                <div className="empty-analytics">No data available</div>
+                <AnalyticsEmptyState title="No category breakdown" />
               )}
             </div>
           </div>
@@ -1341,7 +1377,7 @@ const ExpensesPage = () => {
                 </div>
               ))}
               {(!analytics?.byFirm || analytics.byFirm.length === 0) && (
-                <div className="empty-analytics">No data available</div>
+                <AnalyticsEmptyState title="No firm-wise expenses" />
               )}
             </div>
           </div>
@@ -1363,7 +1399,7 @@ const ExpensesPage = () => {
                 </div>
               ))}
               {(!analytics?.monthlyTrend || analytics.monthlyTrend.length === 0) && (
-                <div className="empty-analytics">No trend data available</div>
+                <AnalyticsEmptyState title="No monthly trend data" subtitle="Add more expense records to see trend movement." />
               )}
             </div>
           </div>

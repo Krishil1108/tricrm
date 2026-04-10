@@ -111,6 +111,7 @@ const AnalyticsChart = ({
   const [visualType, setVisualType] = useState('bar');
   const [expenseCategory, setExpenseCategory] = useState('all'); // For expenses chart
   const [financialYear, setFinancialYear] = useState(getCurrentFinancialYear());
+  const [showAdvancedControls, setShowAdvancedControls] = useState(false);
   const chartRef = useRef(null);
 
   // Chart configuration based on type
@@ -438,20 +439,31 @@ const AnalyticsChart = ({
           <h3>{chartConfig.title}</h3>
           <p className="chart-description">{chartConfig.description}</p>
         </div>
-        <div className="visual-type-selector">
-          {chartConfig.allowedVisuals.map(type => (
-            <button
-              key={type}
-              className={`visual-btn ${visualType === type ? 'active' : ''}`}
-              onClick={() => setVisualType(type)}
-              title={type.charAt(0).toUpperCase() + type.slice(1)}
-            >
-              {type === 'bar' && '📊'}
-              {type === 'line' && '📈'}
-              {type === 'pie' && '🥧'}
-              {type === 'doughnut' && '🍩'}
-            </button>
-          ))}
+        <div className="chart-header-controls">
+          <button
+            className={`advanced-toggle-btn ${showAdvancedControls ? 'active' : ''}`}
+            onClick={() => setShowAdvancedControls((prev) => !prev)}
+            title="Toggle advanced controls"
+          >
+            {showAdvancedControls ? 'Hide Advanced' : 'Advanced'}
+          </button>
+          {showAdvancedControls && (
+            <div className="visual-type-selector">
+              {chartConfig.allowedVisuals.map(type => (
+                <button
+                  key={type}
+                  className={`visual-btn ${visualType === type ? 'active' : ''}`}
+                  onClick={() => setVisualType(type)}
+                  title={type.charAt(0).toUpperCase() + type.slice(1)}
+                >
+                  {type === 'bar' && '📊'}
+                  {type === 'line' && '📈'}
+                  {type === 'pie' && '🥧'}
+                  {type === 'doughnut' && '🍩'}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -469,32 +481,36 @@ const AnalyticsChart = ({
                   <option value="all">All</option>
                 </select>
               </div>
-              <div className="control-group-inline">
-                <label>From</label>
-                <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="control-input-sm" />
-              </div>
-              <div className="control-group-inline">
-                <label>To</label>
-                <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="control-input-sm" />
-              </div>
-              <div className="control-group-inline">
-                <label>Group</label>
-                <select value={groupBy} onChange={(e) => setGroupBy(e.target.value)} className="control-input-sm">
-                  {chartConfig.groupByOptions ? (
-                    chartConfig.groupByOptions.map(opt => (
-                      <option key={opt} value={opt}>{opt.charAt(0).toUpperCase() + opt.slice(1)}</option>
-                    ))
-                  ) : (
-                    <>
-                      <option value="day">Day</option>
-                      <option value="week">Week</option>
-                      <option value="month">Month</option>
-                      <option value="quarter">Quarter</option>
-                      <option value="year">Year</option>
-                    </>
-                  )}
-                </select>
-              </div>
+              {showAdvancedControls && (
+                <>
+                  <div className="control-group-inline">
+                    <label>From</label>
+                    <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="control-input-sm" />
+                  </div>
+                  <div className="control-group-inline">
+                    <label>To</label>
+                    <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="control-input-sm" />
+                  </div>
+                  <div className="control-group-inline">
+                    <label>Group</label>
+                    <select value={groupBy} onChange={(e) => setGroupBy(e.target.value)} className="control-input-sm">
+                      {chartConfig.groupByOptions ? (
+                        chartConfig.groupByOptions.map(opt => (
+                          <option key={opt} value={opt}>{opt.charAt(0).toUpperCase() + opt.slice(1)}</option>
+                        ))
+                      ) : (
+                        <>
+                          <option value="day">Day</option>
+                          <option value="week">Week</option>
+                          <option value="month">Month</option>
+                          <option value="quarter">Quarter</option>
+                          <option value="year">Year</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+                </>
+              )}
             </>
           )}
           {chartType === 'expenseComparison' && (
@@ -528,10 +544,12 @@ const AnalyticsChart = ({
             <button className="btn-refresh-sm" onClick={fetchData} disabled={loading}>
               {loading ? '⏳' : '🔄'}
             </button>
-            <label className="live-toggle-sm">
-              <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} />
-              <span>Live</span>
-            </label>
+            {showAdvancedControls && (
+              <label className="live-toggle-sm">
+                <input type="checkbox" checked={live} onChange={(e) => setLive(e.target.checked)} />
+                <span>Live</span>
+              </label>
+            )}
           </div>
         </div>
       </div>
