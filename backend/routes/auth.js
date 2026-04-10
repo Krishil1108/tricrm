@@ -11,8 +11,6 @@ const { ValidationError, NotFoundError } = require('../errors/AppError');
 const { asyncHandler } = require('../errors/asyncHandler');
 const { auditLog, auditLogEvent } = require('../middleware/auditLog');
 
-const isStrictTrue = (value) => value === true || value === 'true' || value === 1 || value === '1';
-
 // @route   POST /api/auth/login
 // @desc    Login user
 // @access  Public
@@ -61,17 +59,6 @@ router.post('/login', authLimiter, auditLog('LOGIN', 'User'), [
       return res.status(401).json({ 
         success: false, 
         message: 'Invalid username or password' 
-      });
-    }
-
-    // Enforce reset before allowing authenticated sessions.
-    if (isStrictTrue(user.passwordResetRequired)) {
-      await auditLogEvent(req, 'LOGIN_BLOCKED', 'User', { reason: 'Password reset required', username });
-      return res.status(403).json({
-        success: false,
-        code: 'PASSWORD_RESET_REQUIRED',
-        message: 'Password reset is required before login.',
-        passwordResetRequired: true
       });
     }
 
@@ -264,6 +251,11 @@ router.post('/forgot-password', strictLimiter, [
     .withMessage('Valid email is required')
     .normalizeEmail()
 ], asyncHandler(async (req, res) => {
+  return res.status(503).json({
+    success: false,
+    message: 'Forgot password is temporarily disabled.'
+  });
+
   // Check validation errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -349,6 +341,11 @@ router.post('/forgot-password', strictLimiter, [
 // @desc    Verify if reset token is valid
 // @access  Public
 router.get('/verify-reset-token/:token', asyncHandler(async (req, res) => {
+  return res.status(503).json({
+    success: false,
+    message: 'Password reset is temporarily disabled.'
+  });
+
   const { token } = req.params;
 
   // Verify token
@@ -408,6 +405,11 @@ router.post('/reset-password', authLimiter, [
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
     .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number')
 ], asyncHandler(async (req, res) => {
+  return res.status(503).json({
+    success: false,
+    message: 'Password reset is temporarily disabled.'
+  });
+
   // Check validation errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

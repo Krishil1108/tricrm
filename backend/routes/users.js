@@ -5,8 +5,6 @@ const User = require('../models/User');
 const Role = require('../models/Role');
 const { authenticate, isAdmin } = require('../middleware/auth');
 
-const isStrictTrue = (value) => value === true || value === 'true' || value === 1 || value === '1';
-
 // All user management routes require authentication and admin privileges
 router.use(authenticate);
 router.use(isAdmin);
@@ -284,6 +282,11 @@ router.post('/:id/reset-password', [
   body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
 ], async (req, res) => {
   try {
+    return res.status(503).json({
+      success: false,
+      message: 'Password reset is temporarily disabled.'
+    });
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ 
@@ -301,10 +304,10 @@ router.post('/:id/reset-password', [
       });
     }
 
-    const { newPassword, requirePasswordChange } = req.body;
+    const { newPassword } = req.body;
 
     user.password = newPassword;
-    user.passwordResetRequired = isStrictTrue(requirePasswordChange);
+    user.passwordResetRequired = false;
     await user.save();
 
     res.json({ 

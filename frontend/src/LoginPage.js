@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import './LoginPage.css';
 
@@ -25,7 +25,6 @@ function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
-  const [showResetHint, setShowResetHint] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -33,7 +32,6 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setShowResetHint(false);
     setLoading(true);
 
     try {
@@ -43,7 +41,6 @@ function LoginPage() {
         navigate('/home', { replace: true });
       } else {
         setError(result.message || 'Login failed');
-        setShowResetHint(result.code === 'PASSWORD_RESET_REQUIRED' || result.passwordResetRequired === true);
         setLoading(false);
       }
     } catch (err) {
@@ -119,11 +116,6 @@ function LoginPage() {
             </div>
 
             {error && <p className="auth-error">{error}</p>}
-            {showResetHint && (
-              <p className="auth-error">
-                Use <Link to="/forgot-password">Forgot Password</Link> to set a new password.
-              </p>
-            )}
 
             <button type="submit" className="auth-submit" disabled={loading}>
               {loading ? 'Signing in…' : 'Sign In'}

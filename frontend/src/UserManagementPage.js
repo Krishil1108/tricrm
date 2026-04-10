@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
-import { FaEdit, FaTrash, FaKey, FaUserPlus, FaCheckCircle, FaTimesCircle, FaToggleOn, FaToggleOff } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaUserPlus, FaCheckCircle, FaTimesCircle, FaToggleOn, FaToggleOff } from 'react-icons/fa';
 import { FiChevronDown, FiChevronUp, FiMinus } from 'react-icons/fi';
 import useSortableData from './utils/useSortableData';
 import Watermark from './components/Watermark';
@@ -19,9 +19,7 @@ function UserManagementPage() {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
-  const [resetPasswordUser, setResetPasswordUser] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [formErrors, setFormErrors] = useState({});
 
@@ -32,12 +30,6 @@ function UserManagementPage() {
     password: '',
     role: '',
     isActive: true
-  });
-
-  const [passwordData, setPasswordData] = useState({
-    newPassword: '',
-    confirmPassword: '',
-    requirePasswordChange: false
   });
 
   const {
@@ -262,56 +254,6 @@ function UserManagementPage() {
     }
   };
 
-  const handleOpenPasswordModal = (user) => {
-    setResetPasswordUser(user);
-    setPasswordData({
-      newPassword: '',
-      confirmPassword: '',
-      requirePasswordChange: false
-    });
-    setShowPasswordModal(true);
-  };
-
-  const handleResetPassword = async (e) => {
-    e.preventDefault();
-
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      showMessage('error', 'Passwords do not match');
-      return;
-    }
-
-    if (passwordData.newPassword.length < 6) {
-      showMessage('error', 'Password must be at least 6 characters');
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/${resetPasswordUser._id}/reset-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          newPassword: passwordData.newPassword,
-          requirePasswordChange: passwordData.requirePasswordChange
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        showMessage('success', 'Password reset successfully');
-        setShowPasswordModal(false);
-        setResetPasswordUser(null);
-      } else {
-        showMessage('error', data.message);
-      }
-    } catch (error) {
-      showMessage('error', 'An error occurred');
-    }
-  };
-
   if (loading) {
     return (
       <div className="user-management-page">
@@ -452,16 +394,6 @@ function UserManagementPage() {
                         <FaEdit className="w-5 h-5" style={{ width: '18px', height: '18px' }} />
                       </button>
                     )}
-                    <button
-                      onClick={() => handleOpenPasswordModal(user)}
-                      className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                      style={{ padding: '8px', color: '#9333ea', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
-                      title="Reset Password"
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#faf5ff'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                    >
-                      <FaKey className="w-5 h-5" style={{ width: '18px', height: '18px' }} />
-                    </button>
                     <button
                       onClick={() => handleToggleStatus(user._id)}
                       className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
@@ -612,57 +544,7 @@ function UserManagementPage() {
         </div>
       )}
 
-      {showPasswordModal && (
-        <div className="modal-overlay" onClick={() => setShowPasswordModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Reset Password for {resetPasswordUser?.fullName}</h2>
-              <button className="close-btn" onClick={() => setShowPasswordModal(false)}>&times;</button>
-            </div>
-            <form onSubmit={handleResetPassword}>
-              <div className="form-group">
-                <label>New Password</label>
-                <input
-                  type="password"
-                  value={passwordData.newPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                  required
-                  minLength="6"
-                />
-              </div>
-              <div className="form-group">
-                <label>Confirm Password</label>
-                <input
-                  type="password"
-                  value={passwordData.confirmPassword}
-                  onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                  required
-                  minLength="6"
-                />
-              </div>
-              <div className="form-group">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={passwordData.requirePasswordChange}
-                    onChange={(e) => setPasswordData({ ...passwordData, requirePasswordChange: e.target.checked })}
-                  />
-                  {' '}Require password change on next login
-                </label>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn-secondary" onClick={() => setShowPasswordModal(false)}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn-primary">
-                  Reset Password
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-      
+
       {/* Watermark */}
       <Watermark />
     </div>

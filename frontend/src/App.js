@@ -13,8 +13,6 @@ import DefaultRoute from './DefaultRoute';
 
 // Lazy load all route components for code splitting and faster initial load
 const LoginPage = lazy(() => import('./LoginPage'));
-const ForgotPasswordPage = lazy(() => import('./ForgotPasswordPage'));
-const ResetPasswordPage = lazy(() => import('./ResetPasswordPage'));
 const Sidebar = lazy(() => import('./Sidebar'));
 const HomePage = lazy(() => import('./HomePage'));
 const ClientsPage = lazy(() => import('./ClientsPage'));
@@ -56,22 +54,10 @@ function App() {
               <ToastProvider>
                 <Suspense fallback={null}>
                   <Routes>
-                    {/* Public routes - Login and Password Reset */}
+                    {/* Public route - Login */}
                     <Route path="/login" element={
                       <PublicRoute>
                         <LoginPage />
-                      </PublicRoute>
-                    } />
-                    
-                    <Route path="/forgot-password" element={
-                      <PublicRoute>
-                        <ForgotPasswordPage />
-                      </PublicRoute>
-                    } />
-                    
-                    <Route path="/reset-password/:token" element={
-                      <PublicRoute>
-                        <ResetPasswordPage />
                       </PublicRoute>
                     } />
                     
