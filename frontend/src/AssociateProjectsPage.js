@@ -128,7 +128,7 @@ const AssociateProjectsPage = () => {
         if (associateData) {
           // Filter payments by FY if specified
           const fyPayments = filterPaymentsByFY(associateData.paymentTransactions, selectedFY);
-          const fyAmountPaid = fyPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+          const fyAmountPaid = fyPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
           
           // Calculate this associate's share of the project (based on received fees)
           const associateShare = Math.round((project.totalReceivedFees * (associateData.percentage || 0)) / 100);
@@ -921,13 +921,13 @@ const AssociateProjectsPage = () => {
               Associates
             </button>
             <span className="hero-breadcrumb-sep">›</span>
-            <span style={{ color: 'rgba(255,255,255,0.85)' }}>
+            <span style={{ color: '#475569', fontWeight: 600 }}>
               {associateInfo.name}{associateInfo.company ? ` (${associateInfo.company})` : ''}
             </span>
           </div>
           <h1 className="hero-title">Associate Projects</h1>
           <p className="hero-subtitle">
-            <strong style={{ color: '#fff' }}>{associateInfo.name}</strong>
+            <strong style={{ color: '#0f172a' }}>{associateInfo.name}</strong>
             {associateInfo.company && <span> · {associateInfo.company}</span>}
             {stats.totalProjects > 0 && <span> · {stats.totalProjects} project{stats.totalProjects !== 1 ? 's' : ''}</span>}
             {filters.financialYear !== 'all' && (
@@ -935,11 +935,12 @@ const AssociateProjectsPage = () => {
                 style={{
                   marginLeft: '8px',
                   padding: '3px 10px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  backgroundColor: '#eff6ff',
                   borderRadius: '12px',
                   fontSize: '12px',
                   fontWeight: '600',
-                  border: '1px solid rgba(255, 255, 255, 0.3)'
+                  color: '#1d4ed8',
+                  border: '1px solid #bfdbfe'
                 }}
               >
                 FY {filters.financialYear}
@@ -1255,7 +1256,7 @@ const AssociateProjectsPage = () => {
                             assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
                           );
                           const fyPayments = filterPaymentsByFY(associateDataFromProject?.paymentTransactions, filters.financialYear);
-                          return fyPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+                          return fyPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
                         })}
                       >
                         Amount Paid to Associate
@@ -1273,7 +1274,7 @@ const AssociateProjectsPage = () => {
                           const associatePercentage = associateDataFromProject?.percentage || 0;
                           const receivedBasedAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
                           const fyPayments = filterPaymentsByFY(associateDataFromProject?.paymentTransactions, filters.financialYear);
-                          const amountPaid = fyPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+                          const amountPaid = fyPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
                           return receivedBasedAmount - amountPaid;
                         })}
                       >
@@ -1297,7 +1298,7 @@ const AssociateProjectsPage = () => {
                     
                     // Calculate FY-specific amounts
                     const fyPayments = filterPaymentsByFY(associateDataFromProject?.paymentTransactions, filters.financialYear);
-                    const amountPaid = fyPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+                    const amountPaid = fyPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
                     const pendingAmount = associateAmount - amountPaid;
                     
                     return (
@@ -1449,7 +1450,7 @@ const AssociateProjectsPage = () => {
                           const associatePercentage = associateData?.percentage || 0;
                           const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
                           const fyPayments = filterPaymentsByFY(associateData?.paymentTransactions, filters.financialYear);
-                          const amountPaid = fyPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+                          const amountPaid = fyPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
                           const pendingAmount = associateAmount - amountPaid;
                           return pendingAmount === 0 ? 'Completed' : amountPaid > 0 ? 'Partial' : 'Pending';
                         })}
@@ -1467,7 +1468,7 @@ const AssociateProjectsPage = () => {
                             assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
                           );
                           const fyPayments = filterPaymentsByFY(associateData?.paymentTransactions, filters.financialYear);
-                          return fyPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+                          return fyPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
                         })}
                       >
                         Paid Amount
@@ -1485,7 +1486,7 @@ const AssociateProjectsPage = () => {
                           const associatePercentage = associateData?.percentage || 0;
                           const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
                           const fyPayments = filterPaymentsByFY(associateData?.paymentTransactions, filters.financialYear);
-                          const amountPaid = fyPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+                          const amountPaid = fyPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
                           return associateAmount - amountPaid;
                         })}
                       >
@@ -1509,7 +1510,7 @@ const AssociateProjectsPage = () => {
                     
                     // Calculate FY-specific amounts
                     const fyPayments = filterPaymentsByFY(associateData?.paymentTransactions, filters.financialYear);
-                    const amountPaid = fyPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
+                    const amountPaid = fyPayments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
                     const pendingAmount = associateAmount - amountPaid;
                     const paymentStatus = pendingAmount === 0 ? 'Completed' : amountPaid > 0 ? 'Partial' : 'Pending';
                     
@@ -1797,7 +1798,7 @@ const AssociateProjectsPage = () => {
                   
                   <div className="payment-summary">
                     <p><strong>Total Transactions:</strong> {paymentHistory.length}</p>
-                    <p><strong>Total Amount Paid:</strong> {formatCurrency(paymentHistory.reduce((sum, payment) => sum + payment.amount, 0))}</p>
+                    <p><strong>Total Amount Paid:</strong> {formatCurrency(paymentHistory.reduce((sum, payment) => sum + Number(payment.amount || 0), 0))}</p>
                   </div>
                 </div>
               ) : (
