@@ -72,6 +72,19 @@ const AssociateProjectsPage = () => {
     }
   }, [filters.financialYear]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    const hasOpenModal = showPaymentModal || showPaymentHistoryModal;
+    const previousOverflow = document.body.style.overflow;
+
+    if (hasOpenModal) {
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showPaymentModal, showPaymentHistoryModal]);
+
   const fetchAssociateProjects = async () => {
     try {
       showLoading();
@@ -239,6 +252,7 @@ const AssociateProjectsPage = () => {
         );
         
         const associatePercentage = associateDataFromProject?.percentage || 0;
+        const finalizedShareAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
         const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
         const amountPaid = associateDataFromProject?.amountPaid || 0;
         const pendingAmount = associateAmount - amountPaid;
@@ -247,7 +261,9 @@ const AssociateProjectsPage = () => {
           'Project Number': project.projectNumber || '',
           'Project Name': project.projectName || '',
           'Project Location': project.projectLocation || '',
-          'Associate Amount (₹)': associateAmount,
+          'Associate Share %': `${associatePercentage}%`,
+          'Share Amount on Finalized Fees (₹)': finalizedShareAmount,
+          'Associate Amount on Received Fees (₹)': associateAmount,
           'Amount Paid (₹)': amountPaid,
           'Pending Amount (₹)': pendingAmount,
           'Status': project.status || ''
@@ -349,7 +365,9 @@ const AssociateProjectsPage = () => {
         { wch: 15 }, // Project Number
         { wch: 30 }, // Project Name
         { wch: 25 }, // Project Location
-        { wch: 18 }, // Associate Amount
+        { wch: 14 }, // Associate Share %
+        { wch: 26 }, // Share Amount on Finalized Fees
+        { wch: 30 }, // Associate Amount on Received Fees
         { wch: 18 }, // Amount Paid
         { wch: 18 }, // Pending Amount
         { wch: 12 }  // Status
@@ -603,6 +621,7 @@ const AssociateProjectsPage = () => {
         );
         
         const associatePercentage = associateDataFromProject?.percentage || 0;
+        const finalizedShareAmount = Math.round((project.finalizedFees * associatePercentage) / 100);
         const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
         const amountPaid = associateDataFromProject?.amountPaid || 0;
         const pendingAmount = associateAmount - amountPaid;
@@ -611,6 +630,8 @@ const AssociateProjectsPage = () => {
           project.projectNumber || '',
           project.projectName || '',
           project.projectLocation || '',
+          `${associatePercentage}%`,
+          `₹${finalizedShareAmount.toLocaleString('en-IN')}`,
           `₹${associateAmount.toLocaleString('en-IN')}`,
           `₹${amountPaid.toLocaleString('en-IN')}`,
           `₹${pendingAmount.toLocaleString('en-IN')}`,
@@ -621,19 +642,21 @@ const AssociateProjectsPage = () => {
       // Add table
       autoTable(doc, {
         startY: summaryY + 8,
-        head: [['Project No.', 'Project Name', 'Location', 'Associate Amount', 'Amount Paid', 'Pending Amount', 'Status']],
+        head: [['Project No.', 'Project Name', 'Location', 'Share %', 'Share Amount (Finalized)', 'Associate Amount (Received)', 'Amount Paid', 'Pending Amount', 'Status']],
         body: tableData,
         theme: 'grid',
         headStyles: { fillColor: [66, 139, 202], textColor: 255, fontSize: 9 },
         bodyStyles: { fontSize: 8 },
         columnStyles: {
-          0: { cellWidth: 25 },
-          1: { cellWidth: 60 },
-          2: { cellWidth: 45 },
-          3: { cellWidth: 35, halign: 'right' },
-          4: { cellWidth: 35, halign: 'right' },
-          5: { cellWidth: 35, halign: 'right' },
-          6: { cellWidth: 20, halign: 'center' }
+          0: { cellWidth: 20 },
+          1: { cellWidth: 48 },
+          2: { cellWidth: 30 },
+          3: { cellWidth: 16, halign: 'center' },
+          4: { cellWidth: 34, halign: 'right' },
+          5: { cellWidth: 34, halign: 'right' },
+          6: { cellWidth: 28, halign: 'right' },
+          7: { cellWidth: 28, halign: 'right' },
+          8: { cellWidth: 18, halign: 'center' }
         },
         margin: { left: 14, right: 14 }
       });
@@ -1191,6 +1214,22 @@ const AssociateProjectsPage = () => {
                         {renderSortIcon('associatePercentage')}
                       </button>
                     </th>
+                    <th aria-sort={projectSortConfig?.key === 'finalizedShareAmount' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'finalizedShareAmount' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('finalizedShareAmount', (project) => {
+                          const associateDataFromProject = project.projectAssociates?.find(
+                            assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+                          );
+                          const associatePercentage = associateDataFromProject?.percentage || 0;
+                          return Math.round(((project.finalizedFees || 0) * associatePercentage) / 100);
+                        })}
+                      >
+                        Share Amount
+                        {renderSortIcon('finalizedShareAmount')}
+                      </button>
+                    </th>
                     <th aria-sort={projectSortConfig?.key === 'associateAmount' ? projectSortConfig.direction : 'none'}>
                       <button
                         type="button"
@@ -1277,13 +1316,12 @@ const AssociateProjectsPage = () => {
                         </td>
                         <td>
                           {associatePercentage > 0 ? (
-                            <span className="percentage-badge">
-                              {associatePercentage}% ({formatCurrency(finalizedShareAmount)})
-                            </span>
+                            <span className="percentage-badge">{associatePercentage}%</span>
                           ) : (
                             <span className="no-allocation">-</span>
                           )}
                         </td>
+                        <td className="highlight-amount">{formatCurrency(finalizedShareAmount)}</td>
                         <td className="highlight-amount">{formatCurrency(associateAmount)}</td>
                         <td className="success-text">{formatCurrency(amountPaid)}</td>
                         <td className={pendingAmount > 0 ? 'pending-amount' : 'completed-amount'}>
@@ -1366,6 +1404,22 @@ const AssociateProjectsPage = () => {
                       >
                         Associate Share %
                         {renderSortIcon('associatePercentage')}
+                      </button>
+                    </th>
+                    <th aria-sort={projectSortConfig?.key === 'finalizedShareAmount' ? projectSortConfig.direction : 'none'}>
+                      <button
+                        type="button"
+                        className={`sortable-header ${projectSortConfig?.key === 'finalizedShareAmount' ? 'active' : ''}`}
+                        onClick={() => requestProjectSort('finalizedShareAmount', (project) => {
+                          const associateData = project.projectAssociates?.find(
+                            assoc => assoc.associateId === associateId || assoc.associateId?._id === associateId
+                          );
+                          const associatePercentage = associateData?.percentage || 0;
+                          return Math.round(((project.finalizedFees || 0) * associatePercentage) / 100);
+                        })}
+                      >
+                        Share Amount
+                        {renderSortIcon('finalizedShareAmount')}
                       </button>
                     </th>
                     <th aria-sort={projectSortConfig?.key === 'associateAmount' ? projectSortConfig.direction : 'none'}>
@@ -1469,13 +1523,12 @@ const AssociateProjectsPage = () => {
                         </td>
                         <td>
                           {associatePercentage > 0 ? (
-                            <span className="percentage-badge">
-                              {associatePercentage}% ({formatCurrency(finalizedShareAmount)})
-                            </span>
+                            <span className="percentage-badge">{associatePercentage}%</span>
                           ) : (
                             <span className="no-allocation">-</span>
                           )}
                         </td>
+                        <td className="highlight-amount">{formatCurrency(finalizedShareAmount)}</td>
                         <td className="highlight-amount">{formatCurrency(associateAmount)}</td>
                         <td>
                           <span className={`status-badge status-${paymentStatus.toLowerCase()}`}>

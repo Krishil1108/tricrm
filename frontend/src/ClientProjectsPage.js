@@ -53,6 +53,19 @@ const ClientProjectsPage = () => {
     fetchClientProjects();
   }, [clientId]);
 
+  useEffect(() => {
+    const hasOpenModal = showDistributionModal || showDeleteModal;
+    const previousOverflow = document.body.style.overflow;
+
+    if (hasOpenModal) {
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showDistributionModal, showDeleteModal]);
+
   const fetchClientProjects = async () => {
     try {
       showLoading();
