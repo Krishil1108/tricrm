@@ -1253,6 +1253,7 @@ const AssociateProjectsPage = () => {
                     );
                     
                     const associatePercentage = associateDataFromProject?.percentage || 0;
+                    const finalizedShareAmount = Math.round(((project.finalizedFees || 0) * associatePercentage) / 100);
                     const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
                     
                     // Calculate FY-specific amounts
@@ -1276,7 +1277,9 @@ const AssociateProjectsPage = () => {
                         </td>
                         <td>
                           {associatePercentage > 0 ? (
-                            <span className="percentage-badge">{associatePercentage}%</span>
+                            <span className="percentage-badge">
+                              {associatePercentage}% ({formatCurrency(finalizedShareAmount)})
+                            </span>
                           ) : (
                             <span className="no-allocation">-</span>
                           )}
@@ -1447,6 +1450,7 @@ const AssociateProjectsPage = () => {
                     );
                     
                     const associatePercentage = associateData?.percentage || 0;
+                    const finalizedShareAmount = Math.round(((project.finalizedFees || 0) * associatePercentage) / 100);
                     const associateAmount = Math.round((project.totalReceivedFees * associatePercentage) / 100);
                     
                     // Calculate FY-specific amounts
@@ -1465,7 +1469,9 @@ const AssociateProjectsPage = () => {
                         </td>
                         <td>
                           {associatePercentage > 0 ? (
-                            <span className="percentage-badge">{associatePercentage}%</span>
+                            <span className="percentage-badge">
+                              {associatePercentage}% ({formatCurrency(finalizedShareAmount)})
+                            </span>
                           ) : (
                             <span className="no-allocation">-</span>
                           )}
