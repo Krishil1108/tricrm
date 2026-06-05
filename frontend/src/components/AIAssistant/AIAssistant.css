@@ -419,3 +419,162 @@
   border-radius: 3px;
   font-size: 11.5px;
 }
+
+/* ============================================================
+   VOICE INPUT — Mic button, waveform, error chip
+   ============================================================ */
+
+/* ── Input row layout update for 3 items ─────────────────── */
+.aia-input-row {
+  flex-wrap: wrap;   /* let voice indicator wrap above */
+  row-gap: 0;
+}
+.aia-input-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Mic button ──────────────────────────────────────────── */
+.aia-mic-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--color-bg, #f3f4f6);
+  color: var(--color-text-muted, #6b7280);
+  border: 1.5px solid var(--color-border, #e5e7eb);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+  outline: none;
+  position: relative;
+}
+.aia-mic-btn:hover:not(:disabled) {
+  background: #fee2e2;
+  color: #ef4444;
+  border-color: #ef4444;
+  transform: scale(1.06);
+}
+.aia-mic-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Active state — red + animated ring */
+.aia-mic-btn--active {
+  background: #ef4444 !important;
+  color: #fff !important;
+  border-color: #ef4444 !important;
+  transform: scale(1.08);
+}
+.aia-mic-btn--active::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid #ef4444;
+  animation: aia-mic-ring 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+.aia-mic-btn--active::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px solid rgba(239, 68, 68, 0.4);
+  animation: aia-mic-ring 1.4s cubic-bezier(0.4, 0, 0.6, 1) infinite 0.4s;
+}
+@keyframes aia-mic-ring {
+  0%   { transform: scale(0.95); opacity: 0.9; }
+  60%  { transform: scale(1.18); opacity: 0;   }
+  100% { transform: scale(1.18); opacity: 0;   }
+}
+
+/* ── Input field listening state ────────────────────────── */
+.aia-input--listening {
+  border-color: #ef4444 !important;
+  background: #fff5f5 !important;
+  color: #374151;
+  font-style: italic;
+}
+
+/* ── Waveform indicator (above input, inside form row) ───── */
+.aia-voice-indicator {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 5px 0 2px;
+  order: -1;   /* always first in the flex row */
+}
+.aia-voice-indicator span {
+  width: 3px;
+  border-radius: 2px;
+  background: #ef4444;
+  display: inline-block;
+  animation: aia-wave 0.8s ease-in-out infinite;
+}
+.aia-voice-indicator span:nth-child(1) { height: 10px; animation-delay: 0.0s; }
+.aia-voice-indicator span:nth-child(2) { height: 18px; animation-delay: 0.1s; }
+.aia-voice-indicator span:nth-child(3) { height: 24px; animation-delay: 0.2s; }
+.aia-voice-indicator span:nth-child(4) { height: 18px; animation-delay: 0.3s; }
+.aia-voice-indicator span:nth-child(5) { height: 10px; animation-delay: 0.4s; }
+@keyframes aia-wave {
+  0%, 100% { transform: scaleY(0.5); opacity: 0.6; }
+  50%       { transform: scaleY(1);   opacity: 1;   }
+}
+
+/* ── Voice error chip ────────────────────────────────────── */
+.aia-voice-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #fef2f2;
+  border-top: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 12px;
+  line-height: 1.4;
+  flex-shrink: 0;
+  animation: aia-fade-up 0.2s ease;
+}
+.aia-voice-error-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #b91c1c;
+  cursor: pointer;
+  font-size: 13px;
+  flex-shrink: 0;
+  padding: 0 2px;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+.aia-voice-error-close:hover { opacity: 1; }
+
+/* Dark-mode overrides for voice elements */
+@media (prefers-color-scheme: dark) {
+  .aia-mic-btn {
+    background: #1e293b;
+    border-color: #334155;
+    color: #94a3b8;
+  }
+  .aia-mic-btn:hover:not(:disabled) {
+    background: #451a1a;
+    color: #f87171;
+    border-color: #f87171;
+  }
+  .aia-input--listening {
+    background: #2d1515 !important;
+    color: #f1f5f9;
+    border-color: #ef4444 !important;
+  }
+  .aia-voice-error {
+    background: #2d1515;
+    border-color: #7f1d1d;
+    color: #fca5a5;
+  }
+  .aia-voice-error-close { color: #fca5a5; }
+}

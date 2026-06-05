@@ -10,6 +10,7 @@ import React, {
   useEffect,
   useCallback,
   useId,
+  useMemo,
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -198,6 +199,19 @@ export default function AIAssistant() {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
 
+  // ── Voice input state ─────────────────────────────────────
+  const [isListening, setIsListening] = useState(false);
+  const [voiceError, setVoiceError] = useState('');
+  const [interimTranscript, setInterimTranscript] = useState('');
+  const recognitionRef = useRef(null);
+  const voiceErrorTimerRef = useRef(null);
+
+  // ── Check browser support once ────────────────────────────
+  const isSpeechSupported = useMemo(() =>
+    typeof window !== 'undefined' &&
+    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window),
+  []);
+
   // ── Intent / field collection state ──────────────────────
   const [stage, setStage] = useState(STAGE.IDLE);
   const [intent, setIntent] = useState(null);
@@ -233,6 +247,127 @@ export default function AIAssistant() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
+
+  // ── Voice: stop recognition (safe) ──────────────────────
+  const stopVoice = useCallback(() => {
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch (_) {}
+    }
+    setIsListening(false);
+    setInterimTranscript('');
+  }, []);
+
+  // ── Voice: show error briefly ─────────────────────────────
+  const showVoiceError = useCallback((msg) => {
+    setVoiceError(msg);
+    clearTimeout(voiceErrorTimerRef.current);
+    voiceErrorTimerRef.current = setTimeout(() => setVoiceError(''), 4000);
+  }, []);
+
+  // ── Voice: start / toggle ─────────────────────────────────
+  const startVoice = useCallback(() => {
+    if (!isSpeechSupported) {
+      showVoiceError('Voice input is not supported in this browser. Please use Chrome or Edge.');
+      return;
+    }
+    if (isListening) {
+      stopVoice();
+      return;
+    }
+    setVoiceError('');
+    setInterimTranscript('');
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognitionRef.current = recognition;
+
+    recognition.lang = 'en-IN';
+    recognition.interimResults = true;   // show live transcript while speaking
+    recognition.maxAlternatives = 1;
+    recognition.continuous = false;      // stop automatically after a pause
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setInterimTranscript('');
+    };
+
+    recognition.onresult = (event) => {
+      let interim = '';
+      let finalText = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        if (result.isFinal) {
+          finalText += result[0].transcript;
+        } else {
+          interim += result[0].transcript;
+        }
+      }
+      // Stream interim into the visible input field
+      setInterimTranscript(interim);
+      // Final result — auto-submit
+      if (finalText.trim()) {
+        setInterimTranscript('');
+        setIsListening(false);
+        // Small delay so user sees the recognised text flash
+        setInputValue(finalText.trim());
+        setTimeout(() => {
+          setInputValue('');
+          processInputRef.current(finalText.trim());
+        }, 300);
+      }
+    };
+
+    recognition.onerror = (event) => {
+      setIsListening(false);
+      setInterimTranscript('');
+      const msgs = {
+        'not-allowed': '🎤 Microphone permission denied. Please allow mic access in your browser.',
+        'no-speech':   '🔇 No speech detected. Tap the mic and try again.',
+        'network':     '📶 Network error during voice recognition. Check your connection.',
+        'aborted':     '', // user-initiated abort — silent
+      };
+      const errMsg = msgs[event.error] ?? `🎤 Voice error: ${event.error}`;
+      if (errMsg) showVoiceError(errMsg);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      setInterimTranscript('');
+    };
+
+    try {
+      recognition.start();
+    } catch (err) {
+      showVoiceError('Could not start voice recognition. Please try again.');
+      setIsListening(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSpeechSupported, isListening, stopVoice, showVoiceError]);
+
+  // ── Keep processInput in a ref so voice callback always has latest version ─
+  const processInputRef = useRef(null);
+
+  // ── Stop voice on panel close ─────────────────────────────
+  useEffect(() => {
+    if (!isOpen) stopVoice();
+  }, [isOpen, stopVoice]);
+
+  // ── Cleanup on unmount ────────────────────────────────────
+  useEffect(() => {
+    return () => {
+      stopVoice();
+      clearTimeout(voiceErrorTimerRef.current);
+    };
+  }, [stopVoice]);
+
+  // ── Escape key aborts voice ───────────────────────────────
+  useEffect(() => {
+    function onKeyUp(e) {
+      if (e.key === 'Escape' && isListening) stopVoice();
+    }
+    window.addEventListener('keyup', onKeyUp);
+    return () => window.removeEventListener('keyup', onKeyUp);
+  }, [isListening, stopVoice]);
 
   // ── helpers ───────────────────────────────────────────────
   const addMsg = useCallback(m => setMessages(prev => [...prev, m]), []);
@@ -1056,8 +1191,12 @@ export default function AIAssistant() {
     const text = inputValue.trim();
     if (!text || isExecuting) return;
     setInputValue('');
+    stopVoice();
     processInput(text);
   }
+
+  // ── Keep processInput ref up to date ─────────────────────
+  processInputRef.current = processInput;
 
   function handleKeyDown(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -1167,29 +1306,66 @@ export default function AIAssistant() {
 
         {/* Input */}
         <form className="aia-input-row" onSubmit={handleSubmit}>
-          <input
-            ref={inputRef}
-            className="aia-input"
-            value={inputValue}
-            onChange={e => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={
-              stage === STAGE.IDLE
-                ? 'Ask me anything…'
-                : stage === STAGE.COLLECTING
-                ? 'Type your answer or pick an option…'
-                : stage === STAGE.CONFIRMING
-                ? 'Yes or No?'
-                : 'Working…'
-            }
-            disabled={isExecuting}
-            autoComplete="off"
-            spellCheck="false"
-          />
+          {/* Voice waveform indicator — visible while listening */}
+          {isListening && (
+            <div className="aia-voice-indicator" aria-hidden="true">
+              <span /><span /><span /><span /><span />
+            </div>
+          )}
+
+          <div className="aia-input-wrap">
+            <input
+              ref={inputRef}
+              className={`aia-input${isListening ? ' aia-input--listening' : ''}`}
+              value={isListening ? (interimTranscript || inputValue) : inputValue}
+              onChange={e => !isListening && setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={
+                isListening
+                  ? '🎤 Listening… speak now'
+                  : stage === STAGE.IDLE
+                  ? 'Ask me or tap 🎤 to speak…'
+                  : stage === STAGE.COLLECTING
+                  ? 'Type your answer or speak…'
+                  : stage === STAGE.CONFIRMING
+                  ? 'Yes or No?'
+                  : 'Working…'
+              }
+              disabled={isExecuting}
+              autoComplete="off"
+              spellCheck="false"
+              readOnly={isListening}
+            />
+          </div>
+
+          {/* Mic button */}
+          {isSpeechSupported && (
+            <button
+              type="button"
+              className={`aia-mic-btn${isListening ? ' aia-mic-btn--active' : ''}`}
+              onClick={startVoice}
+              disabled={isExecuting}
+              aria-label={isListening ? 'Stop listening' : 'Start voice input'}
+              title={isListening ? 'Stop (Esc)' : 'Voice input'}
+            >
+              {isListening ? (
+                /* Stop icon when recording */
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="6" y="6" width="12" height="12" rx="2" />
+                </svg>
+              ) : (
+                /* Mic icon when idle */
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
+                </svg>
+              )}
+            </button>
+          )}
+
           <button
             type="submit"
             className="aia-send-btn"
-            disabled={!inputValue.trim() || isExecuting}
+            disabled={(!inputValue.trim() && !interimTranscript) || isExecuting || isListening}
             aria-label="Send"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
@@ -1197,6 +1373,18 @@ export default function AIAssistant() {
             </svg>
           </button>
         </form>
+
+        {/* Voice error chip */}
+        {voiceError && (
+          <div className="aia-voice-error" role="alert">
+            {voiceError}
+            <button
+              className="aia-voice-error-close"
+              onClick={() => setVoiceError('')}
+              aria-label="Dismiss"
+            >✕</button>
+          </div>
+        )}
       </div>
     </div>
   );
