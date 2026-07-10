@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { FaFileExcel, FaFilePdf, FaSearch, FaTimes, FaFilter, FaEdit, FaExternalLinkAlt, FaEye, FaEyeSlash, FaDownload } from 'react-icons/fa';
 import { FiRefreshCw, FiChevronDown, FiChevronRight, FiCreditCard } from 'react-icons/fi';
@@ -100,10 +101,22 @@ const FinanceDashboard = () => {
   // eslint-disable-next-line no-unused-vars
   const { showError, showSuccess } = useToast();
 
-  // ── Remote data ──────────────────────────────────────────────────────────
-  const [rawData, setRawData]   = useState(null);
-  const [loading, setLoading]   = useState(true);
-  const [error,   setError]     = useState(null);
+  // ── Remote data (React Query) ────────────────────────────────────────────
+  const {
+    data: rawData,
+    isLoading: loading,
+    error: queryError,
+    refetch: fetchData
+  } = useQuery({
+    queryKey: ['financialOverview'],
+    queryFn: async () => {
+      const res = await FinanceService.getFinancialOverview({});
+      if (!res?.success) throw new Error('Unexpected response from server.');
+      return res.data;
+    }
+  });
+
+  const error = queryError ? (queryError?.response?.data?.message ?? queryError.message ?? 'Network error') : null;
 
   // ── UI state ─────────────────────────────────────────────────────────────
   const [activeTab,    setActiveTab]    = useState('overview');
@@ -128,28 +141,6 @@ const FinanceDashboard = () => {
       filterClient, filterFY, filterSearch, filterStatus, filterAssociate, filterBank
     }));
   }, [filterClient, filterFY, filterSearch, filterStatus, filterAssociate, filterBank]);
-
-  // ── Fetch ─────────────────────────────────────────────────────────────────
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await FinanceService.getFinancialOverview({});
-      if (res?.success) {
-        setRawData(res.data);
-      } else {
-        setError('Unexpected response from server.');
-      }
-    } catch (err) {
-      setError(err?.response?.data?.message ?? err.message ?? 'Network error');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
 
   // ── Derived FY bounds ─────────────────────────────────────────────────────
   const [fyStart, fyEnd] = useMemo(() => getFYBounds(filterFY), [filterFY]);

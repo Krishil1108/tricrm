@@ -40,7 +40,7 @@ const HomePage = () => {
     const fetchDashboardStats = async () => {
       try {
         const token = localStorage.getItem('token');
-        const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
         
         // Use optimized dashboard-stats endpoint - one call instead of four!
         const response = await axios.get(`${API_BASE_URL}/dashboard-stats`, {
@@ -72,7 +72,7 @@ const HomePage = () => {
     setIsSearching(true);
     try {
       const token = localStorage.getItem('token');
-      const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
       // Use optimized search endpoint - searches on backend instead of fetching all data
       const response = await axios.get(`${API_BASE_URL}/search`, {

@@ -2,8 +2,8 @@
 // Automatically detect if running in production or development
 const getApiBaseUrl = () => {
   // If environment variable is set, use it
-  if (process.env.REACT_APP_API_BASE_URL) {
-    return process.env.REACT_APP_API_BASE_URL;
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
   }
   
   // Check if running in production (deployed)

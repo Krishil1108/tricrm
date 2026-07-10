@@ -59,6 +59,11 @@ const YearlyDistributionTable = ({
 
   // State for Inline Editing
   const [inlineEditingIndex, setInlineEditingIndex] = useState(null);
+  
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAYMENTS_PER_PAGE = 15;
+
   const [inlineEditData, setInlineEditData] = useState({
     amount: '',
     date: '',
@@ -1254,7 +1259,8 @@ const YearlyDistributionTable = ({
             </tr>
             
             {/* Individual payment rows grouped by year */}
-            {projectData.payments && projectData.payments.map((payment, index) => {
+            {projectData.payments && projectData.payments.slice((currentPage - 1) * PAYMENTS_PER_PAGE, currentPage * PAYMENTS_PER_PAGE).map((payment, relativeIndex) => {
+              const index = (currentPage - 1) * PAYMENTS_PER_PAGE + relativeIndex;
               const paymentDate = new Date(payment.date);
               const amount = parseInt(payment.amount) || 0; // Use parseInt to avoid decimal issues
               // Calculate total associate percentage from all associates
@@ -2070,8 +2076,31 @@ const YearlyDistributionTable = ({
         </table>
       </div>
       )}
+      
+      {/* Pagination Controls */}
+      {projectData.payments && projectData.payments.length > PAYMENTS_PER_PAGE && (
+        <div className="pagination-controls" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '1rem', gap: '10px' }}>
+          <button 
+            className="action-btn cancel-btn"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+          >
+            Previous
+          </button>
+          <span style={{ fontWeight: '500' }}>
+            Page {currentPage} of {Math.ceil(projectData.payments.length / PAYMENTS_PER_PAGE)}
+          </span>
+          <button 
+            className="action-btn save-btn"
+            disabled={currentPage === Math.ceil(projectData.payments.length / PAYMENTS_PER_PAGE)}
+            onClick={() => setCurrentPage(p => p + 1)}
+          >
+            Next
+          </button>
+        </div>
+      )}
 
-      {/* Add Payment Modal */}
+      {/* Edit Payment Modal */}
       {showAddPaymentModal && (
         <div style={{
           position: 'fixed',
