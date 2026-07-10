@@ -18,7 +18,10 @@
     "react-window": "^2.2.7",
     "web-vitals": "^3.5.2",
     "xlsx": "^0.18.5",
-    "zustand": "^5.0.14"
+    "zustand": "^5.0.14",
+    "@vitejs/plugin-react": "^6.0.3",
+    "vite": "^8.1.4",
+    "vite-plugin-svgr": "^5.2.0"
   },
   "scripts": {
     "start": "vite",
@@ -44,10 +47,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:5000",
-  "devDependencies": {
-    "@vitejs/plugin-react": "^6.0.3",
-    "vite": "^8.1.4",
-    "vite-plugin-svgr": "^5.2.0"
-  }
+  "proxy": "http://localhost:5000"
 }
