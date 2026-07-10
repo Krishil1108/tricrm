@@ -3,6 +3,7 @@ const router = express.Router();
 const FinanceProject = require('../models/FinanceProject');
 const BankExpense = require('../models/BankExpense');
 const { authenticate } = require('../middleware/auth');
+const { cacheMiddleware, clearCache } = require('../middleware/cache');
 const ConfigurationVersionService = require('../services/ConfigurationVersionService');
 const { applyDefaultPercentages, DEFAULT_PERCENTAGES } = require('../scripts/applyDefaultPercentages');
 const multer = require('multer');
@@ -315,8 +316,8 @@ router.delete('/expenses/:id', authenticate, async (req, res) => {
 
 // ==================== ANALYTICS ROUTES ====================
 
-// Get finance dashboard stats
-router.get('/stats', authenticate, async (req, res) => {
+// Get finance statistics with Redis caching (60 seconds)
+router.get('/stats', authenticate, cacheMiddleware(60), async (req, res) => {
   try {
     const { year } = req.query;
     
@@ -829,7 +830,8 @@ router.delete('/projects/:projectId/associate/:associateId/payments/:transaction
  * Returns:
  *   { projects[], summary{}, filterOptions{ financialYears[], clients[] } }
  */
-router.get('/overview', authenticate, async (req, res) => {
+// Get financial overview with Redis caching (60 seconds)
+router.get('/overview', authenticate, cacheMiddleware(60), async (req, res) => {
   try {
     const { clientId, financialYear, search } = req.query;
     const Client = require('../models/Client');
