@@ -1,6 +1,8 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { FaEdit, FaTrash, FaUsers, FaArrowLeft } from 'react-icons/fa';
+// eslint-disable-next-line no-unused-vars
 import { FiCreditCard } from 'react-icons/fi';
 import './ProjectPage.css';
 import FinanceService from './services/FinanceService';

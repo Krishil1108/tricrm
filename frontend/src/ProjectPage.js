@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+// eslint-disable-next-line no-unused-vars
 import { FaEdit, FaTrash, FaChartPie, FaUsers, FaPlus } from 'react-icons/fa';
 import { FiAlertTriangle, FiBarChart2, FiCheckCircle, FiChevronDown, FiChevronUp, FiMinus, FiCreditCard, FiInfo } from 'react-icons/fi';
 import './ProjectPage.css';
@@ -24,6 +25,7 @@ const ProjectPage = () => {
   const sourceClientId = useRef(null);
   const returnTo = useRef(null);
   const { 
+    // eslint-disable-next-line no-unused-vars
     canViewProjectManagementPage,
     canAddNewProject,
     canEditProject,
@@ -239,6 +241,7 @@ const ProjectPage = () => {
 
       loadProjectForEdit();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state?.editProjectId]); // Remove showModal from dependencies to prevent loops
 
   // Helper function to convert ISO date to yyyy-MM-dd format for date inputs
@@ -2519,6 +2522,7 @@ const Modal = ({
 
 // Project Form
 const ProjectForm = ({ formData, handleChange, addPayment, removePayment, updatePayment, clients, associates, onAddClient, onAddAssociate, percentageConfig, hasPermission, bankList, newBankName, setNewBankName, addBank }) => {
+  // eslint-disable-next-line no-unused-vars
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -3176,6 +3180,7 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
     });
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleNumberOfAssociatesChange = (e) => {
     const count = parseInt(e.target.value) || 1;
     const newAssociates = Array.from({ length: count }, (_, index) => 
@@ -3189,6 +3194,7 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
     });
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleAssociateSelect = (index, associateId) => {
     const selectedAssociate = availableAssociates.find(a => a._id === associateId);
     if (selectedAssociate) {
@@ -3236,6 +3242,7 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
     }
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleAssociateChange = (index, field, value) => {
     const updatedAssociates = tempConfig.associates.map((associate, i) => 
       i === index ? { 

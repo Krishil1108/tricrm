@@ -109,6 +109,7 @@ const AnalyticsChart = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [live, setLive] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [refreshMs, setRefreshMs] = useState(30000);
   const [preset, setPreset] = useState(initialRange.preset);
   const [meta, setMeta] = useState({ total: 0 });

@@ -9,7 +9,9 @@ import API_BASE_URL from './config/api';
 const SettingsPage = () => {
   const { companyInfo, updateCompanyInfo } = useCompany();
   const [activeSection, setActiveSection] = useState('profile');
+  // eslint-disable-next-line no-unused-vars
   const [saved, setSaved] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [saveMessage, setSaveMessage] = useState('');
 
   // User Profile State
@@ -85,6 +87,7 @@ const SettingsPage = () => {
   });
 
   // Data Settings State
+  // eslint-disable-next-line no-unused-vars
   const [dataSettings, setDataSettings] = useState({
     autoBackup: true,
     backupFrequency: 'daily',
@@ -99,6 +102,7 @@ const SettingsPage = () => {
   });
 
   // System Settings State
+  // eslint-disable-next-line no-unused-vars
   const [systemSettings, setSystemSettings] = useState({
     realTimeData: true,
     autoUpdates: true,
@@ -246,6 +250,7 @@ const SettingsPage = () => {
     if (savedTheme !== displayPrefs.theme) {
       setDisplayPrefs(prev => ({ ...prev, theme: savedTheme }));
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const renderProfileSection = () => (

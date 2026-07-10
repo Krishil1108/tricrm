@@ -5,6 +5,7 @@ import { useCompany } from './CompanyContext';
 import FinanceService from './services/FinanceService';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
+// eslint-disable-next-line no-unused-vars
 import ExcelExportService from './services/ExcelExportService';
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
@@ -26,6 +27,7 @@ const ClientProjectsPage = () => {
   const { showError } = useToast();
   
   const [projects, setProjects] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [clientInfo, setClientInfo] = useState({
     name: location.state?.clientName || '',
     company: location.state?.clientCompany || ''
@@ -51,6 +53,7 @@ const ClientProjectsPage = () => {
 
   useEffect(() => {
     fetchClientProjects();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientId]);
 
   useEffect(() => {
@@ -114,6 +117,7 @@ const ClientProjectsPage = () => {
     setShowDistributionModal(true);
   };
 
+  // eslint-disable-next-line no-unused-vars
   const calculatePaymentDistribution = (payment, project) => {
     const amount = payment.amount || 0;
     

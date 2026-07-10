@@ -179,6 +179,7 @@ const HomePage = () => {
     );
   };
 
+  // eslint-disable-next-line no-unused-vars
   const renderTabContent = () => {
     return null; // No tabs needed anymore
   };

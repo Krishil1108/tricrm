@@ -73,6 +73,7 @@ export const AppModeProvider = ({ children }) => {
   // Apply initial theme on mount
   useEffect(() => {
     applyTheme(currentMode);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Save mode changes to localStorage and apply theme

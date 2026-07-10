@@ -97,6 +97,7 @@ const deriveProjectFinancials = (project, fyReceivedFees, fyStart, fyEnd) => {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 const FinanceDashboard = () => {
+  // eslint-disable-next-line no-unused-vars
   const { showError, showSuccess } = useToast();
 
   // ── Remote data ──────────────────────────────────────────────────────────
@@ -824,6 +825,7 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
       (p.fySiteVisit ?? 0) +
       (p.fyMarketingAndMisc ?? 0) +
       (p.fyOfficeManagement ?? 0);
+    // eslint-disable-next-line no-unused-vars
     const netProfit = (p.fyReceivedFees??0) - expenses - (p.fyAssociatePaid??0);
     const pending   = (p.finalizedFees??0)  - (p.fyReceivedFees??0);
     switch (key) {

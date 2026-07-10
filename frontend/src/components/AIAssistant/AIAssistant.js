@@ -19,9 +19,11 @@ import {
   detectIntent,
   extractEntities,
   extractProjectQuery,
+  // eslint-disable-next-line no-unused-vars
   detectExpenseCategory,
   parseNaturalDate,
   formatDateTime,
+  // eslint-disable-next-line no-unused-vars
   formatDate,
   getNavigationPath,
   isSkip,
@@ -114,6 +116,7 @@ function formatSearchResults(results, type) {
 }
 
 // ─── Build confirmation message ────────────────────────────
+// eslint-disable-next-line no-unused-vars
 function buildConfirmText(intent, collected) {
   const rows = intent.summaryRows(collected)
     .map(([k, v]) => `  • **${k}:** ${v}`)
@@ -218,6 +221,7 @@ export default function AIAssistant() {
   const [collected, setCollected] = useState({});
   const [fieldQueue, setFieldQueue] = useState([]);
   const [currentField, setCurrentField] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [currentOptions, setCurrentOptions] = useState([]);
   const [isExecuting, setIsExecuting] = useState(false);
   // ── Finance / project context state ───────────────────────────

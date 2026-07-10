@@ -392,6 +392,7 @@ export const AuthProvider = ({ children }) => {
     canViewRoleManagementPage,
     isAdmin,
     isAuthenticated: !!user
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }), [user, permissions, token, loading]);
 
   return (

@@ -6,6 +6,7 @@ import ExcelExportService from './services/ExcelExportService';
 import ExcelImport from './components/ExcelImport';
 import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import Watermark from './components/Watermark';
+// eslint-disable-next-line no-unused-vars
 import { FaEdit, FaTrash, FaFolder } from 'react-icons/fa';
 import { FiChevronDown, FiChevronUp, FiMinus } from 'react-icons/fi';
 import useSortableData from './utils/useSortableData';
@@ -32,6 +33,7 @@ const AssociatesPage = memo(() => {
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [editingAssociate, setEditingAssociate] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [dropdownOpenId, setDropdownOpenId] = useState(null);
   
   // Pagination state

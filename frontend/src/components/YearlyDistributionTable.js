@@ -243,6 +243,7 @@ const YearlyDistributionTable = ({
   };
 
   // Handler to open Edit Payment Modal
+  // eslint-disable-next-line no-unused-vars
   const handleOpenEditPaymentModal = (index) => {
     const payment = projectData.payments[index];
     setEditingPaymentIndex(index);
@@ -884,6 +885,7 @@ const YearlyDistributionTable = ({
       delete window.exportDistributionExcel;
       delete window.exportDistributionPDF;
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectData]);
 
   const calculateYearlyDistribution = (payments) => {

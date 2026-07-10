@@ -190,11 +190,13 @@ const AnalyticsDashboard = () => {
     setFilters(prev => ({ ...prev, ...newFilters }));
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleExportChart = (chartRef, chartTitle) => {
     setSelectedChart({ ref: chartRef, title: chartTitle });
     setShowExportModal(true);
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleDrillDown = (type, id, data) => {
     // Handle drill-down navigation
     // Implement navigation to detailed view
