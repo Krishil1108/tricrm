@@ -16,8 +16,8 @@ const getApiBaseUrl = () => {
     if (window.location.hostname === 'trimity-crm-backend.onrender.com') {
       return '/api';
     }
-    // For any other production domain, use relative path
-    return '/api';
+    // For any other production domain, default to the known backend URL
+    return 'https://trimity-crm-backend.onrender.com/api';
   }
   
   // Development fallback
