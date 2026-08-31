@@ -4,24 +4,67 @@ let redisClient = null;
 
 // Initialize Redis client gracefully
 const initRedis = async () => {
-  try {
-    const url = process.env.REDIS_URL || 'redis://localhost:6379';
-    redisClient = redis.createClient({ url });
-    
-    redisClient.on('error', (err) => {
-      console.error('Redis Client Error:', err.message);
-      // If it fails to connect, we just won't use caching
-      redisClient = null;
-    });
-
-    redisClient.on('connect', () => {
-      console.log('Connected to Redis');
-    });
-
-    await redisClient.connect();
-  } catch (error) {
-    console.error('Failed to initialize Redis:', error.message);
+  // If we are in production and REDIS_URL is not configured, skip Redis completely
+  if (process.env.NODE_ENV === 'production' && !process.env.REDIS_URL) {
+    console.log('Redis URL is not configured. Caching is disabled.');
     redisClient = null;
+    return;
+  }
+
+  const url = process.env.REDIS_URL || 'redis://localhost:6379';
+  
+  // Create a local client reference first to manage connection lifecycle
+  const client = redis.createClient({
+    url,
+    socket: {
+      // Limit reconnection attempts to avoid infinite loops and log spam
+      reconnectStrategy: (retries) => {
+        if (retries > 3) {
+          console.log('Redis reconnection attempts exceeded. Disabling caching.');
+          return false; // Stop retrying
+        }
+        return Math.min(retries * 2000, 10000); // Back off up to 10 seconds
+      }
+    }
+  });
+
+  let connectionFailed = false;
+  let hasLoggedError = false;
+
+  client.on('error', (err) => {
+    // Only log the error if we haven't already logged one
+    if (!hasLoggedError) {
+      console.error('Redis Client Error:', err.message || err);
+      hasLoggedError = true;
+    }
+    
+    // If we've hit an error, disable caching
+    if (redisClient === client) {
+      redisClient = null;
+    }
+  });
+
+  client.on('connect', () => {
+    console.log('Connected to Redis');
+    redisClient = client;
+    connectionFailed = false;
+    hasLoggedError = false;
+  });
+
+  try {
+    await client.connect();
+    redisClient = client;
+  } catch (error) {
+    console.error('Failed to initialize Redis:', error.message || error);
+    connectionFailed = true;
+    redisClient = null;
+    
+    // Safely disconnect the client to release resources and stop reconnect attempts
+    try {
+      await client.disconnect();
+    } catch (disconnectError) {
+      // Ignore disconnect errors during cleanup
+    }
   }
 };
 
