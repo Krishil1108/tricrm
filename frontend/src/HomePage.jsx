@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Calendar from './Calendar';
 import { useCompany } from './CompanyContext';
+import { useAuth } from './contexts/AuthContext';
 import ActionModal from './components/ActionModal';
 import ActivitySection from './components/ActivitySection';
 import Watermark from './components/Watermark';
@@ -11,6 +12,7 @@ import './CRMDashboard.css';
 
 const HomePage = () => {
   const { companyInfo } = useCompany();
+  const { canViewStats, canViewAmounts, hasPermission } = useAuth();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -367,70 +369,74 @@ const HomePage = () => {
           {/* Main Content Area */}
           <div className="dashboard-main">
             {/* Quick Stats Cards */}
-            <div className="metrics-grid">
-              <div 
-                className="metric-card blue" 
-                onClick={() => navigate('/projects')}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="metric-header">
-                  <span className="metric-label">Total Projects</span>
+            {canViewStats('home') && (
+              <div className="metrics-grid">
+                <div 
+                  className="metric-card blue" 
+                  onClick={() => navigate('/projects')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="metric-header">
+                    <span className="metric-label">Total Projects</span>
+                  </div>
+                  <div className="metric-number">{stats.loading ? '...' : stats.totalProjects}</div>
+                  <div className="metric-footer">
+                    <span>Active & Completed</span>
+                    <span className="metric-status">📁</span>
+                  </div>
                 </div>
-                <div className="metric-number">{stats.loading ? '...' : stats.totalProjects}</div>
-                <div className="metric-footer">
-                  <span>Active & Completed</span>
-                  <span className="metric-status">📁</span>
-                </div>
-              </div>
 
-              <div 
-                className="metric-card blue-dark"
-                onClick={() => navigate('/clients')}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="metric-header">
-                  <span className="metric-label">Total Clients</span>
+                <div 
+                  className="metric-card blue-dark"
+                  onClick={() => navigate('/clients')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="metric-header">
+                    <span className="metric-label">Total Clients</span>
+                  </div>
+                  <div className="metric-number">{stats.loading ? '...' : stats.totalClients}</div>
+                  <div className="metric-footer">
+                    <span>All Registered</span>
+                    <span className="metric-status">👥</span>
+                  </div>
                 </div>
-                <div className="metric-number">{stats.loading ? '...' : stats.totalClients}</div>
-                <div className="metric-footer">
-                  <span>All Registered</span>
-                  <span className="metric-status">👥</span>
-                </div>
-              </div>
 
-              <div 
-                className="metric-card orange"
-                onClick={() => navigate('/associates')}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="metric-header">
-                  <span className="metric-label">Associates</span>
+                <div 
+                  className="metric-card orange"
+                  onClick={() => navigate('/associates')}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="metric-header">
+                    <span className="metric-label">Associates</span>
+                  </div>
+                  <div className="metric-number">{stats.loading ? '...' : stats.totalAssociates}</div>
+                  <div className="metric-footer">
+                    <span>Active Associates</span>
+                    <span className="metric-status">🤝</span>
+                  </div>
                 </div>
-                <div className="metric-number">{stats.loading ? '...' : stats.totalAssociates}</div>
-                <div className="metric-footer">
-                  <span>Active Associates</span>
-                  <span className="metric-status">🤝</span>
-                </div>
-              </div>
 
-              <div 
-                className="metric-card green"
-                onClick={() => navigate('/expense-distribution')}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="metric-header">
-                  <span className="metric-label">Total Expenses</span>
-                </div>
-                <div className="metric-number">{stats.loading ? '...' : formatCurrency(stats.totalExpenses).replace(/₹/, '')}</div>
-                <div className="metric-footer">
-                  <span>All Projects</span>
-                  <span className="metric-status">💰</span>
-                </div>
+                {canViewAmounts('home') && (
+                  <div 
+                    className="metric-card green"
+                    onClick={() => navigate('/expenses')}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className="metric-header">
+                      <span className="metric-label">Total Expenses</span>
+                    </div>
+                    <div className="metric-number">{stats.loading ? '...' : formatCurrency(stats.totalExpenses).replace(/₹/, '')}</div>
+                    <div className="metric-footer">
+                      <span>All Projects</span>
+                      <span className="metric-status">💰</span>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
+            )}
 
             {/* Quick Actions */}
-            {renderQuickActions()}
+            {hasPermission('home', 'quick_actions') && renderQuickActions()}
           </div>
         </div>
       </div>

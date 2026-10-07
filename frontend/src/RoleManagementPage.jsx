@@ -50,80 +50,163 @@ const RoleManagementPage = () => {
     return iconMap[iconKey] || <FaKey />;
   };
 
-  // Permission groups mapped to original nested structure
+  // Permission groups mapped to nested structure
   const permissionGroups = [
     {
-      title: 'Module Access',
+      title: 'Module Access (Sidebar & Navigation)',
       key: 'modules',
-      description: 'Control access to main application modules',
+      description: 'Control navigation access to main application pages',
       permissions: [
         { key: 'home', label: 'Home Page', description: 'Access to home page', iconKey: 'home' },
         { key: 'clients', label: 'Clients Module', description: 'Access to clients management', iconKey: 'clients' },
         { key: 'associates', label: 'Associates Module', description: 'Access to associates management', iconKey: 'associates' },
-        { key: 'finance', label: 'Project Management', description: 'Access to project and finance management', iconKey: 'finance' },
+        { key: 'finance', label: 'Project Management', description: 'Access to projects management', iconKey: 'finance' },
+        { key: 'finance_dashboard', label: 'Finance Dashboard', description: 'Access to finance overview dashboard', iconKey: 'finance' },
+        { key: 'expenses', label: 'Expenses Module', description: 'Access to expense tracking', iconKey: 'finance' },
+        { key: 'analytics', label: 'Analytics Dashboard', description: 'Access to analytics overview', iconKey: 'viewStats' },
         { key: 'settings', label: 'Settings', description: 'Access to settings page', iconKey: 'settings' },
         { key: 'admin', label: 'Admin Panel', description: 'Access to user and role management', iconKey: 'admin' }
       ]
     },
     {
+      title: 'Home Page Elements',
+      key: 'home',
+      description: 'Home page components and figures visibility',
+      permissions: [
+        { key: 'view', label: 'View Home Page', description: 'Access and view the main dashboard', iconKey: 'view' },
+        { key: 'stats_cards', label: 'Top Summary Stats Cards', description: 'Show/Hide top metric cards', iconKey: 'stats_cards' },
+        { key: 'view_amounts', label: 'Financial Amounts & Figures', description: 'Show/Hide financial figures and revenue numbers', iconKey: 'viewStats' },
+        { key: 'quick_actions', label: 'Quick Action Buttons', description: 'Show/Hide quick action shortcut buttons', iconKey: 'create' }
+      ]
+    },
+    {
       title: 'Client Management',
       key: 'clients',
-      description: 'Client management permissions',
+      description: 'Client list page permissions and component toggles',
       permissions: [
-        { key: 'view', label: 'View Clients', description: 'View client list and details', iconKey: 'view' },
-        { key: 'create', label: 'Add New Client', description: 'Create new clients', iconKey: 'create' },
-        { key: 'edit', label: 'Edit Client', description: 'Edit existing clients', iconKey: 'edit' },
-        { key: 'delete', label: 'Delete Client', description: 'Delete clients', iconKey: 'delete' },
-        { key: 'view_details', label: 'View Client Details', description: 'Access client details popup/modal', iconKey: 'view_details' },
-        { key: 'view_projects', label: 'View Client Projects', description: 'Navigate to client project pages', iconKey: 'view_projects' },
-        { key: 'export', label: 'Export to Excel', description: 'Export client data to Excel', iconKey: 'export' },
-        { key: 'import', label: 'Import from Excel', description: 'Import clients from Excel', iconKey: 'import' },
-        { key: 'stats_cards', label: 'View Summary Cards', description: 'View client statistics cards', iconKey: 'stats_cards' }
+        { key: 'view', label: 'View Clients Page', description: 'View client list and profiles', iconKey: 'view' },
+        { key: 'stats_cards', label: 'Top Summary Stats Cards', description: 'Show/Hide top client stats cards', iconKey: 'stats_cards' },
+        { key: 'view_amounts', label: 'Financial Amounts & Revenue Rows', description: 'Show/Hide financial figures & project value rows', iconKey: 'viewStats' },
+        { key: 'create', label: 'Add New Client Button', description: 'Create new client records', iconKey: 'create' },
+        { key: 'edit', label: 'Edit Client Button', description: 'Edit existing client details', iconKey: 'edit' },
+        { key: 'delete', label: 'Delete Client Button', description: 'Delete client records', iconKey: 'delete' },
+        { key: 'view_details', label: 'View Details Modal Button', description: 'Open client details modal', iconKey: 'view_details' },
+        { key: 'view_projects', label: 'View Client Projects Button', description: 'Navigate to client project pages', iconKey: 'view_projects' },
+        { key: 'export', label: 'Export Excel Button', description: 'Export client list to Excel', iconKey: 'export' },
+        { key: 'import', label: 'Import Excel Button', description: 'Import client records from Excel', iconKey: 'import' }
+      ]
+    },
+    {
+      title: 'Client Projects Sub-Page',
+      key: 'client_projects',
+      description: 'Individual client projects page permissions',
+      permissions: [
+        { key: 'view', label: 'View Page', description: 'Access client projects sub-page', iconKey: 'view' },
+        { key: 'stats_cards', label: 'Top Summary Stats Cards', description: 'Show/Hide client projects summary cards', iconKey: 'stats_cards' },
+        { key: 'view_amounts', label: 'Amount & Figure Columns', description: 'Show/Hide total value, received, balance amounts', iconKey: 'viewStats' },
+        { key: 'create', label: 'Add Project Button', description: 'Add project directly from client page', iconKey: 'create' },
+        { key: 'edit', label: 'Edit Project Button', description: 'Edit project from client view', iconKey: 'edit' },
+        { key: 'delete', label: 'Delete Project Button', description: 'Delete project from client view', iconKey: 'delete' },
+        { key: 'distribution_section', label: 'Distribution Section', description: 'Show/Hide distribution chart section', iconKey: 'expense_distribution' }
       ]
     },
     {
       title: 'Associate Management',
       key: 'associates',
-      description: 'Associate management permissions',
+      description: 'Associate management page permissions and toggles',
       permissions: [
-        { key: 'view', label: 'View Associates', description: 'View associate list and details', iconKey: 'view' },
-        { key: 'create', label: 'Add New Associate', description: 'Create new associates', iconKey: 'create' },
-        { key: 'edit', label: 'Edit Associate', description: 'Edit existing associates', iconKey: 'edit' },
-        { key: 'delete', label: 'Delete Associate', description: 'Delete associates', iconKey: 'delete' },
-        { key: 'export', label: 'Export to Excel', description: 'Export associate data to Excel', iconKey: 'export' },
-        { key: 'import', label: 'Import from Excel', description: 'Import associates from Excel', iconKey: 'import' },
-        { key: 'view_projects', label: 'View Associated Projects', description: 'Navigate to associate projects page', iconKey: 'view_projects' },
-        { key: 'stats_cards', label: 'View Summary Cards', description: 'View associate statistics cards', iconKey: 'stats_cards' }
+        { key: 'view', label: 'View Associates Page', description: 'View associate directory and details', iconKey: 'view' },
+        { key: 'stats_cards', label: 'Top Summary Stats Cards', description: 'Show/Hide associate summary cards', iconKey: 'stats_cards' },
+        { key: 'view_amounts', label: 'Financial Figures & Payout Rows', description: 'Show/Hide fee, share, and payout figures', iconKey: 'viewStats' },
+        { key: 'create', label: 'Add Associate Button', description: 'Add new team associate', iconKey: 'create' },
+        { key: 'edit', label: 'Edit Associate Button', description: 'Edit associate profile', iconKey: 'edit' },
+        { key: 'delete', label: 'Delete Associate Button', description: 'Remove associate record', iconKey: 'delete' },
+        { key: 'view_projects', label: 'View Associated Projects Button', description: 'Access associate project sub-page', iconKey: 'view_projects' },
+        { key: 'export', label: 'Export Excel Button', description: 'Export associate list', iconKey: 'export' },
+        { key: 'import', label: 'Import Excel Button', description: 'Import associates list', iconKey: 'import' }
       ]
     },
     {
-      title: 'Project Management',
+      title: 'Associate Projects Sub-Page',
+      key: 'associate_projects',
+      description: 'Associate project allocation sub-page permissions',
+      permissions: [
+        { key: 'view', label: 'View Page', description: 'Access associate project assignments page', iconKey: 'view' },
+        { key: 'stats_cards', label: 'Top Summary Stats Cards', description: 'Show/Hide associate earnings stats cards', iconKey: 'stats_cards' },
+        { key: 'view_amounts', label: 'Fee & Payout Amount Columns', description: 'Show/Hide fee percentages, earned, and balance rows', iconKey: 'viewStats' },
+        { key: 'create', label: 'Add Project Button', description: 'Assign new project to associate', iconKey: 'create' },
+        { key: 'edit', label: 'Edit Project Button', description: 'Edit associate project assignment', iconKey: 'edit' },
+        { key: 'delete', label: 'Delete Project Button', description: 'Remove project assignment', iconKey: 'delete' },
+        { key: 'owner_view', label: 'Owner Summary View', description: 'Show/Hide detailed owner financial breakdown', iconKey: 'viewStats' }
+      ]
+    },
+    {
+      title: 'Project & Finance Management',
       key: 'finance',
-      description: 'Project and financial management permissions',
+      description: 'Projects master table, financial fields, and section controls',
       permissions: [
-        { key: 'view', label: 'View Projects', description: 'View project list and details', iconKey: 'view' },
-        { key: 'create', label: 'Add New Project', description: 'Create new projects', iconKey: 'create' },
-        { key: 'edit', label: 'Edit Project', description: 'Edit existing projects', iconKey: 'edit' },
-        { key: 'delete', label: 'Delete Project', description: 'Delete projects', iconKey: 'delete' },
-        { key: 'configure_percentages', label: 'Configure Percentages', description: 'Access percentage configuration settings', iconKey: 'configure_percentages' },
-        { key: 'import', label: 'Import Excel', description: 'Import projects from Excel files', iconKey: 'import' },
-        { key: 'export', label: 'Export Excel', description: 'Export project data to Excel', iconKey: 'export' },
-        { key: 'add_payment', label: 'Add Payment', description: 'Add payment details in project form', iconKey: 'add_payment' },
-        { key: 'expense_distribution', label: 'Expense Distribution', description: 'View and manage expense distributions', iconKey: 'expense_distribution' },
-        { key: 'associate_distribution', label: 'Associate Distribution', description: 'View and manage associate distributions', iconKey: 'associate_distribution' },
-        { key: 'viewStats', label: 'View Summary Cards', description: 'View project statistics cards', iconKey: 'stats_cards' }
+        { key: 'view', label: 'View Projects Page', description: 'Access projects master page', iconKey: 'view' },
+        { key: 'stats_cards', label: 'Top Summary Stats Cards', description: 'Show/Hide total projects & revenue metric cards', iconKey: 'stats_cards' },
+        { key: 'view_amounts', label: 'Financial Figures & Amount Columns', description: 'Show/Hide project amounts, received & balance figures', iconKey: 'viewStats' },
+        { key: 'create', label: 'Add New Project Button', description: 'Create new project record', iconKey: 'create' },
+        { key: 'edit', label: 'Edit Project Button', description: 'Modify project details', iconKey: 'edit' },
+        { key: 'delete', label: 'Delete Project Button', description: 'Delete project record', iconKey: 'delete' },
+        { key: 'add_payment', label: 'Add Payment Details Button', description: 'Log payment transactions against projects', iconKey: 'add_payment' },
+        { key: 'configure_percentages', label: 'Configure Percentages Button', description: 'Access associate percentage config', iconKey: 'configure_percentages' },
+        { key: 'expense_distribution', label: 'Expense Distribution Section', description: 'Show/Hide expense allocation breakdown', iconKey: 'expense_distribution' },
+        { key: 'associate_distribution', label: 'Associate Distribution Section', description: 'Show/Hide associate payout breakdown', iconKey: 'associate_distribution' },
+        { key: 'export', label: 'Export Excel Button', description: 'Export projects data to Excel', iconKey: 'export' },
+        { key: 'import', label: 'Import Excel Button', description: 'Import projects from Excel', iconKey: 'import' }
       ]
     },
     {
-      title: 'System Settings',
-      key: 'settings',
-      description: 'System settings and configuration permissions',
+      title: 'Finance Overview Dashboard',
+      key: 'finance_dashboard',
+      description: 'Finance overview dashboard widgets and components',
       permissions: [
-        { key: 'view', label: 'View Settings', description: 'Access settings page', iconKey: 'view' },
-        { key: 'viewCompanySettings', label: 'View Company Info', description: 'View company settings', iconKey: 'viewCompanySettings' },
-        { key: 'editCompanySettings', label: 'Edit Company Info', description: 'Edit company settings', iconKey: 'editCompanySettings' },
-        { key: 'manageUsers', label: 'Manage Users', description: 'Access user management', iconKey: 'manageUsers' },
-        { key: 'manageRoles', label: 'Manage Roles', description: 'Access role management', iconKey: 'manageRoles' }
+        { key: 'view', label: 'View Dashboard', description: 'Access finance dashboard page', iconKey: 'view' },
+        { key: 'stats_cards', label: 'Top Financial Metric Cards', description: 'Show/Hide revenue, balance, and gross profit cards', iconKey: 'stats_cards' },
+        { key: 'view_amounts', label: 'Financial Amount Figures', description: 'Show/Hide exact money amounts across widgets', iconKey: 'viewStats' },
+        { key: 'charts', label: 'Financial Charts & Graphs', description: 'Show/Hide monthly revenue & expense graphs', iconKey: 'stats_cards' },
+        { key: 'action_buttons', label: 'Action & Export Buttons', description: 'Show/Hide report action and export controls', iconKey: 'export' }
+      ]
+    },
+    {
+      title: 'Expenses Management',
+      key: 'expenses',
+      description: 'Expense tracker page, figure rows, and controls',
+      permissions: [
+        { key: 'view', label: 'View Expenses Page', description: 'Access expense log and summary', iconKey: 'view' },
+        { key: 'stats_cards', label: 'Top Summary Stats Cards', description: 'Show/Hide total expense metric cards', iconKey: 'stats_cards' },
+        { key: 'view_amounts', label: 'Expense Figures & Amount Rows', description: 'Show/Hide expense cost amounts and total values', iconKey: 'viewStats' },
+        { key: 'create', label: 'Add Expense Button', description: 'Log new business expense', iconKey: 'create' },
+        { key: 'edit', label: 'Edit Expense Button', description: 'Edit recorded expense item', iconKey: 'edit' },
+        { key: 'delete', label: 'Delete Expense Button', description: 'Delete expense entry', iconKey: 'delete' },
+        { key: 'export', label: 'Export Excel Button', description: 'Export expense log to Excel', iconKey: 'export' },
+        { key: 'import', label: 'Import Excel Button', description: 'Import expenses from file', iconKey: 'import' }
+      ]
+    },
+    {
+      title: 'Analytics Dashboard',
+      key: 'analytics',
+      description: 'Analytics widgets, stats, and metric graphs',
+      permissions: [
+        { key: 'view', label: 'View Analytics Page', description: 'Access analytics dashboard', iconKey: 'view' },
+        { key: 'stats_cards', label: 'Top Summary Cards', description: 'Show/Hide high-level metric cards', iconKey: 'stats_cards' },
+        { key: 'view_amounts', label: 'Revenue & Metric Figures', description: 'Show/Hide financial figures and numerical statistics', iconKey: 'viewStats' },
+        { key: 'charts', label: 'Analytics Charts & Visuals', description: 'Show/Hide analytics charts and graphs', iconKey: 'stats_cards' }
+      ]
+    },
+    {
+      title: 'System Settings & Administration',
+      key: 'settings',
+      description: 'System settings, company profile, user and role administration',
+      permissions: [
+        { key: 'view', label: 'View Settings Page', description: 'Access settings page', iconKey: 'view' },
+        { key: 'viewCompanySettings', label: 'View Company Info', description: 'View company profile and details', iconKey: 'viewCompanySettings' },
+        { key: 'editCompanySettings', label: 'Edit Company Info', description: 'Edit company settings and branding', iconKey: 'editCompanySettings' },
+        { key: 'manageUsers', label: 'Manage Users', description: 'Access user account management', iconKey: 'manageUsers' },
+        { key: 'manageRoles', label: 'Manage Roles', description: 'Access role & permission management', iconKey: 'manageRoles' }
       ]
     }
   ];
@@ -158,125 +241,143 @@ const RoleManagementPage = () => {
     if (role) {
       setEditingRole(role);
       
-      // Initialize permissions with nested structure, preserving existing values
+      const getVal = (mod, perm, def = false) => {
+        return role.permissions?.[mod]?.[perm] !== undefined ? role.permissions[mod][perm] : def;
+      };
+
       const initializedPermissions = {
         modules: {
-          home: role.permissions?.modules?.home || false,
-          clients: role.permissions?.modules?.clients || false,
-          associates: role.permissions?.modules?.associates || false,
-          finance: role.permissions?.modules?.finance || false,
-          settings: role.permissions?.modules?.settings || false,
-          admin: role.permissions?.modules?.admin || false
+          home: getVal('modules', 'home', true),
+          clients: getVal('modules', 'clients', true),
+          associates: getVal('modules', 'associates', true),
+          finance: getVal('modules', 'finance', true),
+          finance_dashboard: getVal('modules', 'finance_dashboard', true),
+          expenses: getVal('modules', 'expenses', true),
+          analytics: getVal('modules', 'analytics', true),
+          settings: getVal('modules', 'settings', true),
+          admin: getVal('modules', 'admin', false)
+        },
+        home: {
+          view: getVal('home', 'view', true),
+          stats_cards: getVal('home', 'stats_cards', true),
+          view_amounts: getVal('home', 'view_amounts', true),
+          quick_actions: getVal('home', 'quick_actions', true)
         },
         clients: {
-          view: role.permissions?.clients?.view || false,
-          create: role.permissions?.clients?.create || false,
-          edit: role.permissions?.clients?.edit || false,
-          delete: role.permissions?.clients?.delete || false,
-          view_details: role.permissions?.clients?.view_details || false,
-          view_projects: role.permissions?.clients?.view_projects || false,
-          export: role.permissions?.clients?.export || false,
-          import: role.permissions?.clients?.import || false,
-          stats_cards: role.permissions?.clients?.stats_cards || false
+          view: getVal('clients', 'view', true),
+          create: getVal('clients', 'create', true),
+          edit: getVal('clients', 'edit', true),
+          delete: getVal('clients', 'delete', true),
+          duplicate: getVal('clients', 'duplicate', true),
+          export: getVal('clients', 'export', true),
+          import: getVal('clients', 'import', true),
+          view_details: getVal('clients', 'view_details', true),
+          view_projects: getVal('clients', 'view_projects', true),
+          stats_cards: getVal('clients', 'stats_cards', true),
+          view_amounts: getVal('clients', 'view_amounts', true)
+        },
+        client_projects: {
+          view: getVal('client_projects', 'view', true),
+          create: getVal('client_projects', 'create', true),
+          edit: getVal('client_projects', 'edit', true),
+          delete: getVal('client_projects', 'delete', true),
+          stats_cards: getVal('client_projects', 'stats_cards', true),
+          view_amounts: getVal('client_projects', 'view_amounts', true),
+          distribution_section: getVal('client_projects', 'distribution_section', true)
         },
         associates: {
-          view: role.permissions?.associates?.view || false,
-          create: role.permissions?.associates?.create || false,
-          edit: role.permissions?.associates?.edit || false,
-          delete: role.permissions?.associates?.delete || false,
-          export: role.permissions?.associates?.export || false,
-          import: role.permissions?.associates?.import || false,
-          view_projects: role.permissions?.associates?.view_projects || false,
-          stats_cards: role.permissions?.associates?.stats_cards || false
+          view: getVal('associates', 'view', true),
+          create: getVal('associates', 'create', true),
+          edit: getVal('associates', 'edit', true),
+          delete: getVal('associates', 'delete', true),
+          export: getVal('associates', 'export', true),
+          import: getVal('associates', 'import', true),
+          view_projects: getVal('associates', 'view_projects', true),
+          stats_cards: getVal('associates', 'stats_cards', true),
+          view_amounts: getVal('associates', 'view_amounts', true)
+        },
+        associate_projects: {
+          view: getVal('associate_projects', 'view', true),
+          create: getVal('associate_projects', 'create', true),
+          edit: getVal('associate_projects', 'edit', true),
+          delete: getVal('associate_projects', 'delete', true),
+          stats_cards: getVal('associate_projects', 'stats_cards', true),
+          view_amounts: getVal('associate_projects', 'view_amounts', true),
+          owner_view: getVal('associate_projects', 'owner_view', true)
         },
         finance: {
-          view: role.permissions?.finance?.view || false,
-          create: role.permissions?.finance?.create || false,
-          edit: role.permissions?.finance?.edit || false,
-          delete: role.permissions?.finance?.delete || false,
-          configure_percentages: role.permissions?.finance?.configure_percentages || false,
-          import: role.permissions?.finance?.import || false,
-          export: role.permissions?.finance?.export || false,
-          add_payment: role.permissions?.finance?.add_payment || false,
-          expense_distribution: role.permissions?.finance?.expense_distribution || false,
-          associate_distribution: role.permissions?.finance?.associate_distribution || false,
-          viewStats: role.permissions?.finance?.viewStats || false
+          view: getVal('finance', 'view', true),
+          create: getVal('finance', 'create', true),
+          edit: getVal('finance', 'edit', true),
+          delete: getVal('finance', 'delete', true),
+          configure_percentages: getVal('finance', 'configure_percentages', true),
+          import: getVal('finance', 'import', true),
+          export: getVal('finance', 'export', true),
+          add_payment: getVal('finance', 'add_payment', true),
+          expense_distribution: getVal('finance', 'expense_distribution', true),
+          associate_distribution: getVal('finance', 'associate_distribution', true),
+          viewStats: getVal('finance', 'viewStats', true),
+          stats_cards: getVal('finance', 'stats_cards', true),
+          view_amounts: getVal('finance', 'view_amounts', true)
+        },
+        finance_dashboard: {
+          view: getVal('finance_dashboard', 'view', true),
+          stats_cards: getVal('finance_dashboard', 'stats_cards', true),
+          view_amounts: getVal('finance_dashboard', 'view_amounts', true),
+          charts: getVal('finance_dashboard', 'charts', true),
+          action_buttons: getVal('finance_dashboard', 'action_buttons', true)
+        },
+        expenses: {
+          view: getVal('expenses', 'view', true),
+          create: getVal('expenses', 'create', true),
+          edit: getVal('expenses', 'edit', true),
+          delete: getVal('expenses', 'delete', true),
+          export: getVal('expenses', 'export', true),
+          import: getVal('expenses', 'import', true),
+          stats_cards: getVal('expenses', 'stats_cards', true),
+          view_amounts: getVal('expenses', 'view_amounts', true)
+        },
+        analytics: {
+          view: getVal('analytics', 'view', true),
+          stats_cards: getVal('analytics', 'stats_cards', true),
+          view_amounts: getVal('analytics', 'view_amounts', true),
+          charts: getVal('analytics', 'charts', true)
         },
         settings: {
-          view: role.permissions?.settings?.view || false,
-          viewCompanySettings: role.permissions?.settings?.viewCompanySettings || false,
-          editCompanySettings: role.permissions?.settings?.editCompanySettings || false,
-          manageUsers: role.permissions?.settings?.manageUsers || false,
-          manageRoles: role.permissions?.settings?.manageRoles || false
+          view: getVal('settings', 'view', true),
+          viewCompanySettings: getVal('settings', 'viewCompanySettings', true),
+          editCompanySettings: getVal('settings', 'editCompanySettings', true),
+          manageUsers: getVal('settings', 'manageUsers', true),
+          manageRoles: getVal('settings', 'manageRoles', true)
         }
       };
       
-      const newFormData = {
+      setFormData({
         name: role.name,
         description: role.description,
         permissions: initializedPermissions
-      };
-      setFormData(newFormData);
+      });
     } else {
       setEditingRole(null);
       
-      // Initialize empty permissions for new role with nested structure
-      const emptyPermissions = {
-        modules: {
-          home: false,
-          clients: false,
-          associates: false,
-          finance: false,
-          settings: false,
-          admin: false
-        },
-        clients: {
-          view: false,
-          create: false,
-          edit: false,
-          delete: false,
-          view_details: false,
-          view_projects: false,
-          export: false,
-          import: false,
-          stats_cards: false
-        },
-        associates: {
-          view: false,
-          create: false,
-          edit: false,
-          delete: false,
-          export: false,
-          import: false,
-          view_projects: false,
-          stats_cards: false
-        },
-        finance: {
-          view: false,
-          create: false,
-          edit: false,
-          delete: false,
-          configure_percentages: false,
-          import: false,
-          export: false,
-          add_payment: false,
-          expense_distribution: false,
-          associate_distribution: false,
-          viewStats: false
-        },
-        settings: {
-          view: false,
-          viewCompanySettings: false,
-          editCompanySettings: false,
-          manageUsers: false,
-          manageRoles: false
-        }
+      const defaultPermissions = {
+        modules: { home: true, clients: true, associates: true, finance: true, finance_dashboard: true, expenses: true, analytics: true, settings: true, admin: false },
+        home: { view: true, stats_cards: true, view_amounts: true, quick_actions: true },
+        clients: { view: true, create: true, edit: true, delete: true, duplicate: true, export: true, import: true, view_details: true, view_projects: true, stats_cards: true, view_amounts: true },
+        client_projects: { view: true, create: true, edit: true, delete: true, stats_cards: true, view_amounts: true, distribution_section: true },
+        associates: { view: true, create: true, edit: true, delete: true, export: true, import: true, view_projects: true, stats_cards: true, view_amounts: true },
+        associate_projects: { view: true, create: true, edit: true, delete: true, stats_cards: true, view_amounts: true, owner_view: true },
+        finance: { view: true, create: true, edit: true, delete: true, configure_percentages: true, import: true, export: true, add_payment: true, expense_distribution: true, associate_distribution: true, viewStats: true, stats_cards: true, view_amounts: true },
+        finance_dashboard: { view: true, stats_cards: true, view_amounts: true, charts: true, action_buttons: true },
+        expenses: { view: true, create: true, edit: true, delete: true, export: true, import: true, stats_cards: true, view_amounts: true },
+        analytics: { view: true, stats_cards: true, view_amounts: true, charts: true },
+        settings: { view: true, viewCompanySettings: true, editCompanySettings: true, manageUsers: true, manageRoles: true }
       };
       
       setFormData({
         name: '',
         description: '',
-        permissions: emptyPermissions
+        permissions: defaultPermissions
       });
     }
     setShowModal(true);

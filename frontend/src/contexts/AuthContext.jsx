@@ -165,7 +165,20 @@ export const AuthProvider = ({ children }) => {
   const hasPermission = (module, action) => {
     if (!permissions) return false;
     if (user?.role?.name === 'Admin') return true;
-    return permissions[module]?.[action] === true;
+    if (permissions[module] && permissions[module][action] !== undefined) {
+      return permissions[module][action] === true;
+    }
+    return false;
+  };
+
+  // Check if user can view figures/amounts for a module
+  const canViewAmounts = (module) => {
+    if (!permissions) return false;
+    if (user?.role?.name === 'Admin') return true;
+    if (permissions[module]?.view_amounts !== undefined) {
+      return permissions[module].view_amounts === true;
+    }
+    return true; // Default to true if not explicitly set to false
   };
 
   // New granular permission checker - maps granular permissions to original structure
@@ -209,7 +222,7 @@ export const AuthProvider = ({ children }) => {
       'import_excel_projects': () => permissions.finance?.import,
       'export_excel_projects': () => permissions.finance?.export,
       'add_payment': () => permissions.finance?.add_payment,
-      'view_project_summary_cards': () => permissions.finance?.viewStats,
+      'view_project_summary_cards': () => permissions.finance?.viewStats || permissions.finance?.stats_cards,
       'expense_distribution': () => permissions.finance?.expense_distribution,
       'associate_distribution': () => permissions.finance?.associate_distribution
     };
@@ -236,7 +249,11 @@ export const AuthProvider = ({ children }) => {
   const canViewDistributions = (module) => hasPermission(module, 'expense_distribution') || hasPermission(module, 'associate_distribution');
   const canAccessUIComponents = (component) => hasPermission('ui_components', component);
   const canPerformDataOperations = (operation) => hasPermission('data_operations', operation);
-  const canViewStats = (module) => hasPermission(module, 'stats_cards') || hasPermission(module, 'viewStats') || hasPermission('home', 'stats_cards');
+  const canViewStats = (module) => {
+    if (!permissions) return false;
+    if (user?.role?.name === 'Admin') return true;
+    return permissions[module]?.stats_cards === true || permissions[module]?.viewStats === true || permissions[module]?.statsCards === true;
+  };
 
   // Granular permission helpers for Client Management
   const canViewClientPage = () => hasGranularPermission('view_client_page');
@@ -334,6 +351,7 @@ export const AuthProvider = ({ children }) => {
     canAccessUIComponents,
     canPerformDataOperations,
     canViewStats,
+    canViewAmounts,
     // Granular Client Management permissions
     canViewClientPage,
     canAddNewClient,

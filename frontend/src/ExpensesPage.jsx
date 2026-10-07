@@ -848,7 +848,7 @@ const FirmManagementModal = ({ isOpen, onClose, onSuccess }) => {
 // ============== MAIN EXPENSES PAGE ==============
 const ExpensesPage = () => {
   const { showError, showSuccess } = useToast();
-  const { token } = useAuth();
+  const { token, canViewStats, canViewAmounts, hasPermission } = useAuth();
   
   // Data state
   const [expenses, setExpenses] = useState([]);
@@ -1074,32 +1074,35 @@ const ExpensesPage = () => {
           <button className="btn-secondary" onClick={() => setShowFirmModal(true)}>
             <FiBriefcase /> Manage Firms
           </button>
-          <button className="btn-primary" onClick={() => { setEditingExpense(null); setShowWizard(true); }}>
-            <FiPlus /> Add Expense
-          </button>
+          {hasPermission('expenses', 'create') && (
+            <button className="btn-primary" onClick={() => { setEditingExpense(null); setShowWizard(true); }}>
+              <FiPlus /> Add Expense
+            </button>
+          )}
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="expense-stats">
-        <div className="stat-card">
-          <div className="stat-icon total">
-            <FiDollarSign />
+      {canViewStats('expenses') && (
+        <div className="expense-stats">
+          <div className="stat-card">
+            <div className="stat-icon total">
+              <FiDollarSign />
+            </div>
+            <div className="stat-content">
+              <span className="stat-value">{canViewAmounts('expenses') ? formatCurrency(totalExpenses) : '••••'}</span>
+              <span className="stat-label">Total Expenses</span>
+            </div>
           </div>
-          <div className="stat-content">
-            <span className="stat-value">{formatCurrency(totalExpenses)}</span>
-            <span className="stat-label">Total Expenses</span>
+          <div className="stat-card">
+            <div className="stat-icon count">
+              <FiFileText />
+            </div>
+            <div className="stat-content">
+              <span className="stat-value">{expenseCount}</span>
+              <span className="stat-label">Expense Entries</span>
+            </div>
           </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon count">
-            <FiFileText />
-          </div>
-          <div className="stat-content">
-            <span className="stat-value">{expenseCount}</span>
-            <span className="stat-label">Expense Entries</span>
-          </div>
-        </div>
         <div className="stat-card">
           <div className="stat-icon categories">
             <FiPieChart />
@@ -1119,6 +1122,7 @@ const ExpensesPage = () => {
           </div>
         </div>
       </div>
+      )}
 
       {/* Tabs */}
       <div className="expense-tabs">

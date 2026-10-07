@@ -12,64 +12,112 @@ const roleSchema = new mongoose.Schema({
     default: ''
   },
   permissions: {
-    // Module access permissions
-    modules: {
-      home: { type: Boolean, default: true },
-      clients: { type: Boolean, default: false },
-      associates: { type: Boolean, default: false },
-      finance: { type: Boolean, default: false },
-      settings: { type: Boolean, default: false },
-      admin: { type: Boolean, default: false }
-    },
-    
-    // Client module permissions
-    clients: {
-      view: { type: Boolean, default: false },
-      create: { type: Boolean, default: false },
-      edit: { type: Boolean, default: false },
-      delete: { type: Boolean, default: false },
-      duplicate: { type: Boolean, default: false },
-      export: { type: Boolean, default: false },
-      import: { type: Boolean, default: false },
-      view_projects: { type: Boolean, default: false },
-      view_details: { type: Boolean, default: false },
-      stats_cards: { type: Boolean, default: false }
-    },
-    
-    // Associates module permissions
-    associates: {
-      view: { type: Boolean, default: false },
-      create: { type: Boolean, default: false },
-      edit: { type: Boolean, default: false },
-      delete: { type: Boolean, default: false },
-      export: { type: Boolean, default: false },
-      import: { type: Boolean, default: false },
-      view_projects: { type: Boolean, default: false },
-      stats_cards: { type: Boolean, default: false }
-    },
-    
-    // Finance/Projects permissions
-    finance: {
-      view: { type: Boolean, default: false },
-      create: { type: Boolean, default: false },
-      edit: { type: Boolean, default: false },
-      delete: { type: Boolean, default: false },
-      import: { type: Boolean, default: false },
-      export: { type: Boolean, default: false },
-      add_payment: { type: Boolean, default: false },
-      viewStats: { type: Boolean, default: false },
-      expense_distribution: { type: Boolean, default: false },
-      associate_distribution: { type: Boolean, default: false },
-      configure_percentages: { type: Boolean, default: false }
-    },
-    
-    // Settings permissions
-    settings: {
-      view: { type: Boolean, default: false },
-      viewCompanySettings: { type: Boolean, default: false },
-      editCompanySettings: { type: Boolean, default: false },
-      manageUsers: { type: Boolean, default: false },
-      manageRoles: { type: Boolean, default: false }
+    type: mongoose.Schema.Types.Mixed,
+    default: {
+      modules: {
+        home: true,
+        clients: true,
+        associates: true,
+        finance: true,
+        finance_dashboard: true,
+        expenses: true,
+        analytics: true,
+        settings: true,
+        admin: false
+      },
+      home: {
+        view: true,
+        stats_cards: true,
+        view_amounts: true,
+        quick_actions: true
+      },
+      clients: {
+        view: true,
+        create: true,
+        edit: true,
+        delete: true,
+        duplicate: true,
+        export: true,
+        import: true,
+        view_details: true,
+        view_projects: true,
+        stats_cards: true,
+        view_amounts: true
+      },
+      client_projects: {
+        view: true,
+        create: true,
+        edit: true,
+        delete: true,
+        stats_cards: true,
+        view_amounts: true,
+        distribution_section: true
+      },
+      associates: {
+        view: true,
+        create: true,
+        edit: true,
+        delete: true,
+        export: true,
+        import: true,
+        view_projects: true,
+        stats_cards: true,
+        view_amounts: true
+      },
+      associate_projects: {
+        view: true,
+        create: true,
+        edit: true,
+        delete: true,
+        stats_cards: true,
+        view_amounts: true,
+        owner_view: true
+      },
+      finance: {
+        view: true,
+        create: true,
+        edit: true,
+        delete: true,
+        import: true,
+        export: true,
+        add_payment: true,
+        viewStats: true,
+        stats_cards: true,
+        view_amounts: true,
+        expense_distribution: true,
+        associate_distribution: true,
+        configure_percentages: true
+      },
+      finance_dashboard: {
+        view: true,
+        stats_cards: true,
+        view_amounts: true,
+        charts: true,
+        action_buttons: true
+      },
+      expenses: {
+        view: true,
+        create: true,
+        edit: true,
+        delete: true,
+        import: true,
+        export: true,
+        stats_cards: true,
+        view_amounts: true
+      },
+      analytics: {
+        view: true,
+        stats_cards: true,
+        view_amounts: true,
+        charts: true
+      },
+      settings: {
+        view: true,
+        viewCompanySettings: true,
+        editCompanySettings: true,
+        manageUsers: true,
+        manageRoles: true
+      }
     }
   },
   
@@ -82,3 +130,4 @@ const roleSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Role', roleSchema);
+

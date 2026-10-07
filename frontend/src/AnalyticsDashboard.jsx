@@ -14,7 +14,7 @@ import ExportModal from './components/analytics/ExportModal';
 import { FaDownload, FaExpand, FaCompress } from 'react-icons/fa';
 
 const AnalyticsDashboard = () => {
-  const { token } = useAuth();
+  const { token, canViewStats, canViewAmounts, hasPermission } = useAuth();
   const { showError } = useToast();
   
   // Filter states
@@ -270,51 +270,53 @@ const AnalyticsDashboard = () => {
         <LoadingSkeleton />
       ) : (
         <>
-          <SummaryCards data={dashboardData.summary} />
+          {canViewStats('analytics') && <SummaryCards data={dashboardData.summary} />}
           
-          <div className="analytics-charts-grid">
-            <AnalyticsChart 
-              chartType="clients"
-              token={token}
-              apiBaseUrl={API_BASE_URL}
-            />
-            
-            <AnalyticsChart 
-              chartType="projects"
-              token={token}
-              apiBaseUrl={API_BASE_URL}
-            />
-            
-            <AnalyticsChart 
-              chartType="revenue"
-              token={token}
-              apiBaseUrl={API_BASE_URL}
-            />
-            
-            <AnalyticsChart 
-              chartType="netprofit"
-              token={token}
-              apiBaseUrl={API_BASE_URL}
-            />
-            
-            <AnalyticsChart 
-              chartType="expenses"
-              token={token}
-              apiBaseUrl={API_BASE_URL}
-            />
+          {hasPermission('analytics', 'charts') && (
+            <div className="analytics-charts-grid">
+              <AnalyticsChart 
+                chartType="clients"
+                token={token}
+                apiBaseUrl={API_BASE_URL}
+              />
+              
+              <AnalyticsChart 
+                chartType="projects"
+                token={token}
+                apiBaseUrl={API_BASE_URL}
+              />
+              
+              <AnalyticsChart 
+                chartType="revenue"
+                token={token}
+                apiBaseUrl={API_BASE_URL}
+              />
+              
+              <AnalyticsChart 
+                chartType="netprofit"
+                token={token}
+                apiBaseUrl={API_BASE_URL}
+              />
+              
+              <AnalyticsChart 
+                chartType="expenses"
+                token={token}
+                apiBaseUrl={API_BASE_URL}
+              />
 
-            <AnalyticsChart
-              chartType="expenseComparison"
-              token={token}
-              apiBaseUrl={API_BASE_URL}
-            />
-            
-            <AnalyticsChart 
-              chartType="payments"
-              token={token}
-              apiBaseUrl={API_BASE_URL}
-            />
-          </div>
+              <AnalyticsChart
+                chartType="expenseComparison"
+                token={token}
+                apiBaseUrl={API_BASE_URL}
+              />
+              
+              <AnalyticsChart 
+                chartType="payments"
+                token={token}
+                apiBaseUrl={API_BASE_URL}
+              />
+            </div>
+          )}
         </>
       )}
 
