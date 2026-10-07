@@ -1,6 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from './contexts/AuthContext';
-import { FaHome, FaUsers, FaHandshake, FaBriefcase, FaCog, FaUserShield, FaEye, FaPlus, FaEdit, FaTrash, FaFolderOpen, FaFileExport, FaFileImport, FaChartBar, FaKey, FaBuilding, FaShieldAlt } from 'react-icons/fa';
+import { 
+  FaHome, FaUsers, FaHandshake, FaBriefcase, FaCog, FaUserShield, 
+  FaEye, FaPlus, FaEdit, FaTrash, FaFolderOpen, FaFileExport, 
+  FaFileImport, FaChartBar, FaKey, FaBuilding, FaShieldAlt, 
+  FaSearch, FaCheckDouble, FaTimesCircle, FaSlidersH, FaCheck, FaUndo
+} from 'react-icons/fa';
 import Watermark from './components/Watermark';
 import './RoleManagementPage.css';
 import './styles/ActionButtons.css';
@@ -13,6 +18,9 @@ const RoleManagementPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
+  
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -37,7 +45,7 @@ const RoleManagementPage = () => {
       'export': <FaFileExport />,
       'import': <FaFileImport />,
       'stats_cards': <FaChartBar />,
-      'configure_percentages': <FaCog />,
+      'configure_percentages': <FaSlidersH />,
       'add_payment': <FaPlus />,
       'expense_distribution': <FaBriefcase />,
       'associate_distribution': <FaHandshake />,
@@ -51,7 +59,7 @@ const RoleManagementPage = () => {
   };
 
   // Permission groups mapped to nested structure
-  const permissionGroups = [
+  const permissionGroups = useMemo(() => [
     {
       title: 'Module Access (Sidebar & Navigation)',
       key: 'modules',
@@ -209,7 +217,7 @@ const RoleManagementPage = () => {
         { key: 'manageRoles', label: 'Manage Roles', description: 'Access role & permission management', iconKey: 'manageRoles' }
       ]
     }
-  ];
+  ], []);
 
   useEffect(() => {
     fetchRoles();
@@ -238,6 +246,9 @@ const RoleManagementPage = () => {
   };
 
   const handleOpenModal = (role = null) => {
+    setSearchQuery('');
+    setActiveTab('all');
+    
     if (role) {
       setEditingRole(role);
       
@@ -418,6 +429,103 @@ const RoleManagementPage = () => {
     }));
   };
 
+  // Global Enable All
+  const handleEnableAllGlobal = () => {
+    const newPerms = { ...formData.permissions };
+    permissionGroups.forEach(group => {
+      newPerms[group.key] = group.permissions.reduce((acc, perm) => {
+        acc[perm.key] = true;
+        return acc;
+      }, { ...newPerms[group.key] });
+    });
+    setFormData(prev => ({ ...prev, permissions: newPerms }));
+  };
+
+  // Global Disable All
+  const handleDisableAllGlobal = () => {
+    const newPerms = { ...formData.permissions };
+    permissionGroups.forEach(group => {
+      newPerms[group.key] = group.permissions.reduce((acc, perm) => {
+        acc[perm.key] = false;
+        return acc;
+      }, { ...newPerms[group.key] });
+    });
+    setFormData(prev => ({ ...prev, permissions: newPerms }));
+  };
+
+  // Preset Applicator
+  const applyPreset = (presetType) => {
+    if (presetType === 'full') {
+      handleEnableAllGlobal();
+    } else if (presetType === 'readonly') {
+      const newPerms = { ...formData.permissions };
+      permissionGroups.forEach(group => {
+        newPerms[group.key] = group.permissions.reduce((acc, perm) => {
+          // view permissions or view_amounts or viewStats
+          const isView = perm.key.includes('view') || perm.key.includes('stats') || perm.key.includes('charts');
+          acc[perm.key] = isView;
+          return acc;
+        }, { ...newPerms[group.key] });
+      });
+      setFormData(prev => ({ ...prev, permissions: newPerms }));
+    }
+  };
+
+  // Statistics calculation
+  const totalPermissionStats = useMemo(() => {
+    let total = 0;
+    let enabled = 0;
+    permissionGroups.forEach(group => {
+      group.permissions.forEach(perm => {
+        total++;
+        if (formData.permissions?.[group.key]?.[perm.key]) {
+          enabled++;
+        }
+      });
+    });
+    return { total, enabled, percentage: total > 0 ? Math.round((enabled / total) * 100) : 0 };
+  }, [formData.permissions, permissionGroups]);
+
+  const getGroupStats = (group) => {
+    let groupTotal = group.permissions.length;
+    let groupEnabled = 0;
+    group.permissions.forEach(perm => {
+      if (formData.permissions?.[group.key]?.[perm.key]) {
+        groupEnabled++;
+      }
+    });
+    return { total: groupTotal, enabled: groupEnabled };
+  };
+
+  // Filter permission groups by active tab and search query
+  const filteredPermissionGroups = useMemo(() => {
+    return permissionGroups.filter(group => {
+      // Filter by tab
+      if (activeTab !== 'all' && group.key !== activeTab) {
+        return false;
+      }
+      // Filter by search query
+      if (!searchQuery.trim()) return true;
+      const query = searchQuery.toLowerCase();
+      const matchGroupTitle = group.title.toLowerCase().includes(query);
+      const matchPerm = group.permissions.some(
+        p => p.label.toLowerCase().includes(query) || p.description.toLowerCase().includes(query)
+      );
+      return matchGroupTitle || matchPerm;
+    }).map(group => {
+      if (!searchQuery.trim()) return group;
+      const query = searchQuery.toLowerCase();
+      return {
+        ...group,
+        permissions: group.permissions.filter(
+          p => p.label.toLowerCase().includes(query) || 
+               p.description.toLowerCase().includes(query) ||
+               group.title.toLowerCase().includes(query)
+        )
+      };
+    });
+  }, [permissionGroups, activeTab, searchQuery]);
+
   const handleSave = async () => {
     if (!formData.name.trim()) {
       showMessage('error', 'Role name is required');
@@ -507,6 +615,7 @@ const RoleManagementPage = () => {
           </div>
           <div className="header-text">
             <h1>Role Management</h1>
+            <p className="header-subtitle">Configure granular access, permissions, and visibility rules across all CRM modules</p>
           </div>
         </div>
         <button className="add-role-btn" onClick={() => handleOpenModal()}>
@@ -528,35 +637,19 @@ const RoleManagementPage = () => {
               <h3>{role.name}</h3>
               {role.name === 'Admin' && <span className="system-badge">SYSTEM</span>}
             </div>
-            <p className="role-description">{role.description}</p>
+            <p className="role-description">{role.description || 'No description provided.'}</p>
             <div className="role-actions">
               <button 
                 className="action-btn edit-btn" 
                 onClick={() => handleOpenModal(role)}
-                style={{ 
-                  display: 'inline-flex', 
-                  alignItems: 'center', 
-                  gap: '6px',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
               >
                 <FaEdit size={14} />
-                Edit
+                Edit Role & Permissions
               </button>
               {role.name !== 'Admin' && (
                 <button 
                   className="action-btn delete-btn" 
                   onClick={() => handleDelete(role._id)}
-                  style={{ 
-                    display: 'inline-flex', 
-                    alignItems: 'center', 
-                    gap: '6px',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                  onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                 >
                   <FaTrash size={14} />
                   Delete
@@ -568,78 +661,213 @@ const RoleManagementPage = () => {
       </div>
 
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content large-modal">
-            <div className="modal-header">
-              <h2>{editingRole ? 'Edit Role' : 'Add New Role'}</h2>
+        <div className="modal-overlay role-editor-overlay">
+          <div className="modal-content large-modal role-editor-modal">
+            
+            {/* Modal Header */}
+            <div className="modal-header role-modal-header">
+              <div className="header-title-wrapper">
+                <div className="modal-header-badge">
+                  <FaShieldAlt />
+                </div>
+                <div>
+                  <h2>{editingRole ? `Edit Role: ${editingRole.name}` : 'Create New Access Role'}</h2>
+                  <p className="modal-header-desc">Customize granular page permissions, summary stats visibility, and action button controls</p>
+                </div>
+              </div>
               <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
             </div>
             
-            <div className="modal-body">
-              <div className="form-group">
-                <label>Role Name</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Enter role name"
-                />
-              </div>
+            {/* Modal Body */}
+            <div className="modal-body role-modal-body">
               
-              <div className="form-group">
-                <label>Description</label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Enter role description"
-                  rows="3"
-                />
+              {/* Form Details Card */}
+              <div className="role-details-card">
+                <div className="form-row">
+                  <div className="form-group flex-1">
+                    <label className="field-label">
+                      Role Name <span className="required-star">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      className="role-input"
+                      value={formData.name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="e.g. Treasurer, Regional Manager, Financial Auditor"
+                    />
+                  </div>
+                  
+                  <div className="form-group flex-2">
+                    <label className="field-label">Description</label>
+                    <input
+                      type="text"
+                      className="role-input"
+                      value={formData.description}
+                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="Brief description of responsibilities and permissions..."
+                    />
+                  </div>
+                </div>
+
+                {/* Preset Chips */}
+                <div className="preset-row">
+                  <span className="preset-label">Quick Actions:</span>
+                  <button type="button" className="preset-chip chip-enable" onClick={handleEnableAllGlobal}>
+                    <FaCheckDouble size={12} /> Enable All ({totalPermissionStats.total})
+                  </button>
+                  <button type="button" className="preset-chip chip-disable" onClick={handleDisableAllGlobal}>
+                    <FaTimesCircle size={12} /> Disable All
+                  </button>
+                  <button type="button" className="preset-chip chip-view" onClick={() => applyPreset('readonly')}>
+                    <FaEye size={12} /> Read-Only Preset
+                  </button>
+                </div>
               </div>
 
-              <div className="permissions-section">
-                <h3>Permissions</h3>
-                
-                {permissionGroups.map(group => (
-                  <div key={group.key} className="permission-group">
-                    <div className="group-header">
-                      <h4>{group.title}</h4>
-                      <button
-                        type="button"
-                        className="btn-select-all"
-                        onClick={() => handleSelectAllInGroup(group)}
-                      >
-                        Toggle All
-                      </button>
+              {/* Toolbar: Search, Stat Meter & Category Tabs */}
+              <div className="permissions-toolbar">
+                <div className="toolbar-top">
+                  <div className="search-box">
+                    <FaSearch className="search-icon" />
+                    <input
+                      type="text"
+                      placeholder="Search permissions (e.g. Client, Delete, Stats, Revenue)..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    {searchQuery && (
+                      <button className="clear-search-btn" onClick={() => setSearchQuery('')}>×</button>
+                    )}
+                  </div>
+
+                  {/* Access Meter Pill */}
+                  <div className="access-meter-pill">
+                    <div className="meter-info">
+                      <span className="meter-label">Active Permissions</span>
+                      <span className="meter-value">{totalPermissionStats.enabled} / {totalPermissionStats.total} ({totalPermissionStats.percentage}%)</span>
                     </div>
-                    
-                    <div className="permission-grid">
-                      {group.permissions.map(perm => (
-                        <label key={perm.key} className="checkbox-label">
-                          <input
-                            type="checkbox"
-                            checked={getPermissionValue(group.key, perm.key)}
-                            onChange={(e) => handlePermissionToggle(group.key, perm.key, e.target.checked)}
-                          />
-                          <span className="permission-icon">{getPermissionIcon(perm.iconKey)}</span>
-                          <div className="permission-details">
-                            <span className="permission-text">{perm.label}</span>
-                            <span className="permission-description">{perm.description}</span>
-                          </div>
-                        </label>
-                      ))}
+                    <div className="meter-bar-track">
+                      <div 
+                        className="meter-bar-fill" 
+                        style={{ width: `${totalPermissionStats.percentage}%` }}
+                      ></div>
                     </div>
                   </div>
-                ))}
+                </div>
+
+                {/* Category Navigation Tabs */}
+                <div className="permission-category-tabs">
+                  <button 
+                    type="button"
+                    className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('all')}
+                  >
+                    All Modules ({permissionGroups.length})
+                  </button>
+                  {permissionGroups.map(group => {
+                    const stats = getGroupStats(group);
+                    return (
+                      <button
+                        key={group.key}
+                        type="button"
+                        className={`tab-btn ${activeTab === group.key ? 'active' : ''}`}
+                        onClick={() => setActiveTab(group.key)}
+                      >
+                        {group.title.split(' ')[0]} 
+                        <span className={`tab-badge ${stats.enabled === stats.total ? 'badge-full' : stats.enabled > 0 ? 'badge-partial' : 'badge-none'}`}>
+                          {stats.enabled}/{stats.total}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Permissions Section */}
+              <div className="permissions-section">
+                {filteredPermissionGroups.length === 0 ? (
+                  <div className="no-permissions-found">
+                    <FaSearch size={32} />
+                    <p>No permissions match your search query "{searchQuery}"</p>
+                    <button className="btn-reset-search" onClick={() => setSearchQuery('')}>
+                      <FaUndo size={12} /> Clear Filter
+                    </button>
+                  </div>
+                ) : (
+                  filteredPermissionGroups.map(group => {
+                    const stats = getGroupStats(group);
+                    const isAllSelected = stats.enabled === stats.total;
+                    const isPartiallySelected = stats.enabled > 0 && stats.enabled < stats.total;
+
+                    return (
+                      <div key={group.key} className="permission-group-card">
+                        <div className="group-header">
+                          <div className="group-header-text">
+                            <h4>{group.title}</h4>
+                            <p className="group-desc">{group.description}</p>
+                          </div>
+                          <div className="group-header-actions">
+                            <span className="group-stats-badge">
+                              {stats.enabled} of {stats.total} enabled
+                            </span>
+                            <button
+                              type="button"
+                              className={`btn-select-all ${isAllSelected ? 'all-active' : isPartiallySelected ? 'partial-active' : ''}`}
+                              onClick={() => handleSelectAllInGroup(group)}
+                            >
+                              <FaCheckDouble size={12} />
+                              {isAllSelected ? 'Disable Group' : 'Toggle All'}
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div className="permission-grid">
+                          {group.permissions.map(perm => {
+                            const isChecked = getPermissionValue(group.key, perm.key);
+                            return (
+                              <label key={perm.key} className={`perm-card ${isChecked ? 'perm-card-active' : ''}`}>
+                                <div className="perm-card-left">
+                                  <span className={`perm-icon-wrapper ${isChecked ? 'icon-active' : ''}`}>
+                                    {getPermissionIcon(perm.iconKey)}
+                                  </span>
+                                  <div className="perm-details">
+                                    <span className="perm-title">{perm.label}</span>
+                                    <span className="perm-desc">{perm.description}</span>
+                                  </div>
+                                </div>
+                                <div className="perm-switch">
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={(e) => handlePermissionToggle(group.key, perm.key, e.target.checked)}
+                                  />
+                                  <span className="switch-slider"></span>
+                                </div>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
             
-            <div className="modal-footer">
-              <button className="btn-cancel" onClick={() => setShowModal(false)}>
-                Cancel
-              </button>
-              <button className="btn-submit" onClick={handleSave}>
-                {editingRole ? 'Update Role' : 'Create Role'}
-              </button>
+            {/* Modal Footer */}
+            <div className="modal-footer role-modal-footer">
+              <div className="footer-left-info">
+                <span>{totalPermissionStats.enabled} active rule{totalPermissionStats.enabled === 1 ? '' : 's'} configured</span>
+              </div>
+              <div className="footer-actions">
+                <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>
+                  Cancel
+                </button>
+                <button type="button" className="btn-submit" onClick={handleSave}>
+                  <FaCheck style={{ marginRight: '6px' }} />
+                  {editingRole ? 'Update Role & Save' : 'Create Role'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -649,3 +877,4 @@ const RoleManagementPage = () => {
 };
 
 export default RoleManagementPage;
+
