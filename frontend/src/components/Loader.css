@@ -5,21 +5,25 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: 99999;
   flex-direction: column;
-  animation: fadeIn 0.3s ease-in;
+  animation: fadeIn 0.25s ease-in-out;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
+    backdrop-filter: blur(0px);
   }
   to {
     opacity: 1;
+    backdrop-filter: blur(8px);
   }
 }
 
@@ -28,63 +32,49 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 30px;
+  gap: 20px;
+  background: #ffffff;
+  padding: 30px 45px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
-.modern-loader {
-  width: fit-content;
-  font-weight: bold;
-  font-family: monospace;
-  font-size: 30px;
-  color: #3b82f6;
-  clip-path: inset(0 100% 0 0);
-  animation: loader-reveal-large 2s steps(11) infinite;
+.modern-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3.5px solid rgba(59, 130, 246, 0.15);
+  border-top-color: #3b82f6;
+  border-right-color: #8b5cf6;
+  border-radius: 50%;
+  animation: spin 0.85s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
 }
 
-.modern-loader:before {
-  content: "Loading...";
-}
-
-@keyframes loader-reveal-large {
-  to { clip-path: inset(0 -1ch 0 0); }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loader-message {
-  color: #333333;
-  font-size: 18px;
-  font-weight: 500;
+  color: #1e293b;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
   text-align: center;
-  animation: pulse 2s ease-in-out infinite;
-  max-width: 80%;
-  line-height: 1.5;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 0.8;
-  }
-  50% {
-    opacity: 1;
-  }
+  letter-spacing: 0.2px;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .modern-loader {
-    font-size: 24px;
+  .loader-container {
+    padding: 24px 32px;
   }
-
-  .loader-message {
-    font-size: 16px;
+  .modern-spinner {
+    width: 36px;
+    height: 36px;
   }
-}
-
-@media (max-width: 480px) {
-  .modern-loader {
-    font-size: 18px;
-  }
-
   .loader-message {
     font-size: 14px;
   }
 }
+
