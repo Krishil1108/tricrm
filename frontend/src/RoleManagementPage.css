@@ -664,6 +664,52 @@
   color: #94a3b8;
 }
 
+.badge-disabled {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+/* Disabled Permission Group Card & Lock Warning */
+.permission-group-card.group-disabled {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  opacity: 0.75;
+}
+
+.group-disabled-warning {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  padding: 5px 12px;
+  border-radius: 8px;
+}
+
+.perm-card-disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  background: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.perm-card-disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  background: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+}
+
+.perm-card-disabled .switch-slider {
+  cursor: not-allowed !important;
+  background-color: #e2e8f0 !important;
+}
+
 /* Permission Group Card */
 .permission-group-card {
   background: #ffffff;

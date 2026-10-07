@@ -4,7 +4,7 @@ import {
   FaHome, FaUsers, FaHandshake, FaBriefcase, FaCog, FaUserShield, 
   FaEye, FaPlus, FaEdit, FaTrash, FaFolderOpen, FaFileExport, 
   FaFileImport, FaChartBar, FaKey, FaBuilding, FaShieldAlt, 
-  FaSearch, FaCheckDouble, FaTimesCircle, FaSlidersH, FaCheck, FaUndo
+  FaSearch, FaCheckDouble, FaTimesCircle, FaSlidersH, FaCheck, FaUndo, FaLock
 } from 'react-icons/fa';
 import Watermark from './components/Watermark';
 import './RoleManagementPage.css';
@@ -26,6 +26,40 @@ const RoleManagementPage = () => {
     description: '',
     permissions: {}
   });
+
+  // Map each permission group key to its controlling module key in `modules`
+  const groupModuleMap = useMemo(() => ({
+    home: 'home',
+    clients: 'clients',
+    client_projects: 'clients',
+    associates: 'associates',
+    associate_projects: 'associates',
+    finance: 'finance',
+    finance_dashboard: 'finance_dashboard',
+    expenses: 'expenses',
+    analytics: 'analytics',
+    settings: 'settings'
+  }), []);
+
+  // Map each module key in `modules` to child group keys
+  const moduleToGroupsMap = useMemo(() => ({
+    home: ['home'],
+    clients: ['clients', 'client_projects'],
+    associates: ['associates', 'associate_projects'],
+    finance: ['finance'],
+    finance_dashboard: ['finance_dashboard'],
+    expenses: ['expenses'],
+    analytics: ['analytics'],
+    settings: ['settings']
+  }), []);
+
+  // Check if a group's parent module is enabled in `modules`
+  const isGroupModuleEnabled = (groupKey) => {
+    if (groupKey === 'modules') return true;
+    const parentModuleKey = groupModuleMap[groupKey];
+    if (!parentModuleKey) return true;
+    return formData.permissions?.modules?.[parentModuleKey] !== false;
+  };
 
   // Icon mapping function
   const getPermissionIcon = (iconKey) => {
@@ -396,25 +430,60 @@ const RoleManagementPage = () => {
 
   // Get permission value from nested structure
   const getPermissionValue = (moduleKey, permissionKey) => {
+    if (moduleKey !== 'modules') {
+      if (!isGroupModuleEnabled(moduleKey)) return false;
+    }
     return formData.permissions?.[moduleKey]?.[permissionKey] || false;
   };
 
   // Handle permission toggle
   const handlePermissionToggle = (moduleKey, permissionKey, checked) => {
-    setFormData(prev => ({
-      ...prev,
-      permissions: {
-        ...prev.permissions,
-        [moduleKey]: {
-          ...prev.permissions[moduleKey],
-          [permissionKey]: checked
+    if (moduleKey === 'modules') {
+      const childGroupKeys = moduleToGroupsMap[permissionKey] || [];
+      setFormData(prev => {
+        const updatedPermissions = {
+          ...prev.permissions,
+          modules: {
+            ...prev.permissions.modules,
+            [permissionKey]: checked
+          }
+        };
+
+        if (!checked) {
+          // Disable all child group permissions when parent module access is turned off!
+          childGroupKeys.forEach(gKey => {
+            if (updatedPermissions[gKey]) {
+              const resetGroup = {};
+              Object.keys(updatedPermissions[gKey]).forEach(pKey => {
+                resetGroup[pKey] = false;
+              });
+              updatedPermissions[gKey] = resetGroup;
+            }
+          });
         }
-      }
-    }));
+        return { ...prev, permissions: updatedPermissions };
+      });
+    } else {
+      // Ignore toggling if parent module access is disabled
+      if (!isGroupModuleEnabled(moduleKey)) return;
+
+      setFormData(prev => ({
+        ...prev,
+        permissions: {
+          ...prev.permissions,
+          [moduleKey]: {
+            ...prev.permissions[moduleKey],
+            [permissionKey]: checked
+          }
+        }
+      }));
+    }
   };
 
   // Select all permissions in a group
   const handleSelectAllInGroup = (group) => {
+    if (!isGroupModuleEnabled(group.key)) return;
+
     const allChecked = group.permissions.every(perm => getPermissionValue(group.key, perm.key));
     
     setFormData(prev => ({
@@ -460,10 +529,10 @@ const RoleManagementPage = () => {
     } else if (presetType === 'readonly') {
       const newPerms = { ...formData.permissions };
       permissionGroups.forEach(group => {
+        const moduleEnabled = group.key === 'modules' || isGroupModuleEnabled(group.key);
         newPerms[group.key] = group.permissions.reduce((acc, perm) => {
-          // view permissions or view_amounts or viewStats
           const isView = perm.key.includes('view') || perm.key.includes('stats') || perm.key.includes('charts');
-          acc[perm.key] = isView;
+          acc[perm.key] = moduleEnabled ? isView : false;
           return acc;
         }, { ...newPerms[group.key] });
       });
@@ -478,7 +547,7 @@ const RoleManagementPage = () => {
     permissionGroups.forEach(group => {
       group.permissions.forEach(perm => {
         total++;
-        if (formData.permissions?.[group.key]?.[perm.key]) {
+        if (getPermissionValue(group.key, perm.key)) {
           enabled++;
         }
       });
@@ -489,12 +558,16 @@ const RoleManagementPage = () => {
   const getGroupStats = (group) => {
     let groupTotal = group.permissions.length;
     let groupEnabled = 0;
-    group.permissions.forEach(perm => {
-      if (formData.permissions?.[group.key]?.[perm.key]) {
-        groupEnabled++;
-      }
-    });
-    return { total: groupTotal, enabled: groupEnabled };
+    const isModuleEnabled = isGroupModuleEnabled(group.key);
+    
+    if (isModuleEnabled) {
+      group.permissions.forEach(perm => {
+        if (getPermissionValue(group.key, perm.key)) {
+          groupEnabled++;
+        }
+      });
+    }
+    return { total: groupTotal, enabled: groupEnabled, isModuleEnabled };
   };
 
   // Filter permission groups by active tab and search query
@@ -770,12 +843,12 @@ const RoleManagementPage = () => {
                       <button
                         key={group.key}
                         type="button"
-                        className={`tab-btn ${activeTab === group.key ? 'active' : ''}`}
+                        className={`tab-btn ${activeTab === group.key ? 'active' : ''} ${!stats.isModuleEnabled ? 'tab-disabled' : ''}`}
                         onClick={() => setActiveTab(group.key)}
                       >
                         {group.title.split(' ')[0]} 
-                        <span className={`tab-badge ${stats.enabled === stats.total ? 'badge-full' : stats.enabled > 0 ? 'badge-partial' : 'badge-none'}`}>
-                          {stats.enabled}/{stats.total}
+                        <span className={`tab-badge ${!stats.isModuleEnabled ? 'badge-disabled' : stats.enabled === stats.total ? 'badge-full' : stats.enabled > 0 ? 'badge-partial' : 'badge-none'}`}>
+                          {!stats.isModuleEnabled ? 'Locked' : `${stats.enabled}/${stats.total}`}
                         </span>
                       </button>
                     );
@@ -796,28 +869,37 @@ const RoleManagementPage = () => {
                 ) : (
                   filteredPermissionGroups.map(group => {
                     const stats = getGroupStats(group);
-                    const isAllSelected = stats.enabled === stats.total;
-                    const isPartiallySelected = stats.enabled > 0 && stats.enabled < stats.total;
+                    const isModuleEnabled = stats.isModuleEnabled;
+                    const isAllSelected = isModuleEnabled && stats.enabled === stats.total;
+                    const isPartiallySelected = isModuleEnabled && stats.enabled > 0 && stats.enabled < stats.total;
 
                     return (
-                      <div key={group.key} className="permission-group-card">
+                      <div key={group.key} className={`permission-group-card ${!isModuleEnabled ? 'group-disabled' : ''}`}>
                         <div className="group-header">
                           <div className="group-header-text">
                             <h4>{group.title}</h4>
                             <p className="group-desc">{group.description}</p>
                           </div>
                           <div className="group-header-actions">
-                            <span className="group-stats-badge">
-                              {stats.enabled} of {stats.total} enabled
-                            </span>
-                            <button
-                              type="button"
-                              className={`btn-select-all ${isAllSelected ? 'all-active' : isPartiallySelected ? 'partial-active' : ''}`}
-                              onClick={() => handleSelectAllInGroup(group)}
-                            >
-                              <FaCheckDouble size={12} />
-                              {isAllSelected ? 'Disable Group' : 'Toggle All'}
-                            </button>
+                            {!isModuleEnabled ? (
+                              <span className="group-disabled-warning">
+                                <FaLock size={11} /> Module Disabled in Navigation
+                              </span>
+                            ) : (
+                              <>
+                                <span className="group-stats-badge">
+                                  {stats.enabled} of {stats.total} enabled
+                                </span>
+                                <button
+                                  type="button"
+                                  className={`btn-select-all ${isAllSelected ? 'all-active' : isPartiallySelected ? 'partial-active' : ''}`}
+                                  onClick={() => handleSelectAllInGroup(group)}
+                                >
+                                  <FaCheckDouble size={12} />
+                                  {isAllSelected ? 'Disable Group' : 'Toggle All'}
+                                </button>
+                              </>
+                            )}
                           </div>
                         </div>
                         
@@ -825,7 +907,7 @@ const RoleManagementPage = () => {
                           {group.permissions.map(perm => {
                             const isChecked = getPermissionValue(group.key, perm.key);
                             return (
-                              <label key={perm.key} className={`perm-card ${isChecked ? 'perm-card-active' : ''}`}>
+                              <label key={perm.key} className={`perm-card ${isChecked ? 'perm-card-active' : ''} ${!isModuleEnabled ? 'perm-card-disabled' : ''}`}>
                                 <div className="perm-card-left">
                                   <span className={`perm-icon-wrapper ${isChecked ? 'icon-active' : ''}`}>
                                     {getPermissionIcon(perm.iconKey)}
@@ -839,6 +921,7 @@ const RoleManagementPage = () => {
                                   <input
                                     type="checkbox"
                                     checked={isChecked}
+                                    disabled={!isModuleEnabled}
                                     onChange={(e) => handlePermissionToggle(group.key, perm.key, e.target.checked)}
                                   />
                                   <span className="switch-slider"></span>
