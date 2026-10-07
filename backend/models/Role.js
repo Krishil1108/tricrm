@@ -5,7 +5,8 @@ const roleSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    trim: true
+    trim: true,
+    index: true
   },
   description: {
     type: String,
@@ -13,121 +14,21 @@ const roleSchema = new mongoose.Schema({
   },
   permissions: {
     type: mongoose.Schema.Types.Mixed,
-    default: {
-      modules: {
-        home: true,
-        clients: true,
-        associates: true,
-        finance: true,
-        finance_dashboard: true,
-        expenses: true,
-        analytics: true,
-        settings: true,
-        admin: false
-      },
-      home: {
-        view: true,
-        stats_cards: true,
-        view_amounts: true,
-        quick_actions: true
-      },
-      clients: {
-        view: true,
-        create: true,
-        edit: true,
-        delete: true,
-        duplicate: true,
-        export: true,
-        import: true,
-        view_details: true,
-        view_projects: true,
-        stats_cards: true,
-        view_amounts: true
-      },
-      client_projects: {
-        view: true,
-        create: true,
-        edit: true,
-        delete: true,
-        stats_cards: true,
-        view_amounts: true,
-        distribution_section: true
-      },
-      associates: {
-        view: true,
-        create: true,
-        edit: true,
-        delete: true,
-        export: true,
-        import: true,
-        view_projects: true,
-        stats_cards: true,
-        view_amounts: true
-      },
-      associate_projects: {
-        view: true,
-        create: true,
-        edit: true,
-        delete: true,
-        stats_cards: true,
-        view_amounts: true,
-        owner_view: true
-      },
-      finance: {
-        view: true,
-        create: true,
-        edit: true,
-        delete: true,
-        import: true,
-        export: true,
-        add_payment: true,
-        viewStats: true,
-        stats_cards: true,
-        view_amounts: true,
-        expense_distribution: true,
-        associate_distribution: true,
-        configure_percentages: true
-      },
-      finance_dashboard: {
-        view: true,
-        stats_cards: true,
-        view_amounts: true,
-        charts: true,
-        action_buttons: true
-      },
-      expenses: {
-        view: true,
-        create: true,
-        edit: true,
-        delete: true,
-        import: true,
-        export: true,
-        stats_cards: true,
-        view_amounts: true
-      },
-      analytics: {
-        view: true,
-        stats_cards: true,
-        view_amounts: true,
-        charts: true
-      },
-      settings: {
-        view: true,
-        viewCompanySettings: true,
-        editCompanySettings: true,
-        manageUsers: true,
-        manageRoles: true
-      }
-    }
+    default: {}
   },
-  
   isSystemRole: {
     type: Boolean,
-    default: false // System roles (like Admin) cannot be deleted
+    default: false,
+    index: true
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  strict: false
 });
+
+// Indexes for fast lookup
+roleSchema.index({ name: 1 });
+roleSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('Role', roleSchema);
 

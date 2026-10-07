@@ -53,4 +53,12 @@ const associateSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Indexes to speed up lookups, search, and sorting
+associateSchema.index({ name: 1 });
+associateSchema.index({ email: 1 });
+associateSchema.index({ status: 1 });
+associateSchema.index({ createdAt: -1 });
+associateSchema.index({ name: 'text', company: 'text', email: 'text' });
+
 module.exports = mongoose.model('Associate', associateSchema);
+

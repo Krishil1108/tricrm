@@ -336,4 +336,13 @@ financeProjectSchema.pre('findOneAndUpdate', function(next) {
 financeProjectSchema.set('toJSON', { virtuals: true });
 financeProjectSchema.set('toObject', { virtuals: true });
 
+// High-speed compound and lookup indexes
+financeProjectSchema.index({ clientId: 1, createdAt: -1 });
+financeProjectSchema.index({ 'projectAssociates.associateId': 1 });
+financeProjectSchema.index({ projectNumber: 1 });
+financeProjectSchema.index({ projectName: 1 });
+financeProjectSchema.index({ createdAt: -1 });
+financeProjectSchema.index({ projectName: 'text', projectNumber: 'text', projectLocation: 'text' });
+
 module.exports = mongoose.model('FinanceProject', financeProjectSchema);
+

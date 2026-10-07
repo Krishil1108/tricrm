@@ -4,23 +4,27 @@ const Client = require('../models/Client');
 const FinanceProject = require('../models/FinanceProject');
 const Activity = require('../models/Activity');
 
-// GET /api/clients - Get all clients with project counts
+// GET /api/clients - Get all clients with project counts (OPTIMIZED)
 router.get('/', async (req, res) => {
   try {
-    const clients = await Client.find({}).sort({ createdAt: -1 });
+    const [clients, projectCounts] = await Promise.all([
+      Client.find({}).sort({ createdAt: -1 }).lean(),
+      FinanceProject.aggregate([
+        { $match: { clientId: { $exists: true, $ne: null } } },
+        { $group: { _id: '$clientId', count: { $sum: 1 } } }
+      ])
+    ]);
     
-    // Get project counts for each client (counting projects where client is assigned)
-    const clientsWithCounts = await Promise.all(
-      clients.map(async (client) => {
-        const projectCount = await FinanceProject.countDocuments({ 
-          clientId: client._id 
-        });
-        return {
-          ...client.toObject(),
-          projectCount
-        };
-      })
-    );
+    // Fast O(1) hash map lookup instead of N round-trip queries
+    const countMap = new Map();
+    projectCounts.forEach(pc => {
+      if (pc._id) countMap.set(pc._id.toString(), pc.count);
+    });
+    
+    const clientsWithCounts = clients.map(client => ({
+      ...client,
+      projectCount: countMap.get(client._id.toString()) || 0
+    }));
     
     res.json({
       success: true,
@@ -34,6 +38,7 @@ router.get('/', async (req, res) => {
     });
   }
 });
+
 
 // POST /api/clients - Create a new client
 router.post('/', async (req, res) => {

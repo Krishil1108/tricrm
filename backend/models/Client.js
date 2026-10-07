@@ -57,7 +57,11 @@ const clientSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Indexes to speed up analytics queries on creation time
-clientSchema.index({ createdAt: 1 });
+// Indexes to speed up searches, filtering and analytics queries
+clientSchema.index({ name: 1 });
+clientSchema.index({ email: 1 });
+clientSchema.index({ status: 1 });
+clientSchema.index({ createdAt: -1 });
+clientSchema.index({ name: 'text', company: 'text', email: 'text' });
 
-module.exports = mongoose.model('Client', clientSchema);
+module.exports = mongoose.model('Client', clientSchema);

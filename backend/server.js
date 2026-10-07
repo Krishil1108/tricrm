@@ -308,7 +308,9 @@ app.get('/api/test', (req, res) => {
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-app.get('/api/system/stats', authenticate, async (req, res) => {
+const { cacheMiddleware } = require('./utils/cache');
+
+app.get('/api/system/stats', authenticate, cacheMiddleware(60, 'system_stats'), async (req, res) => {
   try {
     const Client = require('./models/Client');
     const Activity = require('./models/Activity');
@@ -359,8 +361,9 @@ app.get('/api/system/stats', authenticate, async (req, res) => {
   }
 });
 
-// Lightweight dashboard stats endpoint - OPTIMIZED for HomePage
-app.get('/api/dashboard-stats', authenticate, async (req, res) => {
+// Lightweight dashboard stats endpoint - OPTIMIZED for HomePage (cached for 30s)
+app.get('/api/dashboard-stats', authenticate, cacheMiddleware(30, 'dashboard_stats'), async (req, res) => {
+
   try {
     const Client = require('./models/Client');
     const Associate = require('./models/Associate');

@@ -4,23 +4,27 @@ const Associate = require('../models/Associate');
 const FinanceProject = require('../models/FinanceProject');
 const Activity = require('../models/Activity');
 
-// GET /api/associates - Get all associates with project counts
+// GET /api/associates - Get all associates with project counts (OPTIMIZED)
 router.get('/', async (req, res) => {
   try {
-    const associates = await Associate.find({}).sort({ createdAt: -1 });
+    const [associates, associateProjectCounts] = await Promise.all([
+      Associate.find({}).sort({ createdAt: -1 }).lean(),
+      FinanceProject.aggregate([
+        { $unwind: '$projectAssociates' },
+        { $group: { _id: '$projectAssociates.associateId', count: { $sum: 1 } } }
+      ])
+    ]);
     
-    // Get project counts for each associate (counting projects where associate appears in projectAssociates array)
-    const associatesWithCounts = await Promise.all(
-      associates.map(async (associate) => {
-        const projectCount = await FinanceProject.countDocuments({ 
-          'projectAssociates.associateId': associate._id 
-        });
-        return {
-          ...associate.toObject(),
-          projectCount
-        };
-      })
-    );
+    // Fast O(1) hash map lookup
+    const countMap = new Map();
+    associateProjectCounts.forEach(apc => {
+      if (apc._id) countMap.set(apc._id.toString(), apc.count);
+    });
+    
+    const associatesWithCounts = associates.map(associate => ({
+      ...associate,
+      projectCount: countMap.get(associate._id.toString()) || 0
+    }));
     
     res.json({
       success: true,
@@ -34,6 +38,7 @@ router.get('/', async (req, res) => {
     });
   }
 });
+
 
 // POST /api/associates - Create a new associate
 router.post('/', async (req, res) => {

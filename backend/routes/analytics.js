@@ -67,33 +67,31 @@ router.use((req, res, next) => {
   authenticate(req, res, next);
 });
 
-// Filter options endpoints
-router.get('/filter-options/clients', (req, res, next) => {
-  console.log('📊 [ANALYTICS] Clients filter options requested');
+const { cacheMiddleware } = require('../utils/cache');
+
+// Filter options endpoints (cached for 120s)
+router.get('/filter-options/clients', cacheMiddleware(120, 'analytics_filters'), (req, res, next) => {
   analyticsController.getClientOptions(req, res, next);
 });
 
-router.get('/filter-options/projects', (req, res, next) => {
-  console.log('📊 [ANALYTICS] Projects filter options requested');
+router.get('/filter-options/projects', cacheMiddleware(120, 'analytics_filters'), (req, res, next) => {
   analyticsController.getProjectOptions(req, res, next);
 });
 
-router.get('/filter-options/associates', (req, res, next) => {
-  console.log('📊 [ANALYTICS] Associates filter options requested');
+router.get('/filter-options/associates', cacheMiddleware(120, 'analytics_filters'), (req, res, next) => {
   analyticsController.getAssociateOptions(req, res, next);
 });
 
-// Main dashboard data endpoint
-router.get('/dashboard', (req, res, next) => {
-  console.log('📊 [ANALYTICS] Dashboard data requested with filters:', req.query);
+// Main dashboard data endpoint (cached for 30s)
+router.get('/dashboard', cacheMiddleware(30, 'analytics_dashboard'), (req, res, next) => {
   analyticsController.getDashboardData(req, res, next);
 });
 
-// Interactive chart endpoint
-router.get('/interactive-chart', (req, res, next) => {
-  console.log('📊 [ANALYTICS] Interactive chart requested with config:', req.query);
+// Interactive chart endpoint (cached for 30s)
+router.get('/interactive-chart', cacheMiddleware(30, 'analytics_chart'), (req, res, next) => {
   analyticsController.getInteractiveChart(req, res, next);
 });
+
 
 // Clients by creation date (flexible grouping)
 router.get('/clients/monthly', (req, res, next) => {

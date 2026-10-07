@@ -155,7 +155,15 @@ expenseSchema.virtual('quarter').get(function() {
 expenseSchema.set('toJSON', { virtuals: true });
 expenseSchema.set('toObject', { virtuals: true });
 
+// High-speed analytical and lookup indexes
+expenseSchema.index({ date: -1, category: 1 });
+expenseSchema.index({ firm: 1, date: -1 });
+expenseSchema.index({ projectId: 1, date: -1 });
+expenseSchema.index({ createdAt: -1 });
+expenseSchema.index({ title: 'text', description: 'text' });
+
 // Static method for aggregated analytics
+
 expenseSchema.statics.getAnalytics = async function(filters = {}) {
   const matchStage = {};
   

@@ -59,7 +59,8 @@ router.get('/projects', authenticate, async (req, res) => {
     
     const projects = await FinanceProject.find(query)
       .sort({ [sortBy]: sortOrder })
-      .populate('createdBy', 'username email');
+      .populate('createdBy', 'username email')
+      .lean();
     
     res.sendSuccess(projects, 'Projects fetched successfully');
   } catch (error) {
@@ -72,7 +73,8 @@ router.get('/projects', authenticate, async (req, res) => {
 router.get('/projects/:id', authenticate, async (req, res) => {
   try {
     const project = await FinanceProject.findById(req.params.id)
-      .populate('createdBy', 'username email');
+      .populate('createdBy', 'username email')
+      .lean();
     
     if (!project) {
       return res.status(404).json({ message: 'Project not found' });
@@ -114,7 +116,8 @@ router.get('/clients/:clientId/projects', authenticate, async (req, res) => {
     const projects = await FinanceProject.find(query)
       .sort(sort)
       .populate('createdBy', 'username email')
-      .populate('projectAssociates.associateId', 'name company');
+      .populate('projectAssociates.associateId', 'name company')
+      .lean();
     
     res.json({
       success: true,
@@ -161,7 +164,9 @@ router.get('/projects/associate/:associateId', authenticate, async (req, res) =>
     
     const projects = await FinanceProject.find(query)
       .sort(sort)
-      .populate('createdBy', 'username email');
+      .populate('createdBy', 'username email')
+      .lean();
+
     
     res.json({
       success: true,

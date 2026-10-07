@@ -5,6 +5,8 @@ const Role = require('../models/Role');
 const User = require('../models/User');
 const { authenticate, isAdmin } = require('../middleware/auth');
 
+const { cacheMiddleware, globalCache } = require('../utils/cache');
+
 // All role routes require authentication and admin privileges
 router.use(authenticate);
 router.use(isAdmin);
@@ -12,13 +14,9 @@ router.use(isAdmin);
 // @route   GET /api/roles
 // @desc    Get all roles
 // @access  Private (Admin only)
-router.get('/', async (req, res) => {
+router.get('/', cacheMiddleware(60, 'roles'), async (req, res) => {
   try {
-    const roles = await Role.find().sort({ name: 1 });
-    console.log('Fetching roles - found:', roles.length);
-    roles.forEach(role => {
-      console.log(`Role: ${role.name}, add_payment: ${role.permissions.finance.add_payment}`);
-    });
+    const roles = await Role.find().sort({ name: 1 }).lean();
     res.json({ 
       success: true, 
       roles 
@@ -38,7 +36,7 @@ router.get('/', async (req, res) => {
 // @access  Private (Admin only)
 router.get('/:id', async (req, res) => {
   try {
-    const role = await Role.findById(req.params.id);
+    const role = await Role.findById(req.params.id).lean();
     
     if (!role) {
       return res.status(404).json({ 
@@ -60,6 +58,7 @@ router.get('/:id', async (req, res) => {
     });
   }
 });
+
 
 // @route   POST /api/roles
 // @desc    Create new role
@@ -98,11 +97,14 @@ router.post('/', [
 
     await role.save();
 
+    globalCache.invalidatePrefix('roles');
+
     res.status(201).json({ 
       success: true, 
       message: 'Role created successfully', 
       role 
     });
+
   } catch (error) {
     console.error('Create role error:', error);
     res.status(500).json({ 
@@ -171,6 +173,8 @@ router.put('/:id', [
 
     await role.save();
 
+    globalCache.invalidatePrefix('roles');
+
     res.json({ 
       success: true, 
       message: 'Role updated successfully', 
@@ -219,10 +223,13 @@ router.delete('/:id', async (req, res) => {
 
     await Role.findByIdAndDelete(req.params.id);
 
+    globalCache.invalidatePrefix('roles');
+
     res.json({ 
       success: true, 
       message: 'Role deleted successfully' 
     });
+
   } catch (error) {
     console.error('Delete role error:', error);
     res.status(500).json({ 
