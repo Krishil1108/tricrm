@@ -1,5 +1,6 @@
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
+import clientCache from '../utils/clientCache';
 
 const API_URL = API_BASE_URL;
 
@@ -33,25 +34,38 @@ const normalizeResponse = (response) => {
   };
 };
 
+const invalidateExpenseCache = () => {
+  clientCache.invalidate('expense');
+  clientCache.invalidate('dashboard-stats');
+  clientCache.invalidate('finance');
+};
+
 const ExpenseService = {
   // ==================== EXPENSE CATEGORY METHODS ====================
   
   // Get all categories
-  getCategories: async (includeInactive = false) => {
+  getCategories: async (includeInactive = false, options = {}) => {
     log('CATEGORIES', 'Fetching categories...', { includeInactive });
-    try {
-      const response = await axios.get(`${API_URL}/expenses/categories`, {
-        headers: getAuthHeader(),
-        params: { includeInactive }
-      });
-      log('CATEGORIES', 'Raw response:', response);
-      log('CATEGORIES', 'Response data:', response.data);
-      return normalizeResponse(response);
-    } catch (error) {
-      log('CATEGORIES', 'Error:', error.response?.data || error.message);
-      console.error('Error fetching categories:', error);
-      throw error;
-    }
+    const key = `expense_categories_${includeInactive}`;
+    return clientCache.fetchWithCache(
+      key,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/expenses/categories`, {
+            headers: getAuthHeader(),
+            params: { includeInactive }
+          });
+          log('CATEGORIES', 'Raw response:', response);
+          log('CATEGORIES', 'Response data:', response.data);
+          return normalizeResponse(response);
+        } catch (error) {
+          log('CATEGORIES', 'Error:', error.response?.data || error.message);
+          console.error('Error fetching categories:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // Create custom category
@@ -62,6 +76,7 @@ const ExpenseService = {
         headers: getAuthHeader()
       });
       log('CATEGORIES', 'Create response:', response.data);
+      invalidateExpenseCache();
       return normalizeResponse(response);
     } catch (error) {
       log('CATEGORIES', 'Create error:', error.response?.data || error.message);
@@ -76,6 +91,7 @@ const ExpenseService = {
       const response = await axios.put(`${API_URL}/expenses/categories/${id}`, categoryData, {
         headers: getAuthHeader()
       });
+      invalidateExpenseCache();
       return normalizeResponse(response);
     } catch (error) {
       console.error('Error updating category:', error);
@@ -89,6 +105,7 @@ const ExpenseService = {
       const response = await axios.delete(`${API_URL}/expenses/categories/${id}`, {
         headers: getAuthHeader()
       });
+      invalidateExpenseCache();
       return normalizeResponse(response);
     } catch (error) {
       console.error('Error deleting category:', error);
@@ -99,37 +116,50 @@ const ExpenseService = {
   // ==================== FIRM METHODS ====================
   
   // Get all firms
-  getFirms: async (params = {}) => {
+  getFirms: async (params = {}, options = {}) => {
     log('FIRMS', 'Fetching firms...', params);
-    try {
-      const response = await axios.get(`${API_URL}/expenses/firms`, {
-        headers: getAuthHeader(),
-        params
-      });
-      log('FIRMS', 'Raw response:', response);
-      log('FIRMS', 'Response data:', response.data);
-      return normalizeResponse(response);
-    } catch (error) {
-      log('FIRMS', 'Error:', error.response?.data || error.message);
-      console.error('Error fetching firms:', error);
-      throw error;
-    }
+    const key = clientCache.generateKey('expense_firms', params);
+    return clientCache.fetchWithCache(
+      key,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/expenses/firms`, {
+            headers: getAuthHeader(),
+            params
+          });
+          log('FIRMS', 'Raw response:', response);
+          log('FIRMS', 'Response data:', response.data);
+          return normalizeResponse(response);
+        } catch (error) {
+          log('FIRMS', 'Error:', error.response?.data || error.message);
+          console.error('Error fetching firms:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // Get single firm
-  getFirm: async (id) => {
+  getFirm: async (id, options = {}) => {
     log('FIRMS', 'Fetching single firm...', { id });
-    try {
-      const response = await axios.get(`${API_URL}/expenses/firms/${id}`, {
-        headers: getAuthHeader()
-      });
-      log('FIRMS', 'Single firm response:', response.data);
-      return normalizeResponse(response);
-    } catch (error) {
-      log('FIRMS', 'Error fetching firm:', error.response?.data || error.message);
-      console.error('Error fetching firm:', error);
-      throw error;
-    }
+    return clientCache.fetchWithCache(
+      `expense_firm_${id}`,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/expenses/firms/${id}`, {
+            headers: getAuthHeader()
+          });
+          log('FIRMS', 'Single firm response:', response.data);
+          return normalizeResponse(response);
+        } catch (error) {
+          log('FIRMS', 'Error fetching firm:', error.response?.data || error.message);
+          console.error('Error fetching firm:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // Create firm
@@ -140,6 +170,7 @@ const ExpenseService = {
         headers: getAuthHeader()
       });
       log('FIRMS', 'Create firm response:', response.data);
+      invalidateExpenseCache();
       return normalizeResponse(response);
     } catch (error) {
       log('FIRMS', 'Create firm error:', error.response?.data || error.message);
@@ -156,6 +187,7 @@ const ExpenseService = {
         headers: getAuthHeader()
       });
       log('FIRMS', 'Update firm response:', response.data);
+      invalidateExpenseCache();
       return normalizeResponse(response);
     } catch (error) {
       log('FIRMS', 'Update firm error:', error.response?.data || error.message);
@@ -170,6 +202,7 @@ const ExpenseService = {
       const response = await axios.delete(`${API_URL}/expenses/firms/${id}`, {
         headers: getAuthHeader()
       });
+      invalidateExpenseCache();
       return normalizeResponse(response);
     } catch (error) {
       console.error('Error deleting firm:', error);
@@ -183,6 +216,7 @@ const ExpenseService = {
       const response = await axios.post(`${API_URL}/expenses/firms/${firmId}/bank-accounts`, accountData, {
         headers: getAuthHeader()
       });
+      invalidateExpenseCache();
       return normalizeResponse(response);
     } catch (error) {
       console.error('Error adding bank account:', error);
@@ -196,6 +230,7 @@ const ExpenseService = {
       const response = await axios.put(`${API_URL}/expenses/firms/${firmId}/bank-accounts/${accountId}`, accountData, {
         headers: getAuthHeader()
       });
+      invalidateExpenseCache();
       return normalizeResponse(response);
     } catch (error) {
       console.error('Error updating bank account:', error);
@@ -209,6 +244,7 @@ const ExpenseService = {
       const response = await axios.delete(`${API_URL}/expenses/firms/${firmId}/bank-accounts/${accountId}`, {
         headers: getAuthHeader()
       });
+      invalidateExpenseCache();
       return normalizeResponse(response);
     } catch (error) {
       console.error('Error deleting bank account:', error);
@@ -219,37 +255,50 @@ const ExpenseService = {
   // ==================== EXPENSE METHODS ====================
   
   // Get all expenses with filters
-  getExpenses: async (filters = {}) => {
+  getExpenses: async (filters = {}, options = {}) => {
     log('EXPENSES', 'Fetching expenses with filters:', filters);
-    try {
-      const response = await axios.get(`${API_URL}/expenses`, {
-        headers: getAuthHeader(),
-        params: filters
-      });
-      log('EXPENSES', 'Raw response:', response);
-      log('EXPENSES', 'Response data:', response.data);
-      const normalized = normalizeResponse(response);
-      log('EXPENSES', 'Normalized response:', normalized);
-      log('EXPENSES', `Found ${normalized.data?.expenses?.length || 0} expenses`);
-      return normalized;
-    } catch (error) {
-      log('EXPENSES', 'Error fetching expenses:', error.response?.data || error.message);
-      console.error('Error fetching expenses:', error);
-      throw error;
-    }
+    const key = clientCache.generateKey('expense_list', filters);
+    return clientCache.fetchWithCache(
+      key,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/expenses`, {
+            headers: getAuthHeader(),
+            params: filters
+          });
+          log('EXPENSES', 'Raw response:', response);
+          log('EXPENSES', 'Response data:', response.data);
+          const normalized = normalizeResponse(response);
+          log('EXPENSES', 'Normalized response:', normalized);
+          log('EXPENSES', `Found ${normalized.data?.expenses?.length || 0} expenses`);
+          return normalized;
+        } catch (error) {
+          log('EXPENSES', 'Error fetching expenses:', error.response?.data || error.message);
+          console.error('Error fetching expenses:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // Get single expense
-  getExpense: async (id) => {
-    try {
-      const response = await axios.get(`${API_URL}/expenses/${id}`, {
-        headers: getAuthHeader()
-      });
-      return normalizeResponse(response);
-    } catch (error) {
-      console.error('Error fetching expense:', error);
-      throw error;
-    }
+  getExpense: async (id, options = {}) => {
+    return clientCache.fetchWithCache(
+      `expense_item_${id}`,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/expenses/${id}`, {
+            headers: getAuthHeader()
+          });
+          return normalizeResponse(response);
+        } catch (error) {
+          console.error('Error fetching expense:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // Create expense
@@ -292,6 +341,7 @@ const ExpenseService = {
         }
       });
       log('EXPENSES', 'Create response:', response.data);
+      invalidateExpenseCache();
       return normalizeResponse(response);
     } catch (error) {
       log('EXPENSES', 'Error creating expense:', error.response?.data || error.message);
@@ -325,6 +375,7 @@ const ExpenseService = {
           'Content-Type': 'multipart/form-data'
         }
       });
+      invalidateExpenseCache();
       return normalizeResponse(response);
     } catch (error) {
       console.error('Error updating expense:', error);
@@ -338,6 +389,7 @@ const ExpenseService = {
       const response = await axios.delete(`${API_URL}/expenses/${id}`, {
         headers: getAuthHeader()
       });
+      invalidateExpenseCache();
       return normalizeResponse(response);
     } catch (error) {
       console.error('Error deleting expense:', error);
@@ -351,6 +403,7 @@ const ExpenseService = {
       const response = await axios.delete(`${API_URL}/expenses/${expenseId}/attachments/${attachmentId}`, {
         headers: getAuthHeader()
       });
+      invalidateExpenseCache();
       return normalizeResponse(response);
     } catch (error) {
       console.error('Error removing attachment:', error);
@@ -361,59 +414,85 @@ const ExpenseService = {
   // ==================== ANALYTICS METHODS ====================
   
   // Get expense analytics summary
-  getAnalyticsSummary: async (filters = {}) => {
-    try {
-      const response = await axios.get(`${API_URL}/expenses/analytics/summary`, {
-        headers: getAuthHeader(),
-        params: filters
-      });
-      return normalizeResponse(response);
-    } catch (error) {
-      console.error('Error fetching analytics summary:', error);
-      throw error;
-    }
+  getAnalyticsSummary: async (filters = {}, options = {}) => {
+    const key = clientCache.generateKey('expense_analytics_summary', filters);
+    return clientCache.fetchWithCache(
+      key,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/expenses/analytics/summary`, {
+            headers: getAuthHeader(),
+            params: filters
+          });
+          return normalizeResponse(response);
+        } catch (error) {
+          console.error('Error fetching analytics summary:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // Get expense trends
-  getTrends: async (params = {}) => {
-    try {
-      const response = await axios.get(`${API_URL}/expenses/analytics/trends`, {
-        headers: getAuthHeader(),
-        params
-      });
-      return normalizeResponse(response);
-    } catch (error) {
-      console.error('Error fetching trends:', error);
-      throw error;
-    }
+  getTrends: async (params = {}, options = {}) => {
+    const key = clientCache.generateKey('expense_trends', params);
+    return clientCache.fetchWithCache(
+      key,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/expenses/analytics/trends`, {
+            headers: getAuthHeader(),
+            params
+          });
+          return normalizeResponse(response);
+        } catch (error) {
+          console.error('Error fetching trends:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // Get year-over-year comparison
-  getComparison: async (years = 3) => {
-    try {
-      const response = await axios.get(`${API_URL}/expenses/analytics/comparison`, {
-        headers: getAuthHeader(),
-        params: { years }
-      });
-      return normalizeResponse(response);
-    } catch (error) {
-      console.error('Error fetching comparison:', error);
-      throw error;
-    }
+  getComparison: async (years = 3, options = {}) => {
+    return clientCache.fetchWithCache(
+      `expense_comparison_${years}`,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/expenses/analytics/comparison`, {
+            headers: getAuthHeader(),
+            params: { years }
+          });
+          return normalizeResponse(response);
+        } catch (error) {
+          console.error('Error fetching comparison:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // Get fiscal year summary
-  getFiscalYearSummary: async (fy) => {
-    try {
-      const response = await axios.get(`${API_URL}/expenses/analytics/fiscal-year`, {
-        headers: getAuthHeader(),
-        params: { fy }
-      });
-      return normalizeResponse(response);
-    } catch (error) {
-      console.error('Error fetching fiscal year summary:', error);
-      throw error;
-    }
+  getFiscalYearSummary: async (fy, options = {}) => {
+    return clientCache.fetchWithCache(
+      `expense_fy_${fy}`,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/expenses/analytics/fiscal-year`, {
+            headers: getAuthHeader(),
+            params: { fy }
+          });
+          return normalizeResponse(response);
+        } catch (error) {
+          console.error('Error fetching fiscal year summary:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // ==================== UTILITY METHODS ====================

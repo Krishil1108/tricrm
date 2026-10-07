@@ -8,6 +8,7 @@ import ActivitySection from './components/ActivitySection';
 import Watermark from './components/Watermark';
 import axios from 'axios';
 import API_BASE_URL from './config/api';
+import clientCache from './utils/clientCache';
 import './CRMDashboard.css';
 
 const HomePage = () => {
@@ -21,12 +22,18 @@ const HomePage = () => {
   const [searchResults, setSearchResults] = useState({ clients: [], projects: [], associates: [] });
   const [isSearching, setIsSearching] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
-  const [stats, setStats] = useState({
-    totalProjects: 0,
-    totalClients: 0,
-    totalAssociates: 0,
-    totalExpenses: 0,
-    loading: true
+  const [stats, setStats] = useState(() => {
+    const cached = clientCache.get('home_dashboard_stats');
+    if (cached) {
+      return { ...cached, loading: false };
+    }
+    return {
+      totalProjects: 0,
+      totalClients: 0,
+      totalAssociates: 0,
+      totalExpenses: 0,
+      loading: true
+    };
   });
 
   const handleDateSelect = (date) => {
@@ -44,18 +51,25 @@ const HomePage = () => {
       try {
         const token = localStorage.getItem('token');
         
-        // Use optimized dashboard-stats endpoint - one call instead of four!
-        const response = await axios.get(`${API_BASE_URL}/dashboard-stats`, {
-          headers: { Authorization: `Bearer ${token}` }
+        // Use clientCache with SWR
+        const data = await clientCache.fetchWithCache('home_dashboard_stats', async () => {
+          const response = await axios.get(`${API_BASE_URL}/dashboard-stats`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          return {
+            totalProjects: response.data.data.totalProjects || 0,
+            totalClients: response.data.data.totalClients || 0,
+            totalAssociates: response.data.data.totalAssociates || 0,
+            totalExpenses: response.data.data.totalExpenses || 0
+          };
         });
 
-        setStats({
-          totalProjects: response.data.data.totalProjects || 0,
-          totalClients: response.data.data.totalClients || 0,
-          totalAssociates: response.data.data.totalAssociates || 0,
-          totalExpenses: response.data.data.totalExpenses || 0,
-          loading: false
-        });
+        if (data) {
+          setStats({
+            ...data,
+            loading: false
+          });
+        }
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
         setStats(prev => ({ ...prev, loading: false }));

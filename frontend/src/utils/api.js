@@ -1,5 +1,5 @@
-// API utility for handling authenticated requests
 import API_BASE_URL_CONFIG from '../config/api';
+import clientCache from './clientCache';
 
 const API_BASE_URL = API_BASE_URL_CONFIG;
 
@@ -55,23 +55,62 @@ export const apiCall = async (endpoint, options = {}) => {
   }
 };
 
-// Specific API methods for common operations
+// Invalidate relevant cache based on endpoint
+const invalidateRelatedCache = (endpoint) => {
+  if (endpoint.includes('/clients')) {
+    clientCache.invalidate('client');
+  } else if (endpoint.includes('/associates')) {
+    clientCache.invalidate('associate');
+  } else if (endpoint.includes('/projects') || endpoint.includes('/finance')) {
+    clientCache.invalidate('finance');
+    clientCache.invalidate('project');
+  } else if (endpoint.includes('/expenses')) {
+    clientCache.invalidate('expense');
+  } else {
+    clientCache.invalidate();
+  }
+  clientCache.invalidate('dashboard-stats');
+};
 
+// Specific API methods for common operations with client caching
 export const api = {
-  // GET request
-  get: (endpoint) => apiCall(endpoint, { method: 'GET' }),
+  // GET request with stale-while-revalidate caching
+  get: (endpoint, options = {}) => {
+    return clientCache.fetchWithCache(
+      `api_get:${endpoint}`,
+      () => apiCall(endpoint, { method: 'GET' }),
+      options
+    );
+  },
 
   // POST request
-  post: (endpoint, data) => apiCall(endpoint, { method: 'POST', body: data }),
+  post: async (endpoint, data) => {
+    const res = await apiCall(endpoint, { method: 'POST', body: data });
+    invalidateRelatedCache(endpoint);
+    return res;
+  },
 
   // PUT request
-  put: (endpoint, data) => apiCall(endpoint, { method: 'PUT', body: data }),
+  put: async (endpoint, data) => {
+    const res = await apiCall(endpoint, { method: 'PUT', body: data });
+    invalidateRelatedCache(endpoint);
+    return res;
+  },
 
   // DELETE request
-  delete: (endpoint) => apiCall(endpoint, { method: 'DELETE' }),
+  delete: async (endpoint) => {
+    const res = await apiCall(endpoint, { method: 'DELETE' });
+    invalidateRelatedCache(endpoint);
+    return res;
+  },
 
   // PATCH request
-  patch: (endpoint, data) => apiCall(endpoint, { method: 'PATCH', body: data })
+  patch: async (endpoint, data) => {
+    const res = await apiCall(endpoint, { method: 'PATCH', body: data });
+    invalidateRelatedCache(endpoint);
+    return res;
+  }
 };
 
 export default api;
+

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
+import clientCache from '../utils/clientCache';
 
 const API_URL = API_BASE_URL;
 
@@ -9,62 +10,95 @@ const getAuthHeader = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+const invalidateFinanceCache = () => {
+  clientCache.invalidate('finance');
+  clientCache.invalidate('project');
+  clientCache.invalidate('dashboard-stats');
+};
+
 const FinanceService = {
   // ==================== PROJECT METHODS ====================
   
   // Get all projects
-  getAllProjects: async (filters = {}) => {
-    try {
-      const response = await axios.get(`${API_URL}/finance/projects`, {
-        headers: getAuthHeader(),
-        params: filters
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching projects:', error);
-      throw error;
-    }
+  getAllProjects: async (filters = {}, options = {}) => {
+    const key = clientCache.generateKey('finance_projects', filters);
+    return clientCache.fetchWithCache(
+      key,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/finance/projects`, {
+            headers: getAuthHeader(),
+            params: filters
+          });
+          return response.data;
+        } catch (error) {
+          console.error('Error fetching projects:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // Get single project
-  getProject: async (id) => {
-    try {
-      const response = await axios.get(`${API_URL}/finance/projects/${id}`, {
-        headers: getAuthHeader()
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching project:', error);
-      throw error;
-    }
+  getProject: async (id, options = {}) => {
+    return clientCache.fetchWithCache(
+      `finance_project_${id}`,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/finance/projects/${id}`, {
+            headers: getAuthHeader()
+          });
+          return response.data;
+        } catch (error) {
+          console.error('Error fetching project:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // Get projects by client ID
-  getProjectsByClient: async (clientId, filters = {}) => {
-    try {
-      const response = await axios.get(`${API_URL}/finance/clients/${clientId}/projects`, {
-        headers: getAuthHeader(),
-        params: filters
-      });
-      return response.data.data || response.data;
-    } catch (error) {
-      console.error('Error fetching client projects:', error);
-      throw error;
-    }
+  getProjectsByClient: async (clientId, filters = {}, options = {}) => {
+    const key = clientCache.generateKey(`finance_client_${clientId}_projects`, filters);
+    return clientCache.fetchWithCache(
+      key,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/finance/clients/${clientId}/projects`, {
+            headers: getAuthHeader(),
+            params: filters
+          });
+          return response.data.data || response.data;
+        } catch (error) {
+          console.error('Error fetching client projects:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // Get projects by associate ID
-  getProjectsByAssociate: async (associateId, filters = {}) => {
-    try {
-      const response = await axios.get(`${API_URL}/finance/projects/associate/${associateId}`, {
-        headers: getAuthHeader(),
-        params: filters
-      });
-      return response.data.data || response.data;
-    } catch (error) {
-      console.error('Error fetching associate projects:', error);
-      throw error;
-    }
+  getProjectsByAssociate: async (associateId, filters = {}, options = {}) => {
+    const key = clientCache.generateKey(`finance_associate_${associateId}_projects`, filters);
+    return clientCache.fetchWithCache(
+      key,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/finance/projects/associate/${associateId}`, {
+            headers: getAuthHeader(),
+            params: filters
+          });
+          return response.data.data || response.data;
+        } catch (error) {
+          console.error('Error fetching associate projects:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // Create project
@@ -73,6 +107,7 @@ const FinanceService = {
       const response = await axios.post(`${API_URL}/finance/projects`, projectData, {
         headers: getAuthHeader()
       });
+      invalidateFinanceCache();
       return response.data;
     } catch (error) {
       console.error('Error creating project:', error);
@@ -86,6 +121,7 @@ const FinanceService = {
       const response = await axios.put(`${API_URL}/finance/projects/${id}`, projectData, {
         headers: getAuthHeader()
       });
+      invalidateFinanceCache();
       return response.data;
     } catch (error) {
       console.error('Error updating project:', error);
@@ -99,6 +135,7 @@ const FinanceService = {
       const response = await axios.delete(`${API_URL}/finance/projects/${id}`, {
         headers: getAuthHeader()
       });
+      invalidateFinanceCache();
       return response.data;
     } catch (error) {
       console.error('Error deleting project:', error);
@@ -112,6 +149,7 @@ const FinanceService = {
       const response = await axios.delete(`${API_URL}/finance/clients/${clientId}/projects/${projectId}`, {
         headers: getAuthHeader()
       });
+      invalidateFinanceCache();
       return response.data;
     } catch (error) {
       console.error('Error removing project from client:', error);
@@ -122,17 +160,24 @@ const FinanceService = {
   // ==================== EXPENSE METHODS ====================
   
   // Get all expenses
-  getAllExpenses: async (filters = {}) => {
-    try {
-      const response = await axios.get(`${API_URL}/finance/expenses`, {
-        headers: getAuthHeader(),
-        params: filters
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching expenses:', error);
-      throw error;
-    }
+  getAllExpenses: async (filters = {}, options = {}) => {
+    const key = clientCache.generateKey('finance_expenses', filters);
+    return clientCache.fetchWithCache(
+      key,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/finance/expenses`, {
+            headers: getAuthHeader(),
+            params: filters
+          });
+          return response.data;
+        } catch (error) {
+          console.error('Error fetching expenses:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // Create/Update expense
@@ -141,6 +186,8 @@ const FinanceService = {
       const response = await axios.post(`${API_URL}/finance/expenses`, expenseData, {
         headers: getAuthHeader()
       });
+      clientCache.invalidate('expense');
+      clientCache.invalidate('dashboard-stats');
       return response.data;
     } catch (error) {
       console.error('Error saving expense:', error);
@@ -154,6 +201,8 @@ const FinanceService = {
       const response = await axios.delete(`${API_URL}/finance/expenses/${id}`, {
         headers: getAuthHeader()
       });
+      clientCache.invalidate('expense');
+      clientCache.invalidate('dashboard-stats');
       return response.data;
     } catch (error) {
       console.error('Error deleting expense:', error);
@@ -164,17 +213,24 @@ const FinanceService = {
   // ==================== ANALYTICS METHODS ====================
   
   // Get finance statistics
-  getStats: async (filters = {}) => {
-    try {
-      const response = await axios.get(`${API_URL}/finance/stats`, {
-        headers: getAuthHeader(),
-        params: filters
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-      throw error;
-    }
+  getStats: async (filters = {}, options = {}) => {
+    const key = clientCache.generateKey('finance_stats', filters);
+    return clientCache.fetchWithCache(
+      key,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/finance/stats`, {
+            headers: getAuthHeader(),
+            params: filters
+          });
+          return response.data;
+        } catch (error) {
+          console.error('Error fetching stats:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // ==================== IMPORT/EXPORT METHODS ====================
@@ -191,6 +247,7 @@ const FinanceService = {
           'Content-Type': 'multipart/form-data'
         }
       });
+      invalidateFinanceCache();
       return response.data;
     } catch (error) {
       console.error('Error importing projects:', error);
@@ -256,6 +313,7 @@ const FinanceService = {
       const response = await axios.post(`${API_URL}/finance/projects/associate-payment`, paymentData, {
         headers: getAuthHeader()
       });
+      invalidateFinanceCache();
       return response.data;
     } catch (error) {
       console.error('Error adding associate payment transaction:', error);
@@ -264,16 +322,22 @@ const FinanceService = {
   },
 
   // Get payment transactions for an associate in a project
-  getAssociatePaymentTransactions: async (projectId, associateId) => {
-    try {
-      const response = await axios.get(`${API_URL}/finance/projects/${projectId}/associate/${associateId}/payments`, {
-        headers: getAuthHeader()
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching associate payment transactions:', error);
-      throw error;
-    }
+  getAssociatePaymentTransactions: async (projectId, associateId, options = {}) => {
+    return clientCache.fetchWithCache(
+      `associate_payments_${projectId}_${associateId}`,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/finance/projects/${projectId}/associate/${associateId}/payments`, {
+            headers: getAuthHeader()
+          });
+          return response.data;
+        } catch (error) {
+          console.error('Error fetching associate payment transactions:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // Update payment transaction for an associate
@@ -282,6 +346,7 @@ const FinanceService = {
       const response = await axios.put(`${API_URL}/finance/projects/${projectId}/associate/${associateId}/payments/${transactionId}`, paymentData, {
         headers: getAuthHeader()
       });
+      invalidateFinanceCache();
       return response.data;
     } catch (error) {
       console.error('Error updating associate payment transaction:', error);
@@ -295,6 +360,7 @@ const FinanceService = {
       const response = await axios.delete(`${API_URL}/finance/projects/${projectId}/associate/${associateId}/payments/${transactionId}`, {
         headers: getAuthHeader()
       });
+      invalidateFinanceCache();
       return response.data;
     } catch (error) {
       console.error('Error deleting associate payment transaction:', error);
@@ -307,17 +373,24 @@ const FinanceService = {
   // ==================== FINANCIAL OVERVIEW METHOD ====================
 
   // Get consolidated financial overview (used by FinanceDashboard)
-  getFinancialOverview: async (filters = {}) => {
-    try {
-      const response = await axios.get(`${API_URL}/finance/overview`, {
-        headers: getAuthHeader(),
-        params: filters
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching financial overview:', error);
-      throw error;
-    }
+  getFinancialOverview: async (filters = {}, options = {}) => {
+    const key = clientCache.generateKey('finance_overview', filters);
+    return clientCache.fetchWithCache(
+      key,
+      async () => {
+        try {
+          const response = await axios.get(`${API_URL}/finance/overview`, {
+            headers: getAuthHeader(),
+            params: filters
+          });
+          return response.data;
+        } catch (error) {
+          console.error('Error fetching financial overview:', error);
+          throw error;
+        }
+      },
+      options
+    );
   },
 
   // ==================== UTILITY METHODS ====================
@@ -328,6 +401,7 @@ const FinanceService = {
       const response = await axios.post(`${API_URL}/finance/reconcile-received-fees`, {}, {
         headers: getAuthHeader()
       });
+      invalidateFinanceCache();
       return response.data;
     } catch (error) {
       console.error('Error reconciling received fees:', error);
@@ -341,6 +415,7 @@ const FinanceService = {
       const response = await axios.post(`${API_URL}/finance/projects/apply-default-percentages`, {}, {
         headers: getAuthHeader()
       });
+      invalidateFinanceCache();
       return response.data;
     } catch (error) {
       console.error('❌ Error applying default percentages:', error);
