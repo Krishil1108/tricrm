@@ -146,7 +146,7 @@ function App() {
                             <Route 
                               path="/analytics" 
                               element={
-                                <ProtectedRoute requireModule="finance">
+                                <ProtectedRoute requireModule="analytics">
                                   <AnalyticsDashboard />
                                 </ProtectedRoute>
                               } 
@@ -155,7 +155,7 @@ function App() {
                             <Route 
                               path="/finance" 
                               element={
-                                <ProtectedRoute requireModule="finance">
+                                <ProtectedRoute requireModule="finance_dashboard">
                                   <FinanceDashboard />
                                 </ProtectedRoute>
                               } 
@@ -164,11 +164,12 @@ function App() {
                             <Route 
                               path="/expenses" 
                               element={
-                                <ProtectedRoute requireModule="finance">
+                                <ProtectedRoute requireModule="expenses">
                                   <ExpensesPage />
                                 </ProtectedRoute>
                               } 
                             />
+
                             
                             <Route 
                               path="/settings"
