@@ -1,4 +1,5 @@
 // Dynamic import for XLSX - loads only when needed (7.2MB saved from initial bundle)
+import { yieldToMain } from '../utils/exportWorker';
 
 class ExcelExportService {
   /**
@@ -9,6 +10,7 @@ class ExcelExportService {
    */
   static async exportClientsToExcel(clients, filters = {}, filename = null) {
     try {
+      await yieldToMain();
       // Dynamic import - only load XLSX when export is triggered
       const XLSX = await import('xlsx');
 
@@ -23,6 +25,8 @@ class ExcelExportService {
         'Date Added': client.createdAt ? new Date(client.createdAt).toLocaleDateString('en-IN') : '',
         'Notes': client.notes || ''
       }));
+
+      await yieldToMain();
 
       // Create workbook and worksheet
       const workbook = XLSX.utils.book_new();
@@ -60,6 +64,8 @@ class ExcelExportService {
       // Generate filename
       const defaultFilename = `clients_export_${new Date().toISOString().split('T')[0]}.xlsx`;
       const finalFilename = filename || defaultFilename;
+
+      await yieldToMain();
 
       // Save the file
       XLSX.writeFile(workbook, finalFilename);

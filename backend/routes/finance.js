@@ -40,7 +40,7 @@ const upload = multer({
 // Get all finance projects
 router.get('/projects', authenticate, async (req, res) => {
   try {
-    const { status, search, sortBy = 'srNo', order = 'asc' } = req.query;
+    const { status, search, sortBy = 'srNo', order = 'asc', page, limit } = req.query;
     
     let query = {};
     
@@ -56,13 +56,36 @@ router.get('/projects', authenticate, async (req, res) => {
     }
     
     const sortOrder = order === 'desc' ? -1 : 1;
+    const isPaginated = page !== undefined || limit !== undefined;
+    const pageNum = parseInt(page, 10) || 1;
+    const limitNum = parseInt(limit, 10) || 50;
+    const skip = (pageNum - 1) * limitNum;
     
-    const projects = await FinanceProject.find(query)
+    let projectsQuery = FinanceProject.find(query)
       .sort({ [sortBy]: sortOrder })
       .populate('createdBy', 'username email')
       .lean();
+      
+    if (isPaginated && limitNum > 0) {
+      projectsQuery = projectsQuery.skip(skip).limit(limitNum);
+    }
     
-    res.sendSuccess(projects, 'Projects fetched successfully');
+    const [projects, total] = await Promise.all([
+      projectsQuery,
+      FinanceProject.countDocuments(query)
+    ]);
+    
+    res.json({
+      success: true,
+      data: projects,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: isPaginated ? limitNum : total,
+        totalPages: isPaginated && limitNum > 0 ? Math.ceil(total / limitNum) : 1
+      },
+      message: 'Projects fetched successfully'
+    });
   } catch (error) {
     console.error('Error fetching finance projects:', error);
     res.status(500).json({ message: 'Server error', error: error.message });

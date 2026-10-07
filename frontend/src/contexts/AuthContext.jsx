@@ -17,7 +17,40 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
 
-  // Load user from token on mount
+  // Silent token rotation
+  const refreshToken = async () => {
+    const currentToken = localStorage.getItem('token');
+    if (!currentToken) return null;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${currentToken}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          setToken(data.token);
+          if (data.user) {
+            setUser(data.user);
+            if (data.user.role && data.user.role.permissions) {
+              setPermissions(data.user.role.permissions);
+            }
+          }
+          return data.token;
+        }
+      }
+    } catch (error) {
+      console.warn('Silent token refresh failed:', error);
+    }
+    return null;
+  };
+
+  // Load user from token on mount and setup auto-refresh
   useEffect(() => {
     const loadUser = async () => {
       const savedToken = localStorage.getItem('token');
@@ -51,6 +84,15 @@ export const AuthProvider = ({ children }) => {
     };
 
     loadUser();
+
+    // Auto-refresh token every 45 minutes to keep session active
+    const refreshInterval = setInterval(() => {
+      if (localStorage.getItem('token')) {
+        refreshToken();
+      }
+    }, 45 * 60 * 1000);
+
+    return () => clearInterval(refreshInterval);
   }, []);
 
   const login = async (username, password) => {

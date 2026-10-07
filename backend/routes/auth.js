@@ -109,6 +109,39 @@ router.get('/me', authenticate, async (req, res) => {
   }
 });
 
+// @route   POST /api/auth/refresh
+// @desc    Rotate and refresh JWT token before expiration
+// @access  Private
+router.post('/refresh', authenticate, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id)
+      .populate('role')
+      .select('-password');
+
+    if (!user || !user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: 'User no longer active'
+      });
+    }
+
+    const newToken = generateToken(user._id);
+
+    res.json({
+      success: true,
+      token: newToken,
+      user: user.toJSON(),
+      message: 'Token refreshed successfully'
+    });
+  } catch (error) {
+    console.error('Token refresh error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during token refresh'
+    });
+  }
+});
+
 // @route   POST /api/auth/logout
 // @desc    Logout user (client-side token removal)
 // @access  Private

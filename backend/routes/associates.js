@@ -4,11 +4,47 @@ const Associate = require('../models/Associate');
 const FinanceProject = require('../models/FinanceProject');
 const Activity = require('../models/Activity');
 
-// GET /api/associates - Get all associates with project counts (OPTIMIZED)
+// GET /api/associates - Get all associates with project counts & pagination
 router.get('/', async (req, res) => {
   try {
-    const [associates, associateProjectCounts] = await Promise.all([
-      Associate.find({}).sort({ createdAt: -1 }).lean(),
+    const { 
+      search, 
+      status, 
+      page, 
+      limit, 
+      sortBy = 'createdAt', 
+      sortOrder = 'desc' 
+    } = req.query;
+
+    const query = {};
+
+    if (status && status !== 'all') {
+      query.status = status;
+    }
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { company: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+    const isPaginated = page !== undefined || limit !== undefined;
+    const pageNum = parseInt(page, 10) || 1;
+    const limitNum = parseInt(limit, 10) || 50;
+    const skip = (pageNum - 1) * limitNum;
+
+    let associatesQuery = Associate.find(query).sort(sort).lean();
+    if (isPaginated && limitNum > 0) {
+      associatesQuery = associatesQuery.skip(skip).limit(limitNum);
+    }
+
+    const [associates, total, associateProjectCounts] = await Promise.all([
+      associatesQuery,
+      Associate.countDocuments(query),
       FinanceProject.aggregate([
         { $unwind: '$projectAssociates' },
         { $group: { _id: '$projectAssociates.associateId', count: { $sum: 1 } } }
@@ -28,7 +64,13 @@ router.get('/', async (req, res) => {
     
     res.json({
       success: true,
-      data: associatesWithCounts
+      data: associatesWithCounts,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: isPaginated ? limitNum : total,
+        totalPages: isPaginated && limitNum > 0 ? Math.ceil(total / limitNum) : 1
+      }
     });
   } catch (error) {
     console.error('Error fetching associates:', error);

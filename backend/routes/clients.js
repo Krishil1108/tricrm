@@ -4,18 +4,56 @@ const Client = require('../models/Client');
 const FinanceProject = require('../models/FinanceProject');
 const Activity = require('../models/Activity');
 
-// GET /api/clients - Get all clients with project counts (OPTIMIZED)
+// GET /api/clients - Get all clients with project counts & server-side pagination
 router.get('/', async (req, res) => {
   try {
-    const [clients, projectCounts] = await Promise.all([
-      Client.find({}).sort({ createdAt: -1 }).lean(),
+    const { 
+      search, 
+      status, 
+      page, 
+      limit, 
+      sortBy = 'createdAt', 
+      sortOrder = 'desc' 
+    } = req.query;
+
+    const query = {};
+
+    if (status && status !== 'all') {
+      query.status = status;
+    }
+
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { company: { $regex: search, $options: 'i' } },
+        { phone: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+
+    // Check if pagination is requested
+    const isPaginated = page !== undefined || limit !== undefined;
+    const pageNum = parseInt(page, 10) || 1;
+    const limitNum = parseInt(limit, 10) || 50;
+    const skip = (pageNum - 1) * limitNum;
+
+    let clientsQuery = Client.find(query).sort(sort).lean();
+    if (isPaginated && limitNum > 0) {
+      clientsQuery = clientsQuery.skip(skip).limit(limitNum);
+    }
+
+    const [clients, total, projectCounts] = await Promise.all([
+      clientsQuery,
+      Client.countDocuments(query),
       FinanceProject.aggregate([
         { $match: { clientId: { $exists: true, $ne: null } } },
         { $group: { _id: '$clientId', count: { $sum: 1 } } }
       ])
     ]);
     
-    // Fast O(1) hash map lookup instead of N round-trip queries
+    // Fast O(1) hash map lookup
     const countMap = new Map();
     projectCounts.forEach(pc => {
       if (pc._id) countMap.set(pc._id.toString(), pc.count);
@@ -28,7 +66,13 @@ router.get('/', async (req, res) => {
     
     res.json({
       success: true,
-      data: clientsWithCounts
+      data: clientsWithCounts,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: isPaginated ? limitNum : total,
+        totalPages: isPaginated && limitNum > 0 ? Math.ceil(total / limitNum) : 1
+      }
     });
   } catch (error) {
     console.error('Error fetching clients:', error);
