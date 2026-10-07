@@ -32,66 +32,123 @@
         position: fixed;
         top: 0;
         left: 0;
-        width: 100%;
-        height: 100%;
-        background: #ffffff;
+        width: 100vw;
+        height: 100vh;
+        background: radial-gradient(circle at 50% 50%, #1e1e38 0%, #0f0f1d 100%);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        z-index: 9999;
-        transition: opacity 0.3s ease-out;
+        z-index: 99999;
+        transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
       }
       #loading-screen.hidden {
         opacity: 0;
+        transform: scale(1.03);
         pointer-events: none;
       }
-      .loading-logo {
-        width: 120px;
-        height: 120px;
-        margin-bottom: 20px;
-        animation: pulse 2s ease-in-out infinite;
+      .loading-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 60px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      }
+      .loading-brand-icon {
+        position: relative;
+        width: 72px;
+        height: 72px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .loading-brand-ring {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        border-top-color: #6366f1;
+        border-right-color: #a855f7;
+        animation: spinGlow 1.2s linear infinite;
+      }
+      .loading-brand-ring-inner {
+        position: absolute;
+        inset: 6px;
+        border-radius: 50%;
+        border: 2.5px solid transparent;
+        border-bottom-color: #3b82f6;
+        border-left-color: #06b6d4;
+        animation: spinGlowReverse 1.8s linear infinite;
+      }
+      @keyframes spinGlow {
+        to { transform: rotate(360deg); }
+      }
+      @keyframes spinGlowReverse {
+        to { transform: rotate(-360deg); }
       }
       .loading-text {
-        font-family: 'Inter', sans-serif;
-        font-size: 24px;
-        font-weight: 600;
-        color: #333;
-        margin-bottom: 10px;
+        font-size: 26px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
+        margin-bottom: 6px;
       }
       .loading-subtitle {
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        color: #666;
+        font-size: 13px;
+        font-weight: 500;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 28px;
       }
-      .loading-spinner {
-        width: 40px;
-        height: 40px;
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #007bff;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-top: 20px;
+      .loading-bar-container {
+        width: 160px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 99px;
+        overflow: hidden;
+        position: relative;
       }
-      @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+      .loading-bar-progress {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, #6366f1, #a855f7, transparent);
+        animation: shimmerProgress 1.6s ease-in-out infinite;
       }
-      @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
+      @keyframes shimmerProgress {
+        0% { left: -100%; }
+        100% { left: 100%; }
       }
     </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="loading-screen">
-      <svg class="loading-logo" viewBox="0 0 24 24" fill="#007bff">
-        <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>
-      </svg>
-      <div class="loading-text">Trimity CRM</div>
-      <div class="loading-subtitle">Innovation, Precision, Excellence</div>
-      <div class="loading-spinner"></div>
+      <div class="loading-card">
+        <div class="loading-brand-icon">
+          <div class="loading-brand-ring"></div>
+          <div class="loading-brand-ring-inner"></div>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="#a855f7">
+            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"/>
+          </svg>
+        </div>
+        <div class="loading-text">Trimity CRM</div>
+        <div class="loading-subtitle">Enterprise Suite</div>
+        <div class="loading-bar-container">
+          <div class="loading-bar-progress"></div>
+        </div>
+      </div>
     </div>
     <div id="root"></div>
     <script type="module" src="/src/index.jsx"></script>
