@@ -8,6 +8,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import FinanceService from './services/FinanceService';
 import { useToast } from './context/ToastContext';
+import { useAuth } from './contexts/AuthContext';
 import './FinanceDashboard.css';
 import Watermark from './components/Watermark';
 
@@ -100,6 +101,11 @@ const deriveProjectFinancials = (project, fyReceivedFees, fyStart, fyEnd) => {
 const FinanceDashboard = () => {
   // eslint-disable-next-line no-unused-vars
   const { showError, showSuccess } = useToast();
+  const { canViewStats, canViewAmounts, hasPermission } = useAuth();
+
+  const showStatsCards = canViewStats('finance_dashboard');
+  const showAmounts = canViewAmounts('finance_dashboard');
+  const canExport = hasPermission('finance_dashboard', 'action_buttons');
 
   // ── Remote data (React Query) ────────────────────────────────────────────
   const {
@@ -298,14 +304,16 @@ const FinanceDashboard = () => {
           </span>
         </div>
         <div className="fd-header-actions">
-          <button
-            className="fd-btn fd-btn-export"
-            onClick={() => setShowExportModal(true)}
-            disabled={!filteredProjects.length}
-            title="Export data as PDF or Excel — choose records and columns"
-          >
-            <FaDownload /> Export
-          </button>
+          {canExport && (
+            <button
+              className="fd-btn fd-btn-export"
+              onClick={() => setShowExportModal(true)}
+              disabled={!filteredProjects.length}
+              title="Export data as PDF or Excel — choose records and columns"
+            >
+              <FaDownload /> Export
+            </button>
+          )}
           <button className="fd-btn fd-btn-refresh" onClick={fetchData} title="Reload data">
             <FiRefreshCw /> Refresh
           </button>
@@ -313,66 +321,70 @@ const FinanceDashboard = () => {
       </div>
 
       {/* ── Summary Cards ─────────────────────────────────────────────────── */}
-      <div className="fd-cards-section">
-      <button
-        className="fd-hide-toggle"
-        onClick={() => setHideValues(v => !v)}
-        title={hideValues ? 'Show figures' : 'Hide figures'}
-      >
-        {hideValues ? <FaEyeSlash size={13} /> : <FaEye size={13} />}
-        <span>{hideValues ? 'Show' : 'Hide'}</span>
-      </button>
-      <div className="fd-cards">
-        <SummaryCard
-          label="Total Finalized Fees"
-          value={summary.totalFinalizedFees}
-          color="blue"
-          icon="📋"
-          sub={`${summary.projectCount} project${summary.projectCount !== 1 ? 's' : ''}`}
-          hidden={hideValues}
-        />
-        <SummaryCard
-          label="Total Received"
-          value={summary.totalReceivedFees}
-          color="green"
-          icon="✅"
-          sub={filterFY !== 'all' ? `FY ${filterFY}` : 'All time'}
-          hidden={hideValues}
-        />
-        <SummaryCard
-          label="Pending Fees"
-          value={summary.pendingFees}
-          color="orange"
-          icon="⏳"
-          sub="Outstanding balance"
-          hidden={hideValues}
-        />
-        <SummaryCard
-          label="Total Expenses"
-          value={summary.totalExpenses}
-          color="red"
-          icon="📉"
-          sub="Drawing + Docs + Site + Mktg + Office"
-          hidden={hideValues}
-        />
-        <SummaryCard
-          label="Net Profit"
-          value={summary.netProfit}
-          color={summary.netProfit >= 0 ? 'emerald' : 'crimson'}
-          icon={summary.netProfit >= 0 ? '🚀' : '⚠️'}
-          sub="After expenses & associate payouts"
-          hidden={hideValues}
-        />
-        <SummaryCard
-          label="Associate Payouts"
-          value={summary.totalAssociatePaid}
-          color="purple"
-          icon="🤝"
-          sub={`${fmtCurrency(summary.totalAssociateAmount)} allocated`}
-          hidden={hideValues}
-        />
-      </div>
-      </div>
+      {showStatsCards && (
+        <div className="fd-cards-section">
+          {showAmounts && (
+            <button
+              className="fd-hide-toggle"
+              onClick={() => setHideValues(v => !v)}
+              title={hideValues ? 'Show figures' : 'Hide figures'}
+            >
+              {hideValues ? <FaEyeSlash size={13} /> : <FaEye size={13} />}
+              <span>{hideValues ? 'Show' : 'Hide'}</span>
+            </button>
+          )}
+          <div className="fd-cards">
+            <SummaryCard
+              label="Total Finalized Fees"
+              value={summary.totalFinalizedFees}
+              color="blue"
+              icon="📋"
+              sub={`${summary.projectCount} project${summary.projectCount !== 1 ? 's' : ''}`}
+              hidden={hideValues || !showAmounts}
+            />
+            <SummaryCard
+              label="Total Received"
+              value={summary.totalReceivedFees}
+              color="green"
+              icon="✅"
+              sub={filterFY !== 'all' ? `FY ${filterFY}` : 'All time'}
+              hidden={hideValues || !showAmounts}
+            />
+            <SummaryCard
+              label="Pending Fees"
+              value={summary.pendingFees}
+              color="orange"
+              icon="⏳"
+              sub="Outstanding balance"
+              hidden={hideValues || !showAmounts}
+            />
+            <SummaryCard
+              label="Total Expenses"
+              value={summary.totalExpenses}
+              color="red"
+              icon="📉"
+              sub="Drawing + Docs + Site + Mktg + Office"
+              hidden={hideValues || !showAmounts}
+            />
+            <SummaryCard
+              label="Net Profit"
+              value={summary.netProfit}
+              color={summary.netProfit >= 0 ? 'emerald' : 'crimson'}
+              icon={summary.netProfit >= 0 ? '🚀' : '⚠️'}
+              sub="After expenses & associate payouts"
+              hidden={hideValues || !showAmounts}
+            />
+            <SummaryCard
+              label="Associate Payouts"
+              value={summary.totalAssociatePaid}
+              color="purple"
+              icon="🤝"
+              sub={`${fmtCurrency(summary.totalAssociateAmount)} allocated`}
+              hidden={hideValues || !showAmounts}
+            />
+          </div>
+        </div>
+      )}
 
       {/* ── Filter Bar ────────────────────────────────────────────────────── */}
       <div className="fd-filters">
@@ -497,10 +509,11 @@ const FinanceDashboard = () => {
             summary={summary}
             expandedRows={expandedRows}
             toggleRow={toggleRow}
+            showAmounts={showAmounts}
           />
         )}
-        {activeTab === 'payments'   && <PaymentsTab   projects={filteredProjects} filterBank={filterBank} setFilterBank={setFilterBank} />}
-        {activeTab === 'associates' && <AssociatesTab projects={filteredProjects} filterBank={filterBank} setFilterBank={setFilterBank} />}
+        {activeTab === 'payments'   && <PaymentsTab   projects={filteredProjects} filterBank={filterBank} setFilterBank={setFilterBank} showAmounts={showAmounts} />}
+        {activeTab === 'associates' && <AssociatesTab projects={filteredProjects} filterBank={filterBank} setFilterBank={setFilterBank} showAmounts={showAmounts} />}
       </div>
 
       {showExportModal && (
@@ -776,10 +789,12 @@ const ColumnManager = ({ colOrder, hiddenCols, onChange, onReset }) => {
 };
 
 // ─── Overview Tab ─────────────────────────────────────────────────────────────
-const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
+const OverviewTab = ({ projects, summary, expandedRows, toggleRow, showAmounts = true }) => {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   useEffect(() => { setPage(1); }, [projects]);
+
+  const displayAmt = (val) => (showAmounts ? fmtCurrency(val) : '••••••');
 
   // Column prefs
   const [colPrefs, setColPrefs] = useState(loadColPrefs);
@@ -822,17 +837,17 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
     switch (key) {
       case 'client':        return <td key={key} className="fd-td fd-td-client">{p.clientId?.name ?? '—'}</td>;
       case 'status':        return <td key={key} className="fd-td"><StatusBadge status={p.status} /></td>;
-      case 'finalizedFees': return <td key={key} className="fd-td fd-td-num">{fmtCurrency(p.finalizedFees)}</td>;
-      case 'received':      return <td key={key} className="fd-td fd-td-num fd-num-blue">{fmtCurrency(p.fyReceivedFees)}</td>;
-      case 'trimityFees':   return <td key={key} className="fd-td fd-td-num fd-num-emerald">{fmtCurrency(p.fyTrimityFees ?? 0)}</td>;
-      case 'pending':       return <td key={key} className={`fd-td fd-td-num ${pending>0?'fd-num-orange':'fd-num-green'}`}>{fmtCurrency(pending)}</td>;
-      case 'profitMargin':  return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.fyProfitMargin)}</td>;
-      case 'drawing':       return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.fyDrawing)}</td>;
-      case 'documents':     return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.fyDocuments)}</td>;
-      case 'siteVisit':     return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.fySiteVisit)}</td>;
-      case 'marketingMisc': return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.fyMarketingAndMisc)}</td>;
-      case 'officeMgmt':    return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.fyOfficeManagement)}</td>;
-      case 'associatePaid': return <td key={key} className="fd-td fd-td-num fd-meta">{fmtCurrency(p.fyAssociatePaid)}</td>;
+      case 'finalizedFees': return <td key={key} className="fd-td fd-td-num">{displayAmt(p.finalizedFees)}</td>;
+      case 'received':      return <td key={key} className="fd-td fd-td-num fd-num-blue">{displayAmt(p.fyReceivedFees)}</td>;
+      case 'trimityFees':   return <td key={key} className="fd-td fd-td-num fd-num-emerald">{displayAmt(p.fyTrimityFees ?? 0)}</td>;
+      case 'pending':       return <td key={key} className={`fd-td fd-td-num ${pending>0?'fd-num-orange':'fd-num-green'}`}>{displayAmt(pending)}</td>;
+      case 'profitMargin':  return <td key={key} className="fd-td fd-td-num fd-meta">{displayAmt(p.fyProfitMargin)}</td>;
+      case 'drawing':       return <td key={key} className="fd-td fd-td-num fd-meta">{displayAmt(p.fyDrawing)}</td>;
+      case 'documents':     return <td key={key} className="fd-td fd-td-num fd-meta">{displayAmt(p.fyDocuments)}</td>;
+      case 'siteVisit':     return <td key={key} className="fd-td fd-td-num fd-meta">{displayAmt(p.fySiteVisit)}</td>;
+      case 'marketingMisc': return <td key={key} className="fd-td fd-td-num fd-meta">{displayAmt(p.fyMarketingAndMisc)}</td>;
+      case 'officeMgmt':    return <td key={key} className="fd-td fd-td-num fd-meta">{displayAmt(p.fyOfficeManagement)}</td>;
+      case 'associatePaid': return <td key={key} className="fd-td fd-td-num fd-meta">{displayAmt(p.fyAssociatePaid)}</td>;
       case 'actions':       return (
         <td key={key} className="fd-td fd-td-actions" onClick={(e) => e.stopPropagation()}>
           <button
@@ -858,17 +873,17 @@ const OverviewTab = ({ projects, summary, expandedRows, toggleRow }) => {
   // Footer cell renderer
   const renderFoot = (key) => {
     switch (key) {
-      case 'finalizedFees': return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalFinalizedFees)}</strong></td>;
-      case 'received':      return <td key={key} className="fd-td fd-td-num fd-num-blue"><strong>{fmtCurrency(summary.totalReceivedFees)}</strong></td>;
-      case 'trimityFees':   return <td key={key} className="fd-td fd-td-num fd-num-emerald"><strong>{fmtCurrency(summary.totalTrimityFees)}</strong></td>;
-      case 'pending':       return <td key={key} className="fd-td fd-td-num fd-num-orange"><strong>{fmtCurrency(summary.pendingFees)}</strong></td>;
-      case 'profitMargin':  return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalProfitMargin)}</strong></td>;
-      case 'drawing':       return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalDrawing)}</strong></td>;
-      case 'documents':     return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalDocuments)}</strong></td>;
-      case 'siteVisit':     return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalSiteVisit)}</strong></td>;
-      case 'marketingMisc': return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalMarketingMisc)}</strong></td>;
-      case 'officeMgmt':    return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalOfficeManagement)}</strong></td>;
-      case 'associatePaid': return <td key={key} className="fd-td fd-td-num"><strong>{fmtCurrency(summary.totalAssociatePaid)}</strong></td>;
+      case 'finalizedFees': return <td key={key} className="fd-td fd-td-num"><strong>{displayAmt(summary.totalFinalizedFees)}</strong></td>;
+      case 'received':      return <td key={key} className="fd-td fd-td-num fd-num-blue"><strong>{displayAmt(summary.totalReceivedFees)}</strong></td>;
+      case 'trimityFees':   return <td key={key} className="fd-td fd-td-num fd-num-emerald"><strong>{displayAmt(summary.totalTrimityFees)}</strong></td>;
+      case 'pending':       return <td key={key} className="fd-td fd-td-num fd-num-orange"><strong>{displayAmt(summary.pendingFees)}</strong></td>;
+      case 'profitMargin':  return <td key={key} className="fd-td fd-td-num"><strong>{displayAmt(summary.totalProfitMargin)}</strong></td>;
+      case 'drawing':       return <td key={key} className="fd-td fd-td-num"><strong>{displayAmt(summary.totalDrawing)}</strong></td>;
+      case 'documents':     return <td key={key} className="fd-td fd-td-num"><strong>{displayAmt(summary.totalDocuments)}</strong></td>;
+      case 'siteVisit':     return <td key={key} className="fd-td fd-td-num"><strong>{displayAmt(summary.totalSiteVisit)}</strong></td>;
+      case 'marketingMisc': return <td key={key} className="fd-td fd-td-num"><strong>{displayAmt(summary.totalMarketingMisc)}</strong></td>;
+      case 'officeMgmt':    return <td key={key} className="fd-td fd-td-num"><strong>{displayAmt(summary.totalOfficeManagement)}</strong></td>;
+      case 'associatePaid': return <td key={key} className="fd-td fd-td-num"><strong>{displayAmt(summary.totalAssociatePaid)}</strong></td>;
       case 'actions':       return <td key={key} />;
       default:              return <td key={key} />;
     }
