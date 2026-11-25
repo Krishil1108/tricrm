@@ -347,10 +347,11 @@
 .sidebar-footer {
   position: relative; /* Keep footer in normal flow but at bottom */
   width: 100%;
-  padding: 15px;
+  padding: 12px 15px;
   border-top: 1px solid #e8ebf0;
   background: white;
   flex-shrink: 0; /* Prevent footer from shrinking */
+  margin-top: auto; /* Ensures clean separation from nav items */
 }
 
 .logout-btn {
@@ -506,6 +507,27 @@
   .nav-tooltip::before,
   .logout-tooltip::before {
     border-width: 5px;
+  }
+}
+
+/* Compact layout for screens with short height to prevent cramping */
+@media (max-height: 720px) {
+  .sidebar-header {
+    height: 60px;
+    margin-bottom: 4px;
+  }
+  .sidebar-nav {
+    padding: 8px 0;
+  }
+  .sidebar-nav li {
+    margin: 3px 0;
+  }
+  .nav-item {
+    min-height: 42px;
+    padding: 8px 10px;
+  }
+  .sidebar-footer {
+    padding: 8px 12px;
   }
 }
 

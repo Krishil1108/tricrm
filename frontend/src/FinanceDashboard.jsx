@@ -18,7 +18,11 @@ import TableSkeleton from './components/common/TableSkeleton';
 const fmt = (v) =>
   new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(v ?? 0);
 
-const fmtCurrency = (v) => `₹${fmt(v)}`;
+const fmtCurrency = (v) => {
+  const n = Math.round(v ?? 0);
+  if (n < 0) return `−₹${fmt(Math.abs(n))}`;
+  return `₹${fmt(n)}`;
+};
 
 const getFYBounds = (fy) => {
   if (!fy || fy === 'all') return [null, null];
@@ -1012,37 +1016,62 @@ const ExpandedDetail = ({ project: p }) => {
 
       {/* Associate summary */}
       {(p.projectAssociates ?? []).length > 0 && (
-        <div className="fd-exp-section">
+        <div className="fd-exp-section fd-exp-associates">
           <div className="fd-exp-section-header">
             <span>🤝 Associate Allocations</span>
           </div>
-          <table className="fd-sub-table">
-            <thead>
-              <tr>
-                <th>Associate</th><th>Company</th><th>% Share</th>
-                <th>Allocated</th><th>Paid</th><th>Pending</th>
-              </tr>
-            </thead>
-            <tbody>
-              {p.projectAssociates.map((a, i) => {
-                const alloc = Math.floor((p.fyReceivedFees ?? 0) * ((a.percentage ?? 0) / 100));
-                const paidForFY = getAssociatePaidForFY(a, p.fyStart, p.fyEnd);
-                const pending = Math.max(0, alloc - paidForFY);
+          <div className="fd-sub-table-wrap">
+            <table className="fd-sub-table fd-table-associates">
+              <thead>
+                <tr>
+                  <th>Associate</th>
+                  <th>Company</th>
+                  <th className="fd-th-num">% Share</th>
+                  <th className="fd-th-num">Allocated</th>
+                  <th className="fd-th-num">Paid</th>
+                  <th className="fd-th-num">Pending</th>
+                </tr>
+              </thead>
+              <tbody>
+                {p.projectAssociates.map((a, i) => {
+                  const alloc = Math.floor((p.fyReceivedFees ?? 0) * ((a.percentage ?? 0) / 100));
+                  const paidForFY = getAssociatePaidForFY(a, p.fyStart, p.fyEnd);
+                  const pending = alloc - paidForFY;
+                  return (
+                    <tr key={i}>
+                      <td><strong>{a.associateId?.name || '—'}</strong></td>
+                      <td>{a.associateId?.company || '—'}</td>
+                      <td className="fd-td-num">{a.percentage ?? 0}%</td>
+                      <td className="fd-td-num">{fmtCurrency(Math.round(alloc))}</td>
+                      <td className="fd-td-num fd-num-green">{fmtCurrency(paidForFY)}</td>
+                      <td className={`fd-td-num ${pending > 0 ? 'fd-num-orange' : pending < 0 ? 'fd-num-blue' : 'fd-num-green'}`}>
+                        {fmtCurrency(Math.round(pending))}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              {p.projectAssociates.length > 0 && (() => {
+                const totalAlloc = p.projectAssociates.reduce((sum, a) => sum + Math.floor((p.fyReceivedFees ?? 0) * ((a.percentage ?? 0) / 100)), 0);
+                const totalPaid = p.projectAssociates.reduce((sum, a) => sum + getAssociatePaidForFY(a, p.fyStart, p.fyEnd), 0);
+                const totalPending = totalAlloc - totalPaid;
+                const totalPct = p.projectAssociates.reduce((sum, a) => sum + (a.percentage ?? 0), 0);
                 return (
-                  <tr key={i}>
-                    <td><strong>{a.associateId?.name ?? '—'}</strong></td>
-                    <td>{a.associateId?.company ?? '—'}</td>
-                    <td>{a.percentage ?? 0}%</td>
-                    <td>{fmtCurrency(Math.round(alloc))}</td>
-                    <td className="fd-num-green">{fmtCurrency(paidForFY)}</td>
-                    <td className={pending > 0 ? 'fd-num-orange' : 'fd-num-green'}>
-                      {fmtCurrency(Math.round(pending))}
-                    </td>
-                  </tr>
+                  <tfoot>
+                    <tr className="fd-sub-table-total">
+                      <td colSpan={2}><strong>Total</strong></td>
+                      <td className="fd-td-num"><strong>{totalPct}%</strong></td>
+                      <td className="fd-td-num"><strong>{fmtCurrency(Math.round(totalAlloc))}</strong></td>
+                      <td className="fd-td-num fd-num-green"><strong>{fmtCurrency(totalPaid)}</strong></td>
+                      <td className={`fd-td-num ${totalPending > 0 ? 'fd-num-orange' : totalPending < 0 ? 'fd-num-blue' : 'fd-num-green'}`}>
+                        <strong>{fmtCurrency(Math.round(totalPending))}</strong>
+                      </td>
+                    </tr>
+                  </tfoot>
                 );
-              })}
-            </tbody>
-          </table>
+              })()}
+            </table>
+          </div>
         </div>
       )}
     </div>

@@ -5,7 +5,7 @@
 
 /* ── Page Wrapper ─────────────────────────────────────────── */
 .fd-wrapper {
-  padding: 20px 24px 40px;
+  padding: 20px 24px 64px;
   min-height: 100vh;
   width: 100%;
   box-sizing: border-box;
@@ -379,11 +379,11 @@
 .fd-th-exp  { width: 28px; min-width: 28px; }
 .fd-th-project { min-width: 180px; }
 
-/* Column accent headers */
-.fd-col-blue   { background: #1d4ed8 !important; }
-.fd-col-green  { background: #15803d !important; }
-.fd-col-orange { background: #b45309 !important; }
-.fd-col-emerald{ background: #047857 !important; }
+/* Column accent headers - calmed down with subtle indicator accents */
+.fd-col-blue   { background: #1e293b !important; border-top: 3px solid #3b82f6 !important; color: #93c5fd !important; }
+.fd-col-green  { background: #1e293b !important; border-top: 3px solid #22c55e !important; color: #86efac !important; }
+.fd-col-orange { background: #1e293b !important; border-top: 3px solid #f59e0b !important; color: #fcd34d !important; }
+.fd-col-emerald{ background: #1e293b !important; border-top: 3px solid #10b981 !important; color: #6ee7b7 !important; }
 
 /* ── Table Rows ──────────────────────────────────────────── */
 .fd-row {
@@ -477,6 +477,7 @@
   overflow: hidden;
 }
 .fd-exp-section:first-child { grid-column: 1 / -1; }
+.fd-exp-section.fd-exp-associates { grid-column: 1 / -1; }
 .fd-exp-section-header {
   display: flex;
   justify-content: space-between;
@@ -492,6 +493,14 @@
 .fd-exp-empty { padding: 12px 16px; color: #94a3b8; font-size: 13px; margin: 0; }
 
 /* Sub-table (inside expanded row) */
+.fd-sub-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.fd-table-associates {
+  min-width: 560px;
+}
 .fd-sub-table {
   width: 100%;
   border-collapse: collapse;
@@ -517,6 +526,15 @@
 .fd-sub-table td:last-child { text-align: right; }
 .fd-sub-table tr:last-child td { border-bottom: none; }
 .fd-sub-table tr:hover td { background: #f8fafc; }
+.fd-sub-table-total {
+  background: #f8fafc;
+  border-top: 2px solid #e2e8f0;
+  font-weight: 600;
+}
+.fd-sub-table-total td {
+  padding: 8px 10px;
+  border-bottom: none;
+}
 
 .fd-ref { font-family: 'Consolas', monospace; font-size: 11.5px; color: #475569; }
 

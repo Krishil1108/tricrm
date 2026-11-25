@@ -2,9 +2,10 @@ import React from 'react';
 import './Watermark.css';
 
 const Watermark = () => {
+  const currentYear = new Date().getFullYear();
   return (
     <div className="arviz-watermark">
-      © 2025 Arviz Intelligence (AI). All rights reserved.
+      © {currentYear} Arviz Intelligence (AI). All rights reserved.
     </div>
   );
 };
