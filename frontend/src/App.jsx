@@ -26,6 +26,8 @@ const queryClient = new QueryClient({
 
 // Lazy load all route components for code splitting and faster initial load
 const LoginPage = lazy(() => import('./LoginPage'));
+const ForgotPasswordPage = lazy(() => import('./ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./ResetPasswordPage'));
 const Sidebar = lazy(() => import('./Sidebar'));
 const HomePage = lazy(() => import('./HomePage'));
 const ClientsPage = lazy(() => import('./ClientsPage'));
@@ -73,6 +75,23 @@ function App() {
                     <Route path="/login" element={
                       <PublicRoute>
                         <LoginPage />
+                      </PublicRoute>
+                    } />
+
+                    {/* Public routes - Password Recovery */}
+                    <Route path="/forgot-password" element={
+                      <PublicRoute>
+                        <ForgotPasswordPage />
+                      </PublicRoute>
+                    } />
+                    <Route path="/reset-password/:token" element={
+                      <PublicRoute>
+                        <ResetPasswordPage />
+                      </PublicRoute>
+                    } />
+                    <Route path="/reset-password" element={
+                      <PublicRoute>
+                        <ResetPasswordPage />
                       </PublicRoute>
                     } />
                     

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FiActivity, FiAlertCircle, FiAlertTriangle, FiCheckCircle } from 'react-icons/fi';
 import { useCompany } from './CompanyContext';
+import { useAuth } from './contexts/AuthContext';
 import Watermark from './components/Watermark';
 import './PageContent.css';
 import './SettingsPage.css';
@@ -8,39 +9,65 @@ import API_BASE_URL from './config/api';
 
 const SettingsPage = () => {
   const { companyInfo, updateCompanyInfo } = useCompany();
+  const { user } = useAuth();
   const [activeSection, setActiveSection] = useState('profile');
-  // eslint-disable-next-line no-unused-vars
   const [saved, setSaved] = useState(false);
-  // eslint-disable-next-line no-unused-vars
   const [saveMessage, setSaveMessage] = useState('');
 
-  // User Profile State
-  const [userProfile, setUserProfile] = useState({
-    name: 'John Doe',
-    email: 'john.doe@company.com',
-    role: 'Administrator',
-    phone: '+1 (555) 123-4567',
-    department: 'Management',
-    avatar: null,
-    bio: 'CRM System Administrator'
+  // User Profile State - populated dynamically from AuthContext and localStorage
+  const [userProfile, setUserProfile] = useState(() => {
+    const saved = localStorage.getItem('userProfile');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return {
+      name: user?.name || user?.username || 'Administrator',
+      email: user?.email || 'admin@company.com',
+      role: user?.role?.name || (typeof user?.role === 'string' ? user.role : 'Administrator'),
+      phone: user?.phone || '+91 98765 43210',
+      department: user?.department || 'Management',
+      avatar: null,
+      bio: user?.bio || 'CRM System User'
+    };
   });
+
+  // Sync profile when auth user loads
+  useEffect(() => {
+    if (user) {
+      setUserProfile(prev => ({
+        ...prev,
+        name: user.name || user.username || prev.name,
+        email: user.email || prev.email,
+        role: user.role?.name || (typeof user.role === 'string' ? user.role : prev.role),
+        phone: user.phone || prev.phone,
+        department: user.department || prev.department,
+        bio: user.bio || prev.bio
+      }));
+    }
+  }, [user]);
 
   // Company Settings State
   const [companySettings, setCompanySettings] = useState(companyInfo);
 
-  // Display Preferences State
-  const [displayPrefs, setDisplayPrefs] = useState({
-    theme: localStorage.getItem('theme') || 'light',
-    darkMode: localStorage.getItem('darkMode') === 'true' || false,
-    timezone: 'America/New_York',
-    dateFormat: 'MM/DD/YYYY',
-    timeFormat: '12-hour',
-    language: 'en',
-    itemsPerPage: 50,
-    defaultView: 'grid',
-    animations: true,
-    compactMode: false,
-    fontSize: 'medium'
+  // Display Preferences State - Indian business defaults (Asia/Kolkata timezone, DD/MM/YYYY)
+  const [displayPrefs, setDisplayPrefs] = useState(() => {
+    const saved = localStorage.getItem('displayPrefs');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return {
+      theme: localStorage.getItem('theme') || 'light',
+      darkMode: localStorage.getItem('darkMode') === 'true' || false,
+      timezone: 'Asia/Kolkata',
+      dateFormat: 'DD/MM/YYYY',
+      timeFormat: '12-hour',
+      language: 'en',
+      itemsPerPage: 50,
+      defaultView: 'grid',
+      animations: true,
+      compactMode: false,
+      fontSize: 'medium'
+    };
   });
 
   // Notification Settings State
@@ -196,6 +223,7 @@ const SettingsPage = () => {
     switch (section) {
       case 'profile':
         setUserProfile(data);
+        localStorage.setItem('userProfile', JSON.stringify(data));
         break;
       case 'company':
         setCompanySettings(data);

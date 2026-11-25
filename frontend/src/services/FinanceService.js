@@ -10,10 +10,12 @@ const getAuthHeader = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-const invalidateFinanceCache = () => {
+export const invalidateFinanceCache = () => {
   clientCache.invalidate('finance');
   clientCache.invalidate('project');
+  clientCache.invalidate('associate_payments');
   clientCache.invalidate('dashboard-stats');
+  clientCache.invalidate('client');
 };
 
 const FinanceService = {

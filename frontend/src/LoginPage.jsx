@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import './LoginPage.css';
 
@@ -19,9 +19,10 @@ const EyeOff = ({ size = 16 }) => (
 );
 
 function LoginPage() {
-  const [username, setUsername] = useState('');
+  const rememberedUsername = localStorage.getItem('tricrm_remember_username') || '';
+  const [username, setUsername] = useState(rememberedUsername);
   const [password, setPassword] = useState('');
-  const [remember, setRemember] = useState(false);
+  const [remember, setRemember] = useState(Boolean(rememberedUsername));
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
@@ -38,6 +39,11 @@ function LoginPage() {
       const result = await login(username, password);
 
       if (result.success) {
+        if (remember) {
+          localStorage.setItem('tricrm_remember_username', username);
+        } else {
+          localStorage.removeItem('tricrm_remember_username');
+        }
         navigate('/home', { replace: true });
       } else {
         setError(result.message || 'Login failed');
@@ -113,6 +119,9 @@ function LoginPage() {
                 <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
                 <span>Remember me</span>
               </label>
+              <Link to="/forgot-password" className="auth-forgot" style={{ fontSize: '0.8rem', color: '#006A4E', textDecoration: 'none', fontWeight: '500' }}>
+                Forgot password?
+              </Link>
             </div>
 
             {error && <p className="auth-error">{error}</p>}
