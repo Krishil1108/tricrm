@@ -39,7 +39,9 @@ class DataEventManager {
       [DATA_TYPES.CLIENTS]: 'clientAdded',
       [DATA_TYPES.ASSOCIATES]: 'associateAdded',
       [DATA_TYPES.MEETINGS]: 'meetingScheduled',
-      [DATA_TYPES.NOTES]: 'noteAdded'
+      [DATA_TYPES.NOTES]: 'noteAdded',
+      [DATA_TYPES.PROJECTS]: 'projectChanged',
+      [DATA_TYPES.EXPENSES]: 'expenseChanged',
     };
 
     const eventName = eventMap[dataType];
@@ -63,5 +65,7 @@ export const DATA_TYPES = {
   CLIENTS: 'clients',
   ASSOCIATES: 'associates',
   MEETINGS: 'meetings',
-  NOTES: 'notes'
+  NOTES: 'notes',
+  PROJECTS: 'projects',
+  EXPENSES: 'expenses',
 };

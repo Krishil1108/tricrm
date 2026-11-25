@@ -99,13 +99,15 @@ router.post('/', async (req, res) => {
       dateAdded
     } = req.body;
 
-    // Check if associate with email already exists
-    const existingAssociate = await Associate.findOne({ email });
-    if (existingAssociate) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Associate with this email already exists' 
-      });
+    // Check if associate with email already exists (only when email is provided)
+    if (email && email.trim()) {
+      const existingAssociate = await Associate.findOne({ email: email.trim().toLowerCase() });
+      if (existingAssociate) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Associate with this email already exists' 
+        });
+      }
     }
 
     const newAssociate = new Associate({

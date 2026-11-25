@@ -1,25 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate } = require('../middleware/auth');
+// NOTE: authenticate is applied at the app.use() level in server.js for all /api/analytics routes.
+// Do NOT apply it again here — that caused double JWT verification (2 DB lookups per request).
 const analyticsController = require('../controllers/analyticsController');
 
-// Debug logging for route registration
-console.log('📊 [ANALYTICS] Registering analytics routes...');
+const isDev = process.env.NODE_ENV !== 'production';
 
 const allowDebugEndpoint = (req, res, next) => {
-  if (process.env.NODE_ENV !== 'production') {
-    return next();
-  }
-
-  return res.status(404).json({
-    success: false,
-    message: 'Endpoint not found'
-  });
+  if (isDev) return next();
+  return res.status(404).json({ success: false, message: 'Endpoint not found' });
 };
 
-// Simple test endpoint (no auth required for debugging)
+// ─── Dev-only debug endpoints (no auth — only reachable in development) ───────
+
 router.get('/test', allowDebugEndpoint, (req, res) => {
-  console.log('🧪 [ANALYTICS] Test endpoint accessed');
   res.json({ 
     message: 'Analytics test endpoint working!',
     timestamp: new Date().toISOString(),
@@ -27,130 +21,63 @@ router.get('/test', allowDebugEndpoint, (req, res) => {
   });
 });
 
-// Health check endpoint (no auth required for testing)
 router.get('/health', allowDebugEndpoint, (req, res) => {
-  console.log('📊 [ANALYTICS] Health check accessed');
   res.json({ 
     status: 'Analytics routes are working',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development',
     routes: [
-      '/api/analytics/health',
-      '/api/analytics/debug-routes', 
       '/api/analytics/filter-options/clients',
       '/api/analytics/filter-options/projects',
       '/api/analytics/filter-options/associates',
       '/api/analytics/dashboard',
-      '/api/analytics/monthly-client-growth',
-      '/api/analytics/test-monthly-client-growth'
+      '/api/analytics/monthly-client-growth'
     ]
   });
 });
 
-// Debug route to list all registered routes
 router.get('/debug-routes', allowDebugEndpoint, (req, res) => {
-  console.log('📊 [ANALYTICS] Debug routes accessed');
   res.json({
     message: 'Analytics routes debug info',
     registeredRoutes: router.stack.map(layer => ({
       method: layer.route ? Object.keys(layer.route.methods)[0].toUpperCase() : 'MIDDLEWARE',
       path: layer.route ? layer.route.path : 'N/A'
     })),
-    controllerMethods: Object.getOwnPropertyNames(analyticsController).filter(name => typeof analyticsController[name] === 'function'),
+    controllerMethods: Object.getOwnPropertyNames(analyticsController).filter(
+      name => typeof analyticsController[name] === 'function'
+    ),
     timestamp: new Date().toISOString()
   });
 });
 
-// Middleware to authenticate all other analytics routes
-router.use((req, res, next) => {
-  console.log(`📊 [ANALYTICS] Processing request: ${req.method} ${req.path}`);
-  authenticate(req, res, next);
-});
+// ─── All routes below are already protected by authenticate in server.js ──────
 
 const { cacheMiddleware } = require('../utils/cache');
 
-// Filter options endpoints (cached for 120s)
-router.get('/filter-options/clients', cacheMiddleware(120, 'analytics_filters'), (req, res, next) => {
-  analyticsController.getClientOptions(req, res, next);
-});
+// Filter options (cached 120s)
+router.get('/filter-options/clients',   cacheMiddleware(120, 'analytics_filters'), analyticsController.getClientOptions);
+router.get('/filter-options/projects',  cacheMiddleware(120, 'analytics_filters'), analyticsController.getProjectOptions);
+router.get('/filter-options/associates',cacheMiddleware(120, 'analytics_filters'), analyticsController.getAssociateOptions);
 
-router.get('/filter-options/projects', cacheMiddleware(120, 'analytics_filters'), (req, res, next) => {
-  analyticsController.getProjectOptions(req, res, next);
-});
+// Main dashboard data (cached 30s)
+router.get('/dashboard',         cacheMiddleware(30, 'analytics_dashboard'), analyticsController.getDashboardData);
+router.get('/interactive-chart', cacheMiddleware(30, 'analytics_chart'),     analyticsController.getInteractiveChart);
 
-router.get('/filter-options/associates', cacheMiddleware(120, 'analytics_filters'), (req, res, next) => {
-  analyticsController.getAssociateOptions(req, res, next);
-});
+// Clients
+router.get('/clients/monthly',   analyticsController.getClientsMonthly);
 
-// Main dashboard data endpoint (cached for 30s)
-router.get('/dashboard', cacheMiddleware(30, 'analytics_dashboard'), (req, res, next) => {
-  analyticsController.getDashboardData(req, res, next);
-});
+// Enhanced analytics
+router.get('/projects/analytics',           analyticsController.getProjectsAnalytics);
+router.get('/revenue/analytics',            analyticsController.getRevenueAnalytics);
+router.get('/associates/performance',       analyticsController.getAssociatePerformance);
+router.get('/payments/analytics',           analyticsController.getPaymentAnalytics);
+router.get('/netprofit/analytics',          analyticsController.getNetProfitAnalytics);
+router.get('/expenses/analytics',           analyticsController.getExpensesAnalytics);
+router.get('/expenses/estimated-vs-actual', analyticsController.getEstimatedVsActualExpenses);
+router.get('/advanced-chart',               analyticsController.getAdvancedChart);
+router.get('/monthly-client-growth',        analyticsController.getMonthlyClientGrowth);
 
-// Interactive chart endpoint (cached for 30s)
-router.get('/interactive-chart', cacheMiddleware(30, 'analytics_chart'), (req, res, next) => {
-  analyticsController.getInteractiveChart(req, res, next);
-});
-
-
-// Clients by creation date (flexible grouping)
-router.get('/clients/monthly', (req, res, next) => {
-  console.log('📊 [ANALYTICS] Clients monthly requested with params:', req.query);
-  analyticsController.getClientsMonthly(req, res, next);
-});
-
-// Enhanced analytics endpoints
-router.get('/projects/analytics', (req, res, next) => {
-  console.log('📊 [ANALYTICS] Projects analytics requested');
-  analyticsController.getProjectsAnalytics(req, res, next);
-});
-
-router.get('/revenue/analytics', (req, res, next) => {
-  console.log('📊 [ANALYTICS] Revenue analytics requested');
-  analyticsController.getRevenueAnalytics(req, res, next);
-});
-
-router.get('/associates/performance', (req, res, next) => {
-  console.log('📊 [ANALYTICS] Associate performance requested');
-  analyticsController.getAssociatePerformance(req, res, next);
-});
-
-router.get('/payments/analytics', (req, res, next) => {
-  console.log('📊 [ANALYTICS] Payment analytics requested');
-  analyticsController.getPaymentAnalytics(req, res, next);
-});
-
-router.get('/netprofit/analytics', (req, res, next) => {
-  console.log('📊 [ANALYTICS] Net profit analytics requested');
-  analyticsController.getNetProfitAnalytics(req, res, next);
-});
-
-router.get('/expenses/analytics', (req, res, next) => {
-  console.log('📊 [ANALYTICS] Expenses analytics requested');
-  analyticsController.getExpensesAnalytics(req, res, next);
-});
-
-router.get('/expenses/estimated-vs-actual', (req, res, next) => {
-  console.log('📊 [ANALYTICS] Estimated vs actual expenses requested');
-  analyticsController.getEstimatedVsActualExpenses(req, res, next);
-});
-
-// Advanced chart endpoint with Python support
-router.get('/advanced-chart', (req, res, next) => {
-  console.log('📊 [ANALYTICS] Advanced chart requested with config:', req.query);
-  analyticsController.getAdvancedChart(req, res, next);
-});
-
-// Monthly client growth endpoint
-router.get('/monthly-client-growth', authenticate, (req, res, next) => {
-  console.log('📊 [ANALYTICS] Monthly client growth requested with timeRange:', req.query.timeRange);
-  console.log('📊 [ANALYTICS] User:', req.user ? req.user.id : 'No user found');
-  analyticsController.getMonthlyClientGrowth(req, res, next);
-});
-
-// Test endpoint for monthly client growth (no auth for debugging)
+// Test endpoint (dev only)
 router.get('/test-monthly-client-growth', allowDebugEndpoint, (req, res) => {
-  console.log('📊 [ANALYTICS] Test monthly client growth endpoint accessed');
   res.json({ 
     message: 'Monthly client growth endpoint is working',
     timestamp: new Date().toISOString(),
@@ -161,18 +88,17 @@ router.get('/test-monthly-client-growth', allowDebugEndpoint, (req, res) => {
 });
 
 // Individual analytics sections
-router.get('/summary', analyticsController.getSummaryData);
-router.get('/clients', analyticsController.getClientAnalytics);
-router.get('/associates', analyticsController.getAssociateAnalytics);
-router.get('/projects', analyticsController.getProjectAnalytics);
-router.get('/payments', analyticsController.getPaymentAnalytics);
-router.get('/profit-margins', analyticsController.getProfitMarginAnalytics);
-router.get('/percentage-config', analyticsController.getPercentageConfigAnalytics);
-router.get('/cross-comparisons', analyticsController.getCrossComparisonAnalytics);
+router.get('/summary',            analyticsController.getSummaryData);
+router.get('/clients',            analyticsController.getClientAnalytics);
+router.get('/associates',         analyticsController.getAssociateAnalytics);
+router.get('/projects',           analyticsController.getProjectAnalytics);
+router.get('/payments',           analyticsController.getPaymentAnalytics);
+router.get('/profit-margins',     analyticsController.getProfitMarginAnalytics);
+router.get('/percentage-config',  analyticsController.getPercentageConfigAnalytics);
+router.get('/cross-comparisons',  analyticsController.getCrossComparisonAnalytics);
 
 // Export endpoints
-router.post('/export/chart', analyticsController.exportChartData);
-router.get('/export/dashboard', analyticsController.exportDashboardData);
+router.post('/export/chart',      analyticsController.exportChartData);
+router.get('/export/dashboard',   analyticsController.exportDashboardData);
 
-console.log('📊 [ANALYTICS] Analytics routes module loaded successfully');
 module.exports = router;

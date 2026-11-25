@@ -13,11 +13,14 @@ const getAuthHeaders = () => {
 };
 
 // Handle API errors
+// Uses a custom DOM event ('auth:unauthorized') so React components and AuthContext
+// can intercept the 401 and trigger a proper React Router navigation — avoiding the
+// hard browser reload that window.location.href caused (which wiped all SWR caches).
 const handleResponse = async (response) => {
   if (response.status === 401) {
-    // Unauthorized - redirect to login
     localStorage.removeItem('token');
-    window.location.href = '/login';
+    // Dispatch a custom event; AuthContext listens and calls navigate('/login')
+    window.dispatchEvent(new CustomEvent('auth:unauthorized'));
     throw new Error('Unauthorized');
   }
 

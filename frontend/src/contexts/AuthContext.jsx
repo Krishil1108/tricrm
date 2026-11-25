@@ -85,6 +85,16 @@ export const AuthProvider = ({ children }) => {
 
     loadUser();
 
+    // Handle global 401 "unauthorized" events dispatched by api.js interceptor.
+    // Clears auth state so ProtectedRoute redirects to /login without a hard reload.
+    const handleUnauthorized = () => {
+      localStorage.removeItem('token');
+      setToken(null);
+      setUser(null);
+      setPermissions(null);
+    };
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+
     // Auto-refresh token every 45 minutes to keep session active
     const refreshInterval = setInterval(() => {
       if (localStorage.getItem('token')) {
@@ -92,7 +102,10 @@ export const AuthProvider = ({ children }) => {
       }
     }, 45 * 60 * 1000);
 
-    return () => clearInterval(refreshInterval);
+    return () => {
+      clearInterval(refreshInterval);
+      window.removeEventListener('auth:unauthorized', handleUnauthorized);
+    };
   }, []);
 
   const login = async (username, password) => {

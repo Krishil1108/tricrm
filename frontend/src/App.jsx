@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './App.css';
 import './styles/theme.css';
 import { CompanyProvider } from './CompanyContext';
@@ -10,6 +11,18 @@ import { ToastProvider } from './context/ToastContext';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
 import DefaultRoute from './DefaultRoute';
+
+// QueryClient instance for @tanstack/react-query (used in FinanceDashboard and elsewhere)
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,       // treat data fresh for 30s
+      gcTime: 5 * 60_000,      // keep unused cache for 5 min
+      retry: 1,                // only retry once on failure
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Lazy load all route components for code splitting and faster initial load
 const LoginPage = lazy(() => import('./LoginPage'));
@@ -47,6 +60,7 @@ function App() {
   };
 
   return (
+    <QueryClientProvider client={queryClient}>
     <Router>
       <AuthProvider>
         <LoadingProvider>
@@ -216,6 +230,7 @@ function App() {
       </LoadingProvider>
     </AuthProvider>
     </Router>
+    </QueryClientProvider>
   );
 }
 
