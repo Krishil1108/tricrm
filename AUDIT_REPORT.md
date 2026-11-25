@@ -1,8 +1,8 @@
 # TRICRM — Full Audit Report: Bugs, Issues & Enhancement Roadmap
 
 > **Audited on**: November 2026  
-> **Codebase State**: `main` @ `44580bb`  
-> **Progress Summary**: **53 of 58 items resolved** (Sections 1, 3 & 5 100% fixed; Sections 2 & 4 100% completed except excluded items)
+> **Codebase State**: `main` @ `506f80c`  
+> **Progress Summary**: **55 of 58 items resolved** (Sections 1, 3, 5 & 6 100% fixed; Sections 2 & 4 100% completed except excluded items)
 
 ---
 
@@ -15,8 +15,8 @@
 | **Section 3: Service Layer Issues** | **6** | **6** | **0** | **100% FIXED ✅** |
 | **Section 4: UI / UX Issues** | **9** | **8** | **1** | **89% FIXED ✅ (`UI-04` mobile excluded per instruction)** |
 | **Section 5: Enhancements** | **14** | **14** | **0** | **100% FIXED ✅** |
-| **Section 6: Security Concerns** | **4** | **2** | **2** | **50% (In Progress)** |
-| **Total** | **58** | **53** | **5** | **91% Completed** |
+| **Section 6: Security Concerns** | **4** | **4** | **0** | **100% FIXED ✅** |
+| **Total** | **58** | **55** | **3** | **95% Completed** |
 
 ---
 
@@ -398,9 +398,9 @@
 
 ---
 
-### [ ] SEC-01 · **Expense file uploads stored locally without access control**
+### [x] SEC-01 · **Expense file uploads stored locally without access control** — ✅ FIXED (`506f80c`)
 **File**: `backend/routes/expenses.js`  
-**Issue**: Local disk storage is ephemeral in containerized hosting.
+**Status**: Added authenticated, path-traversal-safe attachment download endpoint (`GET /api/expenses/attachments/:filename`) protected by JWT authentication and `expenses` module access control.
 
 ---
 
@@ -410,9 +410,9 @@
 
 ---
 
-### [ ] SEC-03 · **Multer file type check only validates extension/MIME**
-**File**: `backend/routes/expenses.js`  
-**Issue**: Needs magic byte buffer verification.
+### [x] SEC-03 · **Multer file type check only validates extension/MIME** — ✅ FIXED (`506f80c`)
+**Files**: `backend/utils/fileMagicValidator.js`, `backend/routes/expenses.js`  
+**Status**: Added magic-byte buffer signature verification middleware (`validateUploadedMagicBytes`) rejecting spoofed extensions on upload and cleaning up invalid files.
 
 ---
 
@@ -426,8 +426,8 @@
 
 | Status | Total Items | Percentage |
 |---|:---:|:---:|
-| **✅ Resolved** | **53** | **91.4%** |
-| **⏳ Remaining** | **5** | **8.6%** |
+| **✅ Resolved** | **55** | **94.8%** |
+| **⏳ Deferred (Excluded by Instruction)** | **3** | **5.2%** |
 | **Total** | **58** | **100%** |
 
-*(Sections 1, 3 & 5 are 100% Resolved. Sections 2 & 4 are 100% Resolved excluding calendar/meetings and mobile UI-04 deferred per instruction)*
+*(Sections 1, 3, 5 & 6 are 100% Resolved. Sections 2 & 4 are 100% Resolved excluding calendar/meetings `FUNC-03`/`FUNC-10` and mobile `UI-04` deferred per instruction. Full post-audit also merged Users & Roles into `AccessControlPage`, added `/api/search`, fixed `/expense-distribution` -> `/expenses` 404, and removed static mock data from `ActivityService.js`.)*
