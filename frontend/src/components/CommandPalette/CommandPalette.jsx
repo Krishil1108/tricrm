@@ -104,6 +104,7 @@ const CommandPalette = () => {
     { name: 'Analytics & Metrics', path: '/analytics', icon: <FaChartBar />, module: 'analytics' },
     { name: 'Notes & Memos', path: '/notes', icon: <FaStickyNote /> },
     { name: 'System Settings', path: '/settings', icon: <FaCog />, module: 'settings' },
+    { name: 'Access Control (Users & Roles)', path: '/access-control', icon: <FaUserShield />, adminOnly: true },
     { name: 'User Management', path: '/user-management', icon: <FaUsers />, adminOnly: true },
     { name: 'Role Management', path: '/role-management', icon: <FaUserShield />, adminOnly: true }
   ].filter(p => p.adminOnly ? isAdmin() : hasModuleAccess(p.module || 'home'));

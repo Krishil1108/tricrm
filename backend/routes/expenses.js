@@ -8,6 +8,7 @@ const Firm = require('../models/Firm');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { validateUploadedMagicBytes } = require('../utils/fileMagicValidator');
 
 // Debug flag - set to false to disable console logging
 const DEBUG = false;
@@ -470,7 +471,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create expense
-router.post('/', upload.array('attachments', 5), async (req, res) => {
+router.post('/', upload.array('attachments', 5), validateUploadedMagicBytes, async (req, res) => {
   log('[EXPENSE-ROUTES] POST / - Creating expense');
   log('[EXPENSE-ROUTES] Body:', req.body);
   log('[EXPENSE-ROUTES] Files:', req.files?.length || 0);
@@ -557,7 +558,7 @@ router.post('/', upload.array('attachments', 5), async (req, res) => {
 });
 
 // Update expense
-router.put('/:id', upload.array('attachments', 5), async (req, res) => {
+router.put('/:id', upload.array('attachments', 5), validateUploadedMagicBytes, async (req, res) => {
   try {
     const expense = await Expense.findById(req.params.id);
     if (!expense) {
@@ -891,6 +892,20 @@ router.get('/analytics/fiscal-year', async (req, res) => {
     console.error('Error fetching fiscal year summary:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
+});
+
+// Authenticated, path-traversal-safe attachment download/preview (SEC-01)
+router.get('/attachments/:filename', (req, res) => {
+  const safeName = path.basename(req.params.filename || '');
+  if (!safeName) {
+    return res.status(400).json({ success: false, message: 'Invalid filename' });
+  }
+  const uploadDir = path.resolve(__dirname, '../uploads/expenses');
+  const targetPath = path.resolve(uploadDir, safeName);
+  if (!targetPath.startsWith(uploadDir + path.sep) || !fs.existsSync(targetPath)) {
+    return res.status(404).json({ success: false, message: 'Attachment not found' });
+  }
+  return res.sendFile(targetPath);
 });
 
 module.exports = router;

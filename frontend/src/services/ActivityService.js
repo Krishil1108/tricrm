@@ -1,92 +1,59 @@
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
+import { getAuthHeader } from '../utils/api';
 
-class ActivityService {
-  constructor() {
-    this.baseUrl = '/api/activities';
-  }
+const ActivityService = {
+  baseUrl: `${API_BASE_URL}/activities`,
 
-  async getRecentActivities(limit = 3) {
+  getRecentActivities: async (limit = 3) => {
     try {
-      const response = await axios.get(`${this.baseUrl}/recent?limit=${limit}`);
-      
-      // Support both standardized { success, data } envelope and raw array responses
+      const response = await axios.get(`${API_BASE_URL}/activities/recent?limit=${limit}`, {
+        headers: getAuthHeader()
+      });
+
       const raw = response.data?.data ?? response.data;
       return Array.isArray(raw) ? raw : [];
     } catch (error) {
       console.error('Error fetching recent activities:', error.response?.data || error.message);
-      
-      // If backend is not running, return sample data for demo purposes
-      if (error.code === 'ERR_NETWORK' || error.response?.status === 404) {
-        return this.getSampleActivities();
-      }
-      
-      // Return empty array on other errors to prevent crashes
       return [];
     }
-  }
+  },
 
-  // Sample activities for demo when backend is not available
-  getSampleActivities() {
-    return [
-      {
-        _id: 'sample1',
-        type: 'client_added',
-        description: 'Added new client: TechCorp Solutions',
-        entityName: 'TechCorp Solutions',
-        timestamp: new Date().toISOString(),
-        metadata: { email: 'contact@techcorp.com', company: 'TechCorp Solutions' }
-      },
-      {
-        _id: 'sample2',
-        type: 'inventory_added',
-        description: 'Added new inventory item: Office Chairs (25 units)',
-        entityName: 'Office Chairs',
-        timestamp: new Date(Date.now() - 300000).toISOString(), // 5 minutes ago
-        metadata: { category: 'Furniture', quantity: 25 }
-      },
-      {
-        _id: 'sample3',
-        type: 'meeting_scheduled',
-        description: 'Scheduled meeting: Weekly Team Standup for 10/07/2025',
-        entityName: 'Weekly Team Standup',
-        timestamp: new Date(Date.now() - 600000).toISOString(), // 10 minutes ago
-        metadata: { type: 'Meeting', location: 'Conference Room A' }
-      }
-    ];
-  }
-
-  async getAllActivities(params = {}) {
+  getAllActivities: async (params = {}) => {
     try {
       const queryString = new URLSearchParams(params).toString();
-      const response = await axios.get(`${this.baseUrl}?${queryString}`);
+      const response = await axios.get(`${API_BASE_URL}/activities?${queryString}`, {
+        headers: getAuthHeader()
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching activities:', error);
       throw error;
     }
-  }
+  },
 
-  async getActivityStats(userId = null, days = 30) {
+  getActivityStats: async (userId = null, days = 30) => {
     try {
       const params = new URLSearchParams();
       if (userId) params.append('userId', userId);
       params.append('days', days);
-      
-      const response = await axios.get(`${this.baseUrl}/stats/summary?${params.toString()}`);
+
+      const response = await axios.get(`${API_BASE_URL}/activities/stats/summary?${params.toString()}`, {
+        headers: getAuthHeader()
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching activity stats:', error);
       throw error;
     }
-  }
+  },
 
-  // Format activity for display
-  formatActivityDescription(activity) {
-    const timeAgo = this.getTimeAgo(activity.timestamp);
+  formatActivityDescription: (activity) => {
+    const timeAgo = ActivityService.getTimeAgo(activity.timestamp);
     return {
       ...activity,
       timeAgo,
-      formattedTime: new Date(activity.timestamp).toLocaleString('en-US', {
+      formattedTime: new Date(activity.timestamp).toLocaleString('en-IN', {
         month: '2-digit',
         day: '2-digit',
         year: 'numeric',
@@ -95,9 +62,9 @@ class ActivityService {
         hour12: true
       })
     };
-  }
+  },
 
-  getTimeAgo(timestamp) {
+  getTimeAgo: (timestamp) => {
     const now = new Date();
     const activityTime = new Date(timestamp);
     const diffInSeconds = Math.floor((now - activityTime) / 1000);
@@ -114,44 +81,41 @@ class ActivityService {
       const days = Math.floor(diffInSeconds / 86400);
       return `${days} day${days > 1 ? 's' : ''} ago`;
     } else {
-      return activityTime.toLocaleDateString('en-US', {
+      return activityTime.toLocaleDateString('en-IN', {
         month: 'short',
         day: 'numeric',
         year: activityTime.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
       });
     }
-  }
+  },
 
-  // Get icon for activity type
-  getActivityIcon(type) {
+  getActivityIcon: (type) => {
     const icons = {
-      'client_added': '👤',
-      'inventory_added': '📦',
-      'meeting_scheduled': '📅',
-      'note_added': '📝',
-      'client_updated': '✏️',
-      'inventory_updated': '📝',
-      'meeting_updated': '🔄',
-      'note_updated': '📄'
+      client_added: '👤',
+      associate_added: '🤝',
+      project_added: '📁',
+      payment_added: '💰',
+      whatsapp_sent: '💬',
+      note_added: '📝',
+      client_updated: '✏️',
+      note_updated: '📄'
     };
     return icons[type] || '📋';
-  }
+  },
 
-  // Get color for activity type
-  getActivityColor(type) {
+  getActivityColor: (type) => {
     const colors = {
-      'client_added': '#4CAF50',
-      'inventory_added': '#2196F3',
-      'meeting_scheduled': '#FF9800',
-      'note_added': '#9C27B0',
-      'client_updated': '#607D8B',
-      'inventory_updated': '#03A9F4',
-      'meeting_updated': '#FFC107',
-      'note_updated': '#E91E63'
+      client_added: '#4CAF50',
+      associate_added: '#2196F3',
+      project_added: '#6366f1',
+      payment_added: '#10b981',
+      whatsapp_sent: '#22c55e',
+      note_added: '#9C27B0',
+      client_updated: '#607D8B',
+      note_updated: '#E91E63'
     };
     return colors[type] || '#666';
   }
-}
+};
 
-// eslint-disable-next-line import/no-anonymous-default-export
-export default new ActivityService();
+export default ActivityService;

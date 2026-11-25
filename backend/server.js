@@ -248,6 +248,7 @@ const dataManagementRoutes = require('./routes/dataManagement');
 const analyticsRoutes = require('./routes/analytics');
 const expenseRoutes = require('./routes/expenses');
 const settingsRoutes = require('./routes/settings');
+const searchRoutes = require('./routes/search');
 
 // Public routes (no authentication required)
 app.use('/api/auth', authRoutes);
@@ -265,6 +266,7 @@ app.use('/api/finance', authenticate, hasModuleAccess('finance'), financeRoutes)
 app.use('/api/expenses', authenticate, hasModuleAccess('expenses'), expenseRoutes);
 app.use('/api/settings', authenticate, settingsRoutes);
 app.use('/api/data', authenticate, dataManagementRoutes);
+app.use('/api/search', authenticate, searchRoutes);
 
 // Analytics routes with debugging
 console.log('📊 [SERVER] Registering analytics routes at /api/analytics...');

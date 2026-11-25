@@ -38,8 +38,7 @@ const AssociateProjectsPage = lazy(() => import('./AssociateProjectsPage'));
 const SettingsPage = lazy(() => import('./SettingsPage'));
 const ProjectPage = lazy(() => import('./ProjectPage'));
 const ProjectDetailPage = lazy(() => import('./ProjectDetailPage'));
-const UserManagementPage = lazy(() => import('./UserManagementPage'));
-const RoleManagementPage = lazy(() => import('./RoleManagementPage'));
+const AccessControlPage = lazy(() => import('./AccessControlPage'));
 const AnalyticsDashboard = lazy(() => import('./AnalyticsDashboard'));
 const FinanceDashboard   = lazy(() => import('./FinanceDashboard'));
 const ExpensesPage       = lazy(() => import('./ExpensesPage'));
@@ -233,10 +232,19 @@ function App() {
                             />
                             
                             <Route 
+                              path="/access-control" 
+                              element={
+                                <ProtectedRoute requireAdmin>
+                                  <AccessControlPage defaultTab="users" />
+                                </ProtectedRoute>
+                              } 
+                            />
+
+                            <Route 
                               path="/user-management" 
                               element={
                                 <ProtectedRoute requireAdmin>
-                                  <UserManagementPage />
+                                  <AccessControlPage defaultTab="users" />
                                 </ProtectedRoute>
                               } 
                             />
@@ -245,7 +253,7 @@ function App() {
                               path="/role-management" 
                               element={
                                 <ProtectedRoute requireAdmin>
-                                  <RoleManagementPage />
+                                  <AccessControlPage defaultTab="roles" />
                                 </ProtectedRoute>
                               } 
                             />

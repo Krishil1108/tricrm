@@ -111,24 +111,12 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
     }
   ];
 
-  // Admin-only menu items
+  // Admin-only menu items (merged Users & Roles hub)
   const adminMenuItems = [
     { 
-      id: 'user-management', 
-      path: '/user-management',
-      name: 'User Management',
-      module: 'admin',
-      adminOnly: true,
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 5.9c1.16 0 2.1.94 2.1 2.1s-.94 2.1-2.1 2.1S9.9 9.16 9.9 8s.94-2.1 2.1-2.1m0 9c2.97 0 6.1 1.46 6.1 2.1v1.1H5.9V17c0-.64 3.13-2.1 6.1-2.1M12 4C9.79 4 8 5.79 8 8s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 9c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"/>
-        </svg>
-      )
-    },
-    { 
-      id: 'role-management', 
-      path: '/role-management',
-      name: 'Role Management',
+      id: 'access-control', 
+      path: '/access-control',
+      name: 'Users & Roles',
       module: 'admin',
       adminOnly: true,
       icon: (
@@ -201,6 +189,11 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
           { id: 'notes-all', label: 'All Notes', path: '/notes' },
           { id: 'notes-add', label: '+ Quick Note', path: '/notes', state: { openAddModal: true }, isAction: true }
         ];
+      case 'access-control':
+        return [
+          { id: 'ac-users', label: 'Users', path: '/user-management' },
+          { id: 'ac-roles', label: 'Roles & Permissions', path: '/role-management' }
+        ];
       default:
         return [];
     }
@@ -208,12 +201,13 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
 
   // Auto-expand submenu for the currently active parent route
   useEffect(() => {
-    const activeParentIds = ['clients', 'associates', 'projects', 'finance', 'notes'].filter(id => {
+    const activeParentIds = ['clients', 'associates', 'projects', 'finance', 'notes', 'access-control'].filter(id => {
       if (id === 'clients') return location.pathname.startsWith('/clients');
       if (id === 'associates') return location.pathname.startsWith('/associates');
       if (id === 'projects') return location.pathname.startsWith('/projects');
       if (id === 'finance') return location.pathname.startsWith('/finance') || location.pathname.startsWith('/expenses');
       if (id === 'notes') return location.pathname.startsWith('/notes');
+      if (id === 'access-control') return location.pathname.startsWith('/access-control') || location.pathname.startsWith('/user-management') || location.pathname.startsWith('/role-management');
       return false;
     });
     if (activeParentIds.length > 0) {
@@ -345,6 +339,7 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
                 : item.id === 'projects' ? ['/projects']
                 : item.id === 'finance' ? ['/finance', '/expenses']
                 : item.id === 'notes' ? ['/notes']
+                : item.id === 'access-control' ? ['/access-control', '/user-management', '/role-management']
                 : undefined
             });
 

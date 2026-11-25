@@ -11,7 +11,7 @@ import './RoleManagementPage.css';
 import './styles/ActionButtons.css';
 import API_BASE_URL from './config/api';
 
-const RoleManagementPage = () => {
+const RoleManagementPage = ({ embedded = false }) => {
   const { token } = useAuth();
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -671,31 +671,40 @@ const RoleManagementPage = () => {
 
   return (
     <div className="role-management-page">
-      <Watermark />
+      {!embedded && <Watermark />}
       
-      <div className="page-header">
-        <div className="header-content">
-          <div className="header-icon">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" fill="url(#shield-gradient)"/>
-              <defs>
-                <linearGradient id="shield-gradient" x1="2" y1="2" x2="22" y2="22">
-                  <stop offset="0%" stopColor="#3b82f6"/>
-                  <stop offset="100%" stopColor="#9333ea"/>
-                </linearGradient>
-              </defs>
-            </svg>
+      {!embedded ? (
+        <div className="page-header">
+          <div className="header-content">
+            <div className="header-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z" fill="url(#shield-gradient)"/>
+                <defs>
+                  <linearGradient id="shield-gradient" x1="2" y1="2" x2="22" y2="22">
+                    <stop offset="0%" stopColor="#3b82f6"/>
+                    <stop offset="100%" stopColor="#9333ea"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <div className="header-text">
+              <h1>Role Management</h1>
+              <p className="header-subtitle">Configure granular access, permissions, and visibility rules across all CRM modules</p>
+            </div>
           </div>
-          <div className="header-text">
-            <h1>Role Management</h1>
-            <p className="header-subtitle">Configure granular access, permissions, and visibility rules across all CRM modules</p>
-          </div>
+          <button className="add-role-btn" onClick={() => handleOpenModal()}>
+            <FaUserShield style={{ marginRight: '8px' }} />
+            Add New Role
+          </button>
         </div>
-        <button className="add-role-btn" onClick={() => handleOpenModal()}>
-          <FaUserShield style={{ marginRight: '8px' }} />
-          Add New Role
-        </button>
-      </div>
+      ) : (
+        <div className="embedded-action-bar">
+          <button className="add-role-btn" onClick={() => handleOpenModal()}>
+            <FaUserShield style={{ marginRight: '8px' }} />
+            Add New Role
+          </button>
+        </div>
+      )}
 
       {message.text && (
         <div className={`message message-${message.type}`}>
