@@ -644,11 +644,11 @@ const AssociatesPage = memo(() => {
                     Clear Filters
                   </button>
                 )}
-                {hasGranularPermission('add_new_associate') && (
+                {canAddNewAssociate() && (
                   <button
                     type="button"
                     className="btn-primary"
-                    onClick={() => { setEditingAssociate(null); setShowAddForm(true); }}
+                    onClick={() => setShowAddPopup(true)}
                   >
                     + Add New Associate
                   </button>
