@@ -1,14 +1,9 @@
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import clientCache from '../utils/clientCache';
+import { getAuthHeader } from '../utils/api';
 
 const API_URL = API_BASE_URL;
-
-// Get auth token
-const getAuthHeader = () => {
-  const token = localStorage.getItem('token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
 
 export const invalidateFinanceCache = () => {
   clientCache.invalidate('finance');

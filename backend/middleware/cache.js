@@ -117,9 +117,17 @@ const cacheMiddleware = (duration = 300) => {
 const clearCache = async (pattern) => {
   if (!redisClient) return;
   try {
-    const keys = await redisClient.keys(pattern);
-    if (keys.length > 0) {
-      await redisClient.del(keys);
+    const keysToDelete = [];
+    if (typeof redisClient.scanIterator === 'function') {
+      for await (const key of redisClient.scanIterator({ MATCH: pattern, COUNT: 100 })) {
+        keysToDelete.push(key);
+      }
+    } else {
+      const keys = await redisClient.keys(pattern);
+      keysToDelete.push(...keys);
+    }
+    if (keysToDelete.length > 0) {
+      await redisClient.del(keysToDelete);
     }
   } catch (error) {
     console.error('Redis clear cache error:', error);

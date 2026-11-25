@@ -1,11 +1,5 @@
-import api from '../utils/api';
+import api, { getAuthHeader } from '../utils/api';
 import clientCache from '../utils/clientCache';
-
-// Shared auth header helper (consistent with FinanceService / ExpenseService)
-const getAuthHeader = () => {
-  const token = localStorage.getItem('token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
 
 const invalidateClientCache = () => {
   clientCache.invalidate('client');

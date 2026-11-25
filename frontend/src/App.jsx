@@ -44,6 +44,7 @@ const FinanceDashboard   = lazy(() => import('./FinanceDashboard'));
 const ExpensesPage       = lazy(() => import('./ExpensesPage'));
 const AIAssistant        = lazy(() => import('./components/AIAssistant/AIAssistant'));
 const CommandPalette     = lazy(() => import('./components/CommandPalette/CommandPalette'));
+const NotFoundPage       = lazy(() => import('./NotFoundPage'));
 
 function App() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
@@ -231,7 +232,7 @@ function App() {
                               } 
                             />
                             
-                            <Route path="*" element={<DefaultRoute />} />
+                            <Route path="*" element={<NotFoundPage />} />
                           </Routes>
                         </div>
                         {/* Global AI Assistant & Command Palette */}

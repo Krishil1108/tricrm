@@ -4,12 +4,17 @@ import clientCache from './clientCache';
 const API_BASE_URL = API_BASE_URL_CONFIG;
 
 // Get auth headers with token
-const getAuthHeaders = () => {
+export const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
   return {
     'Content-Type': 'application/json',
     ...(token && { 'Authorization': `Bearer ${token}` })
   };
+};
+
+export const getAuthHeader = () => {
+  const token = localStorage.getItem('token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 // Handle API errors
