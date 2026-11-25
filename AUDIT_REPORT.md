@@ -1,8 +1,8 @@
 # TRICRM — Full Audit Report: Bugs, Issues & Enhancement Roadmap
 
 > **Audited on**: November 2026  
-> **Codebase State**: `main` @ `63dbf8e`  
-> **Progress Summary**: **33 of 58 items resolved** (Section 1 100% fixed, Section 2 100% completed except calendar/meetings)
+> **Codebase State**: `main` @ `f84a4bf`  
+> **Progress Summary**: **35 of 58 items resolved** (Sections 1 & 3 100% fixed; Section 2 100% completed except calendar/meetings)
 
 ---
 
@@ -12,11 +12,11 @@
 |---|:---:|:---:|:---:|:---:|
 | **Section 1: Real Bugs** | **13** | **13** | **0** | **100% FIXED ✅** |
 | **Section 2: Missing Functionality** | **12** | **10** | **2** | **83% FIXED ✅ (Calendar/Meetings excluded per instruction)** |
-| **Section 3: Service Layer Issues** | **6** | **4** | **2** | **67% (In Progress)** |
+| **Section 3: Service Layer Issues** | **6** | **6** | **0** | **100% FIXED ✅** |
 | **Section 4: UI / UX Issues** | **9** | **1** | **8** | **11% (In Progress)** |
 | **Section 5: Enhancements** | **14** | **3** | **11** | **21% (In Progress)** |
 | **Section 6: Security Concerns** | **4** | **2** | **2** | **50% (In Progress)** |
-| **Total** | **58** | **33** | **25** | **57% Completed** |
+| **Total** | **58** | **35** | **23** | **60% Completed** |
 
 ---
 
@@ -204,15 +204,17 @@
 
 ---
 
-### [ ] SVC-01 · **Inconsistent API response formats between routes**
-**Files**: Backend route files  
-**Issue**: Some routes return `{ success, data }` while others return direct arrays or objects.
+### [x] SVC-01 · **Inconsistent API response formats between routes** — ✅ FIXED (`f84a4bf`)
+**Files**: `backend/utils/apiResponse.js`, `backend/routes/clients.js`, `backend/routes/associates.js`, `backend/routes/activities.js`, `backend/routes/notes.js`, `frontend/src/services/ActivityService.js`  
+**Issue**: Some routes returned `{ success, data }` while others returned raw arrays or objects.  
+**Resolution**: Created standardized `sendSuccess` / `sendError` response helpers in `backend/utils/apiResponse.js` and updated `clients`, `associates`, `activities`, and `notes` endpoints to return consistent `{ success: true/false, data, message }` envelopes, with safe unwrapping in `ActivityService.js`.
 
 ---
 
-### [ ] SVC-02 · **`ClientService` is a static class but all other services are plain object literals**
-**File**: `frontend/src/services/ClientService.js`  
-**Issue**: Class vs object literal inconsistency across services.
+### [x] SVC-02 · **`ClientService` is a static class but all other services are plain object literals** — ✅ FIXED (`f84a4bf`)
+**Files**: `frontend/src/services/ClientService.js`, `frontend/src/services/AssociateService.js`  
+**Issue**: Class vs object literal inconsistency across services.  
+**Resolution**: Refactored `ClientService` and `AssociateService` from static classes into plain object literals matching `FinanceService` and `ExpenseService` while preserving all method signatures and SWR caching.
 
 ---
 
@@ -406,8 +408,8 @@
 
 | Status | Total Items | Percentage |
 |---|:---:|:---:|
-| **✅ Resolved** | **33** | **56.9%** |
-| **⏳ Remaining** | **25** | **43.1%** |
+| **✅ Resolved** | **35** | **60.3%** |
+| **⏳ Remaining** | **23** | **39.7%** |
 | **Total** | **58** | **100%** |
 
-*(All 13 Real Bugs in Section 1 are 100% Resolved. Section 2 is 100% Resolved excluding calendar/meetings deferred per instruction)*
+*(Sections 1 & 3 are 100% Resolved. Section 2 is 100% Resolved excluding calendar/meetings deferred per instruction)*
