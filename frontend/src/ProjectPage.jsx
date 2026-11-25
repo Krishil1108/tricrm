@@ -141,6 +141,22 @@ const ProjectPage = () => {
     loadAssociates();
   }, [activeTab, filterStatus]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Subscribe to real-time data events
+  useEffect(() => {
+    const unsubProjects = dataEventManager.subscribe(DATA_TYPES.PROJECTS, () => {
+      fetchData();
+      fetchStats();
+    });
+    const unsubExpenses = dataEventManager.subscribe(DATA_TYPES.EXPENSES, () => {
+      fetchData();
+      fetchStats();
+    });
+    return () => {
+      unsubProjects();
+      unsubExpenses();
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -456,6 +472,7 @@ const ProjectPage = () => {
       showLoading('Importing data from Excel...');
       const response = await FinanceService.importProjects(file);
       showSuccess(response.message || 'Import successful');
+      dataEventManager.emit(DATA_TYPES.PROJECTS, { action: 'imported' });
       fetchData();
       fetchStats();
       e.target.value = ''; // Reset file input
@@ -644,10 +661,12 @@ const ProjectPage = () => {
         // Optimistically remove from UI
         setProjects(projects.filter(p => p._id !== id));
         await FinanceService.deleteProject(id);
+        dataEventManager.emit(DATA_TYPES.PROJECTS, { action: 'deleted', id });
       } else {
         // Optimistically remove from UI
         setExpenses(expenses.filter(e => e._id !== id));
         await FinanceService.deleteExpense(id);
+        dataEventManager.emit(DATA_TYPES.EXPENSES, { action: 'deleted', id });
       }
       showSuccess('Deleted successfully');
       // Refresh stats in background
@@ -823,11 +842,14 @@ const ProjectPage = () => {
       if (activeTab === 'projects') {
         if (editingItem) {
           await FinanceService.updateProject(editingItem._id, cleanFormData);
+          dataEventManager.emit(DATA_TYPES.PROJECTS, { action: 'updated', id: editingItem._id });
         } else {
           await FinanceService.createProject(cleanFormData);
+          dataEventManager.emit(DATA_TYPES.PROJECTS, { action: 'created' });
         }
       } else {
         await FinanceService.saveExpense(cleanFormData);
+        dataEventManager.emit(DATA_TYPES.EXPENSES, { action: 'saved' });
       }
       showSuccess('Saved successfully');
       

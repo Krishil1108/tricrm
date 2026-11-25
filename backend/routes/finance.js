@@ -448,6 +448,11 @@ router.post('/import/projects', authenticate, upload.single('file'), async (req,
     const worksheet = workbook.Sheets[sheetName];
     const data = XLSX.utils.sheet_to_json(worksheet);
     
+    // Security: Limit row count to prevent CPU/memory exhaustion (SEC-04)
+    if (data.length > 5000) {
+      return res.status(400).json({ message: 'File contains too many rows. Maximum allowed is 5,000 rows.' });
+    }
+    
     const projects = [];
     const errors = [];
     

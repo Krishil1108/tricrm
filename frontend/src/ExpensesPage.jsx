@@ -11,6 +11,7 @@ import {
   FiFolder, FiMapPin, FiBriefcase, FiFileText, FiTool, FiLoader
 } from 'react-icons/fi';
 import ExpenseService from './services/ExpenseService';
+import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import { useToast } from './context/ToastContext';
 import { useAuth } from './contexts/AuthContext';
 import API_BASE_URL from './config/api';
@@ -243,11 +244,13 @@ const ExpenseWizard = ({ isOpen, onClose, onSuccess, editData = null }) => {
       if (editData) {
         log('WIZARD', 'Updating existing expense:', editData._id);
         await ExpenseService.updateExpense(editData._id, payload);
+        dataEventManager.emit(DATA_TYPES.EXPENSES, { action: 'updated', id: editData._id });
         showSuccess('Expense updated successfully');
       } else {
         log('WIZARD', 'Creating new expense...');
         const result = await ExpenseService.createExpense(payload);
         log('WIZARD', 'Create result:', result);
+        dataEventManager.emit(DATA_TYPES.EXPENSES, { action: 'created' });
         showSuccess('Expense created successfully');
       }
       
@@ -1005,6 +1008,7 @@ const ExpensesPage = () => {
     log('PAGE', 'Deleting expense:', deleteConfirm.expense._id);
     try {
       await ExpenseService.deleteExpense(deleteConfirm.expense._id);
+      dataEventManager.emit(DATA_TYPES.EXPENSES, { action: 'deleted', id: deleteConfirm.expense._id });
       showSuccess('Expense deleted successfully');
       setDeleteConfirm({ show: false, expense: null });
       loadExpenses();

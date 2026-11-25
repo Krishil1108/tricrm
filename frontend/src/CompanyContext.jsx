@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import API_BASE_URL from './config/api';
 
 const CompanyContext = createContext();
 
@@ -35,24 +36,23 @@ export const CompanyProvider = ({ children }) => {
     }
   });
 
-  // Load company info from localStorage on component mount
+  // Load company info from localStorage on mount and sync with MongoDB backend
   useEffect(() => {
     const savedCompanyInfo = localStorage.getItem('companyInfo');
     if (savedCompanyInfo) {
       try {
         const parsedInfo = JSON.parse(savedCompanyInfo);
         
-        // Restore the default logo since it can't be saved
+        // Restore default logo SVG
         const defaultLogo = (
           <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/>
           </svg>
         );
         
-        // Ensure quotationSettings exists with defaults
         const mergedInfo = {
           ...parsedInfo,
-          logo: defaultLogo, // Restore default logo
+          logo: defaultLogo,
           quotationSettings: parsedInfo.quotationSettings || {
             prefix: 'Q',
             startingNumber: 1001,
@@ -67,19 +67,72 @@ export const CompanyProvider = ({ children }) => {
         console.error('Error loading company info from localStorage:', error);
       }
     }
+
+    // Hydrate fresh company settings from MongoDB /api/settings
+    const syncRemoteSettings = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/settings`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const res = await response.json();
+          if (res.data) {
+            const { _id, __v, createdAt, updatedAt, updatedBy, ...cleanData } = res.data;
+            setCompanyInfo(prev => {
+              const updated = {
+                ...prev,
+                ...cleanData,
+                logo: prev.logo,
+                quotationSettings: {
+                  ...prev.quotationSettings,
+                  ...(cleanData.quotationSettings || {})
+                }
+              };
+              const { logo, ...serializable } = updated;
+              localStorage.setItem('companyInfo', JSON.stringify(serializable));
+              return updated;
+            });
+          }
+        }
+      } catch (err) {
+        console.warn('Could not sync company settings with backend:', err.message);
+      }
+    };
+
+    syncRemoteSettings();
   }, []);
 
-  // Save company info to localStorage whenever it changes
-  const updateCompanyInfo = (newInfo) => {
+  // Save company info to localStorage and persist to database
+  const updateCompanyInfo = async (newInfo) => {
     const updatedInfo = { ...companyInfo, ...newInfo };
     setCompanyInfo(updatedInfo);
     
-    // Create a copy without the logo (React component) for localStorage
+    // Create a copy without the logo (React component) for localStorage & backend
     const { logo, ...serializableInfo } = updatedInfo;
     try {
       localStorage.setItem('companyInfo', JSON.stringify(serializableInfo));
     } catch (error) {
       console.error('Error saving company info to localStorage:', error);
+    }
+
+    // Persist to MongoDB backend
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        await fetch(`${API_BASE_URL}/settings`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(serializableInfo)
+        });
+      } catch (err) {
+        console.warn('Error saving company info to backend:', err.message);
+      }
     }
   };
 

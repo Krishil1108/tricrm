@@ -9,6 +9,7 @@ import Watermark from './components/Watermark';
 import axios from 'axios';
 import API_BASE_URL from './config/api';
 import clientCache from './utils/clientCache';
+import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import './CRMDashboard.css';
 
 const HomePage = () => {
@@ -47,9 +48,12 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-    const fetchDashboardStats = async () => {
+    const fetchDashboardStats = async (forceRefresh = false) => {
       try {
         const token = localStorage.getItem('token');
+        if (forceRefresh) {
+          clientCache.invalidate('home_dashboard_stats');
+        }
         
         // Use clientCache with SWR
         const data = await clientCache.fetchWithCache('home_dashboard_stats', async () => {
@@ -62,7 +66,7 @@ const HomePage = () => {
             totalAssociates: response.data.data.totalAssociates || 0,
             totalExpenses: response.data.data.totalExpenses || 0
           };
-        });
+        }, { force: forceRefresh });
 
         if (data) {
           setStats({
@@ -77,6 +81,19 @@ const HomePage = () => {
     };
 
     fetchDashboardStats();
+
+    // Real-time synchronization across modules
+    const unsubClients = dataEventManager.subscribe(DATA_TYPES.CLIENTS, () => fetchDashboardStats(true));
+    const unsubAssociates = dataEventManager.subscribe(DATA_TYPES.ASSOCIATES, () => fetchDashboardStats(true));
+    const unsubProjects = dataEventManager.subscribe(DATA_TYPES.PROJECTS, () => fetchDashboardStats(true));
+    const unsubExpenses = dataEventManager.subscribe(DATA_TYPES.EXPENSES, () => fetchDashboardStats(true));
+
+    return () => {
+      unsubClients();
+      unsubAssociates();
+      unsubProjects();
+      unsubExpenses();
+    };
   }, []);
 
   const handleSearch = async () => {
