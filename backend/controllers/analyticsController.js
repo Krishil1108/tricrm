@@ -4,6 +4,14 @@ const analyticsEnhancedService = require('../services/analyticsEnhancedService')
 console.log('📊 [ANALYTICS CONTROLLER] Loading analytics controller...');
 
 class AnalyticsController {
+  constructor() {
+    // Bind all prototype methods so Express route callbacks preserve `this`
+    Object.getOwnPropertyNames(AnalyticsController.prototype).forEach((name) => {
+      if (name !== 'constructor' && typeof this[name] === 'function') {
+        this[name] = this[name].bind(this);
+      }
+    });
+  }
   
   // Get filter options for dropdowns
   async getClientOptions(req, res) {
