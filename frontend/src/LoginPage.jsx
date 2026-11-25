@@ -119,7 +119,7 @@ function LoginPage() {
                 <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
                 <span>Remember me</span>
               </label>
-              <Link to="/forgot-password" className="auth-forgot" style={{ fontSize: '0.8rem', color: '#006A4E', textDecoration: 'none', fontWeight: '500' }}>
+              <Link to="/forgot-password" className="auth-forgot" style={{ fontSize: '0.8rem', color: 'var(--brand-primary, #4f46e5)', textDecoration: 'none', fontWeight: '500' }}>
                 Forgot password?
               </Link>
             </div>

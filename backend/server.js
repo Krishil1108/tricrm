@@ -374,16 +374,23 @@ app.get('/api/dashboard-stats', authenticate, cacheMiddleware(30, 'dashboard_sta
     const Associate = require('./models/Associate');
     const FinanceProject = require('./models/FinanceProject');
     
-    // Get counts only - super fast, no data fetching
-    const [clientCount, associateCount, projectCount, expenseDistribution] = await Promise.all([
+    const now = new Date();
+    const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    // Get counts and financial totals in parallel
+    const [clientCount, associateCount, projectCount, thisMonthProjects, lastMonthProjects, expenseDistribution] = await Promise.all([
       Client.countDocuments(),
       Associate.countDocuments(),
       FinanceProject.countDocuments(),
-      // Calculate total expenses from existing projects
+      FinanceProject.countDocuments({ createdAt: { $gte: startOfThisMonth } }),
+      FinanceProject.countDocuments({ createdAt: { $gte: startOfLastMonth, $lt: startOfThisMonth } }),
       FinanceProject.aggregate([
         {
           $group: {
             _id: null,
+            totalRevenue: { $sum: '$totalReceivedFees' },
+            totalFinalized: { $sum: '$finalizedFees' },
             totalDrawing: { $sum: '$drawing' },
             totalDocuments: { $sum: '$documents' },
             totalSiteVisit: { $sum: '$siteVisit' },
@@ -395,17 +402,31 @@ app.get('/api/dashboard-stats', authenticate, cacheMiddleware(30, 'dashboard_sta
     ]);
 
     const expenseData = expenseDistribution[0] || {};
+    const totalRevenue = expenseData.totalRevenue || 0;
+    const totalFinalized = expenseData.totalFinalized || 0;
+    const pendingAmount = Math.max(0, totalFinalized - totalRevenue);
     const totalExpenses = (expenseData.totalDrawing || 0) +
                          (expenseData.totalDocuments || 0) +
                          (expenseData.totalSiteVisit || 0) +
                          (expenseData.totalMarketingMisc || 0) +
                          (expenseData.totalOfficeManagement || 0);
 
+    const projectDeltaPct = lastMonthProjects > 0
+      ? Math.round(((thisMonthProjects - lastMonthProjects) / lastMonthProjects) * 100)
+      : (thisMonthProjects > 0 ? 100 : 0);
+
     res.sendSuccess({
       totalClients: clientCount,
       totalAssociates: associateCount,
       totalProjects: projectCount,
-      totalExpenses: totalExpenses
+      totalExpenses,
+      totalRevenue,
+      pendingAmount,
+      trends: {
+        thisMonthProjects,
+        lastMonthProjects,
+        projectDeltaPct
+      }
     }, 'Dashboard statistics retrieved successfully');
   } catch (error) {
     console.error('Error fetching dashboard stats:', error);

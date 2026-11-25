@@ -2209,52 +2209,52 @@ const ProjectsTable = ({
               style={{ cursor: 'pointer' }}
               title="Double-click to view project details"
             >
-              <td>{project.projectNumber}</td>
-              <td>{project.projectName}</td>
-              <td style={{ width: '150px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{project.projectLocation || '-'}</td>
-              <td style={{ 
-                color: (project.finalizedFees || 0) === 0 ? 'red' : 'inherit',
+              <td data-label="Project #">{project.projectNumber}</td>
+              <td data-label="Project Name">{project.projectName}</td>
+              <td data-label="Location" style={{ width: '150px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{project.projectLocation || '-'}</td>
+              <td data-label="Finalized Fees" className="tabular-nums" style={{ 
+                color: (project.finalizedFees || 0) === 0 ? 'var(--color-danger, #dc2626)' : 'inherit',
                 fontWeight: (project.finalizedFees || 0) === 0 ? 'bold' : 'normal'
               }}>
                 {formatCurrency(project.finalizedFees)}
               </td>
-              <td>{formatCurrency(project.totalReceivedFees)}</td>
-              <td>
+              <td data-label="Received Fees" className="tabular-nums">{formatCurrency(project.totalReceivedFees)}</td>
+              <td data-label="Status">
                 <span className={`status-badge status-${project.status.toLowerCase().replace(' ', '')}`}>
                   {project.status}
                 </span>
               </td>
-              <td>
+              <td data-label="Actions">
                 <div className="flex items-center gap-2" style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', position: 'relative' }}>
                   <button
+                    type="button"
+                    aria-label={`Add payment to ${project.projectName}`}
                     onClick={() => navigate(`/projects/${project._id}?addPayment=true`, { state: { projectName: project.projectName } })}
                     style={{ padding: '8px', color: '#16a34a', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
                     title="Add Payment"
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0fdf4'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                   >
                     <FaPlus style={{ width: '18px', height: '18px' }} />
                   </button>
                   {canEdit() && (
                     <button
+                      type="button"
+                      aria-label={`Edit ${project.projectName}`}
                       onClick={() => onEdit(project)}
                       className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                       style={{ padding: '8px', color: '#2563eb', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
                       title="Edit Project"
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#eff6ff'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
                       <FaEdit className="w-5 h-5" style={{ width: '20px', height: '20px' }} />
                     </button>
                   )}
                   {canDelete() && (
                     <button
+                      type="button"
+                      aria-label={`Delete ${project.projectName}`}
                       onClick={() => onDelete(project._id)}
                       className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       style={{ padding: '8px', color: '#dc2626', backgroundColor: 'transparent', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s ease' }}
                       title="Delete Project"
-                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#fef2f2'}
-                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
                       <FaTrash className="w-5 h-5" style={{ width: '20px', height: '20px' }} />
                     </button>
@@ -2561,12 +2561,20 @@ const Modal = ({
     setFormData(updatedFormData);
   };
 
+  React.useEffect(() => {
+    const onEsc = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onEsc);
+    return () => window.removeEventListener('keydown', onEsc);
+  }, [onClose]);
+
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay" onClick={onClose} role="presentation">
+      <div className="modal-content" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>{isEditing ? 'Edit' : 'Add'} {activeTab === 'projects' ? 'Project' : 'Expense'}</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
+          <button type="button" className="modal-close" onClick={onClose} aria-label="Close modal">×</button>
         </div>
 
         <div className="modal-body">
@@ -2608,6 +2616,7 @@ const Modal = ({
 
 // Project Form
 const ProjectForm = ({ formData, handleChange, addPayment, removePayment, updatePayment, clients, associates, onAddClient, onAddAssociate, percentageConfig, hasPermission, bankList, newBankName, setNewBankName, addBank }) => {
+  const { showError } = useToast();
   // eslint-disable-next-line no-unused-vars
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
@@ -2944,7 +2953,7 @@ const ProjectForm = ({ formData, handleChange, addPayment, removePayment, update
                         );
                         
                         if (isDuplicate) {
-                          alert('This associate is already added to this project. Please select a different associate.');
+                          showError('This associate is already added to this project. Please select a different associate.');
                           return;
                         }
                         
@@ -3207,6 +3216,7 @@ const ExpenseForm = ({ formData, handleChange }) => (
 
 // Percentage Configuration Modal Component
 const PercentageConfigModal = ({ config, onSave, onClose }) => {
+  const { showSuccess, showError } = useToast();
   const [tempConfig, setTempConfig] = useState({
     ...config,
     associates: config.associates || [{ id: '', name: '', company: '', percentage: 0 }],
@@ -3301,7 +3311,7 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
 
   const handleAddNewAssociate = async () => {
     if (!newAssociateData.name || !newAssociateData.email) {
-      alert('Name and Email are required');
+      showError('Name and Email are required');
       return;
     }
 
@@ -3321,10 +3331,10 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
         zipCode: '',
         notes: ''
       });
-      alert('Associate added successfully!');
+      showSuccess('Associate added successfully!');
     } catch (error) {
       console.error('Error adding associate:', error);
-      alert('Failed to add associate. Please try again.');
+      showError('Failed to add associate. Please try again.');
     }
   };
 
@@ -3419,7 +3429,7 @@ const PercentageConfigModal = ({ config, onSave, onClose }) => {
   const handleSave = () => {
     const total = calculateTotalPercentage();
     if (total > 100) {
-      alert('Total percentage cannot exceed 100%');
+      showError(`Total percentage (${total.toFixed(1)}%) cannot exceed 100%`);
       return;
     }
     

@@ -1853,6 +1853,14 @@ button.finance-btn-secondary:hover:not(:disabled), .finance-btn-secondary:hover:
     text-align: right;
   }
 
+  .project-table tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-muted, #64748b);
+    text-align: left;
+    margin-right: 12px;
+  }
+
   .project-table tbody td:last-child {
     border-bottom: none;
   }

@@ -146,7 +146,16 @@
   border-radius: 12px;
   padding: 16px 18px;
   box-shadow: var(--shadow-sm);
+  transition: transform 150ms ease, box-shadow 150ms ease;
 }
+.ui-stat-card--success .ui-stat-value { color: var(--color-success, #16a34a); }
+.ui-stat-card--warning .ui-stat-value { color: var(--color-warning, #d97706); }
+.ui-stat-card--danger .ui-stat-value { color: var(--color-danger, #dc2626); }
+.ui-stat-card--primary .ui-stat-value { color: var(--brand-primary, #4f46e5); }
+.home-kpi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.home-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.home-kpi-clickable { cursor: pointer; }
+.home-kpi-clickable:hover .ui-stat-card { transform: translateY(-2px); box-shadow: var(--shadow-md); }
 .ui-stat-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .ui-stat-label { font-size: 0.82rem; font-weight: 600; color: var(--color-muted); }
 .ui-stat-value { font-size: 1.5rem; font-weight: 700; color: var(--color-text); }

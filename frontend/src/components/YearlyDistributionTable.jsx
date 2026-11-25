@@ -380,18 +380,10 @@ const YearlyDistributionTable = ({
         (percentages.officeManagementPercent || 0)
       );
       if (totalPercent > 100) {
-        alert(
-          `⚠️ Total distribution is ${totalPercent.toFixed(2)}% which exceeds 100%.\n\n` +
-          `Please adjust the distribution amounts so they total no more than the payment amount after associate deductions.\n\n` +
-          `Current distribution:\n` +
-          `  Profit Margin: ${percentages.profitMarginPercent.toFixed(2)}%\n` +
-          `  Drawing: ${percentages.drawingPercent.toFixed(2)}%\n` +
-          `  Documents: ${percentages.documentsPercent.toFixed(2)}%\n` +
-          `  Site Visit: ${percentages.siteVisitPercent.toFixed(2)}%\n` +
-          `  Marketing & Misc: ${percentages.marketingAndMiscPercent.toFixed(2)}%\n` +
-          `  Office Management: ${percentages.officeManagementPercent.toFixed(2)}%\n` +
-          `  Total: ${totalPercent.toFixed(2)}%`
-        );
+        setInlineDistError({
+          field: 'profitAmount',
+          message: `Total distribution (${totalPercent.toFixed(1)}%) exceeds 100%. Reduce amounts before saving.`
+        });
         return;
       }
 

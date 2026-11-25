@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FiActivity, FiAlertCircle, FiAlertTriangle, FiCheckCircle } from 'react-icons/fi';
 import { useCompany } from './CompanyContext';
 import { useAuth } from './contexts/AuthContext';
+import { useToast } from './context/ToastContext';
 import Watermark from './components/Watermark';
 import useUnsavedChanges from './hooks/useUnsavedChanges';
 import './PageContent.css';
@@ -11,6 +12,7 @@ import API_BASE_URL from './config/api';
 const SettingsPage = () => {
   const { companyInfo, updateCompanyInfo } = useCompany();
   const { user } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [activeSection, setActiveSection] = useState('profile');
   const [saved, setSaved] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
@@ -320,8 +322,8 @@ const SettingsPage = () => {
         console.warn('Unknown settings section:', section);
     }
     
-    // Show success message
-    alert(`${section.charAt(0).toUpperCase() + section.slice(1)} settings saved successfully!`);
+    // Show success toast
+    showSuccess(`${section.charAt(0).toUpperCase() + section.slice(1)} settings saved successfully!`);
   };
 
   // Function to apply theme
@@ -1052,10 +1054,10 @@ const SettingsPage = () => {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
-      alert('Data exported successfully!');
+      showSuccess('Data exported successfully!');
     } catch (error) {
       console.error('Export error:', error);
-      alert('Export failed: ' + error.message);
+      showError('Export failed: ' + error.message);
     } finally {
       setIsProcessing(false);
     }
@@ -1084,13 +1086,13 @@ const SettingsPage = () => {
         throw new Error(result.message || 'Import failed');
       }
 
-      alert(`Import completed successfully!\n\nSummary:\n- Created: ${result.results.summary?.created || 0}\n- Updated: ${result.results.summary?.updated || 0}\n- Errors: ${result.results.summary?.errors || 0}`);
+      showSuccess(`Import completed: ${result.results.summary?.created || 0} created, ${result.results.summary?.updated || 0} updated, ${result.results.summary?.errors || 0} errors.`);
       
       // Refresh system stats
       loadSystemStats();
     } catch (error) {
       console.error('Import error:', error);
-      alert('Import failed: ' + error.message);
+      showError('Import failed: ' + error.message);
     } finally {
       setIsProcessing(false);
     }
@@ -1132,13 +1134,13 @@ const SettingsPage = () => {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
-      alert('Backup created and downloaded successfully!');
+      showSuccess('Backup created and downloaded successfully!');
       
       // Refresh system stats to update last backup time
       loadSystemStats();
     } catch (error) {
       console.error('Backup error:', error);
-      alert('Backup creation failed: ' + error.message);
+      showError('Backup creation failed: ' + error.message);
     } finally {
       setIsProcessing(false);
     }
@@ -1166,11 +1168,11 @@ const SettingsPage = () => {
         throw new Error(result.message || 'Cleanup failed');
       }
 
-      alert(`Cleanup completed!\n\nDeleted ${result.deletedCount} old activities.`);
+      showSuccess(`Cleanup completed! Deleted ${result.deletedCount} old activities.`);
       loadSystemStats();
     } catch (error) {
       console.error('Cleanup error:', error);
-      alert('Cleanup failed: ' + error.message);
+      showError('Cleanup failed: ' + error.message);
     } finally {
       setIsProcessing(false);
     }

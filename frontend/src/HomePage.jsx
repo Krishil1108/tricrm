@@ -6,6 +6,8 @@ import { useAuth } from './contexts/AuthContext';
 import ActionModal from './components/ActionModal';
 import ActivitySection from './components/ActivitySection';
 import Watermark from './components/Watermark';
+import { StatCard } from './components/ui/DataDisplay';
+import { Button } from './components/ui/Button';
 import axios from 'axios';
 import API_BASE_URL from './config/api';
 import clientCache from './utils/clientCache';
@@ -40,6 +42,9 @@ const HomePage = () => {
       totalClients: 0,
       totalAssociates: 0,
       totalExpenses: 0,
+      totalRevenue: 0,
+      pendingAmount: 0,
+      trends: { thisMonthProjects: 0, lastMonthProjects: 0, projectDeltaPct: 0 },
       loading: true
     };
   });
@@ -71,7 +76,10 @@ const HomePage = () => {
             totalProjects: response.data.data.totalProjects || 0,
             totalClients: response.data.data.totalClients || 0,
             totalAssociates: response.data.data.totalAssociates || 0,
-            totalExpenses: response.data.data.totalExpenses || 0
+            totalExpenses: response.data.data.totalExpenses || 0,
+            totalRevenue: response.data.data.totalRevenue || 0,
+            pendingAmount: response.data.data.pendingAmount || 0,
+            trends: response.data.data.trends || { thisMonthProjects: 0, lastMonthProjects: 0, projectDeltaPct: 0 }
           };
         }, { force: forceRefresh });
 
@@ -174,38 +182,49 @@ const HomePage = () => {
   };
 
   const renderQuickActions = () => {
+    const delta = stats.trends?.projectDeltaPct ?? 0;
+    const projectTrendLabel = `${delta >= 0 ? '▲' : '▼'} ${Math.abs(delta)}% vs last month (${stats.trends?.thisMonthProjects ?? 0} new)`;
+
     return (
       <div className="quick-actions-section">
-        <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="section-header home-kpi-header">
           <h3>Executive Snapshot</h3>
-          <button
-            type="button"
-            onClick={() => navigate('/finance')}
-            style={{ background: 'transparent', border: 'none', color: 'var(--brand-primary, #4f46e5)', fontWeight: 600, fontSize: '0.84rem', cursor: 'pointer' }}
-          >
+          <Button variant="ghost" size="sm" onClick={() => navigate('/finance')}>
             Open Finance Overview →
-          </button>
+          </Button>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
-          <div className="ui-stat-card" onClick={() => navigate('/finance')} style={{ cursor: 'pointer' }}>
-            <div className="ui-stat-top"><span className="ui-stat-label">Revenue Received</span></div>
-            <div className="ui-stat-value tabular-nums" style={{ color: '#16a34a' }}>{formatCurrency(dashboardStats.totalRevenue)}</div>
-            <div className="ui-stat-trend">{dashboardStats.totalProjects} projects tracked</div>
+        <div className="home-kpi-grid">
+          <div className="home-kpi-clickable" onClick={() => navigate('/finance')}>
+            <StatCard
+              label="Revenue Received"
+              value={formatCurrency(stats.totalRevenue || 0)}
+              trend={projectTrendLabel}
+              accent="success"
+            />
           </div>
-          <div className="ui-stat-card" onClick={() => navigate('/projects')} style={{ cursor: 'pointer' }}>
-            <div className="ui-stat-top"><span className="ui-stat-label">Pending Receipts</span></div>
-            <div className="ui-stat-value tabular-nums" style={{ color: '#d97706' }}>{formatCurrency(dashboardStats.pendingAmount)}</div>
-            <div className="ui-stat-trend">Awaiting client payments</div>
+          <div className="home-kpi-clickable" onClick={() => navigate('/projects')}>
+            <StatCard
+              label="Pending Receipts"
+              value={formatCurrency(stats.pendingAmount || 0)}
+              trend={`${stats.totalProjects || 0} active projects`}
+              accent="warning"
+            />
           </div>
-          <div className="ui-stat-card" onClick={() => navigate('/associates')} style={{ cursor: 'pointer' }}>
-            <div className="ui-stat-top"><span className="ui-stat-label">Active Associates</span></div>
-            <div className="ui-stat-value tabular-nums">{dashboardStats.totalAssociates}</div>
-            <div className="ui-stat-trend">Partner network</div>
+          <div className="home-kpi-clickable" onClick={() => navigate('/associates')}>
+            <StatCard
+              label="Active Associates"
+              value={stats.totalAssociates || 0}
+              trend={`${stats.totalClients || 0} active clients`}
+              accent="primary"
+            />
           </div>
-          <div className="ui-stat-card" onClick={() => navigate('/expenses')} style={{ cursor: 'pointer' }}>
-            <div className="ui-stat-top"><span className="ui-stat-label">Expenses Logged</span></div>
-            <div className="ui-stat-value tabular-nums" style={{ color: '#dc2626' }}>{formatCurrency(dashboardStats.totalExpenses)}</div>
-            <div className="ui-stat-trend">{dashboardStats.totalClients} active clients</div>
+          <div className="home-kpi-clickable" onClick={() => navigate('/expenses')}>
+            <StatCard
+              label="Expenses Logged"
+              value={formatCurrency(stats.totalExpenses || 0)}
+              trend="Operational + project expenses"
+              accent="danger"
+            />
           </div>
         </div>
       </div>

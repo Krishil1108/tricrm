@@ -9,6 +9,9 @@ import { noteAPI, handleAPIError } from './services/api';
 import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import ConfirmDialog from './components/ConfirmDialog';
 import Watermark from './components/Watermark';
+import PageHeader from './components/ui/PageHeader';
+import { Button } from './components/ui/Button';
+import { StatCard } from './components/ui/DataDisplay';
 import './PageContent.css';
 import './NotesPage.css';
 
@@ -238,39 +241,24 @@ const NotesPage = () => {
 
   return (
     <div className="notes-page-container">
-      {/* Header */}
-      <div className="notes-header">
-        <div>
-          <h1 className="notes-title">
-            <FiFileText style={{ marginRight: '10px', color: '#006A4E' }} />
-            Notes & Memos
-          </h1>
-          <p className="notes-subtitle">Capture meeting notes, follow-up reminders, and project memos</p>
-        </div>
-        <button type="button" className="notes-add-btn" onClick={handleOpenAddModal}>
-          <FiPlus style={{ marginRight: '6px' }} />
-          Add Note
-        </button>
-      </div>
+      <PageHeader
+        title="Notes & Memos"
+        subtitle="Capture meeting notes, follow-up reminders, and project memos"
+        icon={<FiFileText size={20} />}
+        breadcrumbs={[{ label: 'Home', path: '/home' }, { label: 'Notes' }]}
+        actions={
+          <Button variant="primary" onClick={handleOpenAddModal}>
+            <FiPlus /> Add Note
+          </Button>
+        }
+      />
 
       {/* Stats Cards */}
       <div className="notes-stats-grid">
-        <div className="notes-stat-card">
-          <div className="stat-label">Total Notes</div>
-          <div className="stat-value">{stats.total}</div>
-        </div>
-        <div className="notes-stat-card">
-          <div className="stat-label">Starred</div>
-          <div className="stat-value" style={{ color: '#eab308' }}>{stats.starred}</div>
-        </div>
-        <div className="notes-stat-card">
-          <div className="stat-label">High Priority</div>
-          <div className="stat-value" style={{ color: '#ef4444' }}>{stats.highPriority}</div>
-        </div>
-        <div className="notes-stat-card">
-          <div className="stat-label">Reminders</div>
-          <div className="stat-value" style={{ color: '#3b82f6' }}>{stats.reminders}</div>
-        </div>
+        <StatCard label="Total Notes" value={stats.total} accent="primary" />
+        <StatCard label="Starred" value={stats.starred} accent="warning" />
+        <StatCard label="High Priority" value={stats.highPriority} accent="danger" />
+        <StatCard label="Reminders" value={stats.reminders} accent="info" />
       </div>
 
       {/* Filter and Search Bar */}

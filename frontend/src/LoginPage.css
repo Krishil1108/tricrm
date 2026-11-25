@@ -24,7 +24,7 @@
   margin: 18px 0 18px 18px;
   background:
     linear-gradient(160deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.65) 100%),
-    linear-gradient(135deg, #0a0f0a 0%, #0d4d3d 15%, #006A4E 30%, #1a1a1a 50%, #B8860B 65%, #DAA520 80%, #0d1f0d 100%);
+    linear-gradient(135deg, #0f172a 0%, #1e1b4b 30%, #312e81 55%, #4f46e5 85%, #1e1b4b 100%);
   background-size: cover;
   box-shadow: inset 0 0 120px rgba(0,0,0,0.5);
 }
@@ -148,7 +148,7 @@
   text-align: center;
   font-size: 1.4rem;
   font-weight: 800;
-  color: #006A4E;
+  color: var(--brand-primary, #4f46e5);
   letter-spacing: 0.05em;
   margin-bottom: 24px;
   text-transform: uppercase;
