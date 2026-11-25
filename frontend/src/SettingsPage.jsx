@@ -4,6 +4,7 @@ import { useCompany } from './CompanyContext';
 import { useAuth } from './contexts/AuthContext';
 import { useToast } from './context/ToastContext';
 import Watermark from './components/Watermark';
+import ConfirmDialog from './components/ConfirmDialog';
 import useUnsavedChanges from './hooks/useUnsavedChanges';
 import './PageContent.css';
 import './SettingsPage.css';
@@ -17,6 +18,7 @@ const SettingsPage = () => {
   const [saved, setSaved] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [isDirty, setIsDirty] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
   useUnsavedChanges(isDirty, 'You have unsaved settings changes. Leave without saving?');
 
   // User Profile State - populated dynamically from AuthContext and localStorage
@@ -1146,11 +1148,7 @@ const SettingsPage = () => {
     }
   };
 
-  const handleCleanupActivities = async () => {
-    if (!window.confirm('Are you sure you want to delete all activities older than 1 year? This action cannot be undone.')) {
-      return;
-    }
-
+  const executeCleanupActivities = async () => {
     try {
       setIsProcessing(true);
       const token = localStorage.getItem('token');
@@ -1176,6 +1174,16 @@ const SettingsPage = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleCleanupActivities = () => {
+    setConfirmAction({
+      title: 'Cleanup Old Activities',
+      message: 'Are you sure you want to delete all activities older than 1 year? This action cannot be undone.',
+      confirmText: 'Delete Old Activities',
+      type: 'danger',
+      onConfirm: executeCleanupActivities
+    });
   };
 
   const renderDataSection = () => (
@@ -1229,11 +1237,16 @@ const SettingsPage = () => {
               accept=".json"
               style={{ display: 'none' }}
               onChange={(e) => {
-                if (e.target.files[0]) {
-                  if (window.confirm('Importing data will add/update records in your database. Continue?')) {
-                    handleImportData(e.target.files[0]);
-                  }
-                  e.target.value = ''; // Reset input
+                const file = e.target.files[0];
+                if (file) {
+                  setConfirmAction({
+                    title: 'Import CRM Data',
+                    message: `Importing "${file.name}" will add/update records in your database. Continue?`,
+                    confirmText: 'Start Import',
+                    type: 'warning',
+                    onConfirm: () => handleImportData(file)
+                  });
+                  e.target.value = '';
                 }
               }}
             />
@@ -1634,6 +1647,16 @@ const SettingsPage = () => {
       
       {/* Watermark */}
       <Watermark />
+
+      <ConfirmDialog
+        isOpen={Boolean(confirmAction)}
+        onClose={() => setConfirmAction(null)}
+        onConfirm={() => confirmAction?.onConfirm?.()}
+        title={confirmAction?.title || 'Confirm Action'}
+        message={confirmAction?.message || ''}
+        confirmText={confirmAction?.confirmText || 'Confirm'}
+        type={confirmAction?.type || 'warning'}
+      />
     </div>
   );
 };

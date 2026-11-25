@@ -403,7 +403,7 @@ const ClientsPage = memo(() => {
       if (duplicates > 0) message += `⚠ ${duplicates} duplicates skipped\n`;
       if (failed > 0) message += `✗ ${failed} failed to import`;
       
-      alert(message);
+      showSuccess(message);
     }
   };
 

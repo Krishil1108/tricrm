@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Calendar from './Calendar';
 import { useCompany } from './CompanyContext';
 import { useAuth } from './contexts/AuthContext';
+import { useToast } from './context/ToastContext';
 import ActionModal from './components/ActionModal';
 import ActivitySection from './components/ActivitySection';
 import Watermark from './components/Watermark';
@@ -17,6 +18,7 @@ import './CRMDashboard.css';
 const HomePage = () => {
   const { companyInfo } = useCompany();
   const { canViewStats, canViewAmounts, hasPermission } = useAuth();
+  const { showSuccess } = useToast();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -182,8 +184,15 @@ const HomePage = () => {
   };
 
   const renderQuickActions = () => {
+    const thisMonth = stats.trends?.thisMonthProjects ?? 0;
+    const lastMonth = stats.trends?.lastMonthProjects ?? 0;
     const delta = stats.trends?.projectDeltaPct ?? 0;
-    const projectTrendLabel = `${delta >= 0 ? '▲' : '▼'} ${Math.abs(delta)}% vs last month (${stats.trends?.thisMonthProjects ?? 0} new)`;
+    const projectTrendLabel =
+      lastMonth === 0
+        ? (thisMonth > 0 ? `${thisMonth} new project${thisMonth > 1 ? 's' : ''} this month` : 'No new projects this month')
+        : delta === 0
+        ? `No change vs last month (${thisMonth} new)`
+        : `${delta > 0 ? '▲' : '▼'} ${Math.abs(delta)}% new projects vs last month`;
 
     return (
       <div className="quick-actions-section">
@@ -198,7 +207,7 @@ const HomePage = () => {
             <StatCard
               label="Revenue Received"
               value={formatCurrency(stats.totalRevenue || 0)}
-              trend={projectTrendLabel}
+              trend="Collected across all projects"
               accent="success"
             />
           </div>
@@ -206,7 +215,7 @@ const HomePage = () => {
             <StatCard
               label="Pending Receipts"
               value={formatCurrency(stats.pendingAmount || 0)}
-              trend={`${stats.totalProjects || 0} active projects`}
+              trend={`${stats.totalProjects || 0} total · ${projectTrendLabel}`}
               accent="warning"
             />
           </div>
@@ -267,7 +276,7 @@ const HomePage = () => {
                     className="save-btn"
                     onClick={() => {
                       setIsEditingCompany(false);
-                      alert('Company information saved!');
+                      showSuccess('Company information saved!');
                     }}
                   >
                     Save

@@ -47,6 +47,7 @@ const ProjectPage = () => {
   const [expenses, setExpenses] = useState([]);
   const [stats, setStats] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [applyDefaultConfirmOpen, setApplyDefaultConfirmOpen] = useState(false);
   useUnsavedChanges(showModal, 'You have a project form open. Are you sure you want to leave?');
   const [editingItem, setEditingItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -507,11 +508,11 @@ const ProjectPage = () => {
     }
   };
 
-  const handleApplyDefaultPercentages = async () => {
-    if (!window.confirm('This will apply default expense distribution percentages (Profit Margin: 40%, Drawing: 30%, Documents: 2%, Site Visit: 10%, Marketing & Misc: 3%, Office Management: 15%) to all projects that don\'t have percentages configured. Continue?')) {
-      return;
-    }
+  const handleApplyDefaultPercentages = () => {
+    setApplyDefaultConfirmOpen(true);
+  };
 
+  const executeApplyDefaultPercentages = async () => {
     try {
       showLoading('Applying default percentages...');
       
@@ -2087,6 +2088,17 @@ const ProjectPage = () => {
         confirmText="Delete"
         cancelText="Cancel"
         type="danger"
+      />
+
+      <ConfirmDialog
+        isOpen={applyDefaultConfirmOpen}
+        onClose={() => setApplyDefaultConfirmOpen(false)}
+        onConfirm={executeApplyDefaultPercentages}
+        title="Apply Default Percentages"
+        message="This will apply default expense distribution percentages (Profit Margin: 40%, Drawing: 30%, Documents: 2%, Site Visit: 10%, Marketing & Misc: 3%, Office Management: 15%) to all projects without configured percentages. Continue?"
+        confirmText="Apply Defaults"
+        cancelText="Cancel"
+        type="warning"
       />
       </div>
     </div>

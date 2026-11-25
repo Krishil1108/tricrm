@@ -5,6 +5,8 @@ import AssociateService from './services/AssociateService';
 import ExcelExportService from './services/ExcelExportService';
 import ExcelImport from './components/ExcelImport';
 import ConfirmDialog from './components/ConfirmDialog';
+import PageHeader from './components/ui/PageHeader';
+import { Button } from './components/ui/Button';
 import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import Watermark from './components/Watermark';
 // eslint-disable-next-line no-unused-vars
@@ -394,64 +396,35 @@ const AssociatesPage = memo(() => {
 
   return (
     <div className="page-container project-page">
-      <div className="modern-page-header">
-        <div className="header-content-enhanced">
-          <div className="header-title-section">
-            <div className="title-icon-wrapper">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" className="header-icon">
-                <path d="M16 17v2H2v-2s0-4 7-4 7 4 7 4m-3.5-9.5A3.5 3.5 0 1 0 9 11a3.5 3.5 0 0 0 3.5-3.5m3.44 5.5A5.32 5.32 0 0 1 18 17v2h4v-2s0-3.63-6.06-4M15 4a3.39 3.39 0 0 0-1.93.59 5 5 0 0 1 0 5.82A3.39 3.39 0 0 0 15 11a3.5 3.5 0 0 0 0-7Z"/>
-              </svg>
-              <h1 className="page-title-enhanced">Associate Management</h1>
-            </div>
-          </div>
-          <div className="header-actions-enhanced">
+      <PageHeader
+        title="Associate Management"
+        subtitle="Manage partner associates, payout allocations, and project assignments"
+        breadcrumbs={[{ label: 'Home', path: '/home' }, { label: 'Associates' }]}
+        icon={
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16 17v2H2v-2s0-4 7-4 7 4 7 4m-3.5-9.5A3.5 3.5 0 1 0 9 11a3.5 3.5 0 0 0 3.5-3.5m3.44 5.5A5.32 5.32 0 0 1 18 17v2h4v-2s0-3.63-6.06-4M15 4a3.39 3.39 0 0 0-1.93.59 5 5 0 0 1 0 5.82A3.39 3.39 0 0 0 15 11a3.5 3.5 0 0 0 0-7Z"/>
+          </svg>
+        }
+        actions={
+          <>
             {canAddNewAssociate() && (
-              <button 
-                className="btn-primary-modern add-client-enhanced"
-                onClick={() => setShowAddPopup(true)}
-              >
-                <div className="btn-icon-wrapper">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                  </svg>
-                </div>
-                <span className="btn-text">Add Associate</span>
-              </button>
+              <Button variant="primary" onClick={() => setShowAddPopup(true)}>
+                + Add Associate
+              </Button>
             )}
             {canExportAssociates() && (
-              <button 
-                className="btn-secondary-modern export-enhanced"
-                onClick={handleExportToExcel}
-                title="Export associate data to Excel spreadsheet"
-              >
-                <div className="btn-icon-wrapper">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                  </svg>
-                </div>
-                <div className="btn-content">
-                  <span className="btn-text">Export</span>
-                  <span className="btn-count">({filteredAssociates.length})</span>
-                </div>
-              </button>
+              <Button variant="secondary" onClick={handleExportToExcel} title="Export associate data to Excel spreadsheet">
+                Export ({filteredAssociates.length})
+              </Button>
             )}
             {canImportAssociates() && (
-              <button 
-                className="btn-tertiary-modern import-enhanced"
-                onClick={() => setShowImportModal(true)}
-                title="Import associates from Excel file"
-              >
-                <div className="btn-icon-wrapper">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M12,19L8,15H10.5V12H13.5V15H16L12,19Z"/>
-                  </svg>
-                </div>
-                <span className="btn-text">Import</span>
-              </button>
+              <Button variant="secondary" onClick={() => setShowImportModal(true)} title="Import associates from Excel file">
+                Import
+              </Button>
             )}
-          </div>
-        </div>
-      </div>
+          </>
+        }
+      />
       
       <div className="page-content">
         {/* Success Message */}
