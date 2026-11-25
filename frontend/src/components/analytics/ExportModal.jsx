@@ -3,8 +3,10 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import * as XLSX from 'xlsx';
 import { FaTimes, FaDownload, FaImage, FaFilePdf, FaFileExcel } from 'react-icons/fa';
+import { useToast } from '../../context/ToastContext';
 
 const ExportModal = ({ chartRef, chartTitle, onClose }) => {
+  const { showError } = useToast();
   const [loading, setLoading] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState('png');
 
@@ -34,7 +36,7 @@ const ExportModal = ({ chartRef, chartTitle, onClose }) => {
       }
     } catch (error) {
       console.error('Export error:', error);
-      alert('Failed to export chart. Please try again.');
+      showError('Failed to export chart. Please try again.');
     } finally {
       setLoading(false);
     }

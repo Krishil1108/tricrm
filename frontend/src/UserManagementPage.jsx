@@ -5,6 +5,7 @@ import { FaEdit, FaTrash, FaUserPlus, FaCheckCircle, FaTimesCircle, FaToggleOn, 
 import { FiChevronDown, FiChevronUp, FiMinus } from 'react-icons/fi';
 import useSortableData from './utils/useSortableData';
 import Watermark from './components/Watermark';
+import ConfirmDialog from './components/ConfirmDialog';
 import './UserManagementPage.css';
 import './styles/ActionButtons.css';
 import API_BASE_URL from './config/api';
@@ -22,6 +23,7 @@ function UserManagementPage({ embedded = false }) {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [deleteUserId, setDeleteUserId] = useState(null);
   const [formErrors, setFormErrors] = useState({});
 
   const [formData, setFormData] = useState({
@@ -217,8 +219,14 @@ function UserManagementPage({ embedded = false }) {
     }
   };
 
-  const handleDelete = async (userId) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) return;
+  const handleDelete = (userId) => {
+    setDeleteUserId(userId);
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!deleteUserId) return;
+    const userId = deleteUserId;
+    setDeleteUserId(null);
 
     try {
       const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
@@ -557,6 +565,16 @@ function UserManagementPage({ embedded = false }) {
 
       {/* Watermark */}
       <Watermark />
+
+      <ConfirmDialog
+        isOpen={Boolean(deleteUserId)}
+        onClose={() => setDeleteUserId(null)}
+        onConfirm={confirmDeleteUser}
+        title="Delete User"
+        message="Are you sure you want to delete this user? This action cannot be undone."
+        confirmText="Delete User"
+        type="danger"
+      />
     </div>
   );
 }

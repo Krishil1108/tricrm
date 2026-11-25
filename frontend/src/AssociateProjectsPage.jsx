@@ -8,6 +8,7 @@ import { useToast } from './context/ToastContext';
 import { FaCalendarAlt, FaChartBar, FaCheckCircle, FaClock, FaDownload, FaEdit, FaFileExcel, FaFilePdf, FaHistory, FaMoneyBillWave, FaUser, FaUsers } from 'react-icons/fa';
 import { FiBarChart2, FiChevronDown, FiChevronUp, FiMinus } from 'react-icons/fi';
 import useSortableData from './utils/useSortableData';
+import ConfirmDialog from './components/ConfirmDialog';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -42,6 +43,7 @@ const AssociateProjectsPage = () => {
   const [activeView, setActiveView] = useState('owner'); // 'owner' or 'associate'
   const [availableFYs, setAvailableFYs] = useState([]); // Store available financial years
   const [expandedPayoutProjectId, setExpandedPayoutProjectId] = useState(null);
+  const [deleteTxConfirm, setDeleteTxConfirm] = useState(null);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -777,37 +779,39 @@ const AssociateProjectsPage = () => {
   };
 
   // Delete transaction handler
-  const handleDeleteTransaction = async (index, payment) => {
-    if (window.confirm('Are you sure you want to delete this payment transaction?')) {
-      try {
-        // Optimistically remove from UI
-        const updatedHistory = paymentHistory.filter((_, i) => i !== index);
-        setPaymentHistory(updatedHistory);
-        
-        const response = await FinanceService.deleteAssociatePaymentTransaction(
-          selectedProject._id, 
-          associateId, 
-          payment._id
-        );
+  const handleDeleteTransaction = (index, payment) => {
+    setDeleteTxConfirm({ index, payment });
+  };
 
-        if (response.success) {
-          // Update the project data in background
-          fetchAssociateProjects();
-          showSuccess('Payment transaction deleted successfully!');
-        }
-      } catch (error) {
-        console.error('Error deleting payment transaction:', error);
-        showError('Failed to delete payment transaction. Please try again.');
-        // Restore on error
-        handleViewPayments(selectedProject, selectedAssociate);
+  const confirmDeleteTransaction = async () => {
+    if (!deleteTxConfirm) return;
+    const { index, payment } = deleteTxConfirm;
+    setDeleteTxConfirm(null);
+    try {
+      const updatedHistory = paymentHistory.filter((_, i) => i !== index);
+      setPaymentHistory(updatedHistory);
+      
+      const response = await FinanceService.deleteAssociatePaymentTransaction(
+        selectedProject._id, 
+        associateId, 
+        payment._id
+      );
+
+      if (response.success) {
+        fetchAssociateProjects();
+        showSuccess('Payment transaction deleted successfully!');
       }
+    } catch (error) {
+      console.error('Error deleting payment transaction:', error);
+      showError('Failed to delete payment transaction. Please try again.');
+      handleViewPayments(selectedProject, selectedAssociate);
     }
   };
 
   // WhatsApp share handler
   const handleShareWhatsApp = () => {
     if (!selectedProject || !selectedAssociate || !paymentHistory.length) {
-      alert('No payment data to share');
+      showError('No payment data to share');
       return;
     }
 
@@ -1916,6 +1920,15 @@ const AssociateProjectsPage = () => {
           </div>
         </div>
       )}
+      <ConfirmDialog
+        isOpen={Boolean(deleteTxConfirm)}
+        onClose={() => setDeleteTxConfirm(null)}
+        onConfirm={confirmDeleteTransaction}
+        title="Delete Payment Transaction"
+        message="Are you sure you want to delete this payment transaction?"
+        confirmText="Delete"
+        type="danger"
+      />
     </div>
   );
 };

@@ -204,7 +204,7 @@ const ClientProjectsPage = () => {
   // WhatsApp share handler for distribution
   const handleShareDistributionWhatsApp = () => {
     if (!selectedProject || !selectedProject.payments || selectedProject.payments.length === 0) {
-      alert('No payment data to share');
+      showError('No payment data to share');
       return;
     }
 

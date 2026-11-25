@@ -1,6 +1,7 @@
 import React, { useState, useEffect, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
+import { useToast } from './context/ToastContext';
 import AssociateService from './services/AssociateService';
 import ExcelExportService from './services/ExcelExportService';
 import ExcelImport from './components/ExcelImport';
@@ -27,6 +28,7 @@ const AssociatesPage = memo(() => {
     canViewAssociateSummaryCards,
     canViewAssociatedProjects
   } = useAuth();
+  const { showSuccess } = useToast();
   const navigate = useNavigate();
   const [associates, setAssociates] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -362,7 +364,7 @@ const AssociatesPage = memo(() => {
       if (duplicates > 0) message += `⚠ ${duplicates} duplicates skipped\\n`;
       if (failed > 0) message += `✗ ${failed} failed to import`;
       
-      alert(message);
+      showSuccess(message);
     }
   };
 

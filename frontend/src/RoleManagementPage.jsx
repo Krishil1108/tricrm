@@ -7,6 +7,7 @@ import {
   FaSearch, FaCheckDouble, FaTimesCircle, FaSlidersH, FaCheck, FaUndo, FaLock
 } from 'react-icons/fa';
 import Watermark from './components/Watermark';
+import ConfirmDialog from './components/ConfirmDialog';
 import './RoleManagementPage.css';
 import './styles/ActionButtons.css';
 import API_BASE_URL from './config/api';
@@ -17,6 +18,7 @@ const RoleManagementPage = ({ embedded = false }) => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
+  const [deleteRoleId, setDeleteRoleId] = useState(null);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
@@ -637,8 +639,14 @@ const RoleManagementPage = ({ embedded = false }) => {
     }
   };
 
-  const handleDelete = async (roleId) => {
-    if (!window.confirm('Are you sure you want to delete this role?')) return;
+  const handleDelete = (roleId) => {
+    setDeleteRoleId(roleId);
+  };
+
+  const confirmDeleteRole = async () => {
+    if (!deleteRoleId) return;
+    const roleId = deleteRoleId;
+    setDeleteRoleId(null);
 
     try {
       const response = await fetch(`${API_BASE_URL}/roles/${roleId}`, {
@@ -1002,6 +1010,15 @@ const RoleManagementPage = ({ embedded = false }) => {
           </div>
         </div>
       )}
+      <ConfirmDialog
+        isOpen={Boolean(deleteRoleId)}
+        onClose={() => setDeleteRoleId(null)}
+        onConfirm={confirmDeleteRole}
+        title="Delete Role"
+        message="Are you sure you want to delete this role? Users assigned to this role may lose access."
+        confirmText="Delete Role"
+        type="danger"
+      />
     </div>
   );
 };
