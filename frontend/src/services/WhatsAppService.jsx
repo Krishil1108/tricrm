@@ -44,14 +44,49 @@ class WhatsAppService {
     return cleaned; // Return without + for WhatsApp Web URL
   }
 
+  // Log WhatsApp communication in CRM Activity Stream
+  async logActivity(phoneNumber, message, metadata = {}) {
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
+      if (!token) return;
+      
+      const payload = {
+        type: 'client_updated',
+        description: `Sent WhatsApp message to ${metadata.clientName || metadata.name || phoneNumber}`,
+        entityName: metadata.clientName || metadata.name || phoneNumber,
+        metadata: {
+          channel: 'WhatsApp',
+          phone: phoneNumber,
+          messagePreview: (message || '').slice(0, 100),
+          sentAt: new Date().toISOString()
+        }
+      };
+
+      await fetch('/api/activities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      // Dispatch event to refresh live ActivitySection
+      window.dispatchEvent(new CustomEvent('activityUpdated'));
+    } catch (err) {
+      console.warn('Could not log WhatsApp activity:', err);
+    }
+  }
+
   // Method 1: Direct URL (Manual sending)
-  sendDirectMessage(phoneNumber, message) {
+  sendDirectMessage(phoneNumber, message, metadata = {}) {
     try {
       const formattedPhone = this.formatPhoneNumber(phoneNumber);
       const encodedMessage = encodeURIComponent(message);
       const url = `${this.businessUrl}/${formattedPhone}?text=${encodedMessage}`;
       
       window.open(url, '_blank');
+      this.logActivity(formattedPhone, message, metadata);
       return { method: 'direct', status: 'opened', phone: formattedPhone };
     } catch (error) {
       console.error('Phone number validation failed:', error);
@@ -60,13 +95,14 @@ class WhatsAppService {
   }
 
   // Method 2: API-based (Automated sending)
-  async sendAPIMessage(phoneNumber, message, messageType = 'text') {
+  async sendAPIMessage(phoneNumber, message, messageType = 'text', metadata = {}) {
     try {
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken');
       const response = await fetch(`${this.apiUrl}/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           to: this.formatPhoneNumber(phoneNumber),
@@ -78,6 +114,7 @@ class WhatsAppService {
       const result = await response.json();
       
       if (response.ok) {
+        this.logActivity(phoneNumber, message, metadata);
         return { method: 'api', status: 'sent', messageId: result.messageId };
       } else {
         throw new Error(result.error || 'Failed to send message');
@@ -85,7 +122,7 @@ class WhatsAppService {
     } catch (error) {
       console.error('API message sending failed:', error);
       // Fallback to direct method
-      return this.sendDirectMessage(phoneNumber, message);
+      return this.sendDirectMessage(phoneNumber, message, metadata);
     }
   }
 

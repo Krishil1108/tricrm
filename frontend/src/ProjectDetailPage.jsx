@@ -13,6 +13,7 @@ import { useAuth } from './contexts/AuthContext';
 import { useToast } from './context/ToastContext';
 import YearlyDistributionTable from './components/YearlyDistributionTable';
 import AssociateDistributionTable from './components/AssociateDistributionTable';
+import ConfirmDialog from './components/ConfirmDialog';
 
 // Memoized components for better performance
 const MemoizedYearlyDistributionTable = React.memo(YearlyDistributionTable);
@@ -22,6 +23,7 @@ const ProjectDetailPage = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   // Use name passed via navigation state for instant LCP render (before API responds)
   const cachedProjectName = location.state?.projectName || null;
   const autoOpenAddPayment = new URLSearchParams(location.search).get('addPayment') === 'true';
@@ -144,16 +146,20 @@ const ProjectDetailPage = () => {
     navigate('/projects', { state: { editProjectId: project._id, returnTo: location.pathname } });
   };
 
-  const handleDelete = async () => {
-    if (window.confirm(`Are you sure you want to delete project "${project.projectName}"?`)) {
-      try {
-        await FinanceService.deleteProject(project._id);
-        showSuccess('Project deleted successfully');
-        navigate('/projects');
-      } catch (error) {
-        console.error('Error deleting project:', error);
-        showError('Failed to delete project');
-      }
+  const handleDelete = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDeleteProject = async () => {
+    try {
+      await FinanceService.deleteProject(project._id);
+      showSuccess('Project deleted successfully');
+      navigate('/projects');
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      showError('Failed to delete project');
+    } finally {
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -808,6 +814,18 @@ const ProjectDetailPage = () => {
       <MemoizedAssociateDistributionTable 
         projectData={project}
         associates={associates}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={confirmDeleteProject}
+        title="Delete Project"
+        message={`Are you sure you want to delete project "${project?.projectName || ''}"? This action cannot be undone.`}
+        confirmText="Delete Project"
+        cancelText="Cancel"
+        type="danger"
       />
     </div>
     </div>

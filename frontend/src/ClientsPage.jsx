@@ -4,6 +4,7 @@ import { useAuth } from './contexts/AuthContext';
 import ClientService from './services/ClientService';
 import ExcelExportService from './services/ExcelExportService';
 import ExcelImport from './components/ExcelImport';
+import ConfirmDialog from './components/ConfirmDialog';
 import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import Watermark from './components/Watermark';
 import LoadingSkeleton from './components/LoadingSkeleton';
@@ -30,6 +31,7 @@ const ClientsPage = memo(() => {
   const navigate = useNavigate();
   const [clients, setClients] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [deleteConfirmClient, setDeleteConfirmClient] = useState(null);
   const [sortBy, setSortBy] = useState('name');
   const [filterStatus, setFilterStatus] = useState('all');
   const [showAddPopup, setShowAddPopup] = useState(false);
@@ -102,15 +104,21 @@ const ClientsPage = memo(() => {
     }
   };
 
-  const handleDelete = async (clientId) => {
-    if (window.confirm('Are you sure you want to delete this client?')) {
-      try {
-        await ClientService.deleteClient(clientId);
-        setClients(Array.isArray(clients) ? clients.filter(client => client._id !== clientId) : []);
-      } catch (error) {
-        setError('Failed to delete client. Please try again.');
-        console.error('Error deleting client:', error);
-      }
+  const handleDelete = (client) => {
+    setDeleteConfirmClient(client);
+  };
+
+  const confirmDeleteClient = async () => {
+    if (!deleteConfirmClient) return;
+    const clientId = deleteConfirmClient._id || deleteConfirmClient;
+    try {
+      await ClientService.deleteClient(clientId);
+      setClients(Array.isArray(clients) ? clients.filter(client => client._id !== clientId) : []);
+    } catch (error) {
+      setError('Failed to delete client. Please try again.');
+      console.error('Error deleting client:', error);
+    } finally {
+      setDeleteConfirmClient(null);
     }
   };
 
@@ -1370,6 +1378,18 @@ const ClientsPage = memo(() => {
           onSuccess={handleImportSuccess}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(deleteConfirmClient)}
+        onClose={() => setDeleteConfirmClient(null)}
+        onConfirm={confirmDeleteClient}
+        title="Delete Client"
+        message={`Are you sure you want to delete ${deleteConfirmClient?.name || 'this client'}? This action cannot be undone.`}
+        confirmText="Delete Client"
+        cancelText="Cancel"
+        type="danger"
+      />
       
       {/* Watermark */}
       <Watermark />

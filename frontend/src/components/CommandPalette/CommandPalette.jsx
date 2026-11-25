@@ -5,7 +5,7 @@ import API_BASE_URL from '../../config/api';
 import axios from 'axios';
 import { 
   FaSearch, FaHome, FaUsers, FaHandshake, FaBriefcase, 
-  FaCog, FaChartBar, FaPlus, FaReceipt, FaUserShield, FaTimes, FaKeyboard 
+  FaCog, FaChartBar, FaPlus, FaReceipt, FaUserShield, FaTimes, FaKeyboard, FaStickyNote 
 } from 'react-icons/fa';
 import './CommandPalette.css';
 
@@ -15,6 +15,13 @@ const CommandPalette = () => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [searchResults, setSearchResults] = useState({ clients: [], projects: [], associates: [] });
   const [isSearching, setIsSearching] = useState(false);
+  const [recentSearches, setRecentSearches] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('tricrm_recent_searches') || '[]');
+    } catch (e) {
+      return [];
+    }
+  });
   const inputRef = useRef(null);
   const navigate = useNavigate();
   const { hasModuleAccess, isAdmin, token } = useAuth();
@@ -62,6 +69,14 @@ const CommandPalette = () => {
           projects: response.data.data?.projects || [],
           associates: response.data.data?.associates || []
         });
+        // Save to recent searches
+        if (query.trim()) {
+          setRecentSearches(prev => {
+            const updated = [query.trim(), ...prev.filter(s => s.toLowerCase() !== query.trim().toLowerCase())].slice(0, 6);
+            try { localStorage.setItem('tricrm_recent_searches', JSON.stringify(updated)); } catch (e) {}
+            return updated;
+          });
+        }
       } catch (err) {
         console.error('Command Palette Search Error:', err);
       } finally {
@@ -81,6 +96,7 @@ const CommandPalette = () => {
     { name: 'Finance Overview', path: '/finance', icon: <FaBriefcase />, module: 'finance_dashboard' },
     { name: 'Expenses Log', path: '/expenses', icon: <FaReceipt />, module: 'expenses' },
     { name: 'Analytics & Metrics', path: '/analytics', icon: <FaChartBar />, module: 'analytics' },
+    { name: 'Notes & Memos', path: '/notes', icon: <FaStickyNote /> },
     { name: 'System Settings', path: '/settings', icon: <FaCog />, module: 'settings' },
     { name: 'User Management', path: '/user-management', icon: <FaUsers />, adminOnly: true },
     { name: 'Role Management', path: '/role-management', icon: <FaUserShield />, adminOnly: true }
@@ -90,6 +106,7 @@ const CommandPalette = () => {
   const actions = [
     { name: 'Add New Client', action: () => navigate('/clients', { state: { openAddModal: true } }), icon: <FaPlus /> },
     { name: 'Add New Project', action: () => navigate('/projects', { state: { openAddModal: true } }), icon: <FaPlus /> },
+    { name: 'Create Quick Note', action: () => navigate('/notes', { state: { openAddModal: true } }), icon: <FaStickyNote /> },
     { name: 'Log Expense Entry', action: () => navigate('/expenses', { state: { openAddModal: true } }), icon: <FaReceipt /> }
   ];
 

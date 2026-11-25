@@ -14,6 +14,7 @@ import { useAuth } from './contexts/AuthContext';
 import { useLoading } from './contexts/LoadingContext';
 import { useToast } from './context/ToastContext';
 import YearlyDistributionTable from './components/YearlyDistributionTable';
+import ConfirmDialog from './components/ConfirmDialog';
 import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import Watermark from './components/Watermark';
 import useSortableData from './utils/useSortableData';
@@ -23,6 +24,7 @@ const ProjectPage = () => {
   const navigate = useNavigate();
   const processedEditId = useRef(null);
   const sourceClientId = useRef(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const returnTo = useRef(null);
   const { 
     // eslint-disable-next-line no-unused-vars
@@ -653,9 +655,13 @@ const ProjectPage = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this item?')) return;
+  const handleDelete = (id) => {
+    setDeleteConfirmId(id);
+  };
 
+  const confirmDeleteAction = async () => {
+    if (!deleteConfirmId) return;
+    const id = deleteConfirmId;
     try {
       if (activeTab === 'projects') {
         // Optimistically remove from UI
@@ -675,6 +681,8 @@ const ProjectPage = () => {
       showError('Delete failed');
       // Restore data on error
       fetchData();
+    } finally {
+      setDeleteConfirmId(null);
     }
   };
 
@@ -1335,6 +1343,43 @@ const ProjectPage = () => {
             </button>
           </div>
         </div>
+
+        {/* Dedicated Expenses Banner */}
+        {activeTab === 'expenses' && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: '#f0fdf4',
+            border: '1px solid #bbf7d0',
+            borderRadius: '10px',
+            padding: '12px 20px',
+            marginBottom: '16px',
+            color: '#166534',
+            fontSize: '13px'
+          }}>
+            <div>
+              <strong>Dedicated Expenses Management:</strong> Operational bank expenses, receipts, and category distributions are managed in the dedicated Expenses Module.
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/expenses')}
+              style={{
+                padding: '6px 14px',
+                background: '#16a34a',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              Open Expenses Module →
+            </button>
+          </div>
+        )}
 
       {/* Filters */}
       <div className="finance-filters" style={{
@@ -2032,6 +2077,18 @@ const ProjectPage = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(deleteConfirmId)}
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={confirmDeleteAction}
+        title="Confirm Deletion"
+        message="Are you sure you want to delete this item? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
       </div>
     </div>
   );

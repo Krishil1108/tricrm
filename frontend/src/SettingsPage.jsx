@@ -70,21 +70,27 @@ const SettingsPage = () => {
     };
   });
 
-  // Notification Settings State
-  const [notifications, setNotifications] = useState({
-    emailNotifications: true,
-    systemAlerts: true,
-    activityNotifications: true,
-    weeklyReports: true,
-    marketingEmails: true,
-    frequency: 'immediate',
-    pushNotifications: true,
-    smsNotifications: true,
-    desktopNotifications: true,
-    soundEnabled: true,
-    vibrationEnabled: true,
-    notificationHistory: true,
-    digestEmails: true
+  // Notification Settings State - with localStorage and backend sync
+  const [notifications, setNotifications] = useState(() => {
+    const saved = localStorage.getItem('notificationSettings');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return {
+      emailNotifications: true,
+      systemAlerts: true,
+      activityNotifications: true,
+      weeklyReports: true,
+      marketingEmails: true,
+      frequency: 'immediate',
+      pushNotifications: true,
+      smsNotifications: true,
+      desktopNotifications: true,
+      soundEnabled: true,
+      vibrationEnabled: true,
+      notificationHistory: true,
+      digestEmails: true
+    };
   });
 
   // Quotation Settings State
@@ -99,19 +105,52 @@ const SettingsPage = () => {
     }
   );
 
-  // Security Settings State
-  const [security, setSecurity] = useState({
-    twoFactorAuth: true,
-    sessionTimeout: '30',
-    passwordExpiry: '90',
-    loginNotifications: true,
-    deviceTracking: true,
-    ipWhitelist: true,
-    encryptionEnabled: true,
-    backupEncryption: true,
-    auditLogging: true,
-    accessControl: true
+  // Security Settings State - with localStorage and backend sync
+  const [security, setSecurity] = useState(() => {
+    const saved = localStorage.getItem('securitySettings');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return {
+      twoFactorAuth: false,
+      sessionTimeout: '30',
+      passwordExpiry: '90',
+      loginNotifications: true,
+      deviceTracking: true,
+      ipWhitelist: false,
+      encryptionEnabled: true,
+      backupEncryption: true,
+      auditLogging: true,
+      accessControl: true
+    };
   });
+
+  // Hydrate notifications and security from backend
+  useEffect(() => {
+    const syncRemoteConfig = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      try {
+        const response = await fetch(`${API_BASE_URL}/settings`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const res = await response.json();
+          if (res.data?.notifications) {
+            setNotifications(prev => ({ ...prev, ...res.data.notifications }));
+            localStorage.setItem('notificationSettings', JSON.stringify(res.data.notifications));
+          }
+          if (res.data?.security) {
+            setSecurity(prev => ({ ...prev, ...res.data.security }));
+            localStorage.setItem('securitySettings', JSON.stringify(res.data.security));
+          }
+        }
+      } catch (err) {
+        console.warn('Could not sync settings from backend:', err);
+      }
+    };
+    syncRemoteConfig();
+  }, []);
 
   // Data Settings State
   // eslint-disable-next-line no-unused-vars
@@ -219,6 +258,23 @@ const SettingsPage = () => {
     }
   };
 
+  const saveSettingsToBackend = async (payload) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    try {
+      await fetch(`${API_BASE_URL}/settings`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+    } catch (err) {
+      console.warn('Error saving settings to backend:', err);
+    }
+  };
+
   const handleSave = (section, data) => {
     switch (section) {
       case 'profile':
@@ -242,10 +298,12 @@ const SettingsPage = () => {
       case 'notifications':
         setNotifications(data);
         localStorage.setItem('notificationSettings', JSON.stringify(data));
+        saveSettingsToBackend({ notifications: data });
         break;
       case 'security':
         setSecurity(data);
         localStorage.setItem('securitySettings', JSON.stringify(data));
+        saveSettingsToBackend({ security: data });
         break;
       case 'data':
         setDataSettings(data);

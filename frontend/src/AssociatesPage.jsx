@@ -4,6 +4,7 @@ import { useAuth } from './contexts/AuthContext';
 import AssociateService from './services/AssociateService';
 import ExcelExportService from './services/ExcelExportService';
 import ExcelImport from './components/ExcelImport';
+import ConfirmDialog from './components/ConfirmDialog';
 import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import Watermark from './components/Watermark';
 // eslint-disable-next-line no-unused-vars
@@ -27,6 +28,7 @@ const AssociatesPage = memo(() => {
   const navigate = useNavigate();
   const [associates, setAssociates] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [deleteConfirmAssociate, setDeleteConfirmAssociate] = useState(null);
   const [sortBy, setSortBy] = useState('name');
   const [filterStatus, setFilterStatus] = useState('all');
   const [showAddPopup, setShowAddPopup] = useState(false);
@@ -95,15 +97,21 @@ const AssociatesPage = memo(() => {
     }
   };
 
-  const handleDelete = async (associateId) => {
-    if (window.confirm('Are you sure you want to delete this associate?')) {
-      try {
-        await AssociateService.deleteAssociate(associateId);
-        setAssociates(Array.isArray(associates) ? associates.filter(associate => associate._id !== associateId) : []);
-      } catch (error) {
-        setError('Failed to delete associate. Please try again.');
-        console.error('Error deleting associate:', error);
-      }
+  const handleDelete = (associate) => {
+    setDeleteConfirmAssociate(associate);
+  };
+
+  const confirmDeleteAssociate = async () => {
+    if (!deleteConfirmAssociate) return;
+    const associateId = deleteConfirmAssociate._id || deleteConfirmAssociate;
+    try {
+      await AssociateService.deleteAssociate(associateId);
+      setAssociates(Array.isArray(associates) ? associates.filter(associate => associate._id !== associateId) : []);
+    } catch (error) {
+      setError('Failed to delete associate. Please try again.');
+      console.error('Error deleting associate:', error);
+    } finally {
+      setDeleteConfirmAssociate(null);
     }
   };
 
@@ -1100,6 +1108,18 @@ const AssociatesPage = memo(() => {
           onSuccess={handleImportSuccess}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(deleteConfirmAssociate)}
+        onClose={() => setDeleteConfirmAssociate(null)}
+        onConfirm={confirmDeleteAssociate}
+        title="Delete Associate"
+        message={`Are you sure you want to delete ${deleteConfirmAssociate?.name || 'this associate'}? This action cannot be undone.`}
+        confirmText="Delete Associate"
+        cancelText="Cancel"
+        type="danger"
+      />
       
       {/* Watermark */}
       <Watermark />

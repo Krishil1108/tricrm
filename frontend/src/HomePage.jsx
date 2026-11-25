@@ -19,6 +19,13 @@ const HomePage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [recentSearches, setRecentSearches] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('tricrm_recent_searches') || '[]');
+    } catch (e) {
+      return [];
+    }
+  });
   const [isEditingCompany, setIsEditingCompany] = useState(false);
   const [searchResults, setSearchResults] = useState({ clients: [], projects: [], associates: [] });
   const [isSearching, setIsSearching] = useState(false);
@@ -96,11 +103,21 @@ const HomePage = () => {
     };
   }, []);
 
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) {
+  const handleSearch = async (query = searchTerm) => {
+    const term = (query || '').trim();
+    if (!term) {
       setShowSearchResults(false);
       return;
     }
+
+    // Persist to recent searches (deduplicated, keep top 6)
+    setRecentSearches(prev => {
+      const updated = [term, ...prev.filter(s => s.toLowerCase() !== term.toLowerCase())].slice(0, 6);
+      try {
+        localStorage.setItem('tricrm_recent_searches', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
 
     setIsSearching(true);
     try {
@@ -108,7 +125,7 @@ const HomePage = () => {
 
       // Use optimized search endpoint - searches on backend instead of fetching all data
       const response = await axios.get(`${API_BASE_URL}/search`, {
-        params: { q: searchTerm },
+        params: { q: term },
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -123,6 +140,16 @@ const HomePage = () => {
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const handleSelectRecentSearch = (term) => {
+    setSearchTerm(term);
+    handleSearch(term);
+  };
+
+  const handleClearRecentSearches = () => {
+    setRecentSearches([]);
+    localStorage.removeItem('tricrm_recent_searches');
   };
 
   const handleSearchKeyPress = (e) => {
@@ -290,6 +317,45 @@ const HomePage = () => {
                 </div>
               )}
             </div>
+
+            {/* Recent Searches Chips */}
+            {recentSearches.length > 0 && !showSearchResults && (
+              <div className="recent-searches-chips" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: '500' }}>Recent:</span>
+                {recentSearches.map((term, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => handleSelectRecentSearch(term)}
+                    style={{
+                      background: 'rgba(255,255,255,0.85)',
+                      border: '1px solid #cbd5e1',
+                      borderRadius: '12px',
+                      padding: '2px 8px',
+                      fontSize: '11px',
+                      cursor: 'pointer',
+                      color: '#334155'
+                    }}
+                  >
+                    {term}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={handleClearRecentSearches}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    fontSize: '11px',
+                    color: '#94a3b8',
+                    cursor: 'pointer',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
+            )}
 
             {/* Search Results Dropdown */}
             {showSearchResults && (

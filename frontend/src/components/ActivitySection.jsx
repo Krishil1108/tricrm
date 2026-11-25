@@ -6,6 +6,9 @@ import './ActivitySection.css';
 const ActivitySection = () => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [limit, setLimit] = useState(5);
+  const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
   const [usingMockData, setUsingMockData] = useState(false);
 
@@ -20,10 +23,14 @@ const ActivitySection = () => {
     note_updated: <FiFileText />
   };
 
-  const fetchActivities = async () => {
+  const fetchActivities = async (currentLimit = limit, isLoadMore = false) => {
     try {
-      setLoading(true);
-      const data = await ActivityService.getRecentActivities(3);
+      if (isLoadMore) {
+        setLoadingMore(true);
+      } else {
+        setLoading(true);
+      }
+      const data = await ActivityService.getRecentActivities(currentLimit);
       
       // Ensure data is an array
       if (!Array.isArray(data)) {
@@ -37,6 +44,7 @@ const ActivitySection = () => {
         ActivityService.formatActivityDescription(activity)
       );
       setActivities(formattedActivities);
+      setHasMore(data.length >= currentLimit);
       setError(null);
       
       // Check if we're using mock data
@@ -48,7 +56,14 @@ const ActivitySection = () => {
       setUsingMockData(false);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
+  };
+
+  const handleLoadMore = () => {
+    const nextLimit = limit + 5;
+    setLimit(nextLimit);
+    fetchActivities(nextLimit, true);
   };
 
   useEffect(() => {
@@ -168,6 +183,28 @@ const ActivitySection = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+      
+      {activities.length > 0 && hasMore && (
+        <div style={{ textAlign: 'center', padding: '10px 0' }}>
+          <button
+            type="button"
+            onClick={handleLoadMore}
+            disabled={loadingMore}
+            style={{
+              padding: '6px 16px',
+              fontSize: '12px',
+              fontWeight: '500',
+              background: '#f1f5f9',
+              border: '1px solid #cbd5e1',
+              borderRadius: '6px',
+              cursor: loadingMore ? 'wait' : 'pointer',
+              color: '#334155'
+            }}
+          >
+            {loadingMore ? 'Loading more...' : 'Load More Activities'}
+          </button>
         </div>
       )}
       

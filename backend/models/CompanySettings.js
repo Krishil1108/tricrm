@@ -49,6 +49,33 @@ const companySettingsSchema = new mongoose.Schema({
     suffix: { type: String, default: '' },
     resetPeriod: { type: String, default: 'never' }
   },
+  notifications: {
+    type: mongoose.Schema.Types.Mixed,
+    default: {
+      emailNotifications: true,
+      systemAlerts: true,
+      activityNotifications: true,
+      weeklyReports: true,
+      marketingEmails: true,
+      pushNotifications: true,
+      smsNotifications: true,
+      desktopNotifications: true,
+      soundEnabled: true
+    }
+  },
+  security: {
+    type: mongoose.Schema.Types.Mixed,
+    default: {
+      twoFactorAuth: false,
+      sessionTimeout: '30',
+      passwordExpiry: '90',
+      loginNotifications: true,
+      deviceTracking: true,
+      ipWhitelist: false,
+      encryptionEnabled: true,
+      auditLogging: true
+    }
+  },
   updatedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'

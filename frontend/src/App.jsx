@@ -44,6 +44,7 @@ const FinanceDashboard   = lazy(() => import('./FinanceDashboard'));
 const ExpensesPage       = lazy(() => import('./ExpensesPage'));
 const AIAssistant        = lazy(() => import('./components/AIAssistant/AIAssistant'));
 const CommandPalette     = lazy(() => import('./components/CommandPalette/CommandPalette'));
+const NotesPage          = lazy(() => import('./NotesPage'));
 const NotFoundPage       = lazy(() => import('./NotFoundPage'));
 
 function App() {
@@ -210,6 +211,15 @@ function App() {
                               element={
                                 <ProtectedRoute requireModule="settings">
                                   <SettingsPage />
+                                </ProtectedRoute>
+                              } 
+                            />
+                            
+                            <Route 
+                              path="/notes" 
+                              element={
+                                <ProtectedRoute>
+                                  <NotesPage />
                                 </ProtectedRoute>
                               } 
                             />
