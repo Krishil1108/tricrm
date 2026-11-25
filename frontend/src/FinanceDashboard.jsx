@@ -11,6 +11,7 @@ import { useToast } from './context/ToastContext';
 import { useAuth } from './contexts/AuthContext';
 import './FinanceDashboard.css';
 import Watermark from './components/Watermark';
+import CommonPagination from './components/common/Pagination';
 
 // ─── Utility helpers ──────────────────────────────────────────────────────────
 const fmt = (v) =>
@@ -544,57 +545,19 @@ const SummaryCard = ({ label, value, color, icon, sub, hidden }) => (
   </div>
 );
 
-// ─── Pagination Component ────────────────────────────────────────────────────
+// ─── Pagination Component (delegates to shared CommonPagination) ─────────────
 const PAGE_SIZE = 50;
 
 const Pagination = ({ page, totalPages, totalItems, onPage }) => {
   if (totalPages <= 1) return null;
-
-  const start = (page - 1) * PAGE_SIZE + 1;
-  const end   = Math.min(page * PAGE_SIZE, totalItems);
-
-  // Build page numbers to show: always first, last, current ±2, ellipsis gaps
-  const getPages = () => {
-    const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
-      if (i === 1 || i === totalPages || (i >= page - 2 && i <= page + 2)) {
-        pages.push(i);
-      }
-    }
-    // Insert ellipsis markers
-    const result = [];
-    let prev = 0;
-    for (const p of pages) {
-      if (p - prev > 1) result.push('...');
-      result.push(p);
-      prev = p;
-    }
-    return result;
-  };
-
   return (
-    <div className="fd-pagination">
-      <span className="fd-pagination-info">
-        Showing <strong>{start}–{end}</strong> of <strong>{totalItems}</strong> items
-      </span>
-      <div className="fd-pagination-controls">
-        <button className="fd-pg-btn" onClick={() => onPage(1)}       disabled={page === 1} title="First">«</button>
-        <button className="fd-pg-btn" onClick={() => onPage(page - 1)} disabled={page === 1} title="Previous">‹</button>
-        {getPages().map((p, i) =>
-          p === '...' ? (
-            <span key={`e-${i}`} className="fd-pg-ellipsis">…</span>
-          ) : (
-            <button
-              key={p}
-              className={`fd-pg-btn ${p === page ? 'active' : ''}`}
-              onClick={() => onPage(p)}
-            >{p}</button>
-          )
-        )}
-        <button className="fd-pg-btn" onClick={() => onPage(page + 1)} disabled={page === totalPages} title="Next">›</button>
-        <button className="fd-pg-btn" onClick={() => onPage(totalPages)} disabled={page === totalPages} title="Last">»</button>
-      </div>
-    </div>
+    <CommonPagination
+      currentPage={page}
+      totalPages={totalPages}
+      totalItems={totalItems}
+      pageSize={PAGE_SIZE}
+      onPageChange={onPage}
+    />
   );
 };
 

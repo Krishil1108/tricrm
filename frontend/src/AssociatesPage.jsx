@@ -622,12 +622,38 @@ const AssociatesPage = memo(() => {
         {/* Associate Table */}
         <div className="client-table-container">
           {filteredAssociates.length === 0 ? (
-            <div className="no-clients">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-              </svg>
-              <h3>No associates found</h3>
-              <p>Start by adding your first associate using the "Add New Associate" button.</p>
+            <div className="empty-state no-clients">
+              <div className="empty-state-icon" aria-hidden="true">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+              </div>
+              <h3>{searchTerm || filterStatus !== 'all' ? 'No matching associates found' : 'No associates found'}</h3>
+              <p>
+                {searchTerm || filterStatus !== 'all'
+                  ? 'Try adjusting your search or filter criteria.'
+                  : 'Start by adding your first associate using the button below.'}
+              </p>
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '14px' }}>
+                {(searchTerm || filterStatus !== 'all') && (
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => { setSearchTerm(''); setFilterStatus('all'); }}
+                  >
+                    Clear Filters
+                  </button>
+                )}
+                {hasGranularPermission('add_new_associate') && (
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    onClick={() => { setEditingAssociate(null); setShowAddForm(true); }}
+                  >
+                    + Add New Associate
+                  </button>
+                )}
+              </div>
             </div>
           ) : (
             <table className="client-table table-sticky">

@@ -483,18 +483,27 @@ input[type="radio"]:checked {
 
 /* Dark Mode Theme Variables */
 [data-theme="dark"] {
-  --background-color: #1a1b23;
-  --surface-color: #2d2e37;
+  --color-bg: #111827;
+  --color-surface: #1f2937;
+  --color-text: #f1f5f9;
+  --color-muted: #94a3b8;
+  --color-border: #374151;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+
+  --background-color: #111827;
+  --surface-color: #1f2937;
   --text-primary: #f1f5f9;
   --text-secondary: #cbd5e1;
   --text-muted: #94a3b8;
-  --border-color: #475569;
-  --border-light: #64748b;
+  --border-color: #374151;
+  --border-light: #4b5563;
   --shadow-light: rgba(0, 0, 0, 0.4);
   --shadow-medium: rgba(0, 0, 0, 0.6);
-  --hover-bg: #475569;
-  --input-bg: #475569;
-  --card-bg: #334155;
+  --hover-bg: #374151;
+  --input-bg: #374151;
+  --card-bg: #1f2937;
 }
 
 /* Light Mode Theme Variables */
@@ -763,4 +772,45 @@ input[type="radio"]:checked {
   background: var(--surface-color);
   border-left-color: #667eea;
   color: var(--text-secondary);
+}
+
+/* Additional dark mode surface & component overrides */
+[data-theme="dark"] .page-header,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .client-table-container,
+[data-theme="dark"] .project-table-container,
+[data-theme="dark"] .expense-table-container,
+[data-theme="dark"] .users-table-container,
+[data-theme="dark"] .note-card,
+[data-theme="dark"] .notes-stat-card,
+[data-theme="dark"] .empty-state,
+[data-theme="dark"] .no-clients {
+  background-color: var(--card-bg) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .page-header h1,
+[data-theme="dark"] .stat-value,
+[data-theme="dark"] .note-card-title,
+[data-theme="dark"] .logo-text,
+[data-theme="dark"] .user-name {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .page-header p,
+[data-theme="dark"] .stat-label,
+[data-theme="dark"] .note-card-content,
+[data-theme="dark"] .user-role {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] thead th {
+  background-color: #111827 !important;
+  color: var(--text-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.04) !important;
 }

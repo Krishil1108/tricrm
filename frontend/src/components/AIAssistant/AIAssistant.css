@@ -578,3 +578,50 @@
   }
   .aia-voice-error-close { color: #fca5a5; }
 }
+
+/* Rich Markdown rendering styles (UI-09) */
+.aia-inline-code {
+  font-family: 'Consolas', 'Courier New', monospace;
+  background: rgba(15, 23, 42, 0.12);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.88em;
+}
+
+.aia-code-block {
+  margin: 6px 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 0.82em;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
+.aia-md-list {
+  margin: 4px 0 4px 18px;
+  padding: 0;
+}
+
+.aia-md-list li {
+  margin: 2px 0;
+  line-height: 1.4;
+}
+
+.aia-md-heading {
+  font-weight: 700;
+  font-size: 1.02em;
+  margin: 6px 0 3px;
+}
+
+.aia-md-spacer {
+  height: 6px;
+}
+
+.aia-md-link {
+  color: #2563eb;
+  text-decoration: underline;
+  word-break: break-all;
+}

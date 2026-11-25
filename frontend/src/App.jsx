@@ -50,6 +50,12 @@ const NotFoundPage       = lazy(() => import('./NotFoundPage'));
 function App() {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
 
+  // Apply saved theme immediately on mount so dark mode persists across reloads
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  }, []);
+
   // Hide the HTML loading screen the moment React mounts — no overlap with Suspense
   useEffect(() => {
     const el = document.getElementById('loading-screen');

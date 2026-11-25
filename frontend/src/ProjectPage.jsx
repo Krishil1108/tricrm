@@ -2120,6 +2120,14 @@ const ProjectsTable = ({
         <div className="empty-state-icon"><FiBarChart2 /></div>
         <h3>No projects found</h3>
         <p>Start by adding a new project or importing from Excel</p>
+        <button
+          type="button"
+          className="btn-primary"
+          style={{ marginTop: '12px' }}
+          onClick={() => navigate('/projects', { state: { openAddModal: true } })}
+        >
+          + Add New Project
+        </button>
       </div>
     );
   }

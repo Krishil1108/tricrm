@@ -508,3 +508,182 @@
     border-width: 5px;
   }
 }
+
+/* Quick Search Trigger & Keyboard Shortcut Hint (UI-08) */
+.sidebar-search-wrapper {
+  padding: 10px 12px 2px 12px;
+}
+
+.sidebar-search-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.sidebar-search-btn:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.sidebar.collapsed .sidebar-search-wrapper {
+  padding: 8px 6px 2px 6px;
+}
+
+.sidebar.collapsed .sidebar-search-btn {
+  justify-content: center;
+  padding: 8px;
+}
+
+.sidebar-search-label {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.sidebar-kbd-hint {
+  font-size: 0.7rem;
+  font-family: inherit;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .sidebar-search-btn {
+  background: #111827;
+  border-color: #374151;
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .sidebar-search-btn:hover {
+  background: #374151;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .sidebar-kbd-hint {
+  background: #1f2937;
+  border-color: #4b5563;
+  color: #cbd5e1;
+}
+
+/* Collapsible Submenu & Dynamic Sub-Path Styles (UI-02) */
+.nav-item-row {
+  position: relative;
+}
+
+.submenu-chevron {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.22s ease, background-color 0.2s ease;
+  opacity: 0.7;
+}
+
+.submenu-chevron:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.submenu-chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.sidebar-subnav {
+  list-style: none;
+  margin: 0;
+  padding: 0 14px 0 36px;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.28s ease, opacity 0.22s ease, padding 0.22s ease;
+}
+
+.sidebar-subnav.open {
+  max-height: 220px;
+  opacity: 1;
+  padding: 4px 14px 6px 36px;
+}
+
+.sidebar-subnav-item {
+  margin: 2px 0 !important;
+}
+
+.sidebar-subnav-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: #64748b;
+  text-decoration: none;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-subnav-link:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.sidebar-subnav-link.active {
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.sidebar-subnav-link.is-action {
+  color: #059669;
+  font-size: 0.8rem;
+}
+
+.sidebar-subnav-link.is-dynamic {
+  font-style: italic;
+}
+
+.subnav-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .sidebar-subnav-link {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .sidebar-subnav-link:hover {
+  background: #374151;
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .sidebar-subnav-link.active {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}

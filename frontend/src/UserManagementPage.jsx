@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
+import { useToast } from './context/ToastContext';
 import { FaEdit, FaTrash, FaUserPlus, FaCheckCircle, FaTimesCircle, FaToggleOn, FaToggleOff } from 'react-icons/fa';
 import { FiChevronDown, FiChevronUp, FiMinus } from 'react-icons/fi';
 import useSortableData from './utils/useSortableData';
@@ -15,12 +16,12 @@ function UserManagementPage() {
     canEditUser,
     canDeleteUser
   } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
-  const [message, setMessage] = useState({ type: '', text: '' });
   const [formErrors, setFormErrors] = useState({});
 
   const [formData, setFormData] = useState({
@@ -84,8 +85,11 @@ function UserManagementPage() {
   };
 
   const showMessage = (type, text) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage({ type: '', text: '' }), 5000);
+    if (type === 'success') {
+      showSuccess(text);
+    } else {
+      showError(text);
+    }
   };
 
   const handleOpenModal = (user = null) => {
@@ -284,12 +288,6 @@ function UserManagementPage() {
           </button>
         )}
       </div>
-
-      {message.text && (
-        <div className={`message message-${message.type}`}>
-          {message.text}
-        </div>
-      )}
 
       <div className="users-table-container">
         <table className="users-table table-sticky">

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import './Sidebar.css';
@@ -8,6 +8,7 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { hasModuleAccess, isAdmin, logout, user } = useAuth();
+  const [expandedMenus, setExpandedMenus] = useState({});
   
   const menuItems = [
     { 
@@ -149,6 +150,87 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
     }
   };
 
+  // Active route checker supporting nested sub-paths
+  const isItemActive = (item) => {
+    if (location.pathname === item.path) return true;
+    if (item.matchPrefixes?.some(prefix => location.pathname.startsWith(prefix))) {
+      return true;
+    }
+    return false;
+  };
+
+  // Dynamic collapsible sub-pages based on module and active sub-route
+  const getSubItems = (item) => {
+    switch (item.id) {
+      case 'clients': {
+        const items = [
+          { id: 'clients-all', label: 'All Clients', path: '/clients' },
+          { id: 'clients-add', label: '+ New Client', path: '/clients', state: { openAddModal: true }, isAction: true }
+        ];
+        if (/^\/clients\/[^/]+\/projects/.test(location.pathname)) {
+          items.push({ id: 'clients-projects', label: 'Client Projects', path: location.pathname, isDynamic: true });
+        }
+        return items;
+      }
+      case 'associates': {
+        const items = [
+          { id: 'associates-all', label: 'All Associates', path: '/associates' }
+        ];
+        if (/^\/associates\/[^/]+\/projects/.test(location.pathname)) {
+          items.push({ id: 'associates-projects', label: 'Associate Projects', path: location.pathname, isDynamic: true });
+        }
+        return items;
+      }
+      case 'projects': {
+        const items = [
+          { id: 'projects-all', label: 'All Projects', path: '/projects' },
+          { id: 'projects-add', label: '+ New Project', path: '/projects', state: { openAddModal: true }, isAction: true }
+        ];
+        if (/^\/projects\/[^/]+$/.test(location.pathname)) {
+          items.push({ id: 'projects-detail', label: 'Project Details', path: location.pathname, isDynamic: true });
+        }
+        return items;
+      }
+      case 'finance':
+        return [
+          { id: 'finance-overview', label: 'Finance Overview', path: '/finance' },
+          ...(hasModuleAccess('expenses') ? [{ id: 'finance-expenses', label: 'Expenses Log', path: '/expenses' }] : [])
+        ];
+      case 'notes':
+        return [
+          { id: 'notes-all', label: 'All Notes', path: '/notes' },
+          { id: 'notes-add', label: '+ Quick Note', path: '/notes', state: { openAddModal: true }, isAction: true }
+        ];
+      default:
+        return [];
+    }
+  };
+
+  // Auto-expand submenu for the currently active parent route
+  useEffect(() => {
+    const activeParentIds = ['clients', 'associates', 'projects', 'finance', 'notes'].filter(id => {
+      if (id === 'clients') return location.pathname.startsWith('/clients');
+      if (id === 'associates') return location.pathname.startsWith('/associates');
+      if (id === 'projects') return location.pathname.startsWith('/projects');
+      if (id === 'finance') return location.pathname.startsWith('/finance') || location.pathname.startsWith('/expenses');
+      if (id === 'notes') return location.pathname.startsWith('/notes');
+      return false;
+    });
+    if (activeParentIds.length > 0) {
+      setExpandedMenus(prev => {
+        const next = { ...prev };
+        activeParentIds.forEach(id => { next[id] = true; });
+        return next;
+      });
+    }
+  }, [location.pathname]);
+
+  const toggleSubmenu = (e, id) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setExpandedMenus(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   // Filter menu items based on permissions
   const visibleMenuItems = menuItems.filter(item => {
     if (item.module) {
@@ -227,24 +309,96 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
         </div>
       )}
       
+      {/* Quick Command Palette Trigger (UI-08) */}
+      <div className="sidebar-search-wrapper">
+        <button
+          type="button"
+          className="sidebar-search-btn"
+          onClick={() => window.dispatchEvent(new CustomEvent('open-command-palette'))}
+          title="Quick Search (Ctrl+K)"
+        >
+          <span className="nav-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </span>
+          {isExpanded && (
+            <>
+              <span className="sidebar-search-label">Quick Search</span>
+              <kbd className="sidebar-kbd-hint">Ctrl+K</kbd>
+            </>
+          )}
+        </button>
+      </div>
+
       <nav className="sidebar-nav">
         <ul>
-          {allVisibleItems.map((item) => (
-            <li key={item.id} className="nav-item-container">
-              <Link 
-                to={item.path}
-                className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
-                onClick={handleNavClick}
-                data-tooltip={item.name}
-              >
-                <span className="nav-icon">{item.icon}</span>
-                <span className="nav-text">{item.name}</span>
-                {!isExpanded && (
-                  <div className="nav-tooltip">{item.name}</div>
+          {allVisibleItems.map((item) => {
+            const subItems = getSubItems(item);
+            const hasSubmenu = subItems.length > 0;
+            const isOpen = Boolean(expandedMenus[item.id]);
+            const isActive = isItemActive({
+              ...item,
+              matchPrefixes: item.id === 'clients' ? ['/clients']
+                : item.id === 'associates' ? ['/associates']
+                : item.id === 'projects' ? ['/projects']
+                : item.id === 'finance' ? ['/finance', '/expenses']
+                : item.id === 'notes' ? ['/notes']
+                : undefined
+            });
+
+            return (
+              <li key={item.id} className={`nav-item-container ${isOpen && isExpanded ? 'submenu-open' : ''}`}>
+                <div className="nav-item-row">
+                  <Link 
+                    to={item.path}
+                    className={`nav-item ${isActive ? 'active' : ''}`}
+                    onClick={handleNavClick}
+                    data-tooltip={item.name}
+                  >
+                    <span className="nav-icon">{item.icon}</span>
+                    <span className="nav-text">{item.name}</span>
+                    {isExpanded && hasSubmenu && (
+                      <button
+                        type="button"
+                        className={`submenu-chevron ${isOpen ? 'rotated' : ''}`}
+                        onClick={(e) => toggleSubmenu(e, item.id)}
+                        aria-label={`Toggle ${item.name} submenu`}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                      </button>
+                    )}
+                    {!isExpanded && (
+                      <div className="nav-tooltip">{item.name}</div>
+                    )}
+                  </Link>
+                </div>
+                {isExpanded && hasSubmenu && (
+                  <ul className={`sidebar-subnav ${isOpen ? 'open' : ''}`}>
+                    {subItems.map((sub) => {
+                      const isSubActive = !sub.isAction && location.pathname === sub.path;
+                      return (
+                        <li key={sub.id} className="sidebar-subnav-item">
+                          <Link
+                            to={sub.path}
+                            state={sub.state}
+                            className={`sidebar-subnav-link ${isSubActive ? 'active' : ''} ${sub.isAction ? 'is-action' : ''} ${sub.isDynamic ? 'is-dynamic' : ''}`}
+                            onClick={handleNavClick}
+                          >
+                            <span className="subnav-dot" />
+                            <span>{sub.label}</span>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
                 )}
-              </Link>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       </nav>
 

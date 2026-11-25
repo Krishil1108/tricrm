@@ -124,30 +124,99 @@ function buildConfirmText(intent, collected) {
   return `Ready to create this **${intent.confirmLabel}**:\n\n${rows}\n\nShall I go ahead?`;
 }
 
-// ─── Message renderer ──────────────────────────────────────
+// ─── Message renderer (Rich Markdown support for UI-09) ────
 function Message({ m }) {
-  // Convert **bold** markdown-ish to bold spans
-  function renderText(text) {
+  // Render inline markdown: `code`, **bold**, *italic*, [text](url)
+  function renderInline(text) {
     if (!text) return null;
-    const parts = text.split(/\*\*(.+?)\*\*/g);
-    return parts.map((p, i) =>
-      i % 2 === 1 ? <strong key={i}>{p}</strong> : <span key={i}>{p}</span>
-    );
+    const tokenRegex = /(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*|\[[^\]]+\]\([^)]+\))/g;
+    const parts = text.split(tokenRegex);
+    return parts.map((part, i) => {
+      if (!part) return null;
+      if (part.startsWith('`') && part.endsWith('`') && part.length >= 2) {
+        return <code key={i} className="aia-inline-code">{part.slice(1, -1)}</code>;
+      }
+      if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
+        return <strong key={i}>{part.slice(2, -2)}</strong>;
+      }
+      if (part.startsWith('*') && part.endsWith('*') && part.length >= 2) {
+        return <em key={i}>{part.slice(1, -1)}</em>;
+      }
+      const linkMatch = part.match(/^\[([^\]]+)\]\((https?:\/\/[^)]+|\/[^)]*)\)$/);
+      if (linkMatch) {
+        return (
+          <a key={i} href={linkMatch[2]} target="_blank" rel="noopener noreferrer" className="aia-md-link">
+            {linkMatch[1]}
+          </a>
+        );
+      }
+      return <span key={i}>{part}</span>;
+    });
   }
 
-  const lines = (m.text || '').split('\n');
+  function renderMarkdownBlocks(rawText) {
+    const blocks = (rawText || '').split(/(```[\s\S]*?```)/g);
+    return blocks.map((block, bIdx) => {
+      if (block.startsWith('```') && block.endsWith('```')) {
+        const codeContent = block.replace(/^```[^\n]*\n?/, '').replace(/```$/, '');
+        return (
+          <pre key={`code-${bIdx}`} className="aia-code-block">
+            <code>{codeContent}</code>
+          </pre>
+        );
+      }
+      const lines = block.split('\n');
+      const elements = [];
+      let listItems = [];
+      let listType = null;
+
+      const flushList = (keySuffix) => {
+        if (listItems.length === 0) return;
+        if (listType === 'ol') {
+          elements.push(<ol key={`ol-${bIdx}-${keySuffix}`} className="aia-md-list">{listItems}</ol>);
+        } else {
+          elements.push(<ul key={`ul-${bIdx}-${keySuffix}`} className="aia-md-list">{listItems}</ul>);
+        }
+        listItems = [];
+        listType = null;
+      };
+
+      lines.forEach((line, lIdx) => {
+        const ulMatch = line.match(/^\s*[•*-]\s+(.+)$/);
+        const olMatch = line.match(/^\s*\d+\.\s+(.+)$/);
+        const hMatch = line.match(/^(#{1,3})\s+(.+)$/);
+
+        if (ulMatch) {
+          if (listType === 'ol') flushList(lIdx);
+          listType = 'ul';
+          listItems.push(<li key={`li-${lIdx}`}>{renderInline(ulMatch[1])}</li>);
+        } else if (olMatch) {
+          if (listType === 'ul') flushList(lIdx);
+          listType = 'ol';
+          listItems.push(<li key={`li-${lIdx}`}>{renderInline(olMatch[1])}</li>);
+        } else {
+          flushList(lIdx);
+          if (hMatch) {
+            elements.push(<div key={`h-${lIdx}`} className="aia-md-heading">{renderInline(hMatch[2])}</div>);
+          } else if (line.trim() === '') {
+            elements.push(<div key={`sp-${lIdx}`} className="aia-md-spacer" />);
+          } else {
+            elements.push(<div key={`p-${lIdx}`}>{renderInline(line)}</div>);
+          }
+        }
+      });
+      flushList('end');
+      return <React.Fragment key={`blk-${bIdx}`}>{elements}</React.Fragment>;
+    });
+  }
+
   return (
     <div className={`aia-msg aia-msg--${m.role}`}>
       {m.role === 'assistant' && (
         <div className="aia-avatar">✨</div>
       )}
       <div className="aia-bubble">
-        {lines.map((line, i) => (
-          <React.Fragment key={i}>
-            {renderText(line)}
-            {i < lines.length - 1 && <br />}
-          </React.Fragment>
-        ))}
+        {renderMarkdownBlocks(m.text)}
       </div>
     </div>
   );
