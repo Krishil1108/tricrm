@@ -3,6 +3,7 @@ const router = express.Router();
 const Client = require('../models/Client');
 const FinanceProject = require('../models/FinanceProject');
 const Activity = require('../models/Activity');
+const { sendSuccess, sendError } = require('../utils/apiResponse');
 
 // GET /api/clients - Get all clients with project counts & server-side pagination
 router.get('/', async (req, res) => {
@@ -185,16 +186,16 @@ router.put('/:id', async (req, res) => {
     );
 
     if (!updatedClient) {
-      return res.status(404).json({ message: 'Client not found' });
+      return sendError(res, 'Client not found', 404);
     }
 
-    res.json(updatedClient);
+    return sendSuccess(res, updatedClient, 'Client updated successfully');
   } catch (error) {
     console.error('Error updating client:', error);
     if (error.name === 'ValidationError') {
-      return res.status(400).json({ message: error.message });
+      return sendError(res, error.message, 400);
     }
-    res.status(500).json({ message: 'Server error while updating client' });
+    return sendError(res, 'Server error while updating client', 500);
   }
 });
 
@@ -206,13 +207,13 @@ router.delete('/:id', async (req, res) => {
     const deletedClient = await Client.findByIdAndDelete(id);
 
     if (!deletedClient) {
-      return res.status(404).json({ message: 'Client not found' });
+      return sendError(res, 'Client not found', 404);
     }
 
-    res.json({ message: 'Client deleted successfully' });
+    return sendSuccess(res, null, 'Client deleted successfully');
   } catch (error) {
     console.error('Error deleting client:', error);
-    res.status(500).json({ message: 'Server error while deleting client' });
+    return sendError(res, 'Server error while deleting client', 500);
   }
 });
 
@@ -223,13 +224,13 @@ router.get('/:id', async (req, res) => {
     const client = await Client.findById(id);
 
     if (!client) {
-      return res.status(404).json({ message: 'Client not found' });
+      return sendError(res, 'Client not found', 404);
     }
 
-    res.json(client);
+    return sendSuccess(res, client);
   } catch (error) {
     console.error('Error fetching client:', error);
-    res.status(500).json({ message: 'Server error while fetching client' });
+    return sendError(res, 'Server error while fetching client', 500);
   }
 });
 

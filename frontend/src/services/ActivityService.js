@@ -9,9 +9,9 @@ class ActivityService {
     try {
       const response = await axios.get(`${this.baseUrl}/recent?limit=${limit}`);
       
-      // Ensure we return an array, even if the API returns something else
-      const data = response.data;
-      return Array.isArray(data) ? data : [];
+      // Support both standardized { success, data } envelope and raw array responses
+      const raw = response.data?.data ?? response.data;
+      return Array.isArray(raw) ? raw : [];
     } catch (error) {
       console.error('Error fetching recent activities:', error.response?.data || error.message);
       

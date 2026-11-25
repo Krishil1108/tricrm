@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Activity = require('../models/Activity');
+const { sendSuccess, sendError } = require('../utils/apiResponse');
 
 // GET /api/activities - Get all activities with pagination
 router.get('/', async (req, res) => {
@@ -44,7 +45,7 @@ router.get('/', async (req, res) => {
 
     const total = await Activity.countDocuments(filter);
 
-    res.json({
+    return sendSuccess(res, activities, undefined, 200, {
       activities,
       pagination: {
         page: parseInt(page),
@@ -55,7 +56,7 @@ router.get('/', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching activities:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    return sendError(res, 'Server error', 500, { error: error.message });
   }
 });
 
@@ -66,10 +67,10 @@ router.get('/recent', async (req, res) => {
     
     const activities = await Activity.getRecentActivities(parseInt(limit), userId);
     
-    res.json(activities);
+    return sendSuccess(res, activities);
   } catch (error) {
     console.error('Error fetching recent activities:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    return sendError(res, 'Server error', 500, { error: error.message });
   }
 });
 
@@ -79,16 +80,16 @@ router.get('/:id', async (req, res) => {
     const activity = await Activity.findById(req.params.id);
     
     if (!activity) {
-      return res.status(404).json({ message: 'Activity not found' });
+      return sendError(res, 'Activity not found', 404);
     }
 
-    res.json(activity);
+    return sendSuccess(res, activity);
   } catch (error) {
     console.error('Error fetching activity:', error);
     if (error.name === 'CastError') {
-      return res.status(400).json({ message: 'Invalid activity ID' });
+      return sendError(res, 'Invalid activity ID', 400);
     }
-    res.status(500).json({ message: 'Server error', error: error.message });
+    return sendError(res, 'Server error', 500, { error: error.message });
   }
 });
 

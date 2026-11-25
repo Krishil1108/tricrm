@@ -3,6 +3,7 @@ const router = express.Router();
 const Associate = require('../models/Associate');
 const FinanceProject = require('../models/FinanceProject');
 const Activity = require('../models/Activity');
+const { sendSuccess, sendError } = require('../utils/apiResponse');
 
 // GET /api/associates - Get all associates with project counts & pagination
 router.get('/', async (req, res) => {
@@ -183,16 +184,16 @@ router.put('/:id', async (req, res) => {
     );
 
     if (!updatedAssociate) {
-      return res.status(404).json({ message: 'Associate not found' });
+      return sendError(res, 'Associate not found', 404);
     }
 
-    res.json(updatedAssociate);
+    return sendSuccess(res, updatedAssociate, 'Associate updated successfully');
   } catch (error) {
     console.error('Error updating associate:', error);
     if (error.name === 'ValidationError') {
-      return res.status(400).json({ message: error.message });
+      return sendError(res, error.message, 400);
     }
-    res.status(500).json({ message: 'Server error while updating associate' });
+    return sendError(res, 'Server error while updating associate', 500);
   }
 });
 
@@ -204,13 +205,13 @@ router.delete('/:id', async (req, res) => {
     const deletedAssociate = await Associate.findByIdAndDelete(id);
 
     if (!deletedAssociate) {
-      return res.status(404).json({ message: 'Associate not found' });
+      return sendError(res, 'Associate not found', 404);
     }
 
-    res.json({ message: 'Associate deleted successfully' });
+    return sendSuccess(res, null, 'Associate deleted successfully');
   } catch (error) {
     console.error('Error deleting associate:', error);
-    res.status(500).json({ message: 'Server error while deleting associate' });
+    return sendError(res, 'Server error while deleting associate', 500);
   }
 });
 
@@ -221,13 +222,13 @@ router.get('/:id', async (req, res) => {
     const associate = await Associate.findById(id);
 
     if (!associate) {
-      return res.status(404).json({ message: 'Associate not found' });
+      return sendError(res, 'Associate not found', 404);
     }
 
-    res.json(associate);
+    return sendSuccess(res, associate);
   } catch (error) {
     console.error('Error fetching associate:', error);
-    res.status(500).json({ message: 'Server error while fetching associate' });
+    return sendError(res, 'Server error while fetching associate', 500);
   }
 });
 

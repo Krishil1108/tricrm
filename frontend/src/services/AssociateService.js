@@ -6,9 +6,9 @@ export const invalidateAssociateCache = () => {
   clientCache.invalidate('dashboard-stats');
 };
 
-class AssociateService {
+const AssociateService = {
   // Get all associates with SWR cache
-  static async getAllAssociates(options = {}) {
+  getAllAssociates: async (options = {}) => {
     return clientCache.fetchWithCache('associates_all', async () => {
       try {
         const response = await api.get('/associates');
@@ -18,10 +18,10 @@ class AssociateService {
         throw error;
       }
     }, options);
-  }
+  },
 
   // Create a new associate
-  static async createAssociate(associateData) {
+  createAssociate: async (associateData) => {
     try {
       const response = await api.post('/associates', associateData);
       invalidateAssociateCache();
@@ -30,10 +30,10 @@ class AssociateService {
       console.error('Error creating associate:', error);
       throw error;
     }
-  }
+  },
 
   // Update an associate
-  static async updateAssociate(associateId, updateData) {
+  updateAssociate: async (associateId, updateData) => {
     try {
       const response = await api.put(`/associates/${associateId}`, updateData);
       invalidateAssociateCache();
@@ -42,10 +42,10 @@ class AssociateService {
       console.error('Error updating associate:', error);
       throw error;
     }
-  }
+  },
 
   // Delete an associate
-  static async deleteAssociate(associateId) {
+  deleteAssociate: async (associateId) => {
     try {
       const response = await api.delete(`/associates/${associateId}`);
       invalidateAssociateCache();
@@ -54,10 +54,10 @@ class AssociateService {
       console.error('Error deleting associate:', error);
       throw error;
     }
-  }
+  },
 
   // Get a single associate with SWR cache
-  static async getAssociate(associateId, options = {}) {
+  getAssociate: async (associateId, options = {}) => {
     return clientCache.fetchWithCache(`associate_${associateId}`, async () => {
       try {
         const response = await api.get(`/associates/${associateId}`);
@@ -68,6 +68,6 @@ class AssociateService {
       }
     }, options);
   }
-}
+};
 
 export default AssociateService;

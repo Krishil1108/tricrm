@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Note = require('../models/Note');
 const Activity = require('../models/Activity');
+const { sendSuccess, sendError } = require('../utils/apiResponse');
 
 // GET /api/notes - Get all notes
 router.get('/', async (req, res) => {
@@ -50,7 +51,7 @@ router.get('/', async (req, res) => {
 
     const total = await Note.countDocuments(filter);
 
-    res.json({
+    return sendSuccess(res, notes, undefined, 200, {
       notes,
       pagination: {
         page: parseInt(page),
@@ -61,7 +62,7 @@ router.get('/', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching notes:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    return sendError(res, 'Server error', 500, { error: error.message });
   }
 });
 
@@ -71,16 +72,16 @@ router.get('/:id', async (req, res) => {
     const note = await Note.findById(req.params.id);
     
     if (!note) {
-      return res.status(404).json({ message: 'Note not found' });
+      return sendError(res, 'Note not found', 404);
     }
 
-    res.json(note);
+    return sendSuccess(res, note);
   } catch (error) {
     console.error('Error fetching note:', error);
     if (error.name === 'CastError') {
-      return res.status(400).json({ message: 'Invalid note ID' });
+      return sendError(res, 'Invalid note ID', 400);
     }
-    res.status(500).json({ message: 'Server error', error: error.message });
+    return sendError(res, 'Server error', 500, { error: error.message });
   }
 });
 

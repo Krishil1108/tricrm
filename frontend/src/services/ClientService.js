@@ -1,4 +1,4 @@
-import api, { getAuthHeader } from '../utils/api';
+import api from '../utils/api';
 import clientCache from '../utils/clientCache';
 
 const invalidateClientCache = () => {
@@ -7,9 +7,9 @@ const invalidateClientCache = () => {
   clientCache.invalidate('dashboard-stats');
 };
 
-class ClientService {
+const ClientService = {
   // Get all clients — SWR cached so page navigation is instant
-  static async getAllClients(filters = {}, options = {}) {
+  getAllClients: async (filters = {}, options = {}) => {
     const key = clientCache.generateKey('clients_list', filters);
     return clientCache.fetchWithCache(
       key,
@@ -25,10 +25,10 @@ class ClientService {
       },
       options
     );
-  }
+  },
 
   // Create a new client
-  static async createClient(clientData) {
+  createClient: async (clientData) => {
     try {
       const response = await api.post('/clients', clientData);
       invalidateClientCache();
@@ -37,10 +37,10 @@ class ClientService {
       console.error('Error creating client:', error);
       throw error;
     }
-  }
+  },
 
   // Update a client
-  static async updateClient(clientId, updateData) {
+  updateClient: async (clientId, updateData) => {
     try {
       const response = await api.put(`/clients/${clientId}`, updateData);
       invalidateClientCache();
@@ -49,10 +49,10 @@ class ClientService {
       console.error('Error updating client:', error);
       throw error;
     }
-  }
+  },
 
   // Delete a client
-  static async deleteClient(clientId) {
+  deleteClient: async (clientId) => {
     try {
       const response = await api.delete(`/clients/${clientId}`);
       invalidateClientCache();
@@ -61,10 +61,10 @@ class ClientService {
       console.error('Error deleting client:', error);
       throw error;
     }
-  }
+  },
 
   // Get a single client — cached per ID
-  static async getClient(clientId, options = {}) {
+  getClient: async (clientId, options = {}) => {
     return clientCache.fetchWithCache(
       `client_${clientId}`,
       async () => {
@@ -79,6 +79,6 @@ class ClientService {
       options
     );
   }
-}
+};
 
 export default ClientService;
