@@ -32,35 +32,35 @@
 /* Welcome message for the blank page */
 .welcome-message {
   text-align: center;
-  color: #666;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--color-muted);
+  font-family: var(--font-sans);
 }
 
 .welcome-message h1 {
   font-size: 2.2rem;
   margin-bottom: 1rem;
-  color: #4a5568;
-  font-weight: 400;
+  color: var(--color-text);
+  font-weight: 500;
 }
 
 .welcome-message p {
   font-size: 1rem;
   margin-bottom: 0.5rem;
-  color: #6b7280;
+  color: var(--color-muted);
 }
 
 /* Dark Mode Styles for Main App */
 [data-theme="dark"] .App {
-  background-color: #1a1b23;
+  background-color: var(--color-bg);
 }
 
 [data-theme="dark"] .main-content {
-  background: #1a1b23;
-  color: #e2e8f0;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 [data-theme="dark"] .welcome-message h1 {
-  color: #e2e8f0;
+  color: var(--color-text);
 }
 
 [data-theme="dark"] .welcome-message p {

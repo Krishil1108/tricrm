@@ -119,65 +119,120 @@
   font-size: 0.8rem;
 }
 
+.distribution-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--color-bg, #f8fafc);
+}
+
 .distribution-table td {
   padding: 10px 8px;
   text-align: center;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--color-border, #e2e8f0);
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .percentage-row {
-  background: #e3f2fd !important;
+  background: var(--color-surface, #ffffff);
   font-weight: 600;
 }
 
 .percentage-row td {
-  background: #e3f2fd;
-  color: #1976d2;
+  background: var(--color-bg, #f8fafc);
+  color: var(--brand-primary, #4f46e5);
 }
 
 .payment-row {
-  background: #fafafa;
+  background: var(--color-surface, #ffffff);
 }
 
 .payment-row:nth-child(even) {
-  background: #f5f5f5;
+  background: var(--color-surface, #ffffff);
+}
+
+.payment-row:hover {
+  background: var(--brand-soft, #eef2ff);
+}
+
+/* Hover-reveal row action buttons (Fix 15) */
+.payment-row .ydt-row-actions {
+  opacity: 0.25;
+  transition: opacity 150ms ease;
+}
+
+.payment-row:hover .ydt-row-actions,
+.payment-row:focus-within .ydt-row-actions {
+  opacity: 1;
 }
 
 .year-summary-row {
-  background: #fff3e0 !important;
-  border-top: 2px solid #ff9800;
-  border-bottom: 2px solid #ff9800;
+  background: var(--color-surface, #ffffff);
+  border-top: 2px solid var(--color-border, #cbd5e1);
+  border-bottom: 1px solid var(--color-border, #cbd5e1);
 }
 
 .year-summary-row td {
-  background: #fff3e0;
-  color: #f57c00;
-  font-weight: bold;
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text, #0f172a);
+  font-weight: 700;
 }
 
 .total-row {
-  background: #e8f5e8 !important;
-  border-top: 3px solid #4caf50;
+  background: rgba(22, 163, 74, 0.08);
+  border-top: 2px solid var(--color-success, #16a34a);
   font-size: 0.9rem;
 }
 
 .total-row td {
-  background: #e8f5e8;
-  color: #2e7d32;
-  font-weight: bold;
+  background: rgba(22, 163, 74, 0.08);
+  color: #15803d;
+  font-weight: 700;
   padding: 12px 8px;
 }
 
 .remaining-row {
-  background: #ffebee !important;
-  border-top: 2px solid #f44336;
+  background: rgba(220, 38, 38, 0.07);
+  border-top: 2px solid var(--color-danger, #dc2626);
 }
 
 .remaining-row td {
-  background: #ffebee;
-  color: #c62828;
-  font-weight: bold;
+  background: rgba(220, 38, 38, 0.07);
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+/* Inline validation styles (Fix 6 & 7) */
+.ydt-inline-input {
+  width: 100%;
+  padding: 6px;
+  text-align: right;
+  border: 2px solid var(--brand-primary, #4f46e5);
+  border-radius: 4px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ydt-inline-input.ydt-input-error {
+  border-color: var(--color-danger, #dc2626);
+  background: rgba(220, 38, 38, 0.06);
+}
+
+.ydt-inline-pct {
+  font-size: 10px;
+  color: var(--brand-primary, #4f46e5);
+  text-align: right;
+  margin-top: 2px;
+}
+
+.ydt-inline-error {
+  font-size: 11px;
+  color: var(--color-danger, #dc2626);
+  font-weight: 600;
+  margin-top: 3px;
+  white-space: normal;
+  text-align: left;
 }
 
 .empty-distribution {

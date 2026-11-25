@@ -3,10 +3,10 @@
   top: 0;
   left: 0;
   height: 100vh;
-  background: #f0f9ff;
-  border-right: 1px solid #e8ebf0;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
   z-index: 1000;
-  transition: width 0.3s ease;
+  transition: width 0.25s ease;
   overflow: hidden; /* Prevent sidebar itself from scrolling */
   display: flex;
   flex-direction: column;
@@ -152,8 +152,8 @@
 }
 
 .nav-item:hover {
-  background: #e8f4f8;
-  color: #2d3748;
+  background: var(--brand-soft, #eef2ff);
+  color: var(--brand-primary, #4f46e5);
 }
 
 .nav-icon {

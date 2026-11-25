@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './App.css';
 import './styles/theme.css';
+import './components/ui/ui.css';
 import { CompanyProvider } from './CompanyContext';
 import { AppModeProvider } from './contexts/AppModeContext';
 import { AuthProvider } from './contexts/AuthContext';
@@ -12,6 +13,8 @@ import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
 import DefaultRoute from './DefaultRoute';
 import ErrorBoundary from './components/ErrorBoundary';
+import TableSkeleton from './components/common/TableSkeleton';
+import TopBar from './components/TopBar';
 
 // QueryClient instance for @tanstack/react-query (used in FinanceDashboard and elsewhere)
 const queryClient = new QueryClient({
@@ -78,7 +81,7 @@ function App() {
           <CompanyProvider>
             <AppModeProvider>
               <ToastProvider>
-                <Suspense fallback={null}>
+                <Suspense fallback={<div style={{ padding: '24px' }}><TableSkeleton rows={8} /></div>}>
                   <Routes>
                     {/* Public route - Login */}
                     <Route path="/login" element={
@@ -146,6 +149,7 @@ function App() {
                             />
                             
                             <div className={`main-content ${isSidebarExpanded ? 'sidebar-expanded' : 'sidebar-collapsed'}`}>
+                            <TopBar />
                             <Routes>
                             <Route path="/" element={<DefaultRoute />} />
                             

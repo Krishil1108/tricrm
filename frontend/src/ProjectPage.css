@@ -1815,7 +1815,45 @@ button.finance-btn-secondary:hover:not(:disabled), .finance-btn-secondary:hover:
 }
 
 .project-table tbody tr:hover {
-  background: #f8f9fa !important;
-  transform: scale(1.001);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background: var(--brand-soft, #eef2ff);
+}
+
+/* Mobile-friendly table cards below 768px (Fix 16) */
+@media (max-width: 768px) {
+  .distribution-table,
+  .project-table {
+    min-width: 0;
+  }
+
+  .project-table thead {
+    display: none;
+  }
+
+  .project-table tbody,
+  .project-table tr,
+  .project-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .project-table tbody tr {
+    background: var(--color-surface, #ffffff);
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+  }
+
+  .project-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--color-border, #f1f5f9);
+    text-align: right;
+  }
+
+  .project-table tbody td:last-child {
+    border-bottom: none;
+  }
 }

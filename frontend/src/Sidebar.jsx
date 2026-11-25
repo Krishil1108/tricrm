@@ -147,13 +147,12 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
     return false;
   };
 
-  // Dynamic collapsible sub-pages based on module and active sub-route
+  // Dynamic collapsible sub-pages (destinations only — Fix 12: creation moved to TopBar + New)
   const getSubItems = (item) => {
     switch (item.id) {
       case 'clients': {
         const items = [
-          { id: 'clients-all', label: 'All Clients', path: '/clients' },
-          { id: 'clients-add', label: '+ New Client', path: '/clients', state: { openAddModal: true }, isAction: true }
+          { id: 'clients-all', label: 'All Clients', path: '/clients' }
         ];
         if (/^\/clients\/[^/]+\/projects/.test(location.pathname)) {
           items.push({ id: 'clients-projects', label: 'Client Projects', path: location.pathname, isDynamic: true });
@@ -171,8 +170,7 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
       }
       case 'projects': {
         const items = [
-          { id: 'projects-all', label: 'All Projects', path: '/projects' },
-          { id: 'projects-add', label: '+ New Project', path: '/projects', state: { openAddModal: true }, isAction: true }
+          { id: 'projects-all', label: 'All Projects', path: '/projects' }
         ];
         if (/^\/projects\/[^/]+$/.test(location.pathname)) {
           items.push({ id: 'projects-detail', label: 'Project Details', path: location.pathname, isDynamic: true });
@@ -183,11 +181,6 @@ const Sidebar = ({ isExpanded, toggleSidebar }) => {
         return [
           { id: 'finance-overview', label: 'Finance Overview', path: '/finance' },
           ...(hasModuleAccess('expenses') ? [{ id: 'finance-expenses', label: 'Expenses Log', path: '/expenses' }] : [])
-        ];
-      case 'notes':
-        return [
-          { id: 'notes-all', label: 'All Notes', path: '/notes' },
-          { id: 'notes-add', label: '+ Quick Note', path: '/notes', state: { openAddModal: true }, isAction: true }
         ];
       case 'access-control':
         return [

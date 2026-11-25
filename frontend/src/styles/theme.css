@@ -1,11 +1,14 @@
 /* Global Theme System */
 :root {
-  /* Default theme colors (Test mode) */
-  --theme-primary: #4CAF50;
-  --theme-secondary: #66BB6A;
-  --theme-light: #E8F5E8;
-  --theme-dark: #2E7D32;
-  --theme-mode: 'test';
+  /* Unified Brand & Semantic Palette (Fix 1) */
+  --brand-primary: #4f46e5;
+  --brand-primary-hover: #4338ca;
+  --brand-soft: #eef2ff;
+  --theme-primary: var(--brand-primary);
+  --theme-secondary: #6366f1;
+  --theme-light: var(--brand-soft);
+  --theme-dark: var(--brand-primary-hover);
+  --theme-mode: 'production';
 
   /* Core system colors */
   --color-bg: #f8fafc;
@@ -17,8 +20,8 @@
   --color-warning: #d97706;
   --color-success: #16a34a;
 
-  /* Typography */
-  --font-sans: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  /* Typography (Fix 2: Single Inter font across all pages) */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-mono: 'Consolas', 'Courier New', monospace;
   --text-xs: 12px;
   --text-sm: 13px;
@@ -53,9 +56,25 @@
   --theme-transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 
-/* Global theme transitions */
-* {
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+/* Targeted element transitions (150-200ms) — avoids global * selector lag (Fix 10) */
+button,
+.btn,
+input,
+select,
+textarea,
+.card,
+.nav-item {
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+}
+
+/* Tabular numbers for aligned financial columns & KPIs (Fix 2) */
+.tabular-nums,
+.stat-value,
+.fd-td-num,
+td.numeric,
+.amount,
+.currency {
+  font-variant-numeric: tabular-nums;
 }
 
 body {

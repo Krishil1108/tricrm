@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import ConfirmDialog from './ConfirmDialog';
+import { useToast } from '../context/ToastContext';
 import './YearlyDistributionTable.css';
 // xlsx, jsPDF and jspdf-autotable are loaded on-demand inside exportToExcel / exportToPDF
 // to avoid adding ~250 KiB to the initial JS bundle.
@@ -19,8 +21,12 @@ const YearlyDistributionTable = ({
   autoOpenAddPayment = false
 }) => {
   const location = useLocation();
+  const { showSuccess } = useToast();
   const shouldAutoOpen = autoOpenAddPayment || new URLSearchParams(location.search).get('addPayment') === 'true';
   const autoOpenFiredRef = useRef(false);
+  const [paymentFormErrors, setPaymentFormErrors] = useState({});
+  const [inlineDistError, setInlineDistError] = useState({ field: '', message: '' });
+  const [deletePaymentConfirmIndex, setDeletePaymentConfirmIndex] = useState(null);
   
   // State for edit mode
   const [editedData, setEditedData] = useState({
@@ -209,17 +215,20 @@ const YearlyDistributionTable = ({
     }));
   };
 
-  // Handler to submit new payment
+  // Handler to submit new payment (inline validation instead of blocking alert)
   const handleSubmitPayment = () => {
+    const errors = {};
     if (!paymentFormData.amount || parseFloat(paymentFormData.amount) <= 0) {
-      alert('Please enter a valid payment amount');
-      return;
+      errors.amount = 'Please enter a valid payment amount greater than 0';
     }
-
     if (!paymentFormData.date) {
-      alert('Please select a payment date');
+      errors.date = 'Please select a payment date';
+    }
+    if (Object.keys(errors).length > 0) {
+      setPaymentFormErrors(errors);
       return;
     }
+    setPaymentFormErrors({});
 
     // Construct the new payment object
     const newPayment = {
@@ -416,17 +425,20 @@ const YearlyDistributionTable = ({
     setEditingPaymentIndex(null);
   };
 
-  // Handler to submit edited payment
+  // Handler to submit edited payment (inline validation instead of blocking alert)
   const handleSubmitEditPayment = () => {
+    const errors = {};
     if (!paymentFormData.amount || parseFloat(paymentFormData.amount) <= 0) {
-      alert('Please enter a valid payment amount');
-      return;
+      errors.amount = 'Please enter a valid payment amount greater than 0';
     }
-
     if (!paymentFormData.date) {
-      alert('Please select a payment date');
+      errors.date = 'Please select a payment date';
+    }
+    if (Object.keys(errors).length > 0) {
+      setPaymentFormErrors(errors);
       return;
     }
+    setPaymentFormErrors({});
 
     // Construct the updated payment object
     const updatedPayment = {
@@ -454,13 +466,41 @@ const YearlyDistributionTable = ({
     }
   };
 
-  // Handler to delete payment
+  // Handler to delete payment (opens ConfirmDialog instead of window.confirm)
   const handleDeletePayment = (index) => {
-    const payment = projectData.payments[index];
-    if (window.confirm(`Are you sure you want to delete Payment ${index + 1} (${formatCurrency(payment.amount)})?`)) {
-      if (onDeletePayment) {
-        onDeletePayment(index);
-      }
+    setDeletePaymentConfirmIndex(index);
+  };
+
+  const confirmDeletePayment = () => {
+    if (deletePaymentConfirmIndex === null) return;
+    const payment = projectData.payments[deletePaymentConfirmIndex];
+    if (onDeletePayment) {
+      onDeletePayment(deletePaymentConfirmIndex);
+      showSuccess(`Deleted Payment ${deletePaymentConfirmIndex + 1} (${formatCurrency(payment?.amount || 0)})`);
+    }
+    setDeletePaymentConfirmIndex(null);
+  };
+
+  // Shared inline distribution validator (Fix 6: inline feedback, never alert())
+  const handleInlineAmountChange = (field, rawValue, maxAmount) => {
+    const v = parseInt(rawValue, 10) || 0;
+    const updated = { ...inlineEditData, [field]: v };
+    const proposed =
+      (updated.profitAmount || 0) +
+      (updated.drawingAmount || 0) +
+      (updated.documentsAmount || 0) +
+      (updated.siteVisitAmount || 0) +
+      (updated.marketingAmount || 0) +
+      (updated.officeAmount || 0);
+
+    setInlineEditData(updated);
+    if (maxAmount > 0 && proposed > maxAmount) {
+      setInlineDistError({
+        field,
+        message: `Total ₹${proposed.toLocaleString('en-IN')} exceeds ₹${maxAmount.toLocaleString('en-IN')}`
+      });
+    } else {
+      setInlineDistError({ field: '', message: '' });
     }
   };
 
@@ -1382,19 +1422,12 @@ const YearlyDistributionTable = ({
                           <input 
                             type="number" 
                             value={inlineEditData.profitAmount}
-                            onChange={(e) => {
-                              const v = parseInt(e.target.value) || 0;
-                              const proposed = v + (inlineEditData.drawingAmount||0) + (inlineEditData.documentsAmount||0) + (inlineEditData.siteVisitAmount||0) + (inlineEditData.marketingAmount||0) + (inlineEditData.officeAmount||0);
-                              if (inlineAmountAfterAssoc > 0 && proposed > inlineAmountAfterAssoc) {
-                                alert(`⚠️ Total distribution (₹${proposed.toLocaleString('en-IN')}) exceeds amount after associate share (₹${inlineAmountAfterAssoc.toLocaleString('en-IN')}). Adjust percentages properly.`);
-                                return;
-                              }
-                              setInlineEditData({...inlineEditData, profitAmount: v});
-                            }}
-                            style={{ width: '100%', padding: '6px', textAlign: 'right', border: '2px solid #3b82f6', borderRadius: '4px', fontSize: '14px' }}
+                            onChange={(e) => handleInlineAmountChange('profitAmount', e.target.value, inlineAmountAfterAssoc)}
+                            className={`ydt-inline-input ${inlineDistError.field === 'profitAmount' ? 'ydt-input-error' : ''}`}
                             min="0"
                           />
-                          {inlineAmountAfterAssoc > 0 && <div style={{fontSize:'10px',color:'#2563eb',textAlign:'right',marginTop:'2px'}}>{((inlineEditData.profitAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                          {inlineAmountAfterAssoc > 0 && <div className="ydt-inline-pct">{((inlineEditData.profitAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                          {inlineDistError.field === 'profitAmount' && <div className="ydt-inline-error">{inlineDistError.message}</div>}
                         </div>
                       ) : (
                         displayProfitAmount.toLocaleString('en-IN')
@@ -1408,19 +1441,12 @@ const YearlyDistributionTable = ({
                           <input 
                             type="number" 
                             value={inlineEditData.drawingAmount}
-                            onChange={(e) => {
-                              const v = parseInt(e.target.value) || 0;
-                              const proposed = (inlineEditData.profitAmount||0) + v + (inlineEditData.documentsAmount||0) + (inlineEditData.siteVisitAmount||0) + (inlineEditData.marketingAmount||0) + (inlineEditData.officeAmount||0);
-                              if (inlineAmountAfterAssoc > 0 && proposed > inlineAmountAfterAssoc) {
-                                alert(`⚠️ Total distribution (₹${proposed.toLocaleString('en-IN')}) exceeds amount after associate share (₹${inlineAmountAfterAssoc.toLocaleString('en-IN')}). Adjust percentages properly.`);
-                                return;
-                              }
-                              setInlineEditData({...inlineEditData, drawingAmount: v});
-                            }}
-                            style={{ width: '100%', padding: '6px', textAlign: 'right', border: '2px solid #3b82f6', borderRadius: '4px', fontSize: '14px' }}
+                            onChange={(e) => handleInlineAmountChange('drawingAmount', e.target.value, inlineAmountAfterAssoc)}
+                            className={`ydt-inline-input ${inlineDistError.field === 'drawingAmount' ? 'ydt-input-error' : ''}`}
                             min="0"
                           />
-                          {inlineAmountAfterAssoc > 0 && <div style={{fontSize:'10px',color:'#2563eb',textAlign:'right',marginTop:'2px'}}>{((inlineEditData.drawingAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                          {inlineAmountAfterAssoc > 0 && <div className="ydt-inline-pct">{((inlineEditData.drawingAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                          {inlineDistError.field === 'drawingAmount' && <div className="ydt-inline-error">{inlineDistError.message}</div>}
                         </div>
                       ) : (
                         displayDrawingAmount.toLocaleString('en-IN')
@@ -1434,19 +1460,12 @@ const YearlyDistributionTable = ({
                           <input 
                             type="number" 
                             value={inlineEditData.documentsAmount}
-                            onChange={(e) => {
-                              const v = parseInt(e.target.value) || 0;
-                              const proposed = (inlineEditData.profitAmount||0) + (inlineEditData.drawingAmount||0) + v + (inlineEditData.siteVisitAmount||0) + (inlineEditData.marketingAmount||0) + (inlineEditData.officeAmount||0);
-                              if (inlineAmountAfterAssoc > 0 && proposed > inlineAmountAfterAssoc) {
-                                alert(`⚠️ Total distribution (₹${proposed.toLocaleString('en-IN')}) exceeds amount after associate share (₹${inlineAmountAfterAssoc.toLocaleString('en-IN')}). Adjust percentages properly.`);
-                                return;
-                              }
-                              setInlineEditData({...inlineEditData, documentsAmount: v});
-                            }}
-                            style={{ width: '100%', padding: '6px', textAlign: 'right', border: '2px solid #3b82f6', borderRadius: '4px', fontSize: '14px' }}
+                            onChange={(e) => handleInlineAmountChange('documentsAmount', e.target.value, inlineAmountAfterAssoc)}
+                            className={`ydt-inline-input ${inlineDistError.field === 'documentsAmount' ? 'ydt-input-error' : ''}`}
                             min="0"
                           />
-                          {inlineAmountAfterAssoc > 0 && <div style={{fontSize:'10px',color:'#2563eb',textAlign:'right',marginTop:'2px'}}>{((inlineEditData.documentsAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                          {inlineAmountAfterAssoc > 0 && <div className="ydt-inline-pct">{((inlineEditData.documentsAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                          {inlineDistError.field === 'documentsAmount' && <div className="ydt-inline-error">{inlineDistError.message}</div>}
                         </div>
                       ) : (
                         displayDocumentsAmount > 0 ? displayDocumentsAmount.toLocaleString('en-IN') : '-'
@@ -1460,19 +1479,12 @@ const YearlyDistributionTable = ({
                           <input 
                             type="number" 
                             value={inlineEditData.siteVisitAmount}
-                            onChange={(e) => {
-                              const v = parseInt(e.target.value) || 0;
-                              const proposed = (inlineEditData.profitAmount||0) + (inlineEditData.drawingAmount||0) + (inlineEditData.documentsAmount||0) + v + (inlineEditData.marketingAmount||0) + (inlineEditData.officeAmount||0);
-                              if (inlineAmountAfterAssoc > 0 && proposed > inlineAmountAfterAssoc) {
-                                alert(`⚠️ Total distribution (₹${proposed.toLocaleString('en-IN')}) exceeds amount after associate share (₹${inlineAmountAfterAssoc.toLocaleString('en-IN')}). Adjust percentages properly.`);
-                                return;
-                              }
-                              setInlineEditData({...inlineEditData, siteVisitAmount: v});
-                            }}
-                            style={{ width: '100%', padding: '6px', textAlign: 'right', border: '2px solid #3b82f6', borderRadius: '4px', fontSize: '14px' }}
+                            onChange={(e) => handleInlineAmountChange('siteVisitAmount', e.target.value, inlineAmountAfterAssoc)}
+                            className={`ydt-inline-input ${inlineDistError.field === 'siteVisitAmount' ? 'ydt-input-error' : ''}`}
                             min="0"
                           />
-                          {inlineAmountAfterAssoc > 0 && <div style={{fontSize:'10px',color:'#2563eb',textAlign:'right',marginTop:'2px'}}>{((inlineEditData.siteVisitAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                          {inlineAmountAfterAssoc > 0 && <div className="ydt-inline-pct">{((inlineEditData.siteVisitAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                          {inlineDistError.field === 'siteVisitAmount' && <div className="ydt-inline-error">{inlineDistError.message}</div>}
                         </div>
                       ) : (
                         displaySiteVisitAmount.toLocaleString('en-IN')
@@ -1486,19 +1498,12 @@ const YearlyDistributionTable = ({
                           <input 
                             type="number" 
                             value={inlineEditData.marketingAmount}
-                            onChange={(e) => {
-                              const v = parseInt(e.target.value) || 0;
-                              const proposed = (inlineEditData.profitAmount||0) + (inlineEditData.drawingAmount||0) + (inlineEditData.documentsAmount||0) + (inlineEditData.siteVisitAmount||0) + v + (inlineEditData.officeAmount||0);
-                              if (inlineAmountAfterAssoc > 0 && proposed > inlineAmountAfterAssoc) {
-                                alert(`⚠️ Total distribution (₹${proposed.toLocaleString('en-IN')}) exceeds amount after associate share (₹${inlineAmountAfterAssoc.toLocaleString('en-IN')}). Adjust percentages properly.`);
-                                return;
-                              }
-                              setInlineEditData({...inlineEditData, marketingAmount: v});
-                            }}
-                            style={{ width: '100%', padding: '6px', textAlign: 'right', border: '2px solid #3b82f6', borderRadius: '4px', fontSize: '14px' }}
+                            onChange={(e) => handleInlineAmountChange('marketingAmount', e.target.value, inlineAmountAfterAssoc)}
+                            className={`ydt-inline-input ${inlineDistError.field === 'marketingAmount' ? 'ydt-input-error' : ''}`}
                             min="0"
                           />
-                          {inlineAmountAfterAssoc > 0 && <div style={{fontSize:'10px',color:'#2563eb',textAlign:'right',marginTop:'2px'}}>{((inlineEditData.marketingAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                          {inlineAmountAfterAssoc > 0 && <div className="ydt-inline-pct">{((inlineEditData.marketingAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                          {inlineDistError.field === 'marketingAmount' && <div className="ydt-inline-error">{inlineDistError.message}</div>}
                         </div>
                       ) : (
                         displayMarketingAmount.toLocaleString('en-IN')
@@ -1512,19 +1517,12 @@ const YearlyDistributionTable = ({
                           <input 
                             type="number" 
                             value={inlineEditData.officeAmount}
-                            onChange={(e) => {
-                              const v = parseInt(e.target.value) || 0;
-                              const proposed = (inlineEditData.profitAmount||0) + (inlineEditData.drawingAmount||0) + (inlineEditData.documentsAmount||0) + (inlineEditData.siteVisitAmount||0) + (inlineEditData.marketingAmount||0) + v;
-                              if (inlineAmountAfterAssoc > 0 && proposed > inlineAmountAfterAssoc) {
-                                alert(`⚠️ Total distribution (₹${proposed.toLocaleString('en-IN')}) exceeds amount after associate share (₹${inlineAmountAfterAssoc.toLocaleString('en-IN')}). Adjust percentages properly.`);
-                                return;
-                              }
-                              setInlineEditData({...inlineEditData, officeAmount: v});
-                            }}
-                            style={{ width: '100%', padding: '6px', textAlign: 'right', border: '2px solid #3b82f6', borderRadius: '4px', fontSize: '14px' }}
+                            onChange={(e) => handleInlineAmountChange('officeAmount', e.target.value, inlineAmountAfterAssoc)}
+                            className={`ydt-inline-input ${inlineDistError.field === 'officeAmount' ? 'ydt-input-error' : ''}`}
                             min="0"
                           />
-                          {inlineAmountAfterAssoc > 0 && <div style={{fontSize:'10px',color:'#2563eb',textAlign:'right',marginTop:'2px'}}>{((inlineEditData.officeAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                          {inlineAmountAfterAssoc > 0 && <div className="ydt-inline-pct">{((inlineEditData.officeAmount / inlineAmountAfterAssoc) * 100).toFixed(1)}%</div>}
+                          {inlineDistError.field === 'officeAmount' && <div className="ydt-inline-error">{inlineDistError.message}</div>}
                         </div>
                       ) : (
                         displayOfficeAmount.toLocaleString('en-IN')
@@ -1566,23 +1564,25 @@ const YearlyDistributionTable = ({
                   })}
                   {(onEditPayment || onDeletePayment) && (
                     <td style={{ textAlign: 'center' }}>
-                      <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexDirection: 'column' }}>
+                      <div className="ydt-row-actions" style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexDirection: 'column' }}>
                         {inlineEditingIndex === index ? (
                           <>
                             {/* Save Button */}
                             <button
                               onClick={handleSaveInlineEdit}
+                              disabled={Boolean(inlineDistError.message)}
+                              aria-label="Save inline distribution"
                               style={{
-                                background: '#059669',
+                                background: inlineDistError.message ? '#9ca3af' : '#059669',
                                 color: 'white',
                                 border: 'none',
                                 borderRadius: '4px',
                                 padding: '4px 6px',
-                                cursor: 'pointer',
+                                cursor: inlineDistError.message ? 'not-allowed' : 'pointer',
                                 fontSize: '11px',
                                 fontWeight: '600'
                               }}
-                              title="Save"
+                              title={inlineDistError.message || 'Save'}
                             >
                               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <polyline points="20 6 9 17 4 12"></polyline>
@@ -1613,6 +1613,8 @@ const YearlyDistributionTable = ({
                           <>
                             {onEditPayment && (
                               <button
+                                type="button"
+                                aria-label={`Edit Payment ${index + 1}`}
                                 onClick={() => handleStartInlineEdit(index)}
                                 style={{
                                   background: '#3b82f6',
@@ -1640,6 +1642,8 @@ const YearlyDistributionTable = ({
                             )}
                             {onDeletePayment && (
                               <button
+                                type="button"
+                                aria-label={`Delete Payment ${index + 1}`}
                                 onClick={() => handleDeletePayment(index)}
                                 style={{
                                   background: '#dc2626',
@@ -2160,19 +2164,23 @@ const YearlyDistributionTable = ({
                   <input
                     type="number"
                     value={paymentFormData.amount}
-                    onChange={(e) => handlePaymentFormChange('amount', e.target.value)}
+                    onChange={(e) => {
+                      handlePaymentFormChange('amount', e.target.value);
+                      if (paymentFormErrors.amount) setPaymentFormErrors(prev => ({ ...prev, amount: '' }));
+                    }}
                     placeholder="Enter amount"
                     style={{
                       width: '100%',
                       padding: '10px 12px',
-                      border: '2px solid #d1d5db',
+                      border: `2px solid ${paymentFormErrors.amount ? '#dc2626' : '#d1d5db'}`,
                       borderRadius: '6px',
                       fontSize: '14px',
                       outline: 'none'
                     }}
-                    onFocus={(e) => e.target.style.borderColor = '#2c5282'}
-                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
                   />
+                  {paymentFormErrors.amount && (
+                    <div className="ydt-inline-error">{paymentFormErrors.amount}</div>
+                  )}
                 </div>
 
                 {/* Date Field */}
@@ -2183,18 +2191,22 @@ const YearlyDistributionTable = ({
                   <input
                     type="date"
                     value={paymentFormData.date}
-                    onChange={(e) => handlePaymentFormChange('date', e.target.value)}
+                    onChange={(e) => {
+                      handlePaymentFormChange('date', e.target.value);
+                      if (paymentFormErrors.date) setPaymentFormErrors(prev => ({ ...prev, date: '' }));
+                    }}
                     style={{
                       width: '100%',
                       padding: '10px 12px',
-                      border: '2px solid #d1d5db',
+                      border: `2px solid ${paymentFormErrors.date ? '#dc2626' : '#d1d5db'}`,
                       borderRadius: '6px',
                       fontSize: '14px',
                       outline: 'none'
                     }}
-                    onFocus={(e) => e.target.style.borderColor = '#2c5282'}
-                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
                   />
+                  {paymentFormErrors.date && (
+                    <div className="ydt-inline-error">{paymentFormErrors.date}</div>
+                  )}
                 </div>
               </div>
 
@@ -2443,19 +2455,23 @@ const YearlyDistributionTable = ({
                   <input
                     type="number"
                     value={paymentFormData.amount}
-                    onChange={(e) => handlePaymentFormChange('amount', e.target.value)}
+                    onChange={(e) => {
+                      handlePaymentFormChange('amount', e.target.value);
+                      if (paymentFormErrors.amount) setPaymentFormErrors(prev => ({ ...prev, amount: '' }));
+                    }}
                     placeholder="Enter amount"
                     style={{
                       width: '100%',
                       padding: '10px 12px',
-                      border: '2px solid #d1d5db',
+                      border: `2px solid ${paymentFormErrors.amount ? '#dc2626' : '#d1d5db'}`,
                       borderRadius: '6px',
                       fontSize: '14px',
                       outline: 'none'
                     }}
-                    onFocus={(e) => e.target.style.borderColor = '#2c5282'}
-                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
                   />
+                  {paymentFormErrors.amount && (
+                    <div className="ydt-inline-error">{paymentFormErrors.amount}</div>
+                  )}
                 </div>
 
                 {/* Date Field */}
@@ -2466,18 +2482,22 @@ const YearlyDistributionTable = ({
                   <input
                     type="date"
                     value={paymentFormData.date}
-                    onChange={(e) => handlePaymentFormChange('date', e.target.value)}
+                    onChange={(e) => {
+                      handlePaymentFormChange('date', e.target.value);
+                      if (paymentFormErrors.date) setPaymentFormErrors(prev => ({ ...prev, date: '' }));
+                    }}
                     style={{
                       width: '100%',
                       padding: '10px 12px',
-                      border: '2px solid #d1d5db',
+                      border: `2px solid ${paymentFormErrors.date ? '#dc2626' : '#d1d5db'}`,
                       borderRadius: '6px',
                       fontSize: '14px',
                       outline: 'none'
                     }}
-                    onFocus={(e) => e.target.style.borderColor = '#2c5282'}
-                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
                   />
+                  {paymentFormErrors.date && (
+                    <div className="ydt-inline-error">{paymentFormErrors.date}</div>
+                  )}
                 </div>
               </div>
 
@@ -2665,6 +2685,19 @@ const YearlyDistributionTable = ({
           </div>
         </div>
       )}
+      <ConfirmDialog
+        isOpen={deletePaymentConfirmIndex !== null}
+        onClose={() => setDeletePaymentConfirmIndex(null)}
+        onConfirm={confirmDeletePayment}
+        title="Delete Payment Entry"
+        message={
+          deletePaymentConfirmIndex !== null && projectData.payments?.[deletePaymentConfirmIndex]
+            ? `Are you sure you want to delete Payment ${deletePaymentConfirmIndex + 1} (${formatCurrency(projectData.payments[deletePaymentConfirmIndex].amount)})? This will recalculate project distributions.`
+            : 'Are you sure you want to delete this payment?'
+        }
+        confirmText="Delete Payment"
+        type="danger"
+      />
     </div>
   );
 };
