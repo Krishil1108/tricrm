@@ -3,6 +3,7 @@ import { FiActivity, FiAlertCircle, FiAlertTriangle, FiCheckCircle } from 'react
 import { useCompany } from './CompanyContext';
 import { useAuth } from './contexts/AuthContext';
 import Watermark from './components/Watermark';
+import useUnsavedChanges from './hooks/useUnsavedChanges';
 import './PageContent.css';
 import './SettingsPage.css';
 import API_BASE_URL from './config/api';
@@ -13,6 +14,8 @@ const SettingsPage = () => {
   const [activeSection, setActiveSection] = useState('profile');
   const [saved, setSaved] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  const [isDirty, setIsDirty] = useState(false);
+  useUnsavedChanges(isDirty, 'You have unsaved settings changes. Leave without saving?');
 
   // User Profile State - populated dynamically from AuthContext and localStorage
   const [userProfile, setUserProfile] = useState(() => {

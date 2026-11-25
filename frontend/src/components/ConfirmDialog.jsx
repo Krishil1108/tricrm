@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { FiAlertTriangle, FiCheck, FiHelpCircle, FiInfo, FiZap } from 'react-icons/fi';
 import './ConfirmDialog.css';
 
@@ -75,6 +76,17 @@ const ConfirmDialog = ({
       </div>
     </div>
   );
+};
+
+ConfirmDialog.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  title: PropTypes.string,
+  message: PropTypes.node,
+  confirmText: PropTypes.string,
+  cancelText: PropTypes.string,
+  type: PropTypes.oneOf(['warning', 'danger', 'info', 'success'])
 };
 
 export default ConfirmDialog;

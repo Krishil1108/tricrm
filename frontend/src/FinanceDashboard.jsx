@@ -12,6 +12,7 @@ import { useAuth } from './contexts/AuthContext';
 import './FinanceDashboard.css';
 import Watermark from './components/Watermark';
 import CommonPagination from './components/common/Pagination';
+import TableSkeleton from './components/common/TableSkeleton';
 
 // ─── Utility helpers ──────────────────────────────────────────────────────────
 const fmt = (v) =>
@@ -269,9 +270,8 @@ const FinanceDashboard = () => {
   // ── Render ────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="fd-loading-wrap">
-        <div className="fd-spinner" />
-        <p className="fd-loading-text">Loading financial data…</p>
+      <div className="fd-wrapper">
+        <TableSkeleton rows={8} />
       </div>
     );
   }

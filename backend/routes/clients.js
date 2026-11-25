@@ -4,6 +4,7 @@ const Client = require('../models/Client');
 const FinanceProject = require('../models/FinanceProject');
 const Activity = require('../models/Activity');
 const { sendSuccess, sendError } = require('../utils/apiResponse');
+const logger = require('../utils/logger');
 
 // GET /api/clients - Get all clients with project counts & server-side pagination
 router.get('/', async (req, res) => {

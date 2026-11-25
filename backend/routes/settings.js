@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const CompanySettings = require('../models/CompanySettings');
+const logger = require('../utils/logger');
 
 // GET /api/settings - Get company settings (returns existing or creates default)
 router.get('/', async (req, res) => {
@@ -14,7 +15,7 @@ router.get('/', async (req, res) => {
       data: settings
     });
   } catch (error) {
-    console.error('Error fetching company settings:', error);
+    logger.error({ route: 'GET /api/settings', error: error.message });
     return res.status(500).json({
       success: false,
       message: 'Failed to fetch company settings',

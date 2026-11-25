@@ -17,6 +17,8 @@ import YearlyDistributionTable from './components/YearlyDistributionTable';
 import ConfirmDialog from './components/ConfirmDialog';
 import { dataEventManager, DATA_TYPES } from './services/dataEventManager';
 import Watermark from './components/Watermark';
+import TableSkeleton from './components/common/TableSkeleton';
+import useUnsavedChanges from './hooks/useUnsavedChanges';
 import useSortableData from './utils/useSortableData';
 
 const ProjectPage = () => {
@@ -45,6 +47,7 @@ const ProjectPage = () => {
   const [expenses, setExpenses] = useState([]);
   const [stats, setStats] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  useUnsavedChanges(showModal, 'You have a project form open. Are you sure you want to leave?');
   const [editingItem, setEditingItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
@@ -1160,11 +1163,7 @@ const ProjectPage = () => {
 
   return (
     <div className="project-page">
-      {loading && (
-        <div className="loading-message">
-          <div className="loading-spinner" aria-hidden="true"></div>
-        </div>
-      )}
+      {loading && <TableSkeleton rows={8} />}
       
       <div className="modern-page-header">
         <div className="header-content-enhanced">

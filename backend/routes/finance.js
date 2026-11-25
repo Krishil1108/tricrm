@@ -999,11 +999,25 @@ router.get('/overview', authenticate, cacheMiddleware(60), async (req, res) => {
     });
     const associates = [...assocMap.values()].sort((a, b) => a.name.localeCompare(b.name));
 
+    const isPaginated = req.query.page !== undefined || req.query.limit !== undefined;
+    const pageNum = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limitNum = Math.max(1, parseInt(req.query.limit, 10) || 50);
+    const totalCount = enrichedProjects.length;
+    const pagedProjects = isPaginated
+      ? enrichedProjects.slice((pageNum - 1) * limitNum, pageNum * limitNum)
+      : enrichedProjects;
+
     res.json({
       success: true,
       data: {
-        projects: enrichedProjects,
+        projects: pagedProjects,
         summary,
+        pagination: {
+          total: totalCount,
+          page: pageNum,
+          limit: isPaginated ? limitNum : totalCount,
+          totalPages: isPaginated ? Math.ceil(totalCount / limitNum) : 1
+        },
         filterOptions: {
           financialYears: [...fySet].sort().reverse(),
           clients,

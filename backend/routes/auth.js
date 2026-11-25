@@ -66,8 +66,9 @@ router.post('/login', authLimiter, auditLog('LOGIN', 'User'), [
     user.lastLogin = new Date();
     await user.save();
 
-    // Generate token
-    const token = generateToken(user._id);
+    // Generate token (30d when Remember Me is selected, otherwise default)
+    const expiresIn = req.body.rememberMe ? '30d' : undefined;
+    const token = generateToken(user._id, expiresIn);
 
     // Return user data without password
     const userData = user.toJSON();

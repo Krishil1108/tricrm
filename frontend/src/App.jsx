@@ -11,6 +11,7 @@ import { ToastProvider } from './context/ToastContext';
 import ProtectedRoute from './ProtectedRoute';
 import PublicRoute from './PublicRoute';
 import DefaultRoute from './DefaultRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // QueryClient instance for @tanstack/react-query (used in FinanceDashboard and elsewhere)
 const queryClient = new QueryClient({
@@ -70,6 +71,7 @@ function App() {
   };
 
   return (
+    <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
     <Router>
       <AuthProvider>
@@ -267,6 +269,7 @@ function App() {
     </AuthProvider>
     </Router>
     </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

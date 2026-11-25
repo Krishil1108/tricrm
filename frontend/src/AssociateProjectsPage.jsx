@@ -41,6 +41,7 @@ const AssociateProjectsPage = () => {
   });
   const [activeView, setActiveView] = useState('owner'); // 'owner' or 'associate'
   const [availableFYs, setAvailableFYs] = useState([]); // Store available financial years
+  const [expandedPayoutProjectId, setExpandedPayoutProjectId] = useState(null);
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -1303,11 +1304,31 @@ const AssociateProjectsPage = () => {
                     const pendingAmount = associateAmount - amountPaid;
                     
                     return (
-                      <tr key={project._id}>
+                      <React.Fragment key={project._id}>
+                      <tr>
                         <td>{project.projectNumber}</td>
                         <td>
                           <div className="project-name">
                             <strong>{project.projectName}</strong>
+                            {fyPayments.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => setExpandedPayoutProjectId(prev => prev === project._id ? null : project._id)}
+                                style={{
+                                  marginLeft: '8px',
+                                  fontSize: '0.72rem',
+                                  padding: '2px 7px',
+                                  borderRadius: '10px',
+                                  border: '1px solid #cbd5e1',
+                                  background: expandedPayoutProjectId === project._id ? '#eff6ff' : '#f8fafc',
+                                  color: '#2563eb',
+                                  cursor: 'pointer'
+                                }}
+                                title="Toggle partial payout stages"
+                              >
+                                {fyPayments.length} stage{fyPayments.length > 1 ? 's' : ''} {expandedPayoutProjectId === project._id ? '▲' : '▼'}
+                              </button>
+                            )}
                           </div>
                         </td>
                         <td style={{ 
@@ -1364,6 +1385,38 @@ const AssociateProjectsPage = () => {
                           </div>
                         </td>
                       </tr>
+                      {expandedPayoutProjectId === project._id && (
+                        <tr className="payout-stages-row">
+                          <td colSpan={9} style={{ background: 'var(--hover-bg, #f8fafc)', padding: '12px 20px' }}>
+                            <div style={{ fontSize: '0.84rem', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary, #1e293b)' }}>
+                              Partial Payout Stages ({fyPayments.length}) — Pending Balance: {formatCurrency(pendingAmount)}
+                            </div>
+                            <table style={{ width: '100%', fontSize: '0.82rem', borderCollapse: 'collapse' }}>
+                              <thead>
+                                <tr style={{ borderBottom: '1px solid var(--border-color, #e2e8f0)', textAlign: 'left' }}>
+                                  <th style={{ padding: '6px 8px' }}>Stage</th>
+                                  <th style={{ padding: '6px 8px' }}>Payment Date</th>
+                                  <th style={{ padding: '6px 8px' }}>Amount</th>
+                                  <th style={{ padding: '6px 8px' }}>Mode</th>
+                                  <th style={{ padding: '6px 8px' }}>Remarks</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {fyPayments.map((pay, pIdx) => (
+                                  <tr key={pIdx} style={{ borderBottom: '1px solid var(--border-color, #f1f5f9)' }}>
+                                    <td style={{ padding: '6px 8px' }}>#{pIdx + 1}</td>
+                                    <td style={{ padding: '6px 8px' }}>{pay.date ? new Date(pay.date).toLocaleDateString('en-IN') : '—'}</td>
+                                    <td style={{ padding: '6px 8px', fontWeight: 600, color: '#059669' }}>{formatCurrency(pay.amount || 0)}</td>
+                                    <td style={{ padding: '6px 8px' }}>{pay.paymentMode || 'Bank Transfer'}</td>
+                                    <td style={{ padding: '6px 8px' }}>{pay.notes || '—'}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                      )}
+                      </React.Fragment>
                     );
                   })}
                 </tbody>
@@ -1516,11 +1569,31 @@ const AssociateProjectsPage = () => {
                     const paymentStatus = pendingAmount === 0 ? 'Completed' : amountPaid > 0 ? 'Partial' : 'Pending';
                     
                     return (
-                      <tr key={project._id}>
+                      <React.Fragment key={project._id}>
+                      <tr>
                         <td>{project.projectNumber}</td>
                         <td>
                           <div className="project-name">
                             <strong>{project.projectName}</strong>
+                            {fyPayments.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => setExpandedPayoutProjectId(prev => prev === project._id ? null : project._id)}
+                                style={{
+                                  marginLeft: '8px',
+                                  fontSize: '0.72rem',
+                                  padding: '2px 7px',
+                                  borderRadius: '10px',
+                                  border: '1px solid #cbd5e1',
+                                  background: expandedPayoutProjectId === project._id ? '#eff6ff' : '#f8fafc',
+                                  color: '#2563eb',
+                                  cursor: 'pointer'
+                                }}
+                                title="Toggle partial payout stages"
+                              >
+                                {fyPayments.length} stage{fyPayments.length > 1 ? 's' : ''} {expandedPayoutProjectId === project._id ? '▲' : '▼'}
+                              </button>
+                            )}
                           </div>
                         </td>
                         <td>
@@ -1556,6 +1629,38 @@ const AssociateProjectsPage = () => {
                           </div>
                         </td>
                       </tr>
+                      {expandedPayoutProjectId === project._id && (
+                        <tr className="payout-stages-row">
+                          <td colSpan={9} style={{ background: 'var(--hover-bg, #f8fafc)', padding: '12px 20px' }}>
+                            <div style={{ fontSize: '0.84rem', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary, #1e293b)' }}>
+                              Partial Payout Stages ({fyPayments.length}) — Pending Balance: {formatCurrency(pendingAmount)}
+                            </div>
+                            <table style={{ width: '100%', fontSize: '0.82rem', borderCollapse: 'collapse' }}>
+                              <thead>
+                                <tr style={{ borderBottom: '1px solid var(--border-color, #e2e8f0)', textAlign: 'left' }}>
+                                  <th style={{ padding: '6px 8px' }}>Stage</th>
+                                  <th style={{ padding: '6px 8px' }}>Payment Date</th>
+                                  <th style={{ padding: '6px 8px' }}>Amount</th>
+                                  <th style={{ padding: '6px 8px' }}>Mode</th>
+                                  <th style={{ padding: '6px 8px' }}>Remarks</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {fyPayments.map((pay, pIdx) => (
+                                  <tr key={pIdx} style={{ borderBottom: '1px solid var(--border-color, #f1f5f9)' }}>
+                                    <td style={{ padding: '6px 8px' }}>#{pIdx + 1}</td>
+                                    <td style={{ padding: '6px 8px' }}>{pay.date ? new Date(pay.date).toLocaleDateString('en-IN') : '—'}</td>
+                                    <td style={{ padding: '6px 8px', fontWeight: 600, color: '#059669' }}>{formatCurrency(pay.amount || 0)}</td>
+                                    <td style={{ padding: '6px 8px' }}>{pay.paymentMode || 'Bank Transfer'}</td>
+                                    <td style={{ padding: '6px 8px' }}>{pay.notes || '—'}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                      )}
+                      </React.Fragment>
                     );
                   })}
                 </tbody>

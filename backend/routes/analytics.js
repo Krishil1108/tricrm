@@ -54,9 +54,10 @@ router.get('/debug-routes', allowDebugEndpoint, (req, res) => {
 const { cacheMiddleware } = require('../utils/cache');
 
 // Filter options (cached 120s)
-router.get('/filter-options/clients',   cacheMiddleware(120, 'analytics_filters'), analyticsController.getClientOptions);
-router.get('/filter-options/projects',  cacheMiddleware(120, 'analytics_filters'), analyticsController.getProjectOptions);
-router.get('/filter-options/associates',cacheMiddleware(120, 'analytics_filters'), analyticsController.getAssociateOptions);
+router.get('/filter-options',            cacheMiddleware(120, 'analytics_filters'), analyticsController.getCombinedFilterOptions);
+router.get('/filter-options/clients',    cacheMiddleware(120, 'analytics_filters'), analyticsController.getClientOptions);
+router.get('/filter-options/projects',   cacheMiddleware(120, 'analytics_filters'), analyticsController.getProjectOptions);
+router.get('/filter-options/associates', cacheMiddleware(120, 'analytics_filters'), analyticsController.getAssociateOptions);
 
 // Main dashboard data (cached 30s)
 router.get('/dashboard',         cacheMiddleware(30, 'analytics_dashboard'), analyticsController.getDashboardData);

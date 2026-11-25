@@ -36,7 +36,7 @@ function LoginPage() {
     setLoading(true);
 
     try {
-      const result = await login(username, password);
+      const result = await login(username, password, remember);
 
       if (result.success) {
         if (remember) {

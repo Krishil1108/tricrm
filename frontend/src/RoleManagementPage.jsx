@@ -763,11 +763,16 @@ const RoleManagementPage = () => {
                     </label>
                     <input
                       type="text"
-                      className="role-input"
+                      className={`role-input ${!formData.name.trim() ? 'input-invalid' : ''}`}
                       value={formData.name}
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                       placeholder="e.g. Treasurer, Regional Manager, Financial Auditor"
                     />
+                    {!formData.name.trim() && (
+                      <small style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '4px', display: 'block' }}>
+                        Role name is required
+                      </small>
+                    )}
                   </div>
                   
                   <div className="form-group flex-2">
@@ -825,6 +830,39 @@ const RoleManagementPage = () => {
                         style={{ width: `${totalPermissionStats.percentage}%` }}
                       ></div>
                     </div>
+                  </div>
+                </div>
+
+                {/* Live Permission Preview Pane (ENH-11) */}
+                <div
+                  style={{
+                    marginTop: '12px',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-color, #e2e8f0)',
+                    background: 'var(--hover-bg, #f8fafc)',
+                    fontSize: '0.82rem'
+                  }}
+                >
+                  <div style={{ fontWeight: 600, marginBottom: '6px', color: 'var(--text-primary, #1e293b)' }}>
+                    Live Access Preview for "{formData.name || 'New Role'}":
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {Object.entries(formData.permissions?.modules || {}).map(([mod, enabled]) => (
+                      <span
+                        key={mod}
+                        style={{
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          background: enabled ? 'rgba(16, 185, 129, 0.14)' : 'rgba(148, 163, 184, 0.14)',
+                          color: enabled ? '#059669' : '#64748b'
+                        }}
+                      >
+                        {enabled ? '✓' : '✕'} {mod.replace(/_/g, ' ')}
+                      </span>
+                    ))}
                   </div>
                 </div>
 

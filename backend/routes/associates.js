@@ -4,6 +4,7 @@ const Associate = require('../models/Associate');
 const FinanceProject = require('../models/FinanceProject');
 const Activity = require('../models/Activity');
 const { sendSuccess, sendError } = require('../utils/apiResponse');
+const logger = require('../utils/logger');
 
 // GET /api/associates - Get all associates with project counts & pagination
 router.get('/', async (req, res) => {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { FaCheckCircle, FaExclamationTriangle, FaInfoCircle, FaTimes, FaTimesCircle } from 'react-icons/fa';
 import './Toast.css';
 
@@ -67,6 +68,14 @@ const Toast = ({ message, type = 'info', duration = 5000, onClose, show }) => {
       </button>
     </div>
   );
+};
+
+Toast.propTypes = {
+  message: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(['success', 'error', 'warning', 'info']),
+  duration: PropTypes.number,
+  onClose: PropTypes.func,
+  show: PropTypes.bool
 };
 
 export default Toast;

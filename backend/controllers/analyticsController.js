@@ -40,6 +40,26 @@ class AnalyticsController {
     }
   }
 
+  // Combined filter options endpoint (clients, projects, associates in 1 call)
+  async getCombinedFilterOptions(req, res) {
+    try {
+      const [clients, projects, associates] = await Promise.all([
+        analyticsService.getClientOptions(),
+        analyticsService.getProjectOptions(),
+        analyticsService.getAssociateOptions()
+      ]);
+      res.json({
+        success: true,
+        clients: Array.isArray(clients) ? clients : [],
+        projects: Array.isArray(projects) ? projects : [],
+        associates: Array.isArray(associates) ? associates : []
+      });
+    } catch (error) {
+      console.error('Error fetching combined filter options:', error);
+      res.status(500).json({ success: false, error: 'Failed to fetch filter options' });
+    }
+  }
+
   // Main dashboard data
   async getDashboardData(req, res) {
     try {

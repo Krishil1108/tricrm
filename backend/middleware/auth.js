@@ -13,9 +13,9 @@ if (!JWT_SECRET || JWT_SECRET === 'your-secret-key-change-this-in-production' ||
 // Use 8h expiry - short enough to limit damage from stolen tokens
 const JWT_EXPIRE = process.env.JWT_EXPIRE || '8h';
 
-// Generate JWT Token
-const generateToken = (userId) => {
-  return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: JWT_EXPIRE });
+// Generate JWT Token (supports custom expiry e.g. 30d for Remember Me)
+const generateToken = (userId, expiresIn = JWT_EXPIRE) => {
+  return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn });
 };
 
 // Verify JWT Token and authenticate user
